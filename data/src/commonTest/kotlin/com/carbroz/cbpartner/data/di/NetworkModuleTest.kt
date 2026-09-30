@@ -8,7 +8,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import org.koin.core.context.koinApplication
-import org.koin.core.parameter.parametersOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
