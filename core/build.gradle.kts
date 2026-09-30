@@ -10,5 +10,9 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kermit)
         }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinx.coroutines.test)
+        }
     }
 }
