@@ -51,15 +51,13 @@ data class FeatureConfigDto(
 @Serializable
 data class StartupConfigDto(
     val authenticated: Boolean?,
-    val nextScreen: NextScreenConfigDto?,
+    val destination: DynamicDestinationDto?,
 )
 
 @Serializable
-data class NextScreenConfigDto(
+data class DynamicDestinationDto(
     val screenId: String?,
     val templateId: String?,
     val templateType: String?,
     val endpoint: String?,
-    val method: String?,
-    val authentication: String?,
 )
