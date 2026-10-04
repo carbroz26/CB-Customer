@@ -9,35 +9,40 @@ DYNAMIC-01 → DYNAMIC-07 discussion remains frozen. This document records what 
 
 - Splash and Bootstrap are one startup flow.
 - Bootstrap Option B is the required implementation boundary.
-- `DynamicDestination` is the single canonical destination for Bootstrap `nextScreen`, Dynamic API destinations and Dynamic action destinations.
-- `StartupConfig`, `NextScreenConfig`, and standalone `BootstrapConfig` are legacy domain artifacts and must not remain as parallel contracts.
+- `DynamicDestination` is the single canonical destination for Bootstrap `nextScreen`, Dynamic response destinations and Dynamic `navigate` actions.
+- `DynamicDestination` is a shared domain model under `domain.model`, not a Dynamic-specific or Bootstrap-specific model.
+- `DynamicNextScreen` is not a domain model.
+- Dynamic response `nextScreen` belongs inside response `data`; it is not a root-level response field.
+- `StartupConfig`, `NextScreenConfig`, and standalone `BootstrapConfig` remain legacy Bootstrap artifacts until the Bootstrap model cleanup is completed.
 - Dynamic feature use cases remain feature orchestration; they are not moved into top-level `:domain`.
 - Network errors are classified by actual HTTP/transport/protocol cause rather than collapsed into `UnknownException`.
 
 Final reconciliation record: `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md`.
 
-## 2. Verified implementation baseline
+## 2. Last verified JVM baseline
 
-The owner ran on 2026-10-04:
+The owner ran on 2026-10-04 before the latest shared-destination/model refactor:
 
-```powershell
-.\gradlew.bat :network:compileKotlinJvm
-.\gradlew.bat :data:compileKotlinJvm
-.\gradlew.bat :feature:splash:compileKotlinJvm
-.\gradlew.bat :feature:dynamic:compileKotlinJvm
-.\gradlew.bat :app:compileKotlinJvm
+```text
+:domain:compileKotlinJvm
+:data:compileKotlinJvm
+:feature:splash:compileKotlinJvm
+:feature:dynamic:compileKotlinJvm
+:app:compileKotlinJvm
 
-.\gradlew.bat :network:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
+:data:jvmTest
+:domain:jvmTest
+:feature:splash:jvmTest
+:feature:dynamic:jvmTest
 ```
 
 Result:
 
 ```text
 BUILD SUCCESSFUL
-54 actionable tasks: 15 executed, 39 up-to-date
 ```
 
-This confirms the current JVM baseline only.
+This confirms the previous JVM baseline only. The latest model changes must be rerun locally before being considered verified.
 
 ## 3. Implemented areas
 
@@ -47,6 +52,7 @@ This confirms the current JVM baseline only.
 - `ApplicationContent.kt` composes Splash and Dynamic.
 - `DynamicNavigationState` owns the Dynamic destination stack.
 - `DynamicContainer` is the permanent Dynamic rendering host.
+- `DynamicDestination` is now a shared domain model.
 
 ### Dynamic Store / feature orchestration
 
@@ -67,14 +73,17 @@ This confirms the current JVM baseline only.
 - `DynamicRemoteDataSource` exists.
 - Dynamic DTO/model and mapper exist.
 - Shared `:network` Ktor/RequestHandler infrastructure exists.
+- Dynamic response mapping now places `nextScreen` inside `DynamicScreen.data` and maps it directly to the shared `DynamicDestination`.
+- `DynamicNextScreenDto` / `DynamicNextScreen` have been removed in favor of the shared destination contract.
 
 ### Bootstrap baseline
 
 - Bootstrap API contract is known.
-- Bootstrap mapping to the canonical destination has been implemented/tested at the current baseline.
-- Bootstrap tests are green at the current JVM baseline.
+- Bootstrap mapping to the canonical destination exists.
+- Bootstrap repository/data-source structure exists in source.
+- Bootstrap tests exist and were green in the last owner-provided JVM run.
 
-## 4. Bootstrap implementation gap — NEXT
+## 4. Current Bootstrap implementation gap — NEXT
 
 The source still requires final Option B reconciliation.
 
@@ -95,33 +104,41 @@ RequestHandler
 Required changes:
 
 1. Remove/rework `DefaultApplicationBootstrap` so it is not a direct HTTP implementation.
-2. Implement/verify `BootstrapRepository` as the domain repository contract.
-3. Implement/verify `BootstrapRepositoryImpl` as the data orchestration layer.
-4. Implement/verify `BootstrapRemoteDataSource` as the Bootstrap transport boundary.
-5. Keep DTO → domain conversion in `BootstrapMapper`.
-6. Remove legacy `StartupConfig`, `NextScreenConfig`, and standalone `BootstrapConfig` domain contracts.
-7. Keep exactly one production Bootstrap HTTP path.
-8. Update Bootstrap DI and tests.
+2. Complete the canonical Bootstrap domain result model.
+3. Remove legacy `StartupConfig`, `NextScreenConfig`, and standalone `BootstrapConfig` domain contracts.
+4. Keep DTO → domain conversion in `BootstrapMapper`.
+5. Keep exactly one production Bootstrap HTTP path.
+6. Update Bootstrap DI and tests after the model cleanup.
 
-## 5. Canonical destination gap check
+## 5. Canonical destination / response-data status
 
-The final model is:
+The canonical runtime relationship is now:
 
 ```text
-Bootstrap nextScreen ───────┐
-Dynamic API nextScreen ─────┼──→ DynamicDestination
-Dynamic action destination ─┘
+Bootstrap response data.startup.nextScreen ──┐
+Dynamic response data.nextScreen ────────────┼──→ DynamicDestination
+Dynamic navigate action payload ─────────────┘
 ```
 
-No separate destination models or navigation implementations are authorized.
+This is one destination concept and one navigation mechanism. The three lines are inputs, not separate destination systems.
 
-Required verification:
+The Dynamic response contract is now:
 
-- Bootstrap creates `DynamicDestination`.
-- Dynamic response destination creates the same type.
-- `navigate` action creates the same type.
-- Push/replace/pop/back operate on the same stack entry type.
-- `templateType` never decides business navigation.
+```text
+DynamicResponse
+  └── data: DynamicScreen
+        └── nextScreen: DynamicDestination?
+```
+
+Arbitrary non-screen response data remains in `DynamicResponse.dataPayload`.
+
+Remaining verification:
+
+- [ ] Compile all affected modules after latest model refactor.
+- [ ] Run Dynamic mapper tests.
+- [ ] Verify action-request navigation reads `response.data.nextScreen`.
+- [ ] Verify Bootstrap and Dynamic destinations use the exact same domain type.
+- [ ] Verify push/replace/pop/back operate on the same destination stack.
 
 ## 6. Domain / feature package cleanup
 
@@ -161,26 +178,15 @@ UnknownNetworkException
 
 Implementation must first inspect existing `NetworkException`, `DefaultError`, `RequestHandler` and response/error types so equivalent classes are not duplicated.
 
-Classification must distinguish:
-
-- HTTP status failure;
-- connection failure;
-- timeout;
-- serialization/decode failure;
-- protocol/malformed response;
-- genuinely unknown failure.
-
-Business/API outcomes remain separate from transport exceptions.
-
 ## 8. Remaining Dynamic work
 
 | Priority | Work | State |
 |---:|---|---|
-| 1 | Bootstrap Option B repository/remote-source implementation | OPEN / NEXT |
-| 2 | Remove/rework legacy Bootstrap domain models and direct bootstrap path | OPEN |
-| 3 | Bootstrap DI and tests | OPEN |
-| 4 | Verify Bootstrap → DynamicDestination runtime hand-off | OPEN |
-| 5 | Clean Dynamic use-case package | OPEN |
+| 1 | Complete Bootstrap Option B implementation | OPEN / NEXT |
+| 2 | Remove legacy Bootstrap domain model duplicates | OPEN |
+| 3 | Complete Bootstrap DI and tests after model cleanup | OPEN |
+| 4 | Verify shared DynamicDestination runtime hand-off | OPEN |
+| 5 | Clean Dynamic use-case package ownership | OPEN |
 | 6 | Complete request metadata/authentication | OPEN |
 | 7 | Complete frozen Dynamic state/reference/action behavior | IN PROGRESS |
 | 8 | Implement frozen network exception taxonomy | OPEN |
@@ -195,10 +201,11 @@ Business/API outcomes remain separate from transport exceptions.
 
 ## 9. Explicitly not complete
 
-- Bootstrap Option B implementation is not yet source-complete.
+- Bootstrap Option B is not yet source-complete.
 - Legacy Bootstrap domain model cleanup is not yet source-complete.
 - Final Bootstrap DI/test reconciliation is not complete.
 - Canonical destination runtime verification is not complete.
+- Latest shared-destination/model refactor is not yet locally build-verified.
 - Network exception taxonomy is frozen but not yet implemented/verified.
 - Login → OTP → Dashboard end-to-end verification is pending.
 - DYNAMIC-07 production implementation is pending.
@@ -210,6 +217,8 @@ Business/API outcomes remain separate from transport exceptions.
 - Do not reopen DYNAMIC-01 → DYNAMIC-07.
 - Do not introduce a Bootstrap-specific navigation system.
 - Do not create Login/OTP/Dashboard-specific screen classes.
+- Do not create a separate `DynamicNextScreen` model.
+- Do not place Dynamic response `nextScreen` at the response-envelope root.
 - Do not move feature orchestration use cases into top-level `:domain`.
 - Do not add network exception classes without checking existing error types first.
 - Do not consider compilation success equivalent to architecture completion.
@@ -217,4 +226,4 @@ Business/API outcomes remain separate from transport exceptions.
 
 ## 11. Next action
 
-**Implement Bootstrap Option B completely, including legacy domain-model cleanup, DI and tests. Then verify the shared `DynamicDestination` runtime hand-off before continuing the remaining Dynamic gaps.**
+**Continue Bootstrap Option B implementation and legacy Bootstrap model cleanup. After the current shared-destination/model refactor passes compile/tests, complete DI and tests, then verify the Bootstrap → Dynamic navigation hand-off before continuing the remaining Dynamic gaps.**
