@@ -4,8 +4,8 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
-import com.carbroz.cbpartner.feature.dynamic.usecase.DynamicActionResult
-import com.carbroz.cbpartner.feature.dynamic.usecase.ExecuteDynamicActionUseCase
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +24,6 @@ sealed interface DynamicIntent {
 }
 
 sealed interface DynamicEffect {
-    data class Navigate(val destination: DynamicDestination) : DynamicEffect
     data class ExternalUri(val uri: String) : DynamicEffect
 }
 
@@ -37,7 +36,7 @@ sealed interface DynamicState {
 
 class DynamicStore(
     private val loadDynamicScreen: LoadDynamicScreenUseCase,
-    private val executeDynamicAction: ExecuteDynamicActionUseCase,
+    private val actionExecutor: DynamicActionExecutor,
     destination: DynamicDestination,
     private val contextProvider: () -> Map<String, String> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
@@ -55,6 +54,7 @@ class DynamicStore(
     private var actionJob: Job? = null
 
     fun updateDestination(destination: DynamicDestination) {
+        if (currentDestination == destination) return
         currentDestination = destination
         bindings.clear()
         previousResponseData = null
@@ -74,33 +74,40 @@ class DynamicStore(
 
     private fun load() {
         if (loadJob?.isActive == true) return
-
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
             loadDynamicScreen(currentDestination)
-                .onSuccess { _state.value = DynamicState.Success(it) }
-                .onFailure { _state.value = DynamicState.Failure(it.message ?: "Unable to load dynamic screen") }
+                .onSuccess { response ->
+                    previousResponseData = response.asResponseReference()
+                    _state.value = DynamicState.Success(response)
+                }
+                .onFailure { error ->
+                    _state.value = DynamicState.Failure(
+                        error.message ?: "Unable to load dynamic screen",
+                    )
+                }
         }
     }
 
     private fun handleAction(action: DynamicAction) {
         if (actionJob?.isActive == true) return
-
         actionJob = scope.launch {
-            executeDynamicAction(
+            actionExecutor.execute(
                 action = action,
                 bindings = bindings.toMap(),
                 context = contextProvider(),
                 previousResponse = previousResponseData,
             ).onSuccess { result ->
                 when (result) {
-                    is DynamicActionResult.Completed -> previousResponseData = result.response.asResponseReference()
+                    DynamicActionResult.Completed -> Unit
                     is DynamicActionResult.Navigate -> {
                         result.response?.let { previousResponseData = it.asResponseReference() }
-                        _effects.value = DynamicEffect.Navigate(result.destination)
                     }
                     is DynamicActionResult.ExternalUri -> {
                         _effects.value = DynamicEffect.ExternalUri(result.uri)
+                    }
+                    is DynamicActionResult.StateChanged -> {
+                        bindings[result.key] = result.value
                     }
                 }
             }.onFailure { error ->
