@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.bootstrap
 
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
@@ -7,7 +8,6 @@ import com.carbroz.cbpartner.domain.model.bootstrap.FeatureConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.MaintenanceConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.StartupConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.UpdateConfig
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 
 class BootstrapMapper {
     fun map(response: BootstrapResponseDto): Result<BootstrapOutput> {
