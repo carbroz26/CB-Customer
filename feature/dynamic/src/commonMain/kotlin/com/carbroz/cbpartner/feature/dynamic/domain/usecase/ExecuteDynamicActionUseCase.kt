@@ -14,7 +14,7 @@ sealed interface DynamicActionResult {
 
 class ExecuteDynamicActionUseCase(
     private val repository: DynamicRepository,
-    private val actionHandler: DynamicActionHandler = DynamicActionHandler(),
+    private val actionHandler: DynamicActionHandler,
 ) {
     suspend operator fun invoke(
         action: DynamicAction,
