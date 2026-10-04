@@ -25,11 +25,13 @@ class DynamicRepositoryImpl(
         destination: DynamicDestination,
         body: DynamicValue?,
         method: String,
+        authentication: String,
     ): Result<DynamicResponse> {
         return when (
             val response = remoteDataSource.fetch(
                 endpoint = destination.endpoint,
                 method = method,
+                authentication = authentication,
                 body = body?.toJsonElement()?.let {
                     json.encodeToString(JsonElement.serializer(), it)
                 },
