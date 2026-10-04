@@ -3,7 +3,7 @@
 **Status:** PLAN FROZEN — IMPLEMENTATION AUTHORIZED
 **Documentation reconciliation:** 2026-10-04
 
-This update reconciles the frozen plan with the source and verification that actually exist on `feature/dynamic-ui`. It does not change DYNAMIC-01 → DYNAMIC-07 decisions.
+This is the implementation source of truth after reconciliation with the frozen DYNAMIC-01 → DYNAMIC-07 decisions and the current backend Bootstrap/Login/OTP contracts. It does not reopen frozen Dynamic decisions.
 
 ## 1. Frozen Architecture
 
@@ -14,7 +14,21 @@ App
   ↓
 ApplicationContent
   ↓
-Navigation 3 boundary
+SplashStore / SplashScreen
+  ↓
+ApplicationBootstrap (domain startup contract)
+  ↓
+BootstrapRepository (domain repository contract)
+  ↓
+BootstrapRepositoryImpl (data)
+  ↓
+BootstrapRemoteDataSource (data)
+  ↓
+RequestHandler / Ktor HttpClient
+  ↓
+Bootstrap DTO → Mapper → BootstrapOutput
+  ↓
+BootstrapOutput.startup.nextScreen = DynamicDestination
   ↓
 DynamicNavigationState
   ↓
@@ -22,35 +36,28 @@ DynamicContainer
   ↓
 DynamicStore
   ↓
-LoadDynamicScreenUseCase / ExecuteDynamicActionUseCase
+Dynamic use cases
   ↓
 DynamicRepository
   ↓
+DynamicRepositoryImpl
+  ↓
 DynamicRemoteDataSource
   ↓
-Network RequestHandler
+RequestHandler / Ktor HttpClient
   ↓
-Ktor HttpClient
+DynamicResponseDto → DynamicResponseMapper → DynamicResponse
+  ↓
+DynamicRegistry / DynamicRenderer
 ```
 
-One `DynamicDestination` is the canonical navigation/back-stack entry:
-
-```text
-screenId
- templateId
-templateType
- endpoint
- method
-authentication
-```
-
-`templateType` selects rendering capability only. It never decides business navigation.
+Bootstrap and Splash are one startup flow. `Splash` is the visible startup UI; `Bootstrap` is the config/startup API execution performed while Splash is shown. They are not two independent product flows.
 
 ## 2. Clean Architecture Boundary
 
 ```text
-:feature:dynamic → :domain, :core, :navigation
 :feature:splash  → :domain, :core, :navigation
+:feature:dynamic → :domain, :core, :navigation
 :data            → :domain, :core, :network
 :domain          → :core
 :network         → Ktor + Koin
@@ -58,11 +65,110 @@ authentication
 
 Feature UI/Store does not perform HTTP directly.
 
-`:network` owns generic Ktor infrastructure. `:data` owns DTOs, mappers, repositories and feature-specific remote sources. Domain owns canonical contracts/models.
+`:network` owns generic Ktor infrastructure. `:data` owns DTOs, mappers, repository implementations and feature-specific remote sources. `:domain` owns canonical contracts/models and repository abstractions. Feature-level use cases remain feature orchestration when they depend on feature capabilities; they must not introduce a second Clean Architecture domain module.
 
-## 3. Shaadi Clean-Code Reference
+## 3. Bootstrap Boundary — OPTION B FROZEN FOR IMPLEMENTATION
 
-The `LalitDev2305/Shaadi` project is a code-quality reference only. The useful lessons are:
+The previously implemented direct `DefaultApplicationBootstrap → RequestHandler` path is superseded by this refined implementation boundary:
+
+```text
+feature:splash
+    ↓
+ApplicationBootstrap
+    ↓
+BootstrapRepository
+    ↓
+data/BootstrapRepositoryImpl
+    ↓
+data/BootstrapRemoteDataSource
+    ↓
+network/RequestHandler
+```
+
+Responsibilities:
+
+- `ApplicationBootstrap` — startup-facing domain contract used by Splash/application composition.
+- `BootstrapRepository` — domain abstraction for obtaining the canonical bootstrap result.
+- `BootstrapRepositoryImpl` — data orchestration; coordinates the remote source and mapper/domain conversion.
+- `BootstrapRemoteDataSource` — transport-facing bootstrap API source; owns endpoint/method/request-header details and DTO acquisition only.
+- `BootstrapMapper` — explicit DTO → domain mapping and validation.
+- Bootstrap DTO/model classes — transport representation only; no Compose/UI/navigation implementation.
+
+The existing frozen BASE-ARCH-012 startup responsibility remains unchanged: Splash executes the startup/bootstrap contract, Bootstrap determines startup state, and the resulting `DynamicDestination` enters the Dynamic navigation system. Option B only refines the Data boundary so Bootstrap follows the same repository/remote-source layering as Dynamic.
+
+## 4. Actual Bootstrap API Contract
+
+```text
+GET /api/v1/partner/config/bootstrap
+```
+
+Headers:
+
+```text
+X-CarBroz-Platform: ANDROID
+X-CarBroz-App-Version: 1.0.0
+X-CarBroz-Build-Number: 1
+```
+
+Success response contains:
+
+```text
+status
+code
+message
+data.config
+  version
+  maintenance
+  update
+  features
+data.startup
+  authenticated
+  nextScreen
+traceId
+```
+
+`nextScreen` is mapped to the canonical `DynamicDestination`:
+
+```text
+screenId
+templateId
+templateType
+endpoint
+method
+authentication
+```
+
+The previously documented Bootstrap blocker stating that endpoint/method/authentication contract was unknown is obsolete and must not remain in active implementation documentation.
+
+## 5. Dynamic Clean Architecture Boundary
+
+```text
+feature:dynamic
+ ├── Store / UI / renderer / registry / action capability
+ └── feature orchestration use cases
+          ↓
+       :domain
+          ↓
+ DynamicRepository
+          ↑
+       :data
+ ├── DynamicRepositoryImpl
+ ├── DynamicRemoteDataSource
+ ├── Dynamic DTO/model
+ └── DynamicResponseMapper
+          ↓
+       :network
+```
+
+`LoadDynamicScreenUseCase` may remain a feature-level use case because it is a thin orchestration operation over the domain repository.
+
+`ExecuteDynamicActionUseCase` must remain feature-level because it coordinates feature-owned `DynamicActionHandler` capabilities. Moving it into top-level `:domain` would invert the dependency direction. Do not create `domain/usecase` inside `:domain` merely because a class is named UseCase.
+
+Current package path `feature/dynamic/.../domain/usecase/` is a naming cleanup item. The target package is `feature/dynamic/usecase/` after implementation reconciliation; this is a package-organization change, not a change to the use-case responsibilities.
+
+## 6. Shaadi Clean-Code Reference
+
+The `LalitDev2305/Shaadi` project is a code-quality reference only:
 
 - central HttpClient construction;
 - small request boundary;
@@ -74,28 +180,55 @@ The `LalitDev2305/Shaadi` project is a code-quality reference only. The useful l
 
 Do not copy Shaadi's Android/JVM-only Hilt, ViewModel, `Dispatchers.IO`, or CIO-only assumptions into KMP.
 
-## 4. Implemented Source Map
+## 7. Implemented Source Map — Current State
 
-### Application
+### Application / Navigation
 
-- `app/src/commonMain/.../app/App.kt` — thin application entry/composition boundary.
-- `app/src/commonMain/.../app/ApplicationContent.kt` — Splash → Dynamic composition; creates navigation state, registry, Dynamic Store and effects.
-
-### Navigation
-
+- `app/.../App.kt` — thin application entry/composition boundary.
+- `app/.../ApplicationContent.kt` — Splash → Dynamic composition; creates navigation state, registry, Dynamic Store and effects.
 - `navigation/.../DynamicNavigationState.kt` — root/push/replace/pop of complete `DynamicDestination` values.
 - `navigation/.../DynamicNavigationHost.kt` — Navigation 3 UI boundary.
 
+### Splash / Bootstrap — CURRENTLY PARTIAL, REFACTOR REQUIRED
+
+Current classes that remain valid:
+
+- `domain/bootstrap/ApplicationBootstrap.kt`
+- `domain/model/bootstrap/BootstrapConfig.kt`
+- `domain/model/bootstrap/BootstrapOutput.kt`
+- `domain/model/bootstrap/StartupConfig.kt`
+- `domain/model/bootstrap/BootstrapFailure.kt`
+- `data/bootstrap/BootstrapMapper.kt`
+- existing Bootstrap DTO/model definitions
+
+Current direct implementation:
+
+- `data/bootstrap/DefaultApplicationBootstrap.kt`
+
+This direct implementation is not the final target. It must be refactored into:
+
+```text
+domain/bootstrap/ApplicationBootstrap.kt
+domain/repository/BootstrapRepository.kt
+
+data/bootstrap/BootstrapRepositoryImpl.kt
+data/bootstrap/remote/BootstrapRemoteDataSource.kt
+data/bootstrap/model/BootstrapResponseDto.kt
+data/bootstrap/mapper/BootstrapMapper.kt
+```
+
+The exact DTO class names may be retained if already established; the boundary responsibilities above are mandatory.
+
 ### Dynamic feature
 
-- `feature/dynamic/.../DynamicContainer.kt` — current Dynamic destination container.
-- `feature/dynamic/.../DynamicModule.kt` — Dynamic DI.
-- `feature/dynamic/.../store/DynamicStore.kt` — Pure MVI/UDF state/intents/effects and use-case orchestration.
-- `feature/dynamic/.../action/DynamicActionHandler.kt` — action capability boundary.
-- `feature/dynamic/.../domain/usecase/LoadDynamicScreenUseCase.kt` — screen loading use case.
-- `feature/dynamic/.../domain/usecase/ExecuteDynamicActionUseCase.kt` — action/reference resolution and action coordination.
-- `feature/dynamic/.../registry/DynamicRegistry.kt` — explicit category registration/lookup.
-- `feature/dynamic/.../renderer/DynamicRenderer.kt` — recursive definition resolution/rendering.
+- `feature/dynamic/.../DynamicContainer.kt`
+- `feature/dynamic/.../DynamicModule.kt`
+- `feature/dynamic/.../store/DynamicStore.kt`
+- `feature/dynamic/.../action/DynamicActionHandler.kt`
+- `feature/dynamic/.../usecase/LoadDynamicScreenUseCase.kt`
+- `feature/dynamic/.../usecase/ExecuteDynamicActionUseCase.kt`
+- `feature/dynamic/.../registry/DynamicRegistry.kt`
+- `feature/dynamic/.../renderer/DynamicRenderer.kt`
 
 ### Initial Dynamic definitions
 
@@ -108,29 +241,39 @@ Do not copy Shaadi's Android/JVM-only Hilt, ViewModel, `Dispatchers.IO`, or CIO-
 
 ### Domain
 
-- `domain/model/dynamic/DynamicModels.kt` — Dynamic destination/action/reference/response contracts.
-- `domain/repository/DynamicRepository.kt` — Dynamic repository contract.
-- `domain/bootstrap/ApplicationBootstrap.kt` — bootstrap contract.
-- `domain/model/bootstrap/*` — bootstrap domain contracts/failures.
+- `domain/model/dynamic/DynamicModels.kt`
+- `domain/repository/DynamicRepository.kt`
+- `domain/repository/BootstrapRepository.kt` — to be added as part of the Bootstrap refinement.
+- `domain/bootstrap/ApplicationBootstrap.kt`
+- `domain/model/bootstrap/*`
 
 ### Data
 
-- `data/bootstrap/DefaultApplicationBootstrap.kt` — bootstrap request/orchestration and failure mapping.
-- `data/bootstrap/BootstrapMapper.kt` — bootstrap DTO → domain, including canonical `DynamicDestination`.
-- `data/dynamic/DynamicRepositoryImpl.kt` — Dynamic repository implementation.
-- `data/dynamic/remote/DynamicRemoteDataSource.kt` — Dynamic HTTP source.
-- `data/dynamic/model/DynamicResponseDto.kt` — Dynamic transport DTO.
-- `data/dynamic/mapper/DynamicResponseMapper.kt` — explicit DTO → domain mapper.
+Dynamic:
+
+- `data/dynamic/DynamicRepositoryImpl.kt`
+- `data/dynamic/remote/DynamicRemoteDataSource.kt`
+- `data/dynamic/model/DynamicResponseDto.kt`
+- `data/dynamic/mapper/DynamicResponseMapper.kt`
+
+Bootstrap target:
+
+- `data/bootstrap/BootstrapRepositoryImpl.kt`
+- `data/bootstrap/remote/BootstrapRemoteDataSource.kt`
+- `data/bootstrap/model/*`
+- `data/bootstrap/mapper/BootstrapMapper.kt`
 
 ### Network
 
-- `network/http/RequestHandler.kt` — shared request boundary.
-- `network/http/HttpClientBuilder.kt` — shared Ktor client construction.
-- `network/http/DefaultError.kt` — transport error model.
-- `network/NetworkException.kt`, `NetworkResult.kt`, `Response.kt`, `Paged.kt` — generic network contracts.
-- `network/di/NetworkModule.kt` — network DI and shared client/request handler.
+- `network/http/RequestHandler.kt`
+- `network/http/HttpClientBuilder.kt`
+- `network/http/DefaultError.kt`
+- `network/NetworkException.kt`, `NetworkResult.kt`, `Response.kt`, `Paged.kt`
+- `network/di/NetworkModule.kt`
 
-## 5. Implemented Dynamic Vocabulary
+## 8. Dynamic Vocabulary
+
+Frozen initial vocabulary:
 
 ```text
 stack_template
@@ -141,11 +284,11 @@ text
 image
 ```
 
-No FormTemplate/InputElement/ButtonElement implementation is retained in the current Dynamic runtime.
+No FormTemplate/InputElement/ButtonElement implementation is part of the current Dynamic runtime unless required by the actual fixed backend contract and deliberately added through the existing registry/definition model.
 
-## 6. Implemented Action Direction
+## 9. Frozen Action / Reference Vocabulary
 
-Frozen action vocabulary:
+Actions:
 
 ```text
 request
@@ -157,7 +300,7 @@ external_uri
 sequence
 ```
 
-Frozen references:
+References:
 
 ```text
 $literal
@@ -168,30 +311,28 @@ $response
 
 Action execution remains separate from rendering.
 
-## 7. Bootstrap → Login → OTP Contract
+## 10. Bootstrap → Login → OTP Contract
 
-Bootstrap currently maps `startup.nextScreen` to `DynamicDestination`.
-
-Known Login destination:
+Bootstrap currently provides the first Dynamic destination. Known Login destination:
 
 ```text
-screenId      = partner_login
-templateId    = tpl_7K2M9Q
-templateType  = form_template
-endpoint      = /api/v1/partner/screen/auth_login
-method        = GET
-authentication = NONE
+screenId       = partner_login
+templateId     = tpl_7K2M9Q
+templateType   = form_template
+endpoint       = /api/v1/partner/screen/auth_login
+method         = GET
+authentication  = NONE
 ```
 
 Known OTP destination:
 
 ```text
-screenId      = partner_otp
-templateId    = tpl_P6X8N3
-templateType  = form_template
-endpoint      = /api/v1/partner/screen/auth_otp
-method        = GET
-authentication = NONE
+screenId       = partner_otp
+templateId     = tpl_P6X8N3
+templateType   = form_template
+endpoint       = /api/v1/partner/screen/auth_otp
+method         = GET
+authentication  = NONE
 ```
 
 OTP actions:
@@ -212,27 +353,33 @@ POST /api/v1/partner/auth/verify_otp
 
 These remain generic Dynamic actions. Do not create Login/OTP-specific Store classes or screen renderers.
 
-## 8. Implementation State
+## 11. Implementation State
 
 | Area | State |
 |---|---|
+| Base architecture | FROZEN |
+| Dynamic DYNAMIC-01 → DYNAMIC-07 discussion | FROZEN |
 | Navigation foundation | IMPLEMENTED |
 | Application composition | IMPLEMENTED |
 | Dynamic container | IMPLEMENTED |
-| Dynamic Store | IMPLEMENTED |
-| Dynamic use cases | IMPLEMENTED |
+| Dynamic Store | IMPLEMENTED / REQUIRES FINAL CONTRACT REVIEW |
+| Dynamic use cases | IMPLEMENTED / PACKAGE CLEANUP PENDING |
 | Registry | IMPLEMENTED |
 | Renderer | IMPLEMENTED |
 | Initial definitions | IMPLEMENTED |
-| Shared network module | IMPLEMENTED |
-| Bootstrap → DynamicDestination | IMPLEMENTED / TESTED |
-| Request error mapping | IMPLEMENTED / TESTED |
+| Shared network module | IMPLEMENTED / JVM VERIFIED |
+| Dynamic repository/remote/mapper | IMPLEMENTED / JVM VERIFIED |
+| Bootstrap API contract | KNOWN / DOCUMENTED |
+| Bootstrap → DynamicDestination mapping | IMPLEMENTED / TESTED |
+| Bootstrap repository/remote-source layering | NOT YET IMPLEMENTED — REQUIRED |
 | DYNAMIC-07 runtime boundary | DISCUSSION FROZEN / IMPLEMENTATION PARTIAL |
-| Full Login → OTP integration | PENDING |
-| Full platform verification | PENDING |
-| Final feature review/freeze | PENDING |
+| Request metadata/authentication | PENDING |
+| Full frozen action/reference behavior | PENDING |
+| Login → OTP integration | PENDING |
+| Platform verification | PENDING |
+| Final Dynamic review/freeze | PENDING |
 
-## 9. Latest Verification
+## 12. Latest Verification
 
 2026-10-04 owner-provided verification:
 
@@ -253,38 +400,41 @@ BUILD SUCCESSFUL
 54 actionable tasks: 15 executed, 39 up-to-date
 ```
 
-The earlier non-success HTTP mapping test is now green.
+This proves the current source compiles/tests at the JVM baseline. It does not mean the architectural gaps listed in this plan are complete.
 
-## 10. Remaining Implementation Sequence
+## 13. Remaining Implementation Sequence
 
-Continue without new unit-level approval gates:
+1. Implement Option B Bootstrap layering without changing startup responsibility.
+2. Update Bootstrap DI/tests and verify the complete Splash → Bootstrap → DynamicDestination path.
+3. Clean the Dynamic use-case package naming without moving feature-specific orchestration into `:domain`.
+4. Complete request metadata/authentication integration through the existing network/runtime boundary.
+5. Complete Dynamic state/reference/action behavior required by the actual backend contract, including all frozen action kinds that are applicable.
+6. Implement the frozen DYNAMIC-07 fallback/recovery/observability requirements.
+7. Add backend-shaped Login → Send OTP → OTP → Verify OTP integration tests.
+8. Verify destination push/pop/replace/back behavior and responseMode destination transitions.
+9. Verify Android, iOS/macOS-hosted and Web/Wasm targets where supported.
+10. Perform literal plan-to-source compliance review, including every remaining gap.
+11. Run complete feature test/build verification.
+12. Final Dynamic review and code freeze.
 
-1. Complete request metadata/authentication integration using the existing network/runtime boundary.
-2. Complete Dynamic reference/state/action behavior required by the actual backend contract.
-3. Implement the frozen DYNAMIC-07 runtime fallback/recovery/observability requirements.
-4. Add backend-shaped Login → Send OTP → OTP → Verify OTP integration tests.
-5. Verify full destination push/pop/replace/back behavior.
-6. Verify Android, iOS/macOS-hosted and Web/Wasm targets where supported.
-7. Perform literal plan-to-source compliance review.
-8. Run complete feature test/build verification.
-9. Review the complete Dynamic implementation.
-10. Freeze the feature.
-
-## 11. Definition of Done
+## 14. Definition of Done
 
 ```text
-[ ] Frozen DYNAMIC-01 → DYNAMIC-07 contract fully implemented
+[ ] Option B Bootstrap repository/data-source boundary implemented
+[ ] Splash and Bootstrap documented/implemented as one startup flow
+[ ] Bootstrap API headers/endpoint/response mapping verified
 [ ] one permanent DynamicContainer
 [ ] full DynamicDestination navigation entries
 [ ] no templateType-based business navigation
 [ ] explicit registry with frozen vocabulary
 [ ] recursive renderer boundary remains small
-[ ] Pure MVI/UDF DynamicStore
+[ ] Pure MVI/UDF DynamicStore verified against frozen contract
 [ ] no ViewModel
 [ ] shared RequestHandler/network boundary
-[ ] explicit DTO → domain mapping
+[ ] explicit DTO → domain mapping for Bootstrap and Dynamic
 [ ] structured request errors
-[ ] frozen references/actions implemented
+[ ] frozen references/actions implemented where applicable
+[ ] request authentication metadata enforced
 [ ] DYNAMIC-07 fallback/recovery/observability implemented
 [ ] Login → OTP integration tests pass
 [ ] Android verification pass
