@@ -21,6 +21,7 @@ include(
     ":domain",
     ":data",
     ":navigation",
+    ":app",
     ":feature:splash",
     ":feature:dynamic",
     ":androidApp",
