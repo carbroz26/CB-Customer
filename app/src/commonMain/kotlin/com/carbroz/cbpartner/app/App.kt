@@ -11,6 +11,7 @@ import com.carbroz.cbpartner.data.di.bootstrapModule
 import com.carbroz.cbpartner.data.di.dynamicDataModule
 import com.carbroz.cbpartner.data.di.networkModule
 import com.carbroz.cbpartner.feature.dynamic.DynamicContainer
+import com.carbroz.cbpartner.feature.dynamic.dynamicModule
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicEffect
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
@@ -28,6 +29,7 @@ private val koin by lazy {
             networkModule,
             bootstrapModule,
             dynamicDataModule,
+            dynamicModule,
             splashModule,
         )
     }.koin
