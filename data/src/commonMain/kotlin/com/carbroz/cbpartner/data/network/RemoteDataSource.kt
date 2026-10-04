@@ -3,10 +3,11 @@ package com.carbroz.cbpartner.data.network
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.request
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
-import io.ktor.http.content.TextContent
+import io.ktor.http.contentType
 
 /**
  * Single application remote-data boundary used by all feature data sources.
@@ -32,11 +33,8 @@ class RemoteDataSource(
                 header(name, value)
             }
             if (body != null) {
-                // Ktor 3.x exposes the request body as a property on the
-                // HttpRequestBuilder. Use an explicit TextContent so the
-                // already-serialized dynamic JSON is sent verbatim with the
-                // correct application/json content type.
-                this.body = TextContent(body, ContentType.Application.Json)
+                contentType(ContentType.Application.Json)
+                setBody(body)
             }
         }
 
