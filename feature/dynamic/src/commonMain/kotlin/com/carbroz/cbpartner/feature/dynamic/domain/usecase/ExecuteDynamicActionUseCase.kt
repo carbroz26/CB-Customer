@@ -8,8 +8,11 @@ import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionHandler
 
 sealed interface DynamicActionResult {
-    data object Completed : DynamicActionResult
-    data class Navigate(val destination: DynamicDestination) : DynamicActionResult
+    data class Completed(val response: DynamicResponse) : DynamicActionResult
+    data class Navigate(
+        val destination: DynamicDestination,
+        val response: DynamicResponse,
+    ) : DynamicActionResult
     data class ExternalUri(val uri: String) : DynamicActionResult
 }
 
@@ -21,10 +24,20 @@ class ExecuteDynamicActionUseCase(
         action: DynamicAction,
         bindings: Map<String, String>,
         context: Map<String, String>,
+        previousResponse: DynamicValue? = null,
     ): Result<DynamicActionResult> = runCatching {
         when (action.type) {
-            "request" -> executeRequest(action, bindings, context)
-            "navigate" -> DynamicActionResult.Navigate(actionHandler.destination(action))
+            "request" -> executeRequest(action, bindings, context, previousResponse)
+            "navigate" -> DynamicActionResult.Navigate(
+                destination = actionHandler.destination(action),
+                response = DynamicResponse(
+                    status = 200,
+                    code = "NAVIGATE",
+                    message = "Navigation action completed",
+                    data = null,
+                    traceId = null,
+                ),
+            )
             "external_uri" -> DynamicActionResult.ExternalUri(actionHandler.externalUri(action, context))
             else -> error("Unsupported dynamic action: ${action.type}")
         }
@@ -34,12 +47,13 @@ class ExecuteDynamicActionUseCase(
         action: DynamicAction,
         bindings: Map<String, String>,
         context: Map<String, String>,
+        previousResponse: DynamicValue?,
     ): DynamicActionResult {
         val endpoint = string(action.payload["endpoint"])
             ?: error("Dynamic request endpoint is missing")
         val method = string(action.payload["method"]) ?: "POST"
         val authentication = string(action.payload["authentication"])
-        val body = action.payload["body"]?.resolve(bindings, context, null)
+        val body = action.payload["body"]?.resolve(bindings, context, previousResponse)
 
         val response = repository.fetch(
             destination = DynamicDestination(
@@ -54,8 +68,11 @@ class ExecuteDynamicActionUseCase(
         ).getOrThrow()
 
         return when (string(action.payload["responseMode"])?.lowercase()) {
-            "none" -> DynamicActionResult.Completed
-            else -> DynamicActionResult.Navigate(response.requireNextDestination())
+            "none" -> DynamicActionResult.Completed(response)
+            else -> DynamicActionResult.Navigate(
+                destination = response.requireNextDestination(),
+                response = response,
+            )
         }
     }
 
@@ -74,7 +91,7 @@ class ExecuteDynamicActionUseCase(
     private fun DynamicValue.resolve(
         bindings: Map<String, String>,
         context: Map<String, String>,
-        response: DynamicValue?,
+        previousResponse: DynamicValue?,
     ): DynamicValue = when (this) {
         is DynamicValue.ObjectValue -> {
             val binding = (value["${'$'}binding"] as? DynamicValue.StringValue)?.value
@@ -85,16 +102,16 @@ class ExecuteDynamicActionUseCase(
             when {
                 binding != null -> DynamicValue.StringValue(bindings[binding].orEmpty())
                 contextRef != null -> DynamicValue.StringValue(context[contextRef].orEmpty())
-                responseRef != null -> response?.resolvePath(responseRef) ?: DynamicValue.NullValue
-                literal != null -> literal.resolve(bindings, context, response)
+                responseRef != null -> previousResponse?.resolvePath(responseRef) ?: DynamicValue.NullValue
+                literal != null -> literal.resolve(bindings, context, previousResponse)
                 else -> DynamicValue.ObjectValue(
-                    value.mapValues { (_, child) -> child.resolve(bindings, context, response) },
+                    value.mapValues { (_, child) -> child.resolve(bindings, context, previousResponse) },
                 )
             }
         }
 
         is DynamicValue.ArrayValue -> DynamicValue.ArrayValue(
-            value.map { it.resolve(bindings, context, response) },
+            value.map { it.resolve(bindings, context, previousResponse) },
         )
 
         else -> this
