@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.store
 
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicNextScreen
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
@@ -26,7 +27,6 @@ class DynamicStoreTest {
         val repository = object : DynamicRepository {
             override suspend fun fetch(
                 destination: DynamicDestination,
-                headers: Map<String, String>,
                 body: String?,
             ): Result<DynamicResponse> {
                 capturedBody = body
@@ -37,7 +37,7 @@ class DynamicStoreTest {
                         message = "Request completed",
                         data = null,
                         traceId = "test",
-                        nextScreen = com.carbroz.cbpartner.domain.model.dynamic.DynamicNextScreen(
+                        nextScreen = DynamicNextScreen(
                             screenId = "next",
                             templateId = "tpl_next",
                             templateType = "stack_template",
@@ -48,16 +48,15 @@ class DynamicStoreTest {
             }
         }
 
-        val destination = DynamicDestination(
-            screenId = "current",
-            templateId = "tpl_current",
-            templateType = "stack_template",
-            endpoint = "/current",
-        )
         val store = DynamicStore(
             loadDynamicScreen = LoadDynamicScreenUseCase(repository),
             executeDynamicAction = ExecuteDynamicActionUseCase(repository),
-            destination = destination,
+            destination = DynamicDestination(
+                screenId = "current",
+                templateId = "tpl_current",
+                templateType = "stack_template",
+                endpoint = "/current",
+            ),
             contextProvider = { mapOf("deviceId" to "test-device") },
             scope = CoroutineScope(dispatcher),
         )
