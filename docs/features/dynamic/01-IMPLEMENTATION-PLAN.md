@@ -47,9 +47,9 @@ SplashStore
     ↓
 ApplicationBootstrap
     ↓
-RemoteDataSource
+Network RequestHandler
     ↓
-Network
+Ktor HttpClient
 ```
 
 ### Dynamic
@@ -65,7 +65,9 @@ LoadDynamicScreenUseCase
     ↓
 DynamicRepository
     ↓
-RemoteDataSource
+DynamicRemoteDataSource
+    ↓
+Network RequestHandler
 ```
 
 DynamicStore is Pure MVI/UDF. It owns state, intents, use-case invocation, runtime bindings, and effects. It does not own Navigation 3, Ktor, rendering recursion, or external URI launching.
@@ -91,22 +93,34 @@ Do not copy Shaadi's Android/JVM-only Hilt, ViewModel, `Dispatchers.IO`, or CIO-
 ## Network/data boundary
 
 ```text
-NetworkConfig
-    ↓
-one configured HttpClient
-    ↓
-one common RemoteDataSource
-    ↓
+:network
+    ├── NetworkException
+    ├── NetworkResult
+    ├── Paged
+    ├── Response
+    └── http
+        ├── DefaultError
+        ├── RequestHandler
+        └── HttpClientBuilder
+             ↓
+          one HttpClient
+             ↓
+:data remote sources
+             ↓
 repository
 ```
 
-One configured HttpClient. Repositories never construct clients. Ktor configuration belongs to network infrastructure. Dynamic feature/Store code never configures Ktor.
+`:network` is the standalone Ktor infrastructure module. Ktor client construction and generic request/error handling do not belong inside `:data`.
+
+`RequestHandler` follows the Shaadi request-boundary pattern for GET/POST/PUT/DELETE, with only the CB-Partner-required request headers/status preservation added. `HttpClientBuilder` follows the same small builder pattern while remaining multiplatform by using the KMP/default Ktor engine instead of a CIO-only engine.
+
+`data` consumes `RequestHandler`; feature-specific remote sources remain in `data`. There is no generic `RemoteDataSource` wrapper and no `NetworkConfig` in `data`.
 
 ## Domain/data boundary
 
 Domain owns canonical contracts/models: `DynamicDestination`, actions/references, repositories, Dynamic request/result models, `ApplicationBootstrap`, and Bootstrap models.
 
-Data owns DTOs, serialization, repository implementations, RemoteDataSource usage, explicit DTO→domain mapping, and network infrastructure.
+Data owns DTOs, serialization, repository implementations, feature-specific remote sources, explicit DTO→domain mapping, and composition of domain/data flows.
 
 ```text
 Data → Domain
@@ -150,54 +164,109 @@ Local verification reported:
 - `:feature:splash:jvmTest` PASS
 - `:feature:dynamic:jvmTest` PASS
 
-## Unit 3 — Network infrastructure
+## Unit 3 — Standalone Network Infrastructure
 
 Target:
 
 ```text
-NetworkConfig
+:network
     ↓
-KtorClientBuilder
+HttpClientBuilder
     ↓
 one HttpClient
     ↓
-RemoteDataSource
+RequestHandler
     ↓
-DynamicRemoteDataSource
+feature-specific data remote source
     ↓
-repository
+repository / bootstrap
 ```
 
-Source inspection compared CB-Partner with Shaadi's `ShaadiHttpClientBuilder` and `RequestHandler`.
+### Source inspection / Shaadi comparison
 
-### Findings
+The previous implementation placed Ktor infrastructure inside `:data`:
 
-- CB-Partner had `NetworkModule` constructing a bare `HttpClient()`.
-- `RemoteDataSource` owned URL resolution and used `bodyAsText()`; this triggered the Ktor internal-API compilation failure seen previously.
-- `DynamicRemoteDataSource` is already a thin Dynamic-specific boundary and should not own Ktor configuration.
-- `DynamicRepositoryImpl` already follows the desired small flow: remote source → DTO → mapper → domain.
+```text
+data/network/KtorClientBuilder
+ data/network/NetworkConfig
+ data/network/RemoteDataSource
+ data/di/NetworkModule
+```
 
-### Corrections applied
+Shaadi instead isolates generic network contracts and HTTP request infrastructure in a dedicated `network` module, with `http/DefaultError`, `http/RequestHandler`, and the HTTP client builder. Its outer network package contains `NetworkException`, `NetworkResult`, `Paged`, and `Response`.
 
-1. Added `KtorClientBuilder` as the single client-construction boundary.
-2. `NetworkModule` now constructs exactly one `HttpClient` through `KtorClientBuilder` and injects it into `RemoteDataSource`.
-3. `RemoteDataSource` no longer owns `NetworkConfig` or URL concatenation; base URL ownership belongs to the client builder.
-4. Replaced Ktor `bodyAsText()` usage with the public `body<String>()` API.
-5. Updated `RemoteDataSourceTest` to match the simplified constructor and request boundary.
-6. No change was made to `DynamicRemoteDataSource` because its current responsibility is already minimal and correct.
+CB-Partner now follows that clean responsibility boundary while adapting the implementation for KMP.
 
-**Status: IMPLEMENTATION APPLIED — LOCAL COMPILE/TEST GATE PENDING**
+### Corrections implemented
 
-Required verification:
+1. Added standalone `:network` Gradle module.
+2. Added `NetworkException`, `NetworkResult`, `Paged`, and `Response` under `com.carbroz.cbpartner.network`.
+3. Added `http/DefaultError`, `http/RequestHandler`, and `http/HttpClientBuilder`.
+4. Added Ktor content negotiation, JSON serialization, auth, logging, mock, and default-engine dependencies required by the network boundary.
+5. Added `networkModule` inside `:network`; it creates the single configured `HttpClient` and the single `RequestHandler`.
+6. Removed `data/di/NetworkModule`.
+7. Removed `data/network/KtorClientBuilder`, `NetworkConfig`, and the generic `RemoteDataSource` wrapper.
+8. Updated `App.kt` and `app/build.gradle.kts` so application composition consumes `:network` directly.
+9. Updated `DefaultApplicationBootstrap` to use the shared `RequestHandler` while preserving bootstrap headers, JSON parsing, cancellation behavior, and HTTP failure mapping.
+10. Updated `DynamicRemoteDataSource` to use `RequestHandler` directly and return `NetworkResult<String>`.
+11. Updated `DynamicRepositoryImpl` to consume `NetworkResult` directly; no generic transport wrapper remains.
+12. Removed the obsolete `RemoteDataSourceTest` and updated bootstrap transport tests to inject `RequestHandler`.
+13. Added focused `RequestHandlerTest` coverage for successful and failed requests.
+14. Preserved HTTP status information in `NetworkException` because Bootstrap has a required `BootstrapFailure.Http(statusCode)` contract.
+15. Kept the network classes small and constructor-injected; no manager/coordinator/factory/helper layer was introduced.
+
+### Current source dependency graph
+
+```text
+app
+ ├── network
+ ├── data
+ ├── navigation
+ └── features
+
+network
+ └── Ktor
+
+data
+ ├── network
+ ├── domain
+ └── core
+
+feature:dynamic
+ └── domain
+
+feature:splash
+ └── domain
+
+domain
+ └── core
+```
+
+### Verification gate
+
+Implementation is applied on `feature/dynamic-ui`.
+
+The available GitHub integration cannot execute the Windows Gradle wrapper in the user's local `D:\CarBroz\CB-Partner` environment, so the final compile/test gate must be run locally after pulling the latest branch state.
+
+Required commands:
 
 ```powershell
+cd D:\CarBroz\CB-Partner
+git fetch origin
+git pull --ff-only origin feature/dynamic-ui
+
+.\gradlew.bat :network:compileKotlinJvm
 .\gradlew.bat :data:compileKotlinJvm
+.\gradlew.bat :feature:splash:compileKotlinJvm
 .\gradlew.bat :feature:dynamic:compileKotlinJvm
 .\gradlew.bat :app:compileKotlinJvm
-.\gradlew.bat :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
+
+.\gradlew.bat :network:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
 ```
 
-Do not continue to Unit 4 until this gate passes.
+**Status: IMPLEMENTATION APPLIED / LOCAL COMPILE-TEST GATE REQUIRED**
+
+Do not mark Unit 3 VERIFIED until the above commands pass.
 
 ## Unit 4 — Repository/data cleanup
 
@@ -288,6 +357,7 @@ cd D:\CarBroz\CB-Partner
 git fetch origin
 git pull --ff-only origin feature/dynamic-ui
 
+.\gradlew.bat :network:compileKotlinJvm
 .\gradlew.bat :navigation:compileKotlinJvm
 .\gradlew.bat :data:compileKotlinJvm
 .\gradlew.bat :domain:compileKotlinJvm
@@ -296,7 +366,7 @@ git pull --ff-only origin feature/dynamic-ui
 .\gradlew.bat :app:compileKotlinJvm
 .\gradlew.bat :webApp:compileKotlinWasmJs
 
-.\gradlew.bat :navigation:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
+.\gradlew.bat :network:jvmTest :navigation:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
 ```
 
 Windows iOS Simulator disabled-target warnings are expected.
@@ -313,9 +383,10 @@ Do not add the existing untracked `kotlin-js-store/` unless explicitly required.
 [ ] one permanent DynamicContainer
 [ ] App is thin
 [ ] Splash is the startup feature; no separate bootstrap feature/module
+[ ] standalone :network module
 [ ] one configured HttpClient
-[ ] one common request boundary
-[ ] one RemoteDataSource
+[ ] one common RequestHandler boundary
+[ ] no generic RemoteDataSource wrapper
 [ ] repositories small and explicit
 [ ] DTO/domain mapping explicit and minimal
 [ ] domain does not depend on data
