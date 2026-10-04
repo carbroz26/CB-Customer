@@ -2,9 +2,9 @@ package com.carbroz.cbpartner.feature.dynamic.renderer
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicComponent
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicGroup
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
@@ -48,20 +48,19 @@ class DynamicRenderer(
             return
         }
 
-        if (destination.templateId != null && destination.templateId != responseTemplate.id) {
+        if (destination.templateId != responseTemplate.id) {
             Text(text = "Dynamic template identity mismatch: ${destination.templateId} != ${responseTemplate.id}")
             return
         }
 
-        val selectedTemplateType = destination.templateType ?: responseTemplate.type
-        if (selectedTemplateType != responseTemplate.type) {
-            Text(text = "Dynamic template type mismatch: $selectedTemplateType != ${responseTemplate.type}")
+        if (destination.templateType != responseTemplate.type) {
+            Text(text = "Dynamic template type mismatch: ${destination.templateType} != ${responseTemplate.type}")
             return
         }
 
-        when (val registered = registry.getTemplate(selectedTemplateType)) {
+        when (val registered = registry.getTemplate(destination.templateType)) {
             is StackTemplate -> registered.Render(responseTemplate, this)
-            else -> Text(text = "Unsupported template: $selectedTemplateType")
+            else -> Text(text = "Unsupported template: ${destination.templateType}")
         }
     }
 
