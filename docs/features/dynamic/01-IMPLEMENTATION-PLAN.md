@@ -128,19 +128,43 @@ X-CarBroz-Build-Number: 1
 
 `startup.nextScreen` is mapped directly to `DynamicDestination`.
 
-## 6. One DynamicDestination for all navigation sources
+## 6. One DynamicDestination for the complete navigation flow
 
-Bootstrap `nextScreen`, a Dynamic API `nextScreen`, and a Dynamic action destination are three sources of the same destination concept, not three navigation systems.
+Bootstrap `nextScreen`, a Dynamic response `nextScreen`, and a Dynamic `navigate` action are not separate navigation concepts. They are inputs that resolve to the same canonical `DynamicDestination` and are handled by the same Dynamic navigation mechanism.
 
 ```text
-Bootstrap API nextScreen ───────┐
-Dynamic API nextScreen ─────────┼──→ DynamicDestination → DynamicNavigationState
-Dynamic action destination ─────┘
+Bootstrap response data.startup.nextScreen ──┐
+Dynamic response data.nextScreen ────────────┼──→ DynamicDestination
+Dynamic navigate action payload ─────────────┘            ↓
+                                               DynamicNavigationState
 ```
 
-There are no Bootstrap-specific or action-specific destination models. `templateType` selects rendering only and never decides business navigation.
+There is only one destination model and one Dynamic navigation mechanism. `DynamicDestination` lives directly under the shared domain `model` package so Bootstrap, Dynamic and action handling use the same contract.
 
-## 7. Dynamic feature boundary
+`templateType` selects rendering only and never decides business navigation.
+
+## 7. Dynamic response data contract
+
+`nextScreen` is part of the response `data` payload. It is not a sibling of `data` in the Dynamic API response envelope.
+
+For a screen response, the domain shape is:
+
+```text
+DynamicResponse
+  └── data: DynamicScreen
+        ├── screenId
+        ├── schemaVersion
+        ├── targetApp
+        ├── template
+        ├── theme
+        └── nextScreen: DynamicDestination?
+```
+
+`DynamicNextScreen` is not a separate domain model. `DynamicScreen.nextScreen` uses the shared `DynamicDestination` directly.
+
+Arbitrary non-screen response data remains available through `DynamicResponse.dataPayload` for chained actions and response references.
+
+## 8. Dynamic feature boundary
 
 ```text
 feature:dynamic
@@ -162,7 +186,7 @@ feature:dynamic
 
 Current package `feature/dynamic/.../domain/usecase/` is a naming/ownership cleanup target. Move to `feature/dynamic/.../usecase/` without creating a second domain layer.
 
-## 8. Network error contract
+## 9. Network error contract
 
 The network boundary must classify actual failures precisely:
 
@@ -190,7 +214,7 @@ Rules:
 - Business/API outcomes are not automatically converted into transport exceptions.
 - Do not duplicate an equivalent existing network error type.
 
-## 9. Current source map
+## 10. Current source map
 
 ### Application / Navigation
 
@@ -198,6 +222,7 @@ Rules:
 - `app/.../ApplicationContent.kt`
 - `navigation/.../DynamicNavigationState.kt`
 - `navigation/.../DynamicNavigationHost.kt`
+- `domain/.../model/DynamicDestination.kt`
 
 ### Splash / Bootstrap
 
@@ -252,7 +277,7 @@ domain/model/bootstrap/BootstrapConfig.kt
 - `network/Paged.kt`
 - `network/di/NetworkModule.kt`
 
-## 10. Frozen Dynamic vocabulary
+## 11. Frozen Dynamic vocabulary
 
 Initial definitions:
 
@@ -288,7 +313,7 @@ $response
 
 Do not create Login/OTP/Dashboard-specific screen architecture.
 
-## 11. Implementation sequence
+## 12. Implementation sequence
 
 ### Phase A — Bootstrap reconciliation
 
@@ -305,43 +330,45 @@ Do not create Login/OTP/Dashboard-specific screen architecture.
 
 ### Phase B — Shared destination/navigation
 
-11. Verify Bootstrap, Dynamic API and action destinations all use `DynamicDestination`.
-12. Verify push/replace/pop/back operate on the same destination type.
-13. Verify no `templateType` business-navigation branching exists.
+11. Verify Bootstrap, Dynamic response and action destinations all resolve to `DynamicDestination`.
+12. Verify Dynamic response `nextScreen` is read from `data`, not the response envelope root.
+13. Verify push/replace/pop/back operate on the same destination type.
+14. Verify no `templateType` business-navigation branching exists.
 
 ### Phase C — Dynamic cleanup and runtime completion
 
-14. Move feature use cases from `domain/usecase` to `usecase`.
-15. Complete request metadata/authentication integration.
-16. Complete frozen Dynamic state/reference/action behavior.
-17. Implement the frozen network exception taxonomy without duplicating existing types.
-18. Complete DYNAMIC-07 parse/resolve/diagnose/fallback/recovery/observability behavior.
+15. Move feature use cases from `domain/usecase` to `usecase`.
+16. Complete request metadata/authentication integration.
+17. Complete frozen Dynamic state/reference/action behavior.
+18. Implement the frozen network exception taxonomy without duplicating existing types.
+19. Complete DYNAMIC-07 parse/resolve/diagnose/fallback/recovery/observability behavior.
 
 ### Phase D — Product-flow verification
 
-19. Add backend-shaped Login → Send OTP → OTP → Verify OTP tests.
-20. Verify destination transitions and `responseMode` behavior.
-21. Verify Dynamic rendering with the fixed backend contract.
-22. Verify Android.
-23. Verify iOS/macOS-hosted targets where supported.
-24. Verify Web/Wasm where supported.
+20. Add backend-shaped Login → Send OTP → OTP → Verify OTP tests.
+21. Verify destination transitions and `responseMode` behavior.
+22. Verify Dynamic rendering with the fixed backend contract.
+23. Verify Android.
+24. Verify iOS/macOS-hosted targets where supported.
+25. Verify Web/Wasm where supported.
 
 ### Phase E — Final gate
 
-25. Perform literal plan-to-source compliance review.
-26. Resolve every remaining gap.
-27. Run complete feature tests/builds.
-28. Final Dynamic review.
-29. Code-freeze Dynamic.
+26. Perform literal plan-to-source compliance review.
+27. Resolve every remaining gap.
+28. Run complete feature tests/builds.
+29. Final Dynamic review.
+30. Code-freeze Dynamic.
 
-## 12. Definition of Done
+## 13. Definition of Done
 
 - [ ] Bootstrap Option B fully implemented.
 - [ ] No legacy Bootstrap domain duplicate models remain.
 - [ ] Exactly one production Bootstrap HTTP path exists.
 - [ ] Bootstrap DI/tests updated and green.
 - [ ] Bootstrap nextScreen maps to canonical `DynamicDestination`.
-- [ ] Dynamic API/action destinations use the same `DynamicDestination`.
+- [ ] Dynamic response nextScreen is inside `data` and maps to canonical `DynamicDestination`.
+- [ ] Dynamic navigate actions use the same `DynamicDestination`.
 - [ ] No templateType-based business navigation.
 - [ ] Dynamic use cases are in the feature-level `usecase` package.
 - [ ] Network exceptions are precisely classified.
@@ -356,22 +383,21 @@ Do not create Login/OTP/Dashboard-specific screen architecture.
 - [ ] Final Dynamic review accepted.
 - [ ] Dynamic code frozen.
 
-## 13. Verification baseline
+## 14. Verification baseline
 
-Owner-provided 2026-10-04 JVM verification passed:
+Owner-provided 2026-10-04 JVM verification passed before this model cleanup:
 
 ```text
-:network:compileKotlinJvm
+:domain:compileKotlinJvm
 :data:compileKotlinJvm
 :feature:splash:compileKotlinJvm
 :feature:dynamic:compileKotlinJvm
 :app:compileKotlinJvm
 
-:network:jvmTest
 :data:jvmTest
 :domain:jvmTest
 :feature:splash:jvmTest
 :feature:dynamic:jvmTest
 ```
 
-`BUILD SUCCESSFUL` is only the current baseline. It does not certify the remaining architectural/runtime gaps.
+The baseline does not certify this latest model refactor until the same verification is rerun.
