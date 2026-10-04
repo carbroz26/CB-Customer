@@ -1,16 +1,20 @@
 # CB-Partner — AI Context
 
-**Status:** PROPOSED
+**Status:** AUTHORITATIVE STABLE CONTEXT
 **Scope:** Frontend repository
-**Repository:** carbroz26/CB-Partner
+**Repository:** `carbroz26/CB-Partner`
+**Last Updated:** 2026-10-04
 
 ## Project Identity
-CB-Partner is the partner/service-provider frontend for a doorstep car-washing platform. This is a standalone frontend project. The backend has a separate repository, documentation system, and Trello workspace.
+
+CB-Partner is the partner/service-provider frontend for a doorstep car-washing platform. It is a standalone frontend project. The backend has a separate repository, documentation system and Trello workspace.
 
 ## Product Context
-The application serves service partners who perform doorstep car-washing services. Exact workflows are discovered and frozen feature-by-feature. AI must not invent business workflows.
+
+The application serves service partners who perform doorstep car-washing services. Exact product workflows are discovered and frozen feature-by-feature. AI must not invent business workflows.
 
 ## Technical Direction
+
 - Kotlin Multiplatform
 - Compose Multiplatform
 - Clean Architecture
@@ -18,29 +22,68 @@ The application serves service partners who perform doorstep car-washing service
 - UDF
 - No ViewModel
 - Multi-module architecture
-- Dependency Injection
+- Koin dependency injection
+- Ktor Client
+- kotlinx.serialization
+- Kermit logging
+- Navigation 3
 - Gradle Convention Plugins
 
-These are the current direction. Exact libraries and detailed contracts become binding only when accepted in the Decision Log.
+These are the current frozen direction where recorded by the relevant architecture decisions. Feature-specific contracts are authoritative only after their documented freeze.
 
-## Targets
-Android, iOS, and Desktop are intended targets where configured. Platform-specific requirements must be documented rather than assumed.
+## Current Platform Topology
+
+Current Gradle/application topology:
+
+```text
+Android → :androidApp
+Web/Wasm → :webApp
+iOS → iosApp/ native Xcode boundary
+```
+
+There is currently no `:desktopApp` Gradle project on `feature/dynamic-ui`. Older Base Architecture wording contains historical Desktop direction; do not treat it as a reason to change the current topology without an explicit architecture decision.
+
+## Current Feature State
+
+- Base Architecture 001–017: frozen.
+- BASE-ARCH-014: code frozen.
+- BASE-ARCH-017: verified/review accepted/code frozen.
+- Dynamic DYNAMIC-01 → DYNAMIC-07: discussion frozen.
+- Dynamic implementation: in progress.
+- Latest owner-provided focused JVM compile/test gate: BUILD SUCCESSFUL on 2026-10-04.
 
 ## Session Entry
-A new AI session reads AI_GUIDELINES.md, AI-RULES, CURRENT-STATUS, DECISION-LOG, and relevant architecture/feature documents, then inspects the actual repository and Git state.
+
+A new AI session reads `AI_START_HERE.md`, the Master State, Current Status, Project Tracker, relevant frozen architecture/feature documents, and actual Git state before acting.
 
 ## Authority
-The current user's explicit decision is authoritative for active work. Accepted project decisions are durable technical authority. Previous conversations are historical context and cannot override current documentation.
+
+The current user's explicit decision is authoritative for active work. Accepted/frozen project decisions are durable technical authority. Previous conversations are historical context and cannot override current documentation.
 
 ## Do Not Assume
-Do not assume DI, networking, navigation, persistence, API behavior, product rules, module names, package names, release dates, or platform behavior until documented.
 
-## Update Rule
-Keep this document short and stable. It is project context, not a task history.
+Do not assume DI details, networking behavior, navigation behavior, persistence, API behavior, product rules, module names, package names, platform behavior or backend contracts unless documented and accepted.
 
-**This document is PROPOSED until explicitly frozen.**
-## Operational State Recovery
-AI_START_HERE.md is the mandatory router. On every new session or ambiguous CONTINUE request, first read it, then read the Project Tracker and use the current state to select the relevant module documents. Do not infer the current module or unit from conversation history alone.
+## Stable Recovery Chain
 
-## Context Is Persistent
-The durable context chain is: AI_START_HERE → Project Tracker → Current Status → relevant Decision Log entries → relevant module Implementation Plan → relevant module Implementation Status → Git/Trello state. A new chat must be able to reconstruct work from this chain.
+```text
+AI_START_HERE
+  ↓
+Project Master State
+  ↓
+Project Tracker
+  ↓
+Current Status
+  ↓
+Decision / Architecture records
+  ↓
+Feature Discussion
+  ↓
+Implementation Plan
+  ↓
+Implementation Status
+  ↓
+Git / Trello / source verification
+```
+
+Historical chat is not part of the authoritative recovery chain.
