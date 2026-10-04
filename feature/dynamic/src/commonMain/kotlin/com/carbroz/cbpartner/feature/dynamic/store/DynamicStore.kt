@@ -69,7 +69,7 @@ class DynamicStore(
     fun accept(intent: DynamicIntent) {
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
-            is DynamicIntent.ValueChanged -> values[intent.key] = intent.value
+            is DynamicIntent.ValueChanged -> values[requestKey(intent.key)] = intent.value
             is DynamicIntent.Action -> handleAction(intent.action)
         }
     }
@@ -103,12 +103,14 @@ class DynamicStore(
         val method = string(action.payload["method"]) ?: "POST"
         val authentication = string(action.payload["authentication"])
 
-        // Request bodies are always JSON. If the backend action supplies an
-        // explicit body, resolve its bindings. Otherwise submit the current
-        // dynamic field values as the request object. Device ID is added at
-        // the top level so auth/send_otp receives { phoneNumber, deviceId }.
+        // Normalize dynamic input state before constructing the request. This
+        // guarantees aliases such as phone/mobile resolve to the API contract
+        // key phoneNumber instead of sending an empty or incorrectly named field.
         val resolvedBody = action.payload["body"]?.resolveBindings()
-            ?: JsonObject(values.mapValues { (_, value) -> JsonPrimitive(value) })
+            ?: JsonObject(
+                values.mapKeys { (key, _) -> requestKey(key) }
+                    .mapValues { (_, value) -> JsonPrimitive(value) },
+            )
         val body = resolvedBody.withDeviceId()
             .let { Json.encodeToString(JsonElement.serializer(), it) }
 
@@ -151,9 +153,12 @@ class DynamicStore(
         is DynamicValue.ObjectValue -> {
             val binding = (value["${'$'}binding"] as? DynamicValue.StringValue)?.value
             if (binding != null) {
-                JsonPrimitive(values[binding] ?: "")
+                JsonPrimitive(values[requestKey(binding)] ?: "")
             } else {
-                JsonObject(value.mapValues { (_, child) -> child.resolveBindings() })
+                JsonObject(
+                    value.mapKeys { (key, _) -> requestKey(key) }
+                        .mapValues { (_, child) -> child.resolveBindings() },
+                )
             }
         }
         is DynamicValue.ArrayValue -> JsonArray(value.map { it.resolveBindings() })
@@ -170,6 +175,12 @@ class DynamicStore(
             JsonObject(toMutableMap().apply { put("deviceId", JsonPrimitive(deviceId)) })
         }
         else -> JsonObject(mapOf("body" to this, "deviceId" to JsonPrimitive(deviceId)))
+    }
+
+    private fun requestKey(key: String): String = when (key) {
+        "phone", "phone_number", "mobile", "mobileNumber" -> "phoneNumber"
+        "device_id" -> "deviceId"
+        else -> key
     }
 
     private fun string(value: DynamicValue?): String? =
