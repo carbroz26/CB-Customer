@@ -3,7 +3,7 @@ package com.carbroz.cbpartner.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 
 @Composable
 fun DynamicNavigationHost(
