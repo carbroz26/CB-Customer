@@ -7,10 +7,12 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class RemoteDataSourceTest {
     @Test
@@ -68,7 +70,8 @@ class RemoteDataSourceTest {
         val engine = MockEngine { request ->
             assertEquals(HttpMethod.Post, request.method)
             assertEquals(ContentType.Application.Json, request.body.contentType)
-            assertEquals(expectedBody, request.body.toByteArray().decodeToString())
+            val body = assertIs<TextContent>(request.body)
+            assertEquals(expectedBody, body.text)
             respond(
                 content = "{\"ok\":true}",
                 status = HttpStatusCode.OK,
