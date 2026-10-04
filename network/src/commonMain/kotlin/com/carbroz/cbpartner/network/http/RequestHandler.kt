@@ -40,15 +40,18 @@ class RequestHandler(val httpClient: HttpClient) {
             NetworkResult.Success(response)
         } catch (e: Exception) {
             val networkException = if (e is ResponseException) {
-                val errorBody = e.response.body<DefaultError>()
+                val errorMessage = runCatching {
+                    e.response.body<DefaultError>().message
+                }.getOrDefault("API Not found")
+
                 when (e.response.status) {
                     HttpStatusCode.Unauthorized -> NetworkException.UnauthorizedException(
-                        errorBody.message,
+                        errorMessage,
                         e,
                     )
 
                     else -> NetworkException.NotFoundException(
-                        "API Not found",
+                        errorMessage,
                         e,
                         e.response.status.value,
                     )
