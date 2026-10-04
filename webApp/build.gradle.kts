@@ -5,15 +5,9 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":data"))
-            implementation(project(":domain"))
-            implementation(project(":navigation"))
-            implementation(project(":feature:splash"))
-            implementation(project(":feature:dynamic"))
-            implementation(libs.koin.core)
+            implementation(project(":app"))
             implementation(compose.runtime)
             implementation(compose.ui)
-            implementation(compose.material3)
         }
     }
 }
