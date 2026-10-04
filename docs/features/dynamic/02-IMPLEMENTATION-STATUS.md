@@ -38,7 +38,7 @@ No silent deviation is permitted.
    - `image`
 3. Added duplicate-registration protection.
 4. Removed `FormTemplate`, `InputElement`, and `ButtonElement` from the Dynamic implementation.
-5. Simplified `DynamicRenderer` to the initial definitions and destination template identity check.
+5. Simplified `DynamicRenderer` to the initial definitions and destination identity checks.
 6. Added `LoadDynamicScreenUseCase`.
 7. Added `ExecuteDynamicActionUseCase`.
 8. Reduced `DynamicStore` to MVI/UDF orchestration and removed its direct request-building/network logic.
@@ -50,11 +50,13 @@ No silent deviation is permitted.
 14. Kept request-body resolution as domain values until the data boundary.
 15. Added focused action-use-case coverage for binding/context resolution and destination response handling.
 16. Updated Store tests to verify that the Store/use-case boundary passes resolved domain values rather than serialized JSON.
+17. Added destination screen/template identity validation before Dynamic rendering.
+18. Updated `DynamicScreen` to reset/load the Store for each destination and pass the complete destination into rendering.
 
 ## Remaining Implementation Work
 
 - verify DI/wiring for Store and use cases;
-- complete common request metadata integration using the existing Runtime Infrastructure boundary;
+- complete common request metadata integration using the existing Runtime Infrastructure boundary, without modifying the frozen BASE-ARCH-017 contract;
 - verify Bootstrap `startup.nextScreen` → `DynamicDestination` integration;
 - verify destination/back-stack integration;
 - complete focused Dynamic tests;
