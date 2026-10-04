@@ -4,7 +4,7 @@
 **State:** DISCUSSION FROZEN / IMPLEMENTATION SOURCE OF TRUTH  
 **Scope:** Dynamic UI vertical slice, Bootstrap/Splash boundary, shared destination, network error classification
 
-This record closes the current reconciliation discussion. It supersedes conflicting historical implementation wording but does not reopen DYNAMIC-01 → DYNAMIC-07 or BASE-ARCH-001 → BASE-ARCH-017.
+This record closes the current reconciliation discussion. It supersedes conflicting historical implementation wording and incorporates the frozen DYNAMIC-08 unified destination contract. It does not reopen DYNAMIC-01 → DYNAMIC-07 or BASE-ARCH-001 → BASE-ARCH-017.
 
 ## 1. Splash and Bootstrap are one flow
 
@@ -72,20 +72,14 @@ The old `StartupConfig`, `NextScreenConfig`, and separate `BootstrapConfig` doma
 
 `BootstrapOutput` represents the Bootstrap result and contains the Bootstrap configuration/state required by startup plus the canonical `DynamicDestination` for the next screen. The destination is not wrapped in a Bootstrap-specific destination/config class.
 
-The exact transport DTO hierarchy may mirror the backend JSON; transport names do not define the domain architecture.
-
 ## 4. One destination concept for the whole Dynamic system
 
-Bootstrap `nextScreen`, Dynamic API `nextScreen`, and Dynamic action `navigate` destination are not three navigation concepts.
-
-They are three possible sources of the **same canonical `DynamicDestination`**.
+Bootstrap startup destination, Dynamic API destination, and Dynamic action destination are all the same canonical `DynamicDestination` concept.
 
 ```text
-Bootstrap API nextScreen ───────┐
-                                │
-Dynamic API nextScreen ─────────┼──→ DynamicDestination
-                                │
-Dynamic action destination ─────┘
+Bootstrap startup destination ───┐
+Dynamic API destination ─────────┼──→ DynamicDestination
+Dynamic action destination ──────┘
                                       ↓
                             Dynamic Navigation State
                                       ↓
@@ -99,9 +93,9 @@ screenId
 templateId
 templateType
 endpoint
-method
-authentication
 ```
+
+`method` and `authentication` are explicitly **not** part of destination identity. They are request metadata handled at the request boundary.
 
 Rules:
 
@@ -127,7 +121,7 @@ DynamicRemoteDataSource
 RequestHandler
 ```
 
-Bootstrap must follow the same Data layering:
+Bootstrap follows the same Data layering:
 
 ```text
 BootstrapRepository
@@ -139,15 +133,13 @@ BootstrapRemoteDataSource
 RequestHandler
 ```
 
-This does not mean Bootstrap becomes a second Dynamic feature. It means both API/data boundaries use the same Clean Architecture repository/data-source classification.
-
 ## 6. Dynamic use-case ownership
 
 `LoadDynamicScreenUseCase` and `ExecuteDynamicActionUseCase` are feature orchestration use cases.
 
 They must remain outside top-level `:domain` because `ExecuteDynamicActionUseCase` coordinates Dynamic feature-owned action capabilities.
 
-The current `feature/dynamic/.../domain/usecase/` package name is misleading. The implementation cleanup target is:
+The current package cleanup target is:
 
 ```text
 feature/dynamic/.../usecase/
@@ -166,16 +158,16 @@ NetworkException
 ├── BadRequestException          → HTTP 400
 ├── UnauthorizedException        → HTTP 401
 ├── ForbiddenException           → HTTP 403
-├── NotFoundException             → HTTP 404
-├── ConflictException             → HTTP 409
-├── ValidationException           → HTTP 422
-├── RateLimitException            → HTTP 429
-├── ServerException               → HTTP 5xx
-├── NetworkConnectionException    → connection cannot be established
-├── TimeoutException              → connect/request/socket timeout
-├── SerializationException        → response cannot be decoded
-├── ProtocolException             → malformed/unexpected HTTP/protocol response
-└── UnknownNetworkException       → genuinely unclassified failure
+├── NotFoundException            → HTTP 404
+├── ConflictException            → HTTP 409
+├── ValidationException          → HTTP 422
+├── RateLimitException           → HTTP 429
+├── ServerException              → HTTP 5xx
+├── NetworkConnectionException   → connection cannot be established
+├── TimeoutException             → connect/request/socket timeout
+├── SerializationException       → response cannot be decoded
+├── ProtocolException            → malformed/unexpected HTTP/protocol response
+└── UnknownNetworkException      → genuinely unclassified failure
 ```
 
 Classification rules:
@@ -186,9 +178,9 @@ Classification rules:
 - Serialization failures are distinct from HTTP status failures.
 - Protocol failures are distinct from application/business errors.
 - Unknown is the final fallback only when no more precise classification applies.
-- The network layer must not convert business-level API outcomes into transport exceptions merely because the business operation failed.
+- Business-level API outcomes are not automatically converted into transport exceptions.
 
-This taxonomy is an implementation contract for `:network`; exact Kotlin inheritance/naming must follow the existing network package conventions and must not duplicate equivalent existing types.
+This taxonomy is an implementation contract for `:network` and must not duplicate equivalent existing types.
 
 ## 8. Bootstrap API contract
 
@@ -204,37 +196,71 @@ X-CarBroz-App-Version: 1.0.0
 X-CarBroz-Build-Number: 1
 ```
 
-The response contains `config` and `startup`, with `startup.nextScreen` converted into the canonical `DynamicDestination`.
+The response contains `config` and `startup`, with the startup destination mapped to the canonical four-field `DynamicDestination`.
 
-## 9. Implementation order after this freeze
+## 9. Verification completed — 2026-10-04
 
-1. Reconcile/remove legacy `StartupConfig`, `NextScreenConfig`, and `BootstrapConfig` domain contracts.
-2. Implement Bootstrap Option B completely.
-3. Update Bootstrap DI so exactly one production Bootstrap request path exists.
-4. Update Bootstrap DTO/mapper/repository/data-source tests.
-5. Implement/verify canonical `DynamicDestination` conversion and navigation hand-off.
-6. Clean Dynamic feature use-case package ownership.
-7. Implement the frozen network exception taxonomy without duplicating existing error models.
-8. Complete request metadata/authentication integration.
-9. Complete remaining DYNAMIC-06 behavior.
-10. Complete DYNAMIC-07 fallback/recovery/diagnostic/observability implementation.
-11. Verify Login → Send OTP → OTP → Verify OTP using backend-shaped fixtures.
-12. Verify push/replace/pop/back using the same `DynamicDestination` model.
-13. Run platform verification where supported.
-14. Perform literal plan-to-source review.
-15. Final Dynamic review and code freeze.
+The affected source/test reconciliation has now passed the owner-provided JVM verification.
 
-## 10. Definition of done for this reconciliation
+Compile set:
+
+```text
+:domain:compileKotlinJvm
+:data:compileKotlinJvm
+:feature:splash:compileKotlinJvm
+:feature:dynamic:compileKotlinJvm
+:navigation:compileKotlinJvm
+:app:compileKotlinJvm
+```
+
+Result: **BUILD SUCCESSFUL — 43 actionable tasks: 43 executed**.
+
+JVM verification set:
+
+```text
+:core:jvmTest
+:domain:jvmTest
+:data:jvmTest
+:navigation:jvmTest
+:feature:splash:jvmTest
+:feature:dynamic:jvmTest
+:app:compileKotlinJvm
+```
+
+Result: **BUILD SUCCESSFUL — 62 actionable tasks: 62 executed**.
+
+This closes the DYNAMIC-08 source/test alignment gate. It does **not** mean the complete Dynamic vertical slice is finished.
+
+## 10. Implementation order after this reconciliation
+
+1. Implement Bootstrap Option B completely.
+2. Reconcile/remove legacy `StartupConfig`, `NextScreenConfig`, and `BootstrapConfig` domain contracts.
+3. Update Bootstrap DI and tests so exactly one production Bootstrap request path exists.
+4. Verify canonical `DynamicDestination` runtime hand-off.
+5. Clean Dynamic feature use-case package ownership.
+6. Implement/verify the frozen network exception taxonomy.
+7. Complete request metadata/authentication integration.
+8. Complete remaining frozen Dynamic state/reference/action behavior.
+9. Complete DYNAMIC-07 fallback/recovery/diagnostic/observability implementation.
+10. Verify Login → Send OTP → OTP → Verify OTP using backend-shaped fixtures.
+11. Verify push/replace/pop/back using the same four-field `DynamicDestination` model.
+12. Run platform verification where supported.
+13. Perform literal plan-to-source review.
+14. Final Dynamic review and code freeze.
+
+## 11. Definition of done for the current reconciliation
 
 - [x] Splash and Bootstrap treated as one startup flow.
 - [x] Bootstrap Option B selected and frozen.
-- [x] One canonical `DynamicDestination` selected for Bootstrap, Dynamic responses and actions.
+- [x] One canonical four-field `DynamicDestination` selected for Bootstrap, Dynamic responses and actions.
 - [x] No separate navigation concept for Bootstrap/API/action destinations.
 - [x] Feature use-case ownership clarified.
 - [x] Production-oriented network exception classification frozen.
-- [ ] Source implementation of the above completed.
-- [ ] Tests updated and passing after implementation.
+- [x] DYNAMIC-08 source/test alignment completed.
+- [x] Affected JVM compile/test verification passed.
+- [ ] Bootstrap Option B full implementation completed.
+- [ ] Full Dynamic vertical slice verification completed.
 
-## 11. Important documentation rule
+## 12. Important documentation rule
 
 Any older active implementation document that says the Bootstrap endpoint is unknown, that `DefaultApplicationBootstrap` is the final architecture, that `StartupConfig`/`NextScreenConfig` are canonical domain contracts, or that Bootstrap/Dynamic/action destinations are separate navigation concepts is stale and must be treated as superseded by this record.
