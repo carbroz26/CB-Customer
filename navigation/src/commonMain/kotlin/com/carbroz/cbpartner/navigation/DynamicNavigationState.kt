@@ -2,7 +2,7 @@ package com.carbroz.cbpartner.navigation
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 
 class DynamicNavigationState(
     initialDestination: DynamicDestination,
