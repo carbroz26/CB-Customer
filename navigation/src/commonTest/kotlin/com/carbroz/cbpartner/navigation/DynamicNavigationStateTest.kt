@@ -1,6 +1,6 @@
 package com.carbroz.cbpartner.navigation
 
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -52,10 +52,8 @@ class DynamicNavigationStateTest {
 
     private fun destination(screenId: String) = DynamicDestination(
         screenId = screenId,
-        templateId = "template-$screenId",
+        templateId = "tpl_P900${screenId.take(1).uppercase()}",
         templateType = "stack_template",
         endpoint = "/api/v1/partner/screen/$screenId",
-        method = "GET",
-        authentication = "NONE",
     )
 }
