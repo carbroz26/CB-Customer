@@ -10,15 +10,15 @@
 | Field | Current value |
 |---|---|
 | Phase | Dynamic UI vertical slice implementation |
-| Current module | `:feature:dynamic` + supporting `:app/:navigation/:data/:network` boundaries |
+| Current module | `:feature:dynamic` + `:feature:splash` + supporting `:app/:navigation/:data/:network` boundaries |
 | Current work item | DYNAMIC-UI-001 — Dynamic UI vertical slice |
 | Workflow | IMPLEMENTATION IN PROGRESS |
 | Branch | `feature/dynamic-ui` |
 | Discussion | DYNAMIC-01 → DYNAMIC-07 FROZEN |
 | Plan | PLAN FROZEN / IMPLEMENTATION AUTHORIZED |
 | Latest JVM verification | BUILD SUCCESSFUL — 2026-10-04 |
-| Blocker | No test/build blocker currently; platform verification and remaining Dynamic implementation are pending |
-| Next action | Continue Dynamic implementation/testing; then Login → OTP integration verification |
+| Blocker | No compile/test blocker; architectural/runtime gaps remain and are explicitly tracked |
+| Next action | Implement Option B Bootstrap repository/remote-source boundary, then continue Dynamic runtime gaps |
 
 ## Base Architecture Register
 
@@ -65,9 +65,9 @@ Canonical record: `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
 | `DynamicDestination` | IMPLEMENTED | `domain/model/dynamic/DynamicModels.kt` |
 | Navigation state | IMPLEMENTED | `navigation/DynamicNavigationState.kt` |
 | Dynamic container | IMPLEMENTED | `feature/dynamic/DynamicContainer.kt` |
-| Dynamic Store | IMPLEMENTED | `feature/dynamic/store/DynamicStore.kt` |
-| Load screen use case | IMPLEMENTED | `LoadDynamicScreenUseCase.kt` |
-| Execute action use case | IMPLEMENTED | `ExecuteDynamicActionUseCase.kt` |
+| Dynamic Store | IMPLEMENTED / FINAL CONTRACT REVIEW PENDING | `feature/dynamic/store/DynamicStore.kt` |
+| Load screen use case | IMPLEMENTED / PACKAGE CLEANUP PENDING | `LoadDynamicScreenUseCase.kt` |
+| Execute action use case | IMPLEMENTED / PACKAGE CLEANUP PENDING | `ExecuteDynamicActionUseCase.kt` |
 | Registry | IMPLEMENTED | `DynamicRegistry.kt` |
 | Renderer | IMPLEMENTED | `DynamicRenderer.kt` |
 | Initial definitions | IMPLEMENTED | `StackTemplate`, `StackComponent`, `StackSection`, `StackGroup`, `TextElement`, `ImageElement` |
@@ -75,9 +75,14 @@ Canonical record: `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
 | Dynamic remote source | IMPLEMENTED | `DynamicRemoteDataSource.kt` |
 | DTO / mapper | IMPLEMENTED | `DynamicResponseDto.kt`, `DynamicResponseMapper.kt` |
 | Shared network boundary | IMPLEMENTED / JVM VERIFIED | `RequestHandler`, `HttpClientBuilder`, `NetworkModule` |
+| Bootstrap API contract | KNOWN / DOCUMENTED | `GET /api/v1/partner/config/bootstrap` |
 | Bootstrap → DynamicDestination | IMPLEMENTED / TESTED | `BootstrapMapper.kt` |
+| Bootstrap repository | REQUIRED / NOT IMPLEMENTED | `domain/repository/BootstrapRepository.kt` |
+| Bootstrap repository implementation | REQUIRED / NOT IMPLEMENTED | `data/bootstrap/BootstrapRepositoryImpl.kt` |
+| Bootstrap remote source | REQUIRED / NOT IMPLEMENTED | `data/bootstrap/remote/BootstrapRemoteDataSource.kt` |
+| Current DefaultApplicationBootstrap | TRANSITIONAL / MUST BE REWORKED | `data/bootstrap/DefaultApplicationBootstrap.kt` |
 | DYNAMIC-07 fallback/recovery/observability | PARTIAL / PENDING | Discussion frozen; complete production implementation remains |
-| Login → OTP integration | CONTRACT FROZEN / VERIFICATION PENDING | Backend-shaped contract recorded in Master State |
+| Login → OTP integration | CONTRACT FROZEN / VERIFICATION PENDING | Backend-shaped contract recorded in plan/status |
 | Dashboard | PENDING | Must remain backend-driven; no hardcoded screen architecture |
 
 ## Latest Verification Record — 2026-10-04
@@ -102,6 +107,48 @@ BUILD SUCCESSFUL
 ```
 
 The previous `BootstrapRemoteDataSourceTest.nonSuccessfulHttpStatusIsMapped` failure is resolved.
+
+## Bootstrap / Splash Contract
+
+Splash and Bootstrap are one startup flow:
+
+```text
+Splash UI
+  ↓
+SplashStore
+  ↓
+ApplicationBootstrap
+  ↓
+BootstrapRepository
+  ↓
+BootstrapRepositoryImpl
+  ↓
+BootstrapRemoteDataSource
+  ↓
+RequestHandler
+  ↓
+BootstrapMapper
+  ↓
+BootstrapOutput.startup.nextScreen
+  ↓
+DynamicDestination
+```
+
+Actual Bootstrap request:
+
+```text
+GET /api/v1/partner/config/bootstrap
+```
+
+Headers:
+
+```text
+X-CarBroz-Platform: ANDROID
+X-CarBroz-App-Version: 1.0.0
+X-CarBroz-Build-Number: 1
+```
+
+This is the selected Option B implementation boundary. It does not reopen the frozen startup responsibility.
 
 ## Login → OTP Status
 
@@ -147,17 +194,20 @@ POST /api/v1/partner/auth/verify_otp
 
 | Priority | Work | State |
 |---|---|---|
-| 1 | Reconcile historical architecture wording with current `:network/:app/:webApp` topology | OPEN |
-| 2 | Complete request metadata/auth integration through frozen runtime/network boundary | OPEN |
-| 3 | Complete Dynamic state/reference/action behavior required by actual backend contract | IN PROGRESS |
-| 4 | Complete DYNAMIC-07 fallback/recovery/observability implementation | OPEN |
-| 5 | Login → Send OTP → OTP → Verify OTP integration tests | OPEN |
-| 6 | Full backend-driven navigation/back/replace verification | OPEN |
-| 7 | Android verification | OPEN |
-| 8 | iOS/macOS-hosted verification | OPEN |
-| 9 | Web/Wasm verification | OPEN |
-| 10 | Literal plan-to-source compliance review | OPEN |
-| 11 | Final Dynamic feature review and code freeze | OPEN |
+| 1 | Implement BootstrapRepository + BootstrapRepositoryImpl + BootstrapRemoteDataSource | OPEN / NEXT |
+| 2 | Update Bootstrap DI, tests and remove/rework direct DefaultApplicationBootstrap HTTP path | OPEN |
+| 3 | Verify complete Splash → Bootstrap → DynamicDestination runtime | OPEN |
+| 4 | Move Dynamic feature use cases from `domain/usecase` to feature `usecase` package | OPEN |
+| 5 | Complete request metadata/authentication integration | OPEN |
+| 6 | Complete all required Dynamic state/reference/action behavior | IN PROGRESS |
+| 7 | Complete DYNAMIC-07 fallback/recovery/observability | OPEN |
+| 8 | Login → Send OTP → OTP → Verify OTP integration tests | OPEN |
+| 9 | Full backend-driven navigation/back/replace verification | OPEN |
+| 10 | Android verification | OPEN |
+| 11 | iOS/macOS-hosted verification | OPEN |
+| 12 | Web/Wasm verification | OPEN |
+| 13 | Literal plan-to-source compliance review | OPEN |
+| 14 | Final Dynamic feature review and code freeze | OPEN |
 
 ## Explicitly Closed / Do Not Reopen
 
@@ -166,7 +216,7 @@ POST /api/v1/partner/auth/verify_otp
 - DYNAMIC-01 through DYNAMIC-07 discussion decisions.
 - Previously resolved Bootstrap HTTP-status test failure.
 
-Reopening any frozen decision requires the documented reopening process and explicit owner direction.
+Option B is an implementation refinement inside the frozen startup responsibility; it is not a reopening of BASE-ARCH-012/013.
 
 ## Trello
 
