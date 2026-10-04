@@ -94,9 +94,9 @@ class DynamicStore(
                 previousResponse = previousResponseData,
             ).onSuccess { result ->
                 when (result) {
-                    is DynamicActionResult.Completed -> previousResponseData = result.response.dataPayload
+                    is DynamicActionResult.Completed -> previousResponseData = result.response.asResponseReference()
                     is DynamicActionResult.Navigate -> {
-                        previousResponseData = result.response?.dataPayload
+                        result.response?.let { previousResponseData = it.asResponseReference() }
                         _effects.value = DynamicEffect.Navigate(result.destination)
                     }
                     is DynamicActionResult.ExternalUri -> {
@@ -110,6 +110,9 @@ class DynamicStore(
             }
         }
     }
+
+    private fun DynamicResponse.asResponseReference(): DynamicValue? =
+        dataPayload?.let { DynamicValue.ObjectValue(mapOf("data" to it)) }
 
     fun clearEffect() {
         _effects.value = null
