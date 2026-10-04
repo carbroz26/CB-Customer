@@ -17,12 +17,13 @@ Complete the backend-driven Dynamic UI runtime and verify the first real product
 - BASE-ARCH-014: **CODE_FROZEN**
 - BASE-ARCH-017: **VERIFIED / REVIEW ACCEPTED / CODE_FROZEN**
 - DYNAMIC-01 → DYNAMIC-07: **DISCUSSION FROZEN**
+- DYNAMIC-08 unified destination contract: **FROZEN**
 - Dynamic implementation plan: **PLAN_FROZEN / IMPLEMENTATION AUTHORIZED**
 - Pure Store + MVI/UDF: frozen direction
 - No ViewModel: frozen
 - Backend-driven Dynamic navigation/rendering: frozen
 - Bootstrap Option B: **FROZEN AS IMPLEMENTATION BOUNDARY**
-- One canonical `DynamicDestination`: **FROZEN**
+- One canonical four-field `DynamicDestination`: **FROZEN**
 - Network exception classification: **FROZEN FOR IMPLEMENTATION**
 
 ## Current Work Item
@@ -37,25 +38,53 @@ feature/dynamic-ui
 
 ## Latest Verification — 2026-10-04
 
-Owner-provided JVM verification:
+The latest owner-provided verification passed after the DYNAMIC-08 destination-contract reconciliation.
+
+Compile verification:
 
 ```powershell
-.\gradlew.bat :network:compileKotlinJvm
-.\gradlew.bat :data:compileKotlinJvm
-.\gradlew.bat :feature:splash:compileKotlinJvm
-.\gradlew.bat :feature:dynamic:compileKotlinJvm
-.\gradlew.bat :app:compileKotlinJvm
-
-.\gradlew.bat :network:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
+.\gradlew.bat `
+  :domain:compileKotlinJvm `
+  :data:compileKotlinJvm `
+  :feature:splash:compileKotlinJvm `
+  :feature:dynamic:compileKotlinJvm `
+  :navigation:compileKotlinJvm `
+  :app:compileKotlinJvm `
+  --rerun-tasks
 ```
 
-Result: **BUILD SUCCESSFUL — 54 actionable tasks: 15 executed, 39 up-to-date**.
+Result: **BUILD SUCCESSFUL — 43 actionable tasks: 43 executed**.
 
-This is a baseline only; it does not certify all architecture/runtime gaps.
+JVM test verification:
+
+```powershell
+.\gradlew.bat `
+  :core:jvmTest `
+  :domain:jvmTest `
+  :data:jvmTest `
+  :navigation:jvmTest `
+  :feature:splash:jvmTest `
+  :feature:dynamic:jvmTest `
+  :app:compileKotlinJvm `
+  --rerun-tasks
+```
+
+Result: **BUILD SUCCESSFUL — 62 actionable tasks: 62 executed**.
+
+Therefore the currently selected JVM compile/test set is green. The Gradle output contains known Windows-only warnings for disabled iOS simulator tests and Android host-test configuration; these are warnings, not failures.
+
+## Completed Since Previous Verification
+
+- Restored the `DynamicActionDto` mapper import and resolved the response-mapper compile ambiguity.
+- Aligned response-mapper tests with the unified destination contract.
+- Aligned the Bootstrap repository test with the unified destination contract.
+- Removed stale test expectations for `nextScreen`, `method`, and `authentication` from the affected destination/screen assertions.
+- Verified the affected modules compile successfully.
+- Verified the selected common/JVM test suites pass.
 
 ## Startup / Bootstrap State
 
-Splash and Bootstrap are one flow:
+Splash and Bootstrap remain one startup flow:
 
 ```text
 Splash UI / Store
@@ -72,7 +101,13 @@ Splash UI / Store
 
 Selected implementation boundary: **Option B**.
 
-The current source still requires removal/rework of the transitional direct `DefaultApplicationBootstrap → RequestHandler` path.
+The remaining Bootstrap work is implementation cleanup/integration, not architecture discussion.
+
+Transitional code still requiring implementation cleanup:
+
+```text
+DefaultApplicationBootstrap → RequestHandler
+```
 
 Legacy domain contracts that must not remain as parallel contracts:
 
@@ -96,17 +131,17 @@ X-CarBroz-Build-Number: 1
 
 ## Canonical Dynamic Destination
 
-Bootstrap `nextScreen`, Dynamic API destinations and Dynamic action destinations all produce the same:
+Bootstrap startup destinations, Dynamic response destinations, and Dynamic action destinations all produce the same four-field model:
 
 ```text
 DynamicDestination
 ├── screenId
 ├── templateId
 ├── templateType
-├── endpoint
-├── method
-└── authentication
+└── endpoint
 ```
+
+HTTP method is request metadata and is not part of `DynamicDestination`. Authentication is likewise not part of the canonical destination model.
 
 There is one navigation/back-stack mechanism. `templateType` selects rendering only; it never selects business navigation.
 
@@ -125,12 +160,13 @@ Implemented baseline includes:
 - initial frozen definitions
 - Dynamic repository/data source/DTO/mapper
 - shared `:network` RequestHandler/Ktor infrastructure
+- DYNAMIC-08 destination mapping across Bootstrap, Dynamic response and action paths
 
 Feature use cases remain feature orchestration. Their package cleanup target is `feature/dynamic/.../usecase/`; they must not be moved into top-level `:domain`.
 
 ## Network Error State
 
-The implementation contract is:
+The classification contract is frozen, but implementation remains pending:
 
 ```text
 BadRequestException
@@ -148,28 +184,26 @@ ProtocolException
 UnknownNetworkException
 ```
 
-Implementation must classify the actual cause and preserve the distinction between transport/protocol errors and business/API outcomes.
-
 ## Pending Work — Ordered
 
 1. Implement Bootstrap Option B completely.
-2. Remove/rework legacy Bootstrap domain models and direct HTTP path.
+2. Remove/rework legacy Bootstrap domain models and the transitional direct HTTP path.
 3. Update Bootstrap DI and tests.
 4. Verify Bootstrap → canonical `DynamicDestination` runtime hand-off.
 5. Clean Dynamic use-case package ownership.
-6. Complete request metadata/authentication.
-7. Complete frozen Dynamic state/reference/action behavior.
-8. Implement the frozen network exception taxonomy.
+6. Complete request metadata/authentication integration.
+7. Complete the remaining frozen Dynamic state/reference/action behavior.
+8. Implement and test the frozen network exception taxonomy.
 9. Complete DYNAMIC-07 fallback/recovery/diagnostic/observability implementation.
-10. Add Login → Send OTP → OTP → Verify OTP integration tests.
-11. Verify push/replace/pop/back using the same `DynamicDestination`.
+10. Add backend-shaped Login → Send OTP → OTP → Verify OTP integration tests.
+11. Verify push/replace/pop/back using the same four-field `DynamicDestination`.
 12. Verify Android, iOS/macOS-hosted and Web/Wasm where supported.
 13. Perform literal plan-to-source compliance review.
 14. Final Dynamic review and code freeze.
 
 ## Explicitly Not Done
 
-- Bootstrap Option B source implementation.
+- Bootstrap Option B final source reconciliation.
 - Legacy Bootstrap domain model cleanup.
 - Final Bootstrap DI/test reconciliation.
 - Full canonical destination runtime verification.
@@ -179,17 +213,6 @@ Implementation must classify the actual cause and preserve the distinction betwe
 - Full platform verification.
 - Final Dynamic feature freeze.
 
-## Recovery Documents
-
-1. `AI_START_HERE.md`
-2. `docs/project-management/14-PROJECT-MASTER-STATE.md`
-3. `docs/project-management/12-PROJECT-TRACKER.md`
-4. `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
-5. `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
-6. `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md`
-7. `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`
-8. `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md`
-
 ## Next Valid Action
 
-**Implement Bootstrap Option B completely, including legacy domain-model cleanup, DI and tests. Then verify the shared `DynamicDestination` runtime hand-off before continuing the remaining Dynamic gaps.**
+**Start the next already-authorized implementation item: complete Bootstrap Option B, including legacy-domain cleanup and DI/test reconciliation. Do not reopen DYNAMIC-01 → DYNAMIC-08 architecture decisions.**
