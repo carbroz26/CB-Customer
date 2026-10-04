@@ -4,25 +4,15 @@
 
 **PLAN FROZEN — IMPLEMENTATION AUTHORIZED**
 
-This is the single implementation contract for the current Dynamic refactor. Implementation must match this plan exactly.
+This document is the implementation contract for the current Dynamic refactor.
 
-> **Strict rule:** after every implementation unit, inspect the changed source and verify architecture, Clean Architecture boundaries, SRP, imports, dependencies, calls, lifecycle, tests, and platform compatibility. If implementation reveals a material conflict with this plan or a frozen Dynamic decision, STOP → REPORT → DECIDE → UPDATE THIS PLAN → CONTINUE. Never silently redesign the plan during coding.
+### Strict code rule
 
-## 1. Authority
+Every class must have one clear responsibility. Code must be minimal, explicit, readable, and production-clean. Do not add code merely to make a flow work. Do not add managers, coordinators, wrappers, factories, helpers, or abstractions without a concrete independent responsibility. Existing code is not protected merely because it exists; replace incorrect architecture when required.
 
-Order of authority:
+After every implementation unit: inspect changed files → verify responsibility/dependencies/call sites/lifecycle → compile affected modules → run focused tests → inspect diff → continue. If a frozen decision conflicts with source, STOP → inspect → report → decide → update this plan → continue.
 
-1. Current user instruction.
-2. `AI_START_HERE.md` and project-management rules.
-3. Frozen Dynamic discussion: `docs/features/dynamic/00-FEATURE-DISCUSSION.md`.
-4. Frozen navigation/container record: `docs/features/dynamic/03-NAVIGATION-CONTAINER-FREEZE.md`.
-5. Fixed SDUI/backend JSON contract.
-6. This implementation plan.
-7. Current source as forensic baseline only.
-
-No implementation detail may override a frozen contract.
-
-## 2. Platform Scope
+## 1. Platform and composition
 
 Supported application platforms:
 
@@ -32,79 +22,63 @@ Android
  Web (Wasm)
 ```
 
-There is **no `desktopApp`**. Do not add, restore, or maintain a Desktop application for this feature.
+There is no `desktopApp`.
 
-The Dynamic Container, Dynamic runtime, models, Store/use cases, repository boundary, renderer, and Navigation 3 integration are shared/common code wherever technically possible.
-
-`iosApp` remains the native/Xcode boundary already frozen by Base Architecture. Android and Web have their own thin platform entry points. Platform code must not contain Dynamic business logic.
-
-## 3. Target Architecture
+Platform entry points are thin. Shared application composition owns the common runtime.
 
 ```text
-Android / iOS / Web entry
-            ↓
-       Shared App
-            ↓
-    Application Composition
-            ↓
-       Navigation 3
-            ↓
- DynamicDestination back stack
-            ↓
-    One Dynamic Container
-            ↓
-    Dynamic screen/runtime
-            ↓
- LoadDynamicScreenUseCase
-            ↓
-    DynamicRepository
-            ↓
-   RemoteDataSource
-            ↓
-         Backend
-            ↓
- Dynamic Screen JSON
-            ↓
-    DynamicRenderer
-            ↓
- registered Template
-            ↓
-Component / Section / Group / Element
+Platform entry
+    ↓
+Shared App
+    ↓
+Application Composition
+    ↓
+Navigation 3
+    ↓
+One Dynamic Container
 ```
 
-Action/navigation flow:
+`App` composes the application. It must not contain Dynamic business logic, repository calls, HTTP construction, action execution, or Login/OTP/Dashboard branches.
+
+### Splash / Bootstrap
+
+Splash and Bootstrap are one startup feature, not two modules or two DI systems.
 
 ```text
-User interaction
-      ↓
-DynamicStore
-      ↓
-ExecuteDynamicActionUseCase
-      ↓
-request/action result
-      ↓
-DynamicDestination or navigation effect
-      ↓
-Navigation boundary
-      ↓
-Dynamic Container
+feature:splash
+    ↓
+SplashStore
+    ↓
+Bootstrap use case/repository
+    ↓
+RemoteDataSource
+    ↓
+Network
 ```
 
-The Dynamic Store does not own navigation mechanics.
+Bootstrap is the startup mechanism/contracts used by Splash. Splash is the startup feature/UI boundary. There is no `feature:bootstrap` and no `bootstrapModule`.
 
-## 4. Navigation 3 Boundary
+Use Bootstrap terminology for contracts/implementations such as `BootstrapOutput` and `DefaultApplicationBootstrap`; use Splash terminology for feature/store/UI classes.
 
-The existing `:navigation` module becomes the single shared application navigation boundary. No second navigation framework is introduced.
+## 2. Navigation boundary
 
-The repository already pins Navigation 3 dependencies in the version catalog. Do not upgrade or replace those versions as part of this implementation unless a separate dependency decision is explicitly approved.
+`:navigation` is the single shared Navigation 3 boundary. No second navigation abstraction/framework is allowed.
 
-Navigation 3 is used according to its user-owned-back-stack model: the application owns observable navigation state and `NavDisplay` renders the current entries. Dynamic destinations are serializable navigation keys so the same navigation model works across Android, iOS, and Web.
+It owns only:
 
-### 4.1 DynamicDestination
+```text
+navigation state/back stack
+DynamicDestination NavKey integration
+setRoot(destination)
+push(destination)
+replace(destination)
+pop()
+NavDisplay host
+```
 
-`DynamicDestination` is the canonical navigation key for Dynamic screens. Reuse/refactor the existing domain model; do not create a duplicate route model.
+Do not create `NavigationManager`, `NavigationCoordinator`, `NavigationRouter`, or equivalent wrappers unless a concrete responsibility cannot be expressed by the minimal navigation boundary.
 
-It represents the complete backend destination:
+`DynamicDestination` is the canonical navigation key and stores the complete backend destination:
 
 ```text
 screenId
@@ -115,175 +89,138 @@ method
 authentication
 ```
 
-Meaning:
+Bootstrap produces startup information; it does not mutate Navigation 3. Application composition installs the root destination through the navigation boundary.
 
-```text
-templateType
-    → which registered Template definition renders the destination
+DynamicStore emits navigation effects/results. It does not mutate the back stack and does not import Navigation 3 APIs.
 
-templateId
-    → concrete Dynamic destination/template instance identity
+## 3. Dynamic Container
 
-endpoint + method + authentication
-    → how the Dynamic screen document is loaded
-```
-
-The navigation stack stores complete `DynamicDestination` entries, never only `templateType`, only `templateId`, or a string route.
-
-### 4.2 Navigation state
-
-The navigation module owns the navigation back stack and the minimum operations required by the frozen contract:
-
-```text
-setRoot(destination)
-push(destination)
-replace(destination)
-pop()
-```
-
-`replace` is required for backend-driven flows that replace the current destination rather than creating another history entry.
-
-Do not create a `NavigationManager`, `NavigationCoordinator`, `NavigationRouter`, or other wrapper unless a concrete single responsibility cannot be expressed by the minimal navigation boundary.
-
-### 4.3 Navigation host
-
-Use Navigation 3's `NavDisplay`/entry mechanism. The navigation host resolves a `DynamicDestination` to the one Dynamic Container.
-
-There are no Login/OTP/Dashboard navigation entries/classes.
-
-### 4.4 Back
-
-System/application back removes the current full Dynamic destination and reveals the previous destination.
-
-The Dynamic Store does not implement back-stack mutation.
-
-### 4.5 Refresh
-
-Refreshing the current Dynamic screen reuses the current complete `DynamicDestination`. It does not create a new navigation entry.
-
-### 4.6 External URI
-
-`external_uri` is not internal navigation.
-
-```text
-external_uri
-    ↓
-external URI capability/effect
-    ↓
-platform boundary
-```
-
-Do not put external URIs into the Dynamic navigation stack.
-
-Future backend actions such as `dismiss`, `present`, `deeplink`, or additional capabilities remain extensible, but are not speculatively implemented before their backend contract is required.
-
-## 5. Dynamic Container
-
-There is exactly **one permanent shared Dynamic Container**.
-
-Mental model only:
+There is exactly one permanent shared Dynamic Container.
 
 ```text
 Dynamic Container ≈ stable Activity-like host
 Template         ≈ replaceable Fragment-like content
 ```
 
-This is not implemented with Android Activities or Fragments. It is shared Compose Multiplatform UI.
+This is only a mental model; implementation is shared Compose Multiplatform UI, not Android Activities/Fragments.
 
-The container remains stable while the current `DynamicDestination` changes.
+The container remains stable while the current destination/template changes. It does not own navigation, call Ktor/repositories, execute actions, or contain business-screen branches.
 
-```text
-Dynamic Container
-    ↓
-current DynamicDestination
-    ↓
-load current screen document
-    ↓
-render current templateType
-```
+## 4. Dynamic Store
 
-The container must not:
-
-- own the navigation stack;
-- call Ktor or a repository directly;
-- execute backend actions directly;
-- contain Login/OTP/Dashboard branches;
-- infer destinations from template types;
-- create a container per template.
-
-## 6. Dynamic Store
-
-`DynamicStore` remains a Pure MVI + UDF Store and is responsible only for Dynamic screen/runtime state and intent/effect coordination.
+`DynamicStore` is Pure MVI + UDF.
 
 It owns:
 
 ```text
-Dynamic screen state
+screen state
 loading/error/success state
-current Dynamic interaction/binding state
+runtime/binding state
 intent handling
 use-case invocation
 state emission
-Dynamic effects
+effects
 ```
 
 It does not own:
 
 ```text
 Ktor/HTTP
-JSON request serialization
-endpoint parsing
+request serialization
 common request metadata
-navigation stack
-Navigation 3 APIs
+navigation stack / Navigation 3
 external URI launching
-recursive rendering
-registry lookup
+renderer recursion / registry lookup
 business-screen branching
-response-history storage
+response-history subsystem
 ```
 
-No ViewModel is introduced.
+No ViewModel.
 
-## 7. Use Cases
+## 5. Clean-code reference: Shaadi
 
-The Dynamic implementation must contain meaningful use-case boundaries. Do not add use-case classes merely to satisfy a naming pattern.
+`LalitDev2305/Shaadi` is the code-quality reference. We adopt its useful style, not its Android/JVM-specific architecture.
 
-### 7.1 `LoadDynamicScreenUseCase`
-
-Responsibility:
+The important lessons are:
 
 ```text
-DynamicDestination
-    ↓
-DynamicRepository
-    ↓
-Dynamic screen domain result
+central HttpClient construction
+small request boundary
+small repository implementation
+small use case
+explicit mapping
+constructor-injected dependencies
+minimal DI
 ```
 
-It does not render, navigate, or mutate Store state.
+Shaadi's `ShaadiHttpClientBuilder` centralizes Ktor configuration; `RequestHandler` exposes small HTTP operations; the repository delegates to that boundary; its mapper keeps conversion explicit and local. fileciteturn427file0 fileciteturn429file0 fileciteturn430file0 fileciteturn434file0
 
-### 7.2 `ExecuteDynamicActionUseCase`
+Do not literally copy CIO-only engines, `Dispatchers.IO`, Hilt, ViewModel, or Android-only code. CB-Partner must retain KMP and the frozen `BASE-ARCH-017` platform engine strategy.
 
-Responsibility:
+## 6. Network architecture
+
+Target:
 
 ```text
-Dynamic action + resolved runtime input
-    ↓
-Dynamic action execution boundary
-    ↓
-result/effect for Store
+network configuration
+        ↓
+one configured HttpClient
+        ↓
+one common request execution boundary
+        ↓
+RemoteDataSource
+        ↓
+repository
 ```
 
-It may coordinate request execution and interpretation of the fixed action contract. It must not become a generic workflow engine.
+The configured `HttpClient` is created once by network/application infrastructure. Repositories never create another client.
 
-Do not create one use case per action type.
+The common request boundary should be small and explicit, equivalent in cleanliness to:
 
-## 8. Data / Domain Boundary
+```text
+get
+post
+put
+delete
+```
 
-### Domain
+A single internal execution function may centralize common request/error handling. Do not duplicate Ktor configuration or exception parsing across repositories.
 
-Own canonical Dynamic contracts:
+KMP engine selection follows the already-frozen Base Architecture decision. Do not copy Shaadi's CIO-only engine.
+
+Ktor concerns belong to network infrastructure, not Store, use cases, or repositories.
+
+## 7. RemoteDataSource
+
+`RemoteDataSource` is the application's common request boundary.
+
+```text
+repository
+    ↓
+RemoteDataSource
+    ↓
+configured HttpClient
+```
+
+It owns request execution concerns only. It does not decide Dynamic actions, templates, navigation, or Store state.
+
+## 8. Repository style
+
+Repositories must be as small as the Shaadi repository pattern: constructor-injected dependencies, one explicit operation per domain capability, delegate the request, return the appropriate result.
+
+```text
+DynamicRepositoryImpl
+    ↓
+RemoteDataSource
+    ↓
+backend
+```
+
+Repository must not render, navigate, mutate Store, create HttpClient, or become a workflow engine.
+
+## 9. Domain / Data boundary
+
+Domain owns:
 
 ```text
 DynamicDestination
@@ -291,94 +228,136 @@ DynamicAction
 DynamicReference
 DynamicRepository
 Dynamic request/result models
+Bootstrap contracts
 ```
 
-Domain must not depend on Ktor, Compose, or Data DTOs.
+Domain must not depend on Ktor, Compose, Koin, or Data DTOs.
 
-### Data
-
-Own:
+Data owns:
 
 ```text
 DTOs / serialization models
-DynamicRepository implementation
+repository implementations
 RemoteDataSource usage
 DTO → domain mapping
+network infrastructure
 ```
 
-Dynamic Data code uses the application's existing common `RemoteDataSource`. It does not create another `HttpClient`, base URL, request infrastructure, or Ktor layer.
-
-### Common request metadata
-
-Headers/metadata that are common to requests are resolved from the common application request infrastructure, not `$binding`.
-
-Examples include platform, app version, build number, device/session metadata, and authentication/session metadata where applicable.
-
-Dynamic `$binding` is for current Dynamic input/runtime data.
+Dependency direction:
 
 ```text
-Common request metadata
-    → common request infrastructure
-
-Dynamic input data
-    → $binding / Dynamic runtime state
+Data → Domain
+Feature → Domain
+Domain ✗→ Data
 ```
 
-No device ID or platform value is hardcoded in `DynamicStore`.
+Never import a concrete Data repository from Domain.
 
-## 9. Destination and Screen Loading Flow
+## 10. Mapper style
 
-### Bootstrap
+Use explicit, small DTO → domain mappers only where a real boundary exists.
+
+Follow the useful Shaadi style: an obvious public mapping operation and small private nested mapping functions. No reflection-based generic mapper and no mapping mixed with networking, rendering, navigation, or Store state. fileciteturn434file0
+
+Do not create a mapper for a trivial identity conversion.
+
+## 11. Result / error boundary
+
+Normalize Ktor/HTTP failures once at the network/data boundary:
 
 ```text
+Ktor / HTTP failure
+      ↓
+network result/error
+      ↓
+RemoteDataSource
+      ↓
+repository/domain result
+      ↓
+use case
+      ↓
+Store state/effect
+```
+
+Do not duplicate HTTP exception parsing in every repository. Do not build a large error framework without a concrete requirement.
+
+## 12. Dynamic flow
+
+Bootstrap:
+
+```text
+SplashStore
+  ↓
 Bootstrap
-    ↓
+  ↓
+BootstrapOutput
+  ↓
 startup.nextScreen
-    ↓
+  ↓
 DynamicDestination
-    ↓
+  ↓
 Navigation.setRoot()
 ```
 
-Bootstrap does not call Dynamic UI code and does not own navigation.
-
-`DefaultApplicationBootstrap` remains the Bootstrap/Data implementation. It is not renamed into a Dynamic coordinator and is not moved into `feature:dynamic`.
-
-### Current Dynamic screen
+Current Dynamic screen:
 
 ```text
-current DynamicDestination
-    ↓
+DynamicDestination
+  ↓
 LoadDynamicScreenUseCase
-    ↓
+  ↓
 DynamicRepository
-    ↓
+  ↓
 RemoteDataSource
-    ↓
-backend endpoint/method/authentication
-    ↓
-response envelope
-    ↓
-Dynamic screen domain model
+  ↓
+backend
+  ↓
+Dynamic screen domain result
+  ↓
+Dynamic Container
+  ↓
+DynamicRenderer
 ```
 
-### Next destination
-
-When a backend response/action provides a complete next destination:
+Backend-provided next destination:
 
 ```text
 nextScreen
-    ↓
+  ↓
 DynamicDestination
-    ↓
-Navigation operation
+  ↓
+navigation effect/result
+  ↓
+Navigation boundary
 ```
 
-The frontend never decides the destination from `templateType`.
+Frontend never derives navigation from `templateType`.
 
-## 10. SDUI Registry and Renderer
+## 13. Use cases
 
-The first implementation vocabulary is exactly:
+Only meaningful use cases are allowed.
+
+`LoadDynamicScreenUseCase`:
+
+```text
+DynamicDestination → DynamicRepository → Dynamic screen result
+```
+
+`ExecuteDynamicActionUseCase`:
+
+```text
+Dynamic action + resolved runtime input
+        ↓
+action execution boundary
+        ↓
+result/effect for Store
+```
+
+No use case per action type. No generic workflow engine.
+
+## 14. Registry / Renderer
+
+Initial vocabulary is exactly:
 
 ```text
 Template  → stack_template
@@ -388,47 +367,27 @@ Group     → stack_group
 Elements  → text, image
 ```
 
-Do not retain or add `form_template`, `input`, `button`, `row_*`, icon, divider, spacer, or other unregistered definitions unless the backend contract is explicitly expanded and a new discussion is frozen.
+No speculative `form_template`, `input`, `button`, `row_*`, icon, divider, spacer, or other definitions.
 
-### Registry
+`DynamicRegistry` owns registration and lookup only. No reflection, scanning, plugin framework, networking, navigation, or Store state.
 
-One public `DynamicRegistry` with category-specific internal registration/lookup.
-
-It owns only registration and lookup.
-
-No:
-
-- reflection;
-- package scanning;
-- plugin framework;
-- generic factory hierarchy;
-- navigation;
-- networking;
-- Store state.
-
-### Renderer
-
-One small recursive `DynamicRenderer`:
+`DynamicRenderer` remains small and recursive:
 
 ```text
 DynamicRenderer
     ↓
-category-specific registry lookup
+registry lookup
     ↓
 registered definition
     ↓
-definition renders its own Compose structure
+definition renders Compose structure
     ↓
 children delegate back to DynamicRenderer
 ```
 
-No giant renderer containing all definition implementations.
+## 15. Actions / references
 
-Definitions do not own API calls, navigation, Store state, or action execution.
-
-## 11. Actions and References
-
-The frozen action vocabulary is:
+Frozen actions:
 
 ```text
 request
@@ -440,9 +399,7 @@ external_uri
 sequence
 ```
 
-The implementation must not invent speculative actions.
-
-The frozen reference vocabulary is:
+Frozen references:
 
 ```text
 $binding
@@ -451,272 +408,183 @@ $response
 $literal
 ```
 
-Reference meanings:
+Common request metadata is supplied by common request infrastructure. `$binding` represents Dynamic runtime/input values.
 
-```text
-$binding
-    → current Dynamic input/runtime values
+No speculative action infrastructure or response-history subsystem.
 
-$context
-    → controlled application/flow context
-
-$response
-    → current supported action/request response reference semantics
-
-$literal
-    → literal backend-provided value
-```
-
-Do not create a response-history subsystem, challenge-specific state, or separate form-state owner merely to support references.
-
-## 12. Binding and Request Body
-
-Binding is generic. It must work for arbitrary backend-defined input such as:
-
-```text
-firstName
-lastName
-email
-phone
-image
-address
-etc.
-```
-
-The backend determines which Dynamic fields are bound and which request body values are produced from those bindings.
-
-Common metadata is added by the request infrastructure, not by binding.
-
-Example conceptual request construction:
-
-```text
-backend request definition
-        ↓
-resolve $binding values
-        ↓
-resolve $context values when allowed
-        ↓
-add common request metadata
-        ↓
-RemoteDataSource
-```
-
-No Login/OTP-specific request builder is introduced.
-
-## 13. Exact Initial File Direction
-
-The implementation may reuse/refactor existing files. Do not duplicate equivalent ownership.
-
-Expected ownership after refactor:
+## 16. Ownership
 
 ```text
 :navigation
-└── shared Navigation 3 boundary
-    ├── navigation state/back stack
-    ├── DynamicDestination NavKey integration
-    └── NavDisplay host
+└── Navigation 3 boundary
+
+:feature:splash
+└── Splash startup runtime + Bootstrap usage
 
 :feature:dynamic
-├── Dynamic Container
-├── DynamicScreenStore / DynamicStore (one canonical Store)
+├── DynamicContainer
+├── DynamicStore
 ├── usecase/
-│   ├── LoadDynamicScreenUseCase.kt
-│   └── ExecuteDynamicActionUseCase.kt
 ├── renderer/
-│   └── DynamicRenderer.kt
 ├── registry/
-│   └── DynamicRegistry.kt
-├── action/
-│   └── existing action boundary only if still needed
 └── sdui/
-    ├── template/StackTemplate.kt
-    ├── component/StackComponent.kt
-    ├── section/StackSection.kt
-    ├── group/StackGroup.kt
-    └── element/
-        ├── TextElement.kt
-        └── ImageElement.kt
+
+data
+├── network infrastructure
+├── RemoteDataSource
+├── repository implementations
+├── DTOs
+└── mappers
+
+domain
+├── canonical contracts
+└── domain models
 ```
 
-Canonical domain/data models remain in their existing correct Clean Architecture owners. If an equivalent model already exists, refactor/reuse it; never create a second copy.
+Reuse/refactor equivalent existing classes. Never create duplicate ownership.
 
-### Application composition
-
-Create/rework the shared application composition so Android, iOS, and Web enter the same common App/navigation boundary.
-
-Platform entry points remain thin.
-
-`webApp/Main.kt` must not remain the owner of Dynamic navigation or Dynamic business orchestration.
-
-`androidApp` must be wired to the same shared App when its platform entry is implemented.
-
-`iosApp` remains the native/Xcode boundary and hosts the same shared App.
-
-No `desktopApp` is created.
-
-## 14. Existing Code Disposition
-
-Existing code is not protected merely because it exists. If it conflicts with this frozen architecture, it must be refactored or removed.
-
-### Refactor/remove
-
-- destination mutation/navigation logic currently embedded in application `Main.kt`;
-- navigation ownership from `DynamicStore`;
-- direct HTTP/request construction from `DynamicStore`;
-- hardcoded device ID or platform metadata from Dynamic feature code;
-- duplicate Dynamic destination models;
-- renderer branches for definitions outside the frozen initial vocabulary;
-- speculative manager/coordinator abstractions;
-- any duplicate form/input/button implementation not supported by the current backend contract.
-
-### Keep/reuse
-
-- `DefaultApplicationBootstrap` as Bootstrap/Data implementation;
-- common RemoteDataSource/network infrastructure;
-- existing Dynamic domain contracts when they already satisfy the frozen model;
-- existing Dynamic registry/renderer when they can be cleanly refactored;
-- Pure MVI/UDF Store pattern;
-- canonical SDUI model/definition concepts.
-
-## 15. Implementation Units and Gates
-
-Implementation proceeds in small units. After **every unit**:
-
-1. inspect every changed file;
-2. verify imports and call sites;
-3. verify dependency direction;
-4. verify SRP and no overengineering;
-5. verify no duplicate abstraction was introduced;
-6. compile the directly affected modules;
-7. run focused JVM tests where available;
-8. inspect the resulting diff;
-9. only then continue.
+## 17. Implementation units
 
 ### Unit 1 — Navigation foundation
 
-- wire `:navigation` to the selected Navigation 3 APIs already pinned in the repository;
-- implement the minimal shared navigation state/back stack;
-- make canonical `DynamicDestination` usable as the navigation key;
-- implement `setRoot`, `push`, `replace`, `pop`;
-- implement `NavDisplay` host resolving Dynamic destinations to the single Dynamic Container;
-- add focused navigation tests.
+Verify/refactor the minimal Navigation 3 boundary and complete destination stack operations.
 
-### Unit 2 — Dynamic Container / application composition
+### Unit 2 — Application composition + Dynamic Container
 
-- create/rework one shared Dynamic Container;
-- remove Dynamic navigation ownership from `webApp/Main.kt`;
-- establish shared App → Navigation → Dynamic Container composition;
-- wire Android/iOS/Web entry boundaries without platform-specific Dynamic logic;
-- do not add desktop.
+Establish:
 
-### Unit 3 — Use-case boundary
+```text
+Platform entry → App → Navigation → one Dynamic Container
+```
 
-- add/refactor `LoadDynamicScreenUseCase`;
-- add/refactor `ExecuteDynamicActionUseCase`;
-- inject them into the canonical Store;
-- remove direct repository/network orchestration from Store.
+Remove Dynamic navigation/business orchestration from platform entry points and App.
 
-### Unit 4 — Dynamic Store cleanup
+### Unit 3 — Network infrastructure
 
-- reduce Store to Pure MVI/UDF state/intent/effect coordination;
-- remove navigation mechanics;
-- remove direct request construction;
-- remove hardcoded common metadata;
-- preserve generic binding/runtime state;
-- preserve navigation effects without executing navigation itself.
+Refactor network construction/execution toward the clean Shaadi-style boundary while preserving KMP and `BASE-ARCH-017`:
 
-### Unit 5 — Dynamic data flow
+```text
+one configured HttpClient
+one request execution boundary
+one RemoteDataSource
+```
 
-- ensure DynamicRepository is the domain/data boundary;
-- route through the single RemoteDataSource;
-- map fixed response envelope and destination/screen contracts;
-- verify request body binding and common metadata separation.
+### Unit 4 — Repository/data cleanup
 
-### Unit 6 — Registry / renderer cleanup
+Make repository implementations small and explicit. Add only meaningful DTO/domain mappers.
 
-- enforce exact initial vocabulary;
-- remove unsupported current registrations/branches;
-- verify recursive renderer and definition ownership;
-- preserve backend ordering and controlled unsupported handling.
+### Unit 5 — Dynamic use cases
 
-### Unit 7 — Action/reference integration
+Implement/refactor the two meaningful Dynamic use cases and inject them into the Store.
 
-- connect the fixed action vocabulary to the use-case/runtime boundary;
-- keep navigation and external URI separate;
-- verify `$binding`, `$context`, `$response`, `$literal` according to the frozen contract;
-- do not create speculative action infrastructure.
+### Unit 6 — Dynamic Store cleanup
 
-### Unit 8 — End-to-end Dynamic flow
+Store only state/intent/effect/use-case coordination. Remove navigation mechanics and direct Ktor access.
+
+### Unit 7 — Registry/renderer
+
+Enforce frozen vocabulary and recursive renderer boundary.
+
+### Unit 8 — Action/reference integration
+
+Connect frozen actions/references without speculative infrastructure.
+
+### Unit 9 — End-to-end flow
 
 Verify:
 
 ```text
 Bootstrap
-  ↓
-Login DynamicDestination
-  ↓
-Navigation stack
-  ↓
-Dynamic Container
-  ↓
-Login endpoint
-  ↓
-Login screen JSON
-  ↓
-stack_template → stack_component → ... → text/image
-  ↓
-backend action/request
-  ↓
+ ↓
+startup.nextScreen
+ ↓
+Navigation root
+ ↓
+one Dynamic Container
+ ↓
+Dynamic screen request
+ ↓
+JSON
+ ↓
+registry/renderer
+ ↓
+action
+ ↓
 next DynamicDestination
-  ↓
-push/replace as instructed
-  ↓
-new screen endpoint
+ ↓
+push/replace
 ```
 
-No Login/OTP/Dashboard branching is permitted in generic Dynamic code.
+## 18. Per-unit gate
 
-## 16. Required Tests
+Every unit must pass:
 
-At minimum:
+```text
+source inspection
+↓
+responsibility/dependency review
+↓
+compile affected modules
+↓
+focused JVM tests
+↓
+diff inspection
+↓
+next unit
+```
 
-### Navigation
+No unrelated refactor is allowed during a unit.
 
-- root destination is installed correctly;
-- push preserves complete destination;
-- replace replaces only the current entry;
-- pop returns the previous complete destination;
-- refresh does not add an entry;
-- identical `templateType` values can coexist when destinations differ;
-- `DynamicDestination` serialization works for the supported multiplatform targets/strategy.
+## 19. Required tests
 
-### Store/use cases
+Navigation:
 
-- Store invokes use cases rather than network directly;
-- loading/success/error transitions are deterministic;
-- navigation is emitted as an effect/result, not performed by Store;
-- external URI is emitted separately from internal navigation;
-- arbitrary binding values are resolved without hardcoded field names.
+```text
+root / push / replace / pop
+complete destination preservation
+refresh without new entry
+DynamicDestination serialization
+```
 
-### Registry/renderer
+Store/use cases:
 
-- exact initial vocabulary is registered;
-- unsupported definitions fail cleanly;
-- duplicate registration is rejected;
-- recursive hierarchy renders in backend order;
-- template type selects rendering only.
+```text
+Store invokes use cases
+loading/success/error transitions
+navigation emitted, not performed
+external URI emitted separately
+generic binding resolution
+```
 
-### Integration
+Network/data:
 
-- Bootstrap `startup.nextScreen` becomes the root destination;
-- current destination endpoint loads the corresponding Dynamic screen;
-- response-provided next destination becomes the next navigation entry according to the frozen action/response semantics;
-- back restores the previous full destination;
-- no business-screen-specific frontend branching exists.
+```text
+GET/POST/PUT/DELETE
+common request execution
+error normalization
+repository delegation
+DTO → domain mapping
+```
 
-## 17. Local Verification Protocol
+Registry/renderer:
 
-Before every test run:
+```text
+initial vocabulary
+unsupported definition handling
+duplicate registration handling
+backend-order rendering
+```
+
+Integration:
+
+```text
+Bootstrap startup.nextScreen → navigation root
+current destination → screen request
+backend next destination → navigation operation
+back → previous complete destination
+```
+
+## 20. Verification commands
 
 ```powershell
 cd D:\CarBroz\CB-Partner
@@ -728,15 +596,9 @@ git log -1 --oneline
 git status
 ```
 
-The branch must remain:
+Do not add the existing untracked `kotlin-js-store/` unless explicitly determined to be required.
 
-```text
-feature/dynamic-ui
-```
-
-Do not add the existing untracked `kotlin-js-store/` directory to Git unless it is explicitly determined to be a required project file.
-
-### Compilation
+Focused compilation:
 
 ```powershell
 .\gradlew.bat :navigation:compileKotlinJvm
@@ -745,76 +607,55 @@ Do not add the existing untracked `kotlin-js-store/` directory to Git unless it 
 .\gradlew.bat :feature:dynamic:compileKotlinJvm
 ```
 
-### Focused tests
+Focused tests:
 
 ```powershell
 .\gradlew.bat :navigation:jvmTest :data:jvmTest :domain:jvmTest :feature:dynamic:jvmTest
 ```
 
-If a task does not exist, use the exact available task for that module; do not invent a Gradle task.
+When App/Web composition changes, also compile the affected `:app` and `:webApp` targets.
 
-### Full project verification
+Windows cannot run iOS Simulator tests; the known disabled-target warning is expected.
 
-After the affected units are green:
-
-```powershell
-.\gradlew.bat build
-```
-
-Windows verification cannot run iOS Simulator tests. The expected disabled-target warning on Windows is not itself a test failure.
-
-## 18. Definition of Done
-
-Dynamic implementation is complete only when all are true:
+## 21. Definition of Done
 
 ```text
-[ ] Android/iOS/Web are the only application platforms
-[ ] no desktopApp is introduced
-[ ] one shared Navigation 3 boundary exists
-[ ] DynamicDestination is the canonical navigation key
-[ ] complete destination is stored in back stack
-[ ] one permanent Dynamic Container exists
-[ ] templates are replaceable/renderable content inside that container
+[ ] Android/iOS/Web only
+[ ] no desktopApp
+[ ] one Navigation 3 boundary
+[ ] DynamicDestination is canonical navigation key
+[ ] one permanent Dynamic Container
+[ ] DynamicStore is Pure MVI/UDF
 [ ] DynamicStore does not own navigation
-[ ] DynamicStore does not call Ktor directly
-[ ] meaningful use cases exist and are actually used
-[ ] common request metadata is outside $binding
-[ ] Dynamic input/form values use generic bindings
-[ ] registry contains only the frozen initial vocabulary
-[ ] renderer remains small and recursive
-[ ] no templateType-based business navigation exists
-[ ] external_uri remains separate from internal navigation
-[ ] no speculative manager/coordinator/router framework exists
-[ ] Bootstrap and Dynamic share the common network boundary
-[ ] Android/iOS/Web share the same application composition
+[ ] DynamicStore does not call Ktor
+[ ] Splash is the startup feature; no separate bootstrap module
+[ ] one configured HttpClient
+[ ] one common request execution boundary
+[ ] one RemoteDataSource
+[ ] repositories are small and explicit
+[ ] DTO/domain mapping is explicit and minimal
+[ ] domain does not depend on data
+[ ] registry contains only frozen vocabulary
+[ ] renderer is small and recursive
+[ ] no templateType-based business navigation
+[ ] no speculative manager/coordinator/router framework
 [ ] focused tests pass
-[ ] affected module compilation passes
-[ ] final full build passes where host-supported
-[ ] every implementation unit was cross-checked against this plan
+[ ] affected modules compile
+[ ] platform composition compiles where host-supported
 ```
 
-## 19. Strict Change Rule
+## 22. Final code-quality rule
 
-If any source requirement cannot be implemented exactly as written:
+The standard is **Shaadi-level cleanliness adapted to CB-Partner**:
 
 ```text
-STOP
- ↓
-inspect actual source/contract
- ↓
-report conflict
- ↓
-make an explicit architecture decision
- ↓
-update this plan/freeze record
- ↓
-resume implementation
+one responsibility
+small public API
+constructor-injected dependencies
+obvious data flow
+no hidden work
+no unnecessary abstraction
+no duplicate ownership
 ```
 
-No silent deviation is allowed.
-
-No "while we are here" refactor is allowed unless it is required by this frozen plan.
-
-No new abstraction is justified merely because it looks architecturally sophisticated.
-
-The target is production-quality Clean Architecture with the **minimum number of concepts necessary to satisfy the actual product contract**.
+If a class can be simpler without losing a required architectural boundary, simplify it. If a new class has no independently meaningful responsibility, do not create it. If existing code is wrong, replace it rather than protecting it.
