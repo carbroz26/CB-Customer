@@ -28,7 +28,7 @@ fun ApplicationContent(koin: Koin) {
         when (val state = splashState) {
             is SplashState.Success -> DynamicContent(
                 koin = koin,
-                initialDestination = state.output.startup.destination,
+                initialDestination = state.output.destination,
             )
 
             else -> SplashScreen(store = splashStore)
