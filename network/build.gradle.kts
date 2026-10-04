@@ -13,6 +13,7 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.koin.core)
         }
 
         commonTest.dependencies {
