@@ -9,6 +9,7 @@ kotlin {
             implementation(project(":domain"))
             implementation(project(":core"))
             implementation(project(":navigation"))
+            implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(compose.runtime)
