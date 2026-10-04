@@ -1,5 +1,7 @@
 package com.carbroz.cbpartner.data.bootstrap
 
+import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
+import com.carbroz.cbpartner.data.bootstrap.model.BootstrapResponseDto
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import kotlinx.serialization.json.Json
@@ -61,12 +63,15 @@ class BootstrapMapperTest {
             """.trimIndent(),
         )
 
-        val destination = mapper.map(dto).getOrThrow().startup.destination
+        val output = mapper.map(dto).getOrThrow()
+        val destination = output.destination
 
         assertIs<DynamicDestination>(destination)
         assertEquals("partner_login", destination.screenId)
         assertEquals("tpl_P101L", destination.templateId)
         assertEquals("form_template", destination.templateType)
         assertEquals("/api/v1/partner/screen/auth_login", destination.endpoint)
+        assertEquals(false, output.authenticated)
+        assertEquals("1", output.version)
     }
 }
