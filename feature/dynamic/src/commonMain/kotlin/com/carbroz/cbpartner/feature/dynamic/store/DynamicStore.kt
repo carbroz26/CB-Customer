@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.store
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
+import com.carbroz.cbpartner.feature.dynamic.domain.usecase.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.ExecuteDynamicActionUseCase
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.LoadDynamicScreenUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -70,6 +71,7 @@ class DynamicStore(
 
     private fun load() {
         if (loadJob?.isActive == true) return
+
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
             loadDynamicScreen(currentDestination)
@@ -88,13 +90,13 @@ class DynamicStore(
                 context = contextProvider(),
             ).onSuccess { result ->
                 _effects.value = when (result) {
-                    is com.carbroz.cbpartner.feature.dynamic.domain.usecase.DynamicActionResult.Navigate ->
-                        DynamicEffect.Navigate(result.destination)
-                    is com.carbroz.cbpartner.feature.dynamic.domain.usecase.DynamicActionResult.ExternalUri ->
-                        DynamicEffect.ExternalUri(result.uri)
+                    is DynamicActionResult.Navigate -> DynamicEffect.Navigate(result.destination)
+                    is DynamicActionResult.ExternalUri -> DynamicEffect.ExternalUri(result.uri)
                 }
-            }.onFailure {
-                _state.value = DynamicState.Failure(it.message ?: "Unable to execute dynamic action")
+            }.onFailure { error ->
+                _state.value = DynamicState.Failure(
+                    error.message ?: "Unable to execute dynamic action",
+                )
             }
         }
     }
