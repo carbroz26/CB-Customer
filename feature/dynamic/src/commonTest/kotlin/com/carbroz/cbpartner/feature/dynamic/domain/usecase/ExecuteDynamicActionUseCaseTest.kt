@@ -1,8 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic.domain.usecase
 
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicNextScreen
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
@@ -16,12 +15,15 @@ class ExecuteDynamicActionUseCaseTest {
     @Test
     fun requestResolvesBindingAndContextBeforeRepository() = runTest {
         var capturedBody: DynamicValue? = null
+        var capturedMethod: String? = null
         val repository = object : DynamicRepository {
             override suspend fun fetch(
                 destination: DynamicDestination,
                 body: DynamicValue?,
+                method: String,
             ): Result<DynamicResponse> {
                 capturedBody = body
+                capturedMethod = method
                 return Result.success(
                     DynamicResponse(
                         status = 200,
@@ -29,9 +31,9 @@ class ExecuteDynamicActionUseCaseTest {
                         message = "Request completed",
                         data = null,
                         traceId = "test",
-                        nextScreen = DynamicNextScreen(
+                        destination = DynamicDestination(
                             screenId = "partner_next",
-                            templateId = "tpl_next",
+                            templateId = "tpl_P103N",
                             templateType = "stack_template",
                             endpoint = "/next",
                         ),
@@ -67,9 +69,41 @@ class ExecuteDynamicActionUseCaseTest {
         val body = assertIs<DynamicValue.ObjectValue>(capturedBody)
         assertEquals(DynamicValue.StringValue("John"), body.value["name"])
         assertEquals(DynamicValue.StringValue("device-1"), body.value["deviceId"])
+        assertEquals("POST", capturedMethod)
 
         val navigation = assertIs<DynamicActionResult.Navigate>(result)
         assertEquals("partner_next", navigation.destination.screenId)
+    }
+
+    @Test
+    fun directNavigateUsesDestinationOutsidePayload() = runTest {
+        val action = DynamicAction(
+            type = "navigate",
+            destination = DynamicDestination(
+                screenId = "partner_login",
+                templateId = "tpl_P101L",
+                templateType = "form_template",
+                endpoint = "/api/v1/partner/screen/auth_login",
+            ),
+        )
+
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(
+                destination: DynamicDestination,
+                body: DynamicValue?,
+                method: String,
+            ): Result<DynamicResponse> = error("Repository must not be called")
+        }
+
+        val result = ExecuteDynamicActionUseCase(repository, DynamicActionHandler())(
+            action = action,
+            bindings = emptyMap(),
+            context = emptyMap(),
+        ).getOrThrow()
+
+        val navigation = assertIs<DynamicActionResult.Navigate>(result)
+        assertEquals("partner_login", navigation.destination.screenId)
+        assertEquals("tpl_P101L", navigation.destination.templateId)
     }
 
     @Test
@@ -88,6 +122,7 @@ class ExecuteDynamicActionUseCaseTest {
             override suspend fun fetch(
                 destination: DynamicDestination,
                 body: DynamicValue?,
+                method: String,
             ): Result<DynamicResponse> = Result.success(response)
         }
 
@@ -117,6 +152,7 @@ class ExecuteDynamicActionUseCaseTest {
             override suspend fun fetch(
                 destination: DynamicDestination,
                 body: DynamicValue?,
+                method: String,
             ): Result<DynamicResponse> {
                 capturedBody = body
                 return Result.success(
@@ -130,7 +166,6 @@ class ExecuteDynamicActionUseCaseTest {
                 )
             }
         }
-
         val action = DynamicAction(
             type = "request",
             payload = mapOf(
