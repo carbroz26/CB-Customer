@@ -1,15 +1,8 @@
 package com.carbroz.cbpartner.domain.model.bootstrap
 
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+
 data class StartupConfig(
     val authenticated: Boolean,
-    val nextScreen: NextScreenConfig,
-)
-
-data class NextScreenConfig(
-    val screenId: String,
-    val templateId: String,
-    val templateType: String,
-    val endpoint: String,
-    val method: String,
-    val authentication: String,
+    val nextScreen: DynamicDestination,
 )
