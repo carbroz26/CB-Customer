@@ -170,6 +170,7 @@ class DynamicResponseMapper {
     }
 
     private companion object {
+        // Bootstrap/dynamic responses share the same unified destination model.
         val SCREEN_FIELDS = setOf("screenId", "schemaVersion", "targetApp", "template")
     }
 }
