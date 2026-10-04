@@ -16,10 +16,12 @@ import com.carbroz.cbpartner.feature.dynamic.renderer.DynamicRenderer
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicIntent
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
+import com.carbroz.cbpartner.navigation.DynamicNavigationState
 
 @Composable
 fun DynamicContainer(
     destination: DynamicDestination,
+    navigation: DynamicNavigationState,
     store: DynamicStore,
     registry: DynamicRegistry,
     modifier: Modifier = Modifier,
@@ -42,7 +44,7 @@ fun DynamicContainer(
             is DynamicState.Success -> {
                 DynamicRenderer(
                     registry = registry,
-                    onAction = { store.accept(DynamicIntent.Action(it)) },
+                    onAction = { store.accept(DynamicIntent.Action(it, navigation)) },
                     onValueChange = { key, value -> store.accept(DynamicIntent.ValueChanged(key, value)) },
                 ).Render(
                     response = current.response,
