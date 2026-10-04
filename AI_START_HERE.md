@@ -47,9 +47,11 @@ Read in this order:
 8. `docs/architecture/BASE-ARCHITECTURE.md` for frozen base decisions
 9. `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
 10. `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md`
-11. `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`
-12. `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md`
-13. source/tests only after the state is understood
+11. `docs/features/dynamic/04-DYNAMIC-08-UNIFIED-DESTINATION-DISCUSSION.md`
+12. `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`
+13. `docs/features/dynamic/05-DYNAMIC-08-IMPLEMENTATION-PLAN.md`
+14. `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md`
+15. source/tests only after the state is understood
 
 Then produce a short SESSION RECOVERY SUMMARY:
 
@@ -72,12 +74,13 @@ As of 2026-10-04:
 - BASE-ARCH-014: **CODE_FROZEN**
 - BASE-ARCH-017: **VERIFIED / REVIEW ACCEPTED / CODE_FROZEN**
 - DYNAMIC-01 → DYNAMIC-07: **DISCUSSION FROZEN**
+- DYNAMIC-08 Unified Destination Contract: **FROZEN / IMPLEMENTATION IN PROGRESS**
 - Dynamic implementation plan: **PLAN_FROZEN / IMPLEMENTATION AUTHORIZED**
 - Dynamic implementation: **IN PROGRESS**
 - Bootstrap Option B: **FROZEN / REQUIRED IMPLEMENTATION**
 - Canonical shared `DynamicDestination`: **FROZEN**
 - Network exception taxonomy: **FROZEN / REQUIRED IMPLEMENTATION**
-- Latest owner-provided JVM gate: **BUILD SUCCESSFUL**
+- Latest owner-provided JVM gate: **BUILD SUCCESSFUL before the DYNAMIC-08 model change**
 - Current branch: `feature/dynamic-ui`
 
 ## 6. CURRENT GRADLE AUTHORITY
@@ -184,8 +187,10 @@ Recover state and return exactly one next valid action.
 | Current architecture | `docs/architecture/ARCHITECTURE-CURRENT-STATE.md` |
 | Frozen base architecture | `docs/architecture/BASE-ARCHITECTURE.md` |
 | Dynamic discussion | `docs/features/dynamic/00-FEATURE-DISCUSSION.md` |
+| DYNAMIC-08 destination discussion | `docs/features/dynamic/04-DYNAMIC-08-UNIFIED-DESTINATION-DISCUSSION.md` |
 | Dynamic final reconciliation | `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md` |
 | Dynamic implementation plan | `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md` |
+| DYNAMIC-08 implementation plan | `docs/features/dynamic/05-DYNAMIC-08-IMPLEMENTATION-PLAN.md` |
 | Dynamic implementation status | `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md` |
 | Gradle | `docs/build/GRADLE-SETUP-AND-WORKFLOW.md` |
 
@@ -212,23 +217,52 @@ DynamicDestination
 - Bootstrap Option B is the required implementation boundary.
 - Endpoint: `GET /api/v1/partner/config/bootstrap`.
 - Headers are documented in the current Dynamic plan.
-- `startup.nextScreen` becomes `DynamicDestination`.
+- `startup.destination` maps directly to `DynamicDestination`.
 - `DefaultApplicationBootstrap` must not remain as a second direct HTTP path.
 - `StartupConfig`, `NextScreenConfig` and standalone `BootstrapConfig` are legacy domain artifacts and must not remain as parallel contracts.
 
 ## 13. CANONICAL DESTINATION NON-NEGOTIABLE
 
-Bootstrap `nextScreen`, Dynamic API `nextScreen`, and Dynamic action destination are three sources of the **same** `DynamicDestination`.
+There is one canonical `DynamicDestination` used by Bootstrap, Dynamic API response navigation, and direct Dynamic navigation actions.
 
 ```text
-Bootstrap API nextScreen ───────┐
-Dynamic API nextScreen ─────────┼──→ DynamicDestination → DynamicNavigationState
-Dynamic action destination ─────┘
+Bootstrap data.startup.destination ─────┐
+Dynamic API data.destination ────────────┼──→ DynamicDestination → DynamicNavigationState
+Dynamic action destination ──────────────┘
 ```
 
-One destination model. One navigation mechanism. One back-stack representation.
+Canonical destination fields:
 
-`templateType` selects rendering only; it never selects business navigation.
+```text
+screenId
+templateId
+templateType
+endpoint
+```
+
+`templateId` identifies the concrete destination/back-stack entry. `templateType` selects the registered template renderer. The frontend treats the template ID as opaque and never parses it.
+
+There is no `DynamicNextScreen` model, no canonical `nextScreen` field, and no destination `method` or `authentication` field.
+
+For request actions, HTTP method and other request metadata remain inside action `payload` / repository request parameters.
+
+Direct navigation is:
+
+```json
+{
+  "type": "navigate",
+  "destination": {
+    "screenId": "partner_login",
+    "templateId": "tpl_P101L",
+    "templateType": "form_template",
+    "endpoint": "/api/v1/partner/screen/auth_login"
+  }
+}
+```
+
+`destination` is beside `type`; it is not nested inside `payload`.
+
+A request using `responseMode = destination` reads `data.destination` from the API response and navigates using the same destination model.
 
 ## 14. DYNAMIC NON-NEGOTIABLES
 
@@ -327,9 +361,9 @@ NEXT VALID ACTION
 
 ## 22. CURRENT NEXT ACTION
 
-**Implement Bootstrap Option B completely, including legacy domain-model cleanup, DI and tests. Then verify the shared `DynamicDestination` runtime hand-off before continuing the remaining Dynamic gaps.**
+**Complete the DYNAMIC-08 four-field destination call-site cleanup, run the full JVM compile/tests, then proceed immediately to backend-shaped Login → Send OTP → OTP → Verify OTP verification.**
 
-Do not reopen DYNAMIC-01 → DYNAMIC-07. Do not mark the feature complete because the JVM baseline is green.
+Do not reopen DYNAMIC-01 → DYNAMIC-07. Do not mark the feature complete because an earlier JVM baseline was green.
 
 ## 23. ONE-LINE EXTERNAL AI INSTRUCTION
 
