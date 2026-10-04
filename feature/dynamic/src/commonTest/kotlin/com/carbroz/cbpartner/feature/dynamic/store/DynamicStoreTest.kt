@@ -1,8 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic.store
 
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicNextScreen
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
@@ -28,6 +27,7 @@ class DynamicStoreTest {
             override suspend fun fetch(
                 destination: DynamicDestination,
                 body: DynamicValue?,
+                method: String,
             ): Result<DynamicResponse> {
                 capturedBody = body
                 return Result.success(
@@ -37,9 +37,9 @@ class DynamicStoreTest {
                         message = "Request completed",
                         data = null,
                         traceId = "test",
-                        nextScreen = DynamicNextScreen(
+                        destination = DynamicDestination(
                             screenId = "next",
-                            templateId = "tpl_next",
+                            templateId = "tpl_P103N",
                             templateType = "stack_template",
                             endpoint = "/next",
                         ),
@@ -56,7 +56,7 @@ class DynamicStoreTest {
             ),
             destination = DynamicDestination(
                 screenId = "current",
-                templateId = "tpl_current",
+                templateId = "tpl_P100C",
                 templateType = "stack_template",
                 endpoint = "/current",
             ),
