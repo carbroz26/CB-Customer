@@ -23,13 +23,11 @@ class DynamicRepositoryImpl(
 
     override suspend fun fetch(
         destination: DynamicDestination,
-        headers: Map<String, String>,
         body: String?,
     ): Result<DynamicResponse> = runCatching {
         val remoteResponse = remoteDataSource.fetch(
             endpoint = destination.endpoint,
             method = destination.method,
-            headers = headers,
             body = body,
         )
 
