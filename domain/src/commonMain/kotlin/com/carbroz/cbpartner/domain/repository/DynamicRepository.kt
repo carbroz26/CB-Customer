@@ -6,12 +6,13 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 
 /**
  * Domain boundary for loading Dynamic screens and executing Dynamic requests.
- * Destination identifies a screen; HTTP method is request metadata.
+ * Destination identifies a screen; HTTP method and authentication are request metadata.
  */
 interface DynamicRepository {
     suspend fun fetch(
         destination: DynamicDestination,
         body: DynamicValue? = null,
         method: String = "GET",
+        authentication: String = "NONE",
     ): Result<DynamicResponse>
 }
