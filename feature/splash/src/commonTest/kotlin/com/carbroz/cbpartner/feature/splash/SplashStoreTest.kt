@@ -2,11 +2,9 @@ package com.carbroz.cbpartner.feature.splash
 
 import com.carbroz.cbpartner.domain.bootstrap.ApplicationBootstrap
 import com.carbroz.cbpartner.domain.model.DynamicDestination
-import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
 import com.carbroz.cbpartner.domain.model.bootstrap.FeatureConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.MaintenanceConfig
-import com.carbroz.cbpartner.domain.model.bootstrap.StartupConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.UpdateConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -71,20 +69,16 @@ class SplashStoreTest {
     }
 
     private fun sampleOutput() = BootstrapOutput(
-        config = BootstrapConfig(
-            version = "1",
-            maintenance = MaintenanceConfig(false, null, null),
-            update = UpdateConfig(false, false, "1.0.0", "1.0.0", null),
-            features = FeatureConfig(true, true, true),
-        ),
-        startup = StartupConfig(
-            authenticated = false,
-            destination = DynamicDestination(
-                screenId = "partner_login",
-                templateId = "tpl_P101L",
-                templateType = "form_template",
-                endpoint = "/api/v1/partner/screen/auth_login",
-            ),
+        version = "1",
+        maintenance = MaintenanceConfig(false, null, null),
+        update = UpdateConfig(false, false, "1.0.0", "1.0.0", null),
+        features = FeatureConfig(true, true, true),
+        authenticated = false,
+        destination = DynamicDestination(
+            screenId = "partner_login",
+            templateId = "tpl_P101L",
+            templateType = "form_template",
+            endpoint = "/api/v1/partner/screen/auth_login",
         ),
     )
 }
