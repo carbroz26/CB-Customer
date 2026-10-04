@@ -5,6 +5,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.feature.dynamic.domain.usecase.ExecuteDynamicActionUseCase
+import com.carbroz.cbpartner.feature.dynamic.domain.usecase.LoadDynamicScreenUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -18,7 +20,7 @@ import kotlin.test.assertNotNull
 
 class DynamicStoreTest {
     @Test
-    fun requestResolvesPhoneBindingAndAddsDeviceIdToJsonBody() = runTest {
+    fun requestResolvesBindingAndContextOutsideStore() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         var capturedBody: String? = null
         val repository = object : DynamicRepository {
@@ -31,41 +33,50 @@ class DynamicStoreTest {
                 return Result.success(
                     DynamicResponse(
                         status = 200,
-                        code = "OTP_SENT",
-                        message = "OTP sent",
+                        code = "SUCCESS",
+                        message = "Request completed",
                         data = null,
                         traceId = "test",
-                        nextScreen = null,
+                        nextScreen = com.carbroz.cbpartner.domain.model.dynamic.DynamicNextScreen(
+                            screenId = "next",
+                            templateId = "tpl_next",
+                            templateType = "stack_template",
+                            endpoint = "/next",
+                        ),
                     ),
                 )
             }
         }
 
+        val destination = DynamicDestination(
+            screenId = "current",
+            templateId = "tpl_current",
+            templateType = "stack_template",
+            endpoint = "/current",
+        )
         val store = DynamicStore(
-            repository = repository,
-            destination = DynamicDestination(
-                screenId = "partner_login",
-                templateId = "tpl_login",
-                templateType = "form_template",
-                endpoint = "/api/v1/partner/auth/login",
-            ),
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            executeDynamicAction = ExecuteDynamicActionUseCase(repository),
+            destination = destination,
+            contextProvider = { mapOf("deviceId" to "test-device") },
             scope = CoroutineScope(dispatcher),
         )
 
-        store.accept(DynamicIntent.ValueChanged("mobileNumber", "test-phone"))
+        store.accept(DynamicIntent.ValueChanged("firstName", "John"))
         store.accept(
             DynamicIntent.Action(
                 DynamicAction(
                     type = "request",
                     payload = mapOf(
                         "method" to DynamicValue.StringValue("POST"),
-                        "endpoint" to DynamicValue.StringValue("/api/v1/partner/auth/send_otp"),
+                        "endpoint" to DynamicValue.StringValue("/submit"),
                         "body" to DynamicValue.ObjectValue(
                             mapOf(
-                                "phoneNumber" to DynamicValue.ObjectValue(
-                                    mapOf(
-                                        "${'$'}binding" to DynamicValue.StringValue("mobileNumber"),
-                                    ),
+                                "firstName" to DynamicValue.ObjectValue(
+                                    mapOf("${'$'}binding" to DynamicValue.StringValue("firstName")),
+                                ),
+                                "deviceId" to DynamicValue.ObjectValue(
+                                    mapOf("${'$'}context" to DynamicValue.StringValue("deviceId")),
                                 ),
                             ),
                         ),
@@ -78,8 +89,11 @@ class DynamicStoreTest {
 
         val body = assertNotNull(capturedBody)
         val json = Json.parseToJsonElement(body).jsonObject
-        assertEquals("test-phone", json["phoneNumber"]?.jsonPrimitive?.content)
-        assertEquals("bruno-test-device-123", json["deviceId"]?.jsonPrimitive?.content)
+        assertEquals("John", json["firstName"]?.jsonPrimitive?.content)
+        assertEquals("test-device", json["deviceId"]?.jsonPrimitive?.content)
+        val effect = store.effects.value
+        assertNotNull(effect)
+        assertEquals("next", (effect as DynamicEffect.Navigate).destination.screenId)
         store.close()
     }
 }
