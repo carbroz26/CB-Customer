@@ -105,7 +105,11 @@ class BootstrapRemoteDataSourceTest {
 
     private fun createBootstrap(engine: MockEngine): DefaultApplicationBootstrap =
         DefaultApplicationBootstrap(
-            RequestHandler(HttpClient(engine)),
+            RequestHandler(
+                HttpClient(engine) {
+                    expectSuccess = true
+                },
+            ),
         )
 
     private companion object {
