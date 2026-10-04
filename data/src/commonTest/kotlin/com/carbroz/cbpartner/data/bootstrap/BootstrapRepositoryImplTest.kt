@@ -26,7 +26,7 @@ class BootstrapRepositoryImplTest {
 
         assertTrue(result.isSuccess)
         assertEquals("1", result.getOrThrow().config.version)
-        assertEquals("partner_login", result.getOrThrow().startup.nextScreen.screenId)
+        assertEquals("partner_login", result.getOrThrow().startup.destination.screenId)
     }
 
     @Test
@@ -63,7 +63,10 @@ class BootstrapRepositoryImplTest {
         ).fetch()
 
         assertTrue(result.isFailure)
-        assertEquals(503, (result.exceptionOrNull() as? com.carbroz.cbpartner.network.NetworkException.NotFoundException)?.statusCode)
+        assertEquals(
+            503,
+            (result.exceptionOrNull() as? com.carbroz.cbpartner.network.NetworkException.NotFoundException)?.statusCode,
+        )
     }
 
     private fun createRepository(engine: MockEngine): BootstrapRepositoryImpl =
@@ -94,13 +97,11 @@ class BootstrapRepositoryImplTest {
                 },
                 "startup": {
                   "authenticated": false,
-                  "nextScreen": {
+                  "destination": {
                     "screenId": "partner_login",
                     "templateId": "tpl_7K2M9Q",
                     "templateType": "form_template",
-                    "endpoint": "/api/v1/partner/screen/auth_login",
-                    "method": "GET",
-                    "authentication": "NONE"
+                    "endpoint": "/api/v1/partner/screen/auth_login"
                   }
                 }
               },
