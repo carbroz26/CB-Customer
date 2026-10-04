@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.data.network
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -58,6 +59,34 @@ class RemoteDataSourceTest {
 
         assertEquals(200, response.statusCode)
         assertEquals("ok", response.body)
+        client.close()
+    }
+
+    @Test
+    fun postBodyIsSentAsApplicationJson() = runTest {
+        val expectedBody = "{\"phoneNumber\":\"test-phone\",\"deviceId\":\"bruno-test-device-123\"}"
+        val engine = MockEngine { request ->
+            assertEquals(HttpMethod.Post, request.method)
+            assertEquals(ContentType.Application.Json, request.body.contentType)
+            assertEquals(expectedBody, request.body.toByteArray().decodeToString())
+            respond(
+                content = "{\"ok\":true}",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val client = HttpClient(engine)
+        val dataSource = RemoteDataSource(
+            httpClient = client,
+            networkConfig = NetworkConfig("http://localhost:3000"),
+        )
+
+        dataSource.execute(
+            method = HttpMethod.Post,
+            url = "/api/v1/partner/auth/send_otp",
+            body = expectedBody,
+        )
+
         client.close()
     }
 }
