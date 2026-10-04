@@ -1,26 +1,14 @@
 # CB-Partner — Gradle Setup and Workflow
 
-**Status:** AUTHORITATIVE  
-**Scope:** Frontend repository  
-**Last Updated:** 2026-09-23
+**Status:** AUTHORITATIVE
+**Scope:** Frontend repository
+**Last Updated:** 2026-10-04
 
 ## 1. Purpose
 
-This is the single authoritative operational document for Gradle in CB-Partner.
+This is the single authoritative operational document for Gradle in CB-Partner. It defines the selected version, Wrapper usage, Windows setup, normal build/test commands, current project topology, troubleshooting and version-change procedure.
 
-It defines:
-- selected Gradle version;
-- system Gradle bootstrap/update setup;
-- Gradle Wrapper setup;
-- Windows environment configuration;
-- normal Gradle commands;
-- CB-Partner build/test commands;
-- Android/Desktop/iOS operational commands;
-- troubleshooting;
-- version upgrade procedure;
-- Gradle version history.
-
-Do not create competing Gradle setup instructions in other project-management documents.
+Do not maintain competing Gradle setup instructions in other documents.
 
 ## 2. Authoritative Version
 
@@ -30,22 +18,14 @@ Do not create competing Gradle setup instructions in other project-management do
 |---|---|
 | Selected Gradle | **9.7.1** |
 | Wrapper target | **9.7.1** |
-| Windows normal build | `.gradlew.bat` |
+| Windows normal build | `.\gradlew.bat` |
 | macOS/Linux normal build | `./gradlew` |
-| System Gradle | Bootstrap/update only |
+| System Gradle | Bootstrap/update Wrapper only |
 | Project build authority | Gradle Wrapper |
 
-### Version rationale
-
-Gradle 9.7.1 is the selected CB-Partner baseline because it is the Gradle version previously used by this project and is now explicitly restored as the project tooling baseline.
-
-Gradle 9.5.0 was previously documented during AGP compatibility research. It is **superseded** and is not the selected CB-Partner version.
-
-The final 9.7.1 baseline remains subject to execution verification against the repository's actual Kotlin, AGP, Compose, JDK, Android SDK, and build-logic configuration. Do not claim compatibility merely from documentation until the project build is run.
+Gradle 9.5.0 is superseded and is not the project baseline.
 
 ## 3. Core Rule
-
-After the Wrapper exists:
 
 ```text
 System Gradle
@@ -54,48 +34,25 @@ bootstrap / generate / update Wrapper only
 
 Gradle Wrapper 9.7.1
     ↓
-all normal CB-Partner builds, tests, checks and CI
+all normal CB-Partner builds, tests and checks
 ```
 
 Do not use a different system Gradle for ordinary project builds.
 
-Do not hand-create, replace, or fake the Wrapper JAR.
-
-## 4. Required Repository Wrapper Files
-
-A completed Wrapper setup must contain:
+## 4. Required Wrapper Files
 
 ```text
 gradlew
 gradlew.bat
-gradle/
-└── wrapper/
-    ├── gradle-wrapper.jar
-    └── gradle-wrapper.properties
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
 ```
 
-The Wrapper files must be committed to Git.
+The Wrapper is operational and must remain the normal project build authority.
 
-The Wrapper is not considered implemented until:
-1. the files exist;
-2. `gradlew.bat --version` reports Gradle 9.7.1;
-3. `gradlew.bat projects` succeeds;
-4. the approved BASE-ARCH-014 baseline is rerun successfully;
-5. the result is recorded in project status/tracker documentation.
+## 5. Windows System Gradle
 
-## 5. Windows — Install System Gradle for Bootstrap
-
-System Gradle is only required while generating or updating the Wrapper.
-
-Recommended project bootstrap location:
-
-```powershell
-C:\Gradle\gradle-9.7.1
-```
-
-After installing/extracting Gradle 9.7.1:
-
-### Current PowerShell session
+The project owner has verified Gradle 9.7.1 on Windows.
 
 ```powershell
 $env:GRADLE_HOME = "C:\Gradle\gradle-9.7.1"
@@ -103,240 +60,144 @@ $env:Path = "$env:GRADLE_HOME\bin;$env:Path"
 gradle --version
 ```
 
-Expected version:
+Expected:
 
 ```text
 Gradle 9.7.1
 ```
 
-### Verify Java
+Use the repository Wrapper after bootstrap.
 
-```powershell
-java -version
-```
+## 6. Current Gradle Project Topology
 
-Use the JDK version required by the repository's current AGP/Kotlin configuration. Do not silently change the project's JDK requirement while setting up Gradle.
-
-### Persistent Windows environment variables
-
-For a persistent user-level setup:
-
-```powershell
-[Environment]::SetEnvironmentVariable("GRADLE_HOME", "C:\Gradle\gradle-9.7.1", "User")
-```
-
-Add the Gradle bin directory to the user PATH through Windows Environment Variables, or update it using the approved local workstation procedure.
-
-After changing persistent variables, open a new PowerShell session and verify:
-
-```powershell
-$env:GRADLE_HOME
-gradle --version
-```
-
-Do not create duplicate Gradle entries for multiple versions without documenting which one is active.
-
-## 6. Generate the Official Wrapper
-
-From the repository root, after system Gradle 9.7.1 is available:
-
-```powershell
-gradle :wrapper --gradle-version 9.7.1 --distribution-type bin
-```
-
-Then verify:
-
-```powershell
-.\gradlew.bat --version
-```
-
-The reported Gradle version must be:
+Current `settings.gradle.kts` registers:
 
 ```text
-9.7.1
+:core
+:domain
+:network
+:data
+:navigation
+:app
+:feature:splash
+:feature:dynamic
+:androidApp
+:webApp
 ```
 
-Then use the Wrapper for all remaining project commands.
+`iosApp/` is a native Xcode application boundary and is not a Gradle module.
 
-## 7. Wrapper Verification
+There is currently no `:desktopApp` Gradle project on `feature/dynamic-ui`. Older documentation that describes Desktop is historical foundation wording and must not be used to add a Desktop module without an explicit architecture decision.
+
+## 7. Standard Pull / Compile / Test
 
 ```powershell
-.\gradlew.bat --version
-.\gradlew.bat projects
+cd D:\CarBroz\CB-Partner
+git fetch origin
+git pull --ff-only origin feature/dynamic-ui
 ```
 
-Inspect the generated files:
+Current focused compilation:
 
 ```powershell
-Get-ChildItem -Force -Name gradlew*
-Get-ChildItem -Force -Name gradle\wrapper
-git status --short
+.\gradlew.bat :network:compileKotlinJvm
+.\gradlew.bat :data:compileKotlinJvm
+.\gradlew.bat :feature:splash:compileKotlinJvm
+.\gradlew.bat :feature:dynamic:compileKotlinJvm
+.\gradlew.bat :app:compileKotlinJvm
 ```
 
-Before committing:
+Current focused JVM regression suite:
 
 ```powershell
-git diff --check
-git diff --stat
-git diff
+.\gradlew.bat :network:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
 ```
 
-## 8. CB-Partner Build Health Baseline
+## 8. Latest Verification — 2026-10-04
 
-Run from repository root.
+The current focused compile and JVM test commands passed on `feature/dynamic-ui`:
 
-### Project hierarchy
-
-```powershell
-.\gradlew.bat projects
+```text
+BUILD SUCCESSFUL
+54 actionable tasks: 15 executed, 39 up-to-date
 ```
 
-### Build logic
+The earlier Bootstrap HTTP-status test failure was resolved by configuring the MockEngine test `HttpClient` with `expectSuccess = true`.
 
-```powershell
-.\gradlew.bat -p build-logic build
-```
+## 9. BASE-ARCH-014 Shared Baseline
 
-### Shared JVM tests
+When verifying the frozen foundation, use the approved commands from the BASE-ARCH-014 plan. Do not replace the baseline with an invented task set.
+
+Typical shared JVM baseline:
 
 ```powershell
 .\gradlew.bat :core:jvmTest :domain:jvmTest :data:jvmTest :navigation:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
 ```
 
-### Shared JVM compilation
-
-```powershell
-.\gradlew.bat :core:compileKotlinJvm :domain:compileKotlinJvm :data:compileKotlinJvm :navigation:compileKotlinJvm :feature:splash:compileKotlinJvm :feature:dynamic:compileKotlinJvm
-```
-
-These are the BASE-ARCH-014 shared baseline commands unless the active implementation plan explicitly requires additional verification.
-
-## 9. General Gradle Commands
-
-### Version
+## 10. General Commands
 
 ```powershell
 .\gradlew.bat --version
-```
-
-### Available tasks
-
-```powershell
-.\gradlew.bat tasks
-.\gradlew.bat tasks --all
-```
-
-### Projects
-
-```powershell
 .\gradlew.bat projects
-```
-
-### Build
-
-```powershell
+.\gradlew.bat tasks --all
 .\gradlew.bat build
-```
-
-### Check
-
-```powershell
 .\gradlew.bat check
-```
-
-### Tests
-
-```powershell
 .\gradlew.bat test
 ```
 
-### Clean
-
-Use only when justified:
+Use `clean` only when justified:
 
 ```powershell
 .\gradlew.bat clean
 ```
 
-Do not use `clean` as a routine fix for an unexplained failure. Diagnose the failure first.
+Do not use `clean` as a routine fix for an unexplained failure.
 
-## 10. Useful Gradle Diagnostics
-
-```powershell
-.\gradlew.bat projects
-.\gradlew.bat tasks --all
-.\gradlew.bat --scan
-```
-
-Use the exact task exposed by the repository rather than guessing task names.
-
-For a specific task:
+## 11. Diagnostics
 
 ```powershell
-.\gradlew.bat <task>
-```
-
-For more logging when diagnosing a failure:
-
-```powershell
-.\gradlew.bat <task> --info
 .\gradlew.bat <task> --stacktrace
+.\gradlew.bat <task> --info
 ```
 
-Use `--debug` only when the additional logging is actually required.
+Use `--debug` only when necessary. Diagnose the actual task failure rather than changing configuration blindly.
 
-## 11. Android Commands
+## 12. Platform Verification
 
-First inspect available tasks:
+### Android
 
-```powershell
-.\gradlew.bat tasks --all
-```
+Use the exact Android task required by the active feature plan. Do not invent task names.
 
-Then run the exact Android task required by the active implementation plan.
+### iOS
 
-Do not invent task names.
+`iosApp/` is native Xcode. Gradle compilation on Windows does not constitute iOS build verification. iOS simulator testing requires macOS.
 
-Android SDK, compileSdk, emulator/device, and signing configuration are separate concerns from Gradle version selection.
+### Web/Wasm
 
-## 12. Desktop Commands
+`webApp` is the current web application boundary. Use the exact Web/Wasm task exposed by the current repository when the active feature requires it.
 
-Inspect the available Compose Desktop tasks:
+## 13. Expected Windows Warnings
 
-```powershell
-.\gradlew.bat tasks --all
-```
-
-Run the exact task exposed by the repository and required by the active plan.
-
-Do not assume a task name before inspecting the actual project.
-
-## 13. iOS Commands
-
-The iOS application boundary is:
+### iOS simulator
 
 ```text
-iosApp/
-└── CB-Partner.xcodeproj/
+iosSimulatorArm64Test is disabled
+simulator tests require macOS
 ```
 
-There is intentionally **no** `:iosApp` Gradle module.
+Expected on Windows. Do not suppress it merely to make logs quieter.
 
-Gradle is used for shared KMP code. Native iOS application build verification is performed through Xcode on macOS.
+### Android host tests
 
-On macOS:
+A warning may state that `commonTest` exists but Android host tests are not enabled. This is a warning, not a failed JVM build/test.
 
-```bash
-xcodebuild -list -project iosApp/CB-Partner.xcodeproj
-```
+### Kotlin redundant cast
 
-Use the approved Xcode scheme/configuration from the iOS implementation plan.
+`Cast is redundant` is a warning and does not invalidate a successful test run.
 
-A Windows Gradle run must never be described as successful iOS/Xcode build verification.
+## 14. Git Safety Around Gradle Changes
 
-## 14. Git Commands Around Gradle Changes
-
-Before setup:
+Before modification:
 
 ```powershell
 git status
@@ -344,58 +205,37 @@ git branch --show-current
 git diff --stat
 ```
 
-After Wrapper generation:
+After modification:
 
 ```powershell
-git status
+git diff --check
 git diff --stat
-git diff --check
 git diff
-```
-
-Before commit:
-
-```powershell
-git diff --check
-git status
-git diff --cached
-```
-
-After commit:
-
-```powershell
-git log --oneline -3
 git status
 ```
 
-## 15. Gradle Version Upgrade Procedure
+Never use destructive Git commands to resolve Gradle uncertainty.
 
-A Gradle version change is a repository tooling decision, not an ad-hoc local setup change.
+## 15. Version Change Procedure
 
-Required order:
+A Gradle baseline change is a tooling decision.
 
-1. Identify why the version must change.
-2. Inspect Kotlin, AGP, Compose, JDK and Gradle compatibility requirements.
-3. Record the proposed version in the Decision Log.
-4. Obtain explicit owner approval when the selected project baseline changes.
-5. Update this document first.
-6. Update project-management routing documents.
-7. Provision the selected system Gradle only for Wrapper generation/update.
-8. Run the official Wrapper task.
-9. Verify the Wrapper reports the selected version.
-10. Run `projects`, build-logic build, tests, compilation and the implementation-specific verification.
-11. Record actual results.
-12. Review the diff.
-13. Commit the focused tooling change.
-14. Push through the approved branch/PR workflow.
+1. Record why the change is needed.
+2. Check Kotlin/AGP/Compose/JDK compatibility.
+3. Obtain explicit approval for a baseline change.
+4. Update this authoritative document.
+5. Update routing/status documents.
+6. Update the Wrapper.
+7. Run project/build/test verification.
+8. Record actual results.
+9. Review the diff.
+10. Commit through the approved workflow.
 
-Never change the project Gradle version only because a local machine happens to have another version installed.
+Never downgrade/upgrade only because a different local version is installed.
 
 ## 16. Troubleshooting
 
-### `gradle` is not recognized
-
-Check:
+### `gradle` not recognized
 
 ```powershell
 $env:GRADLE_HOME
@@ -404,90 +244,29 @@ java -version
 gradle --version
 ```
 
-If necessary, configure the current session:
+### Wrapper missing
 
-```powershell
-$env:GRADLE_HOME = "C:\Gradle\gradle-9.7.1"
-$env:Path = "$env:GRADLE_HOME\bin;$env:Path"
-gradle --version
-```
-
-### `gradlew.bat` is missing
-
-The repository does not yet have the official Wrapper. Provision system Gradle 9.7.1 and run:
+Use system Gradle 9.7.1 only to generate the official Wrapper:
 
 ```powershell
 gradle :wrapper --gradle-version 9.7.1 --distribution-type bin
 ```
 
-Do not create a fake Wrapper JAR.
-
-### Wrapper reports the wrong version
-
-Inspect:
+### Wrong Wrapper version
 
 ```powershell
 .\gradlew.bat --version
 Get-Content gradle\wrapper\gradle-wrapper.properties
 ```
 
-Do not proceed with normal project work until the Wrapper version matches the authoritative project version.
+### iOS simulator warning on Windows
 
-### Build fails after a Gradle version change
+Expected host limitation. Do not treat it as a code failure.
 
-Do not immediately downgrade or add compatibility flags.
+## 17. Related Documents
 
-Capture:
-
-```powershell
-.\gradlew.bat <task> --stacktrace
-.\gradlew.bat <task> --info
-```
-
-Then compare the failure with the project's frozen dependency/tooling decisions.
-
-### iOS simulator target is disabled on Windows
-
-This is expected for iOS simulator testing because the simulator toolchain requires macOS.
-
-Do not add `kotlin.native.ignoreDisabledTargets=true` merely to hide the warning.
-
-## 17. Version History
-
-| Date | Version | State | Notes |
-|---|---|---|---|
-| Before 2026-09-23 | 9.7.1 | Historical project usage | Existing project baseline referenced by owner |
-| 2026-09-23 | 9.5.0 | SUPERSEDED | Temporary compatibility-based proposal during Wrapper research |
-| 2026-09-23 | **9.7.1** | **AUTHORITATIVE** | Owner-selected CB-Partner baseline; Wrapper target |
-
-## 18. Current BASE-ARCH-014-T01 State
-
-**State:** VERIFIED
-**Documentation:** implemented.
-**Selected version:** Gradle 9.7.1.
-**Wrapper:** implemented and committed in `0630982`.
-**Wrapper verification:** passed.
-**Build verification with Wrapper:** passed.
-**BASE-ARCH-014 shared baseline:** passed.
-**Fake/custom Wrapper:** not used.
-
-Next operational step:
-
-```powershell
-$env:GRADLE_HOME = "C:\Gradle\gradle-9.7.1"
-$env:Path = "$env:GRADLE_HOME\bin;$env:Path"
-gradle --version
-gradle :wrapper --gradle-version 9.7.1 --distribution-type bin
-.\gradlew.bat --version
-```
-
-Then run the BASE-ARCH-014 build/test baseline and record the actual results before marking T01 complete.
-
-## 19. Related Documents
-
-- `AI_START_HERE.md` — AI routing and Gradle authority.
-- `docs/project-management/11-TERMINAL-GIT-COMMANDS.md` — concise operational Git/terminal lifecycle.
-- `docs/project-management/03-DECISION-LOG.md` — durable tooling decisions.
-- `docs/project-management/04-CURRENT-STATUS.md` — current project state.
-- `docs/project-management/12-PROJECT-TRACKER.md` — execution ledger.
-- `docs/architecture/BASE-ARCH-014-IMPLEMENTATION-PLAN.md` — frozen BASE-ARCH-014 implementation contract.
+- `AI_START_HERE.md`
+- `docs/project-management/04-CURRENT-STATUS.md`
+- `docs/project-management/12-PROJECT-TRACKER.md`
+- `docs/architecture/BASE-ARCH-014-IMPLEMENTATION-PLAN.md`
+- `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
