@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.data.bootstrap
 
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,7 +32,7 @@ class BootstrapMapperTest {
     }
 
     @Test
-    fun startupNextScreenMapsToCanonicalDynamicDestination() {
+    fun startupDestinationMapsToCanonicalDynamicDestination() {
         val dto = Json.decodeFromString<BootstrapResponseDto>(
             """
             {
@@ -48,13 +48,11 @@ class BootstrapMapperTest {
                 },
                 "startup": {
                   "authenticated": false,
-                  "nextScreen": {
+                  "destination": {
                     "screenId": "partner_login",
-                    "templateId": "tpl_7K2M9Q",
+                    "templateId": "tpl_P101L",
                     "templateType": "form_template",
-                    "endpoint": "/api/v1/partner/screen/auth_login",
-                    "method": "GET",
-                    "authentication": "NONE"
+                    "endpoint": "/api/v1/partner/screen/auth_login"
                   }
                 }
               },
@@ -63,14 +61,12 @@ class BootstrapMapperTest {
             """.trimIndent(),
         )
 
-        val destination = mapper.map(dto).getOrThrow().startup.nextScreen
+        val destination = mapper.map(dto).getOrThrow().startup.destination
 
         assertIs<DynamicDestination>(destination)
         assertEquals("partner_login", destination.screenId)
-        assertEquals("tpl_7K2M9Q", destination.templateId)
+        assertEquals("tpl_P101L", destination.templateId)
         assertEquals("form_template", destination.templateType)
         assertEquals("/api/v1/partner/screen/auth_login", destination.endpoint)
-        assertEquals("GET", destination.method)
-        assertEquals("NONE", destination.authentication)
     }
 }
