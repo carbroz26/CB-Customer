@@ -10,6 +10,8 @@ kotlin {
             implementation(project(":core"))
             implementation(project(":network"))
             implementation(libs.koin.core)
+            implementation(libs.ktor.client.core)
+            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kermit)
         }
