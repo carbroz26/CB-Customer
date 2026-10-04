@@ -30,8 +30,8 @@ class BootstrapMapper {
             ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing update config"))
         val features = config.features
             ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing feature config"))
-        val nextScreen = startup.nextScreen
-            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen config"))
+        val destination = startup.destination
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing startup destination"))
 
         val configVersion = config.version
             ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing config version"))
@@ -53,18 +53,14 @@ class BootstrapMapper {
             ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing organization partner flag"))
         val authenticated = startup.authenticated
             ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing authenticated flag"))
-        val screenId = nextScreen.screenId
-            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen id"))
-        val templateId = nextScreen.templateId
-            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing template id"))
-        val templateType = nextScreen.templateType
-            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing template type"))
-        val endpoint = nextScreen.endpoint
-            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen endpoint"))
-        val method = nextScreen.method
-            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen method"))
-        val authentication = nextScreen.authentication
-            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen authentication"))
+        val screenId = destination.screenId
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing destination screen id"))
+        val templateId = destination.templateId
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing destination template id"))
+        val templateType = destination.templateType
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing destination template type"))
+        val endpoint = destination.endpoint
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing destination endpoint"))
 
         return Result.success(
             BootstrapOutput(
@@ -90,13 +86,11 @@ class BootstrapMapper {
                 ),
                 startup = StartupConfig(
                     authenticated = authenticated,
-                    nextScreen = DynamicDestination(
+                    destination = DynamicDestination(
                         screenId = screenId,
                         templateId = templateId,
                         templateType = templateType,
                         endpoint = endpoint,
-                        method = method,
-                        authentication = authentication,
                     ),
                 ),
             ),
