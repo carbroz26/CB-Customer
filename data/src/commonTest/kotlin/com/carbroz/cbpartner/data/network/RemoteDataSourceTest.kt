@@ -16,10 +16,10 @@ import kotlin.test.assertIs
 
 class RemoteDataSourceTest {
     @Test
-    fun relativeUrlUsesCentralBaseUrl() = runTest {
+    fun executeUsesRequestMethodAndUrl() = runTest {
         val engine = MockEngine { request ->
             assertEquals(HttpMethod.Get, request.method)
-            assertEquals("http://localhost:3000/api/v1/test", request.url.toString())
+            assertEquals("https://example.test/api/v1/test", request.url.toString())
             respond(
                 content = "{\"ok\":true}",
                 status = HttpStatusCode.OK,
@@ -27,32 +27,7 @@ class RemoteDataSourceTest {
             )
         }
         val client = HttpClient(engine)
-        val dataSource = RemoteDataSource(
-            httpClient = client,
-            networkConfig = NetworkConfig("http://localhost:3000"),
-        )
-
-        val response = dataSource.execute(
-            method = HttpMethod.Get,
-            url = "/api/v1/test",
-        )
-
-        assertEquals(200, response.statusCode)
-        assertEquals("{\"ok\":true}", response.body)
-        client.close()
-    }
-
-    @Test
-    fun absoluteUrlIsUsedWithoutBaseUrlPrefix() = runTest {
-        val engine = MockEngine { request ->
-            assertEquals("https://example.test/api/v1/test", request.url.toString())
-            respond(content = "ok", status = HttpStatusCode.OK)
-        }
-        val client = HttpClient(engine)
-        val dataSource = RemoteDataSource(
-            httpClient = client,
-            networkConfig = NetworkConfig("http://localhost:3000"),
-        )
+        val dataSource = RemoteDataSource(client)
 
         val response = dataSource.execute(
             method = HttpMethod.Get,
@@ -60,7 +35,7 @@ class RemoteDataSourceTest {
         )
 
         assertEquals(200, response.statusCode)
-        assertEquals("ok", response.body)
+        assertEquals("{\"ok\":true}", response.body)
         client.close()
     }
 
@@ -79,14 +54,11 @@ class RemoteDataSourceTest {
             )
         }
         val client = HttpClient(engine)
-        val dataSource = RemoteDataSource(
-            httpClient = client,
-            networkConfig = NetworkConfig("http://localhost:3000"),
-        )
+        val dataSource = RemoteDataSource(client)
 
         dataSource.execute(
             method = HttpMethod.Post,
-            url = "/api/v1/partner/auth/send_otp",
+            url = "https://example.test/api/v1/partner/auth/send_otp",
             body = expectedBody,
         )
 
