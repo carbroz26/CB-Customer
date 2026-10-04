@@ -5,6 +5,7 @@ import com.carbroz.cbpartner.network.NetworkResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.prepareRequest
 import io.ktor.client.request.setBody
@@ -17,6 +18,7 @@ class RequestHandler(val httpClient: HttpClient) {
     suspend inline fun <reified B, reified R> executeRequest(
         method: HttpMethod,
         urlPathSegments: List<Any>,
+        headers: Map<String, String>? = null,
         body: B? = null,
         queryParams: Map<String, Any>? = null,
     ): NetworkResult<R> {
@@ -27,6 +29,7 @@ class RequestHandler(val httpClient: HttpClient) {
                     val pathSegments = urlPathSegments.map { it.toString() }
                     appendPathSegments(pathSegments)
                 }
+                headers?.forEach { (key, value) -> header(key, value) }
                 body?.let { setBody(body) }
                 queryParams?.let { params ->
                     params.forEach { (key, value) ->
