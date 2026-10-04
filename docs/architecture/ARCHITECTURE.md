@@ -59,6 +59,8 @@ The current branch does not register `:desktopApp`. Older Base Architecture word
 
 ## Current Runtime Shape
 
+Bootstrap and Splash are one startup flow. Splash is the visible startup UI while Bootstrap executes the config/startup API.
+
 ```text
 Platform Entry
   ↓
@@ -66,13 +68,25 @@ App
   ↓
 ApplicationContent
   ↓
-SplashStore
+SplashStore / SplashScreen
   ↓
 ApplicationBootstrap
   ↓
+BootstrapRepository
+  ↓
+BootstrapRepositoryImpl
+  ↓
+BootstrapRemoteDataSource
+  ↓
 RequestHandler / Ktor
   ↓
+BootstrapResponseDto
+  ↓
+BootstrapMapper
+  ↓
 BootstrapOutput.startup.nextScreen
+  ↓
+DynamicDestination
   ↓
 DynamicNavigationState
   ↓
@@ -80,9 +94,11 @@ DynamicContainer
   ↓
 DynamicStore
   ↓
-Use Cases
+Dynamic Use Cases
   ↓
 DynamicRepository
+  ↓
+DynamicRepositoryImpl
   ↓
 DynamicRemoteDataSource
   ↓
@@ -92,6 +108,38 @@ DynamicResponse
   ↓
 DynamicRegistry / DynamicRenderer
 ```
+
+The Bootstrap repository/remote-source segment is the selected Option B implementation target and is currently a documented gap until implemented.
+
+## Bootstrap Boundary
+
+Selected implementation refinement:
+
+```text
+ApplicationBootstrap        :domain startup contract
+        ↓
+BootstrapRepository         :domain repository contract
+        ↓
+BootstrapRepositoryImpl     :data
+        ↓
+BootstrapRemoteDataSource   :data transport source
+        ↓
+RequestHandler              :network
+```
+
+Actual Bootstrap API:
+
+```text
+GET /api/v1/partner/config/bootstrap
+
+X-CarBroz-Platform: ANDROID
+X-CarBroz-App-Version: 1.0.0
+X-CarBroz-Build-Number: 1
+```
+
+`startup.nextScreen` becomes the canonical `DynamicDestination`.
+
+The old direct `DefaultApplicationBootstrap → RequestHandler` implementation is transitional and must be removed/reworked so there is one production request path.
 
 ## Dynamic Architecture
 
@@ -106,6 +154,15 @@ The Dynamic runtime boundary is:
 ```text
 PARSE → RESOLVE → RENDER → DIAGNOSE → FALLBACK → RECOVER SAFELY
 ```
+
+## Dynamic Use-Case Ownership
+
+Dynamic use cases are feature orchestration, not a reason to create a second domain layer inside `:feature:dynamic`.
+
+- `LoadDynamicScreenUseCase` coordinates screen loading through the domain repository contract.
+- `ExecuteDynamicActionUseCase` coordinates feature-owned Dynamic action capabilities.
+
+Current package naming under `feature/dynamic/.../domain/usecase/` is a cleanup target. Target package is `feature/dynamic/.../usecase/`. Do not move feature-owned action capabilities into top-level `:domain` merely for naming symmetry.
 
 ## Dependency Direction
 
@@ -151,4 +208,4 @@ A material architecture change requires:
 DISCUSS → RESEARCH → DECIDE → FREEZE → PLAN → IMPLEMENT → TEST → REVIEW
 ```
 
-No silent architecture changes.
+Option B Bootstrap is an implementation refinement within the frozen startup responsibility, not a reopening of the frozen startup decision.
