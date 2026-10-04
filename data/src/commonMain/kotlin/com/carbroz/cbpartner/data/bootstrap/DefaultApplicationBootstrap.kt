@@ -1,17 +1,18 @@
 package com.carbroz.cbpartner.data.bootstrap
 
 import co.touchlab.kermit.Logger
-import com.carbroz.cbpartner.data.network.RemoteDataSource
 import com.carbroz.cbpartner.domain.bootstrap.ApplicationBootstrap
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
+import com.carbroz.cbpartner.network.NetworkResult
+import com.carbroz.cbpartner.network.http.RequestHandler
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 internal class DefaultApplicationBootstrap(
-    private val remoteDataSource: RemoteDataSource,
+    private val requestHandler: RequestHandler,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : ApplicationBootstrap {
     private val logger = Logger.withTag("Bootstrap")
@@ -20,26 +21,33 @@ internal class DefaultApplicationBootstrap(
         logger.i { "Requesting $BOOTSTRAP_ENDPOINT" }
 
         return try {
-            val response = remoteDataSource.execute(
-                method = HttpMethod.Get,
-                url = BOOTSTRAP_ENDPOINT,
-                headers = mapOf(
-                    "X-CarBroz-Platform" to "ANDROID",
-                    "X-CarBroz-App-Version" to "1.0.0",
-                    "X-CarBroz-Build-Number" to "1",
-                ),
-            )
+            when (
+                val response = requestHandler.executeRequest<Any, String>(
+                    method = HttpMethod.Get,
+                    urlPathSegments = BOOTSTRAP_ENDPOINT.split('/').filter(String::isNotEmpty),
+                    headers = mapOf(
+                        "X-CarBroz-Platform" to "ANDROID",
+                        "X-CarBroz-App-Version" to "1.0.0",
+                        "X-CarBroz-Build-Number" to "1",
+                    ),
+                )
+            ) {
+                is NetworkResult.Success -> {
+                    logger.i { "Response parsed successfully" }
+                    json.decodeFromString<BootstrapResponseDto>(response.result).toDomain()
+                }
 
-            logger.i { "Response HTTP ${response.statusCode}" }
-
-            if (response.statusCode !in 200..299) {
-                logger.e { "HTTP failure: ${response.statusCode}" }
-                return Result.failure(BootstrapFailure.Http(response.statusCode))
+                is NetworkResult.Error -> {
+                    logger.e { "Transport failure: ${response.exception.message}" }
+                    response.exception.statusCode?.let {
+                        Result.failure(BootstrapFailure.Http(it))
+                    } ?: Result.failure(
+                        BootstrapFailure.Transport(
+                            response.exception.message,
+                        ),
+                    )
+                }
             }
-
-            val dto = json.decodeFromString<BootstrapResponseDto>(response.body)
-            logger.i { "Response parsed successfully" }
-            dto.toDomain()
         } catch (error: CancellationException) {
             throw error
         } catch (error: SerializationException) {
