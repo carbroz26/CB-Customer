@@ -11,17 +11,6 @@ data class DynamicResponseDto(
     val message: String,
     val data: JsonElement? = null,
     val traceId: String? = null,
-    val nextScreen: DynamicNextScreenDto? = null,
-)
-
-@Serializable
-data class DynamicNextScreenDto(
-    val screenId: String,
-    val templateId: String,
-    val templateType: String,
-    val endpoint: String,
-    val method: String = "GET",
-    val authentication: String? = null,
 )
 
 @Serializable
@@ -31,6 +20,17 @@ data class DynamicScreenDto(
     val targetApp: String,
     val template: DynamicTemplateDto,
     val theme: DynamicThemeDto? = null,
+    val nextScreen: DynamicDestinationDto? = null,
+)
+
+@Serializable
+data class DynamicDestinationDto(
+    val screenId: String,
+    val templateId: String?,
+    val templateType: String?,
+    val endpoint: String,
+    val method: String = "GET",
+    val authentication: String? = null,
 )
 
 @Serializable
