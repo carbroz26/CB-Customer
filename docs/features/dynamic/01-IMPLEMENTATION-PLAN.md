@@ -3,7 +3,7 @@
 **Status:** PLAN FROZEN — IMPLEMENTATION AUTHORIZED  
 **Documentation reconciliation:** 2026-10-04
 
-This document is the implementation source of truth after reconciliation with frozen DYNAMIC-01 → DYNAMIC-07 decisions and the final Bootstrap/Dynamic boundary record in `03-FINAL-RECONCILIATION-2026-10-04.md`.
+This document is the implementation source of truth after reconciliation with frozen DYNAMIC-01 → DYNAMIC-08 decisions and the final Bootstrap/Dynamic boundary record. It does not reopen frozen architecture decisions.
 
 ## 1. Frozen runtime architecture
 
@@ -101,16 +101,17 @@ The following legacy domain contracts must not remain as parallel contracts:
 
 Transport DTO names may mirror the backend JSON and are not domain contracts.
 
-The destination shape is:
+Canonical destination shape:
 
 ```text
-screenId
-templateId
-templateType
-endpoint
-method
-authentication
+DynamicDestination
+├── screenId
+├── templateId
+├── templateType
+└── endpoint
 ```
+
+`method` and `authentication` are request metadata and are not part of destination identity.
 
 ## 5. Bootstrap API contract
 
@@ -126,16 +127,16 @@ X-CarBroz-App-Version: 1.0.0
 X-CarBroz-Build-Number: 1
 ```
 
-`startup.nextScreen` is mapped directly to `DynamicDestination`.
+Bootstrap startup configuration resolves its startup destination into the canonical `DynamicDestination`.
 
 ## 6. One DynamicDestination for the complete navigation flow
 
-Bootstrap `nextScreen`, a Dynamic response `nextScreen`, and a Dynamic `navigate` action are not separate navigation concepts. They are inputs that resolve to the same canonical `DynamicDestination` and are handled by the same Dynamic navigation mechanism.
+Bootstrap startup destination, a Dynamic response destination, and a Dynamic `navigate` action are not separate navigation concepts. They are inputs that resolve to the same canonical `DynamicDestination` and are handled by the same Dynamic navigation mechanism.
 
 ```text
-Bootstrap response data.startup.nextScreen ──┐
-Dynamic response data.nextScreen ────────────┼──→ DynamicDestination
-Dynamic navigate action payload ─────────────┘            ↓
+Bootstrap response data.startup.destination ──┐
+Dynamic response data.destination ────────────┼──→ DynamicDestination
+Dynamic navigate action destination ──────────┘            ↓
                                                DynamicNavigationState
 ```
 
@@ -145,22 +146,15 @@ There is only one destination model and one Dynamic navigation mechanism. `Dynam
 
 ## 7. Dynamic response data contract
 
-`nextScreen` is part of the response `data` payload. It is not a sibling of `data` in the Dynamic API response envelope.
-
-For a screen response, the domain shape is:
+When an API response produces a navigation destination, the destination is inside `data`:
 
 ```text
 DynamicResponse
-  └── data: DynamicScreen
-        ├── screenId
-        ├── schemaVersion
-        ├── targetApp
-        ├── template
-        ├── theme
-        └── nextScreen: DynamicDestination?
+  ├── data: DynamicScreen? / arbitrary DynamicValue?
+  └── destination: DynamicDestination?
 ```
 
-`DynamicNextScreen` is not a separate domain model. `DynamicScreen.nextScreen` uses the shared `DynamicDestination` directly.
+The mapper resolves `data.destination` when present. The screen document itself does not own `DynamicScreen.nextScreen`.
 
 Arbitrary non-screen response data remains available through `DynamicResponse.dataPayload` for chained actions and response references.
 
@@ -251,8 +245,8 @@ domain/model/bootstrap/BootstrapConfig.kt
 
 - `feature/dynamic/.../DynamicContainer.kt`
 - `feature/dynamic/.../DynamicModule.kt`
-- `feature/dynamic/.../store/DynamicStore.kt`
-- `feature/dynamic/.../action/DynamicActionHandler.kt`
+- `feature/dynamic/.../DynamicStore.kt`
+- `feature/dynamic/.../DynamicActionHandler.kt`
 - `feature/dynamic/.../usecase/LoadDynamicScreenUseCase.kt`
 - `feature/dynamic/.../usecase/ExecuteDynamicActionUseCase.kt`
 - `feature/dynamic/.../registry/DynamicRegistry.kt`
@@ -322,7 +316,7 @@ Do not create Login/OTP/Dashboard-specific screen architecture.
 3. Implement `BootstrapRepositoryImpl`.
 4. Implement `BootstrapRemoteDataSource`.
 5. Move DTOs into the Bootstrap transport/model boundary.
-6. Keep `BootstrapMapper` explicit and map `nextScreen` to `DynamicDestination`.
+6. Keep `BootstrapMapper` explicit and map the startup destination to `DynamicDestination`.
 7. Remove the direct `DefaultApplicationBootstrap → RequestHandler` production path.
 8. Update Bootstrap DI.
 9. Update Bootstrap unit tests.
@@ -331,7 +325,7 @@ Do not create Login/OTP/Dashboard-specific screen architecture.
 ### Phase B — Shared destination/navigation
 
 11. Verify Bootstrap, Dynamic response and action destinations all resolve to `DynamicDestination`.
-12. Verify Dynamic response `nextScreen` is read from `data`, not the response envelope root.
+12. Verify Dynamic response destination is read from `data.destination`.
 13. Verify push/replace/pop/back operate on the same destination type.
 14. Verify no `templateType` business-navigation branching exists.
 
@@ -366,8 +360,9 @@ Do not create Login/OTP/Dashboard-specific screen architecture.
 - [ ] No legacy Bootstrap domain duplicate models remain.
 - [ ] Exactly one production Bootstrap HTTP path exists.
 - [ ] Bootstrap DI/tests updated and green.
-- [ ] Bootstrap nextScreen maps to canonical `DynamicDestination`.
-- [ ] Dynamic response nextScreen is inside `data` and maps to canonical `DynamicDestination`.
+- [x] Affected DYNAMIC-08 source/test alignment is green on JVM.
+- [ ] Bootstrap startup destination maps to canonical `DynamicDestination` at runtime.
+- [ ] Dynamic response destination maps to canonical `DynamicDestination` at runtime.
 - [ ] Dynamic navigate actions use the same `DynamicDestination`.
 - [ ] No templateType-based business navigation.
 - [ ] Dynamic use cases are in the feature-level `usecase` package.
@@ -383,21 +378,35 @@ Do not create Login/OTP/Dashboard-specific screen architecture.
 - [ ] Final Dynamic review accepted.
 - [ ] Dynamic code frozen.
 
-## 14. Verification baseline
+## 14. Latest verification baseline
 
-Owner-provided 2026-10-04 JVM verification passed before this model cleanup:
+Owner-provided 2026-10-04 verification passed after the DYNAMIC-08 source/test reconciliation.
+
+Compile set:
 
 ```text
 :domain:compileKotlinJvm
 :data:compileKotlinJvm
 :feature:splash:compileKotlinJvm
 :feature:dynamic:compileKotlinJvm
+:navigation:compileKotlinJvm
 :app:compileKotlinJvm
-
-:data:jvmTest
-:domain:jvmTest
-:feature:splash:jvmTest
-:feature:dynamic:jvmTest
 ```
 
-The baseline does not certify this latest model refactor until the same verification is rerun.
+Result: **BUILD SUCCESSFUL — 43 actionable tasks: 43 executed**.
+
+JVM verification set:
+
+```text
+:core:jvmTest
+:domain:jvmTest
+:data:jvmTest
+:navigation:jvmTest
+:feature:splash:jvmTest
+:feature:dynamic:jvmTest
+:app:compileKotlinJvm
+```
+
+Result: **BUILD SUCCESSFUL — 62 actionable tasks: 62 executed**.
+
+Known Windows warnings about iOS simulator tests and Android host-test configuration are non-fatal.
