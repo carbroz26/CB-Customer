@@ -1,5 +1,7 @@
 package com.carbroz.cbpartner.data.bootstrap
 
+import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
+import com.carbroz.cbpartner.data.bootstrap.model.BootstrapResponseDto
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
