@@ -3,7 +3,6 @@ package com.carbroz.cbpartner.data.network
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.request
-import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
@@ -33,10 +32,11 @@ class RemoteDataSource(
                 header(name, value)
             }
             if (body != null) {
-                // Send the already-serialized JSON as an explicit JSON request
-                // body. Do not rely on ContentNegotiation to serialize a String,
-                // because dynamic requests are runtime-defined payloads.
-                setBody(TextContent(body, ContentType.Application.Json))
+                // Ktor 3.x exposes the request body as a property on the
+                // HttpRequestBuilder. Use an explicit TextContent so the
+                // already-serialized dynamic JSON is sent verbatim with the
+                // correct application/json content type.
+                this.body = TextContent(body, ContentType.Application.Json)
             }
         }
 
