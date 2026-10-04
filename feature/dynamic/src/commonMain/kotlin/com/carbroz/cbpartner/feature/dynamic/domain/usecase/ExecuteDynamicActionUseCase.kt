@@ -11,7 +11,7 @@ sealed interface DynamicActionResult {
     data class Completed(val response: DynamicResponse) : DynamicActionResult
     data class Navigate(
         val destination: DynamicDestination,
-        val response: DynamicResponse,
+        val response: DynamicResponse? = null,
     ) : DynamicActionResult
     data class ExternalUri(val uri: String) : DynamicActionResult
 }
@@ -28,16 +28,7 @@ class ExecuteDynamicActionUseCase(
     ): Result<DynamicActionResult> = runCatching {
         when (action.type) {
             "request" -> executeRequest(action, bindings, context, previousResponse)
-            "navigate" -> DynamicActionResult.Navigate(
-                destination = actionHandler.destination(action),
-                response = DynamicResponse(
-                    status = 200,
-                    code = "NAVIGATE",
-                    message = "Navigation action completed",
-                    data = null,
-                    traceId = null,
-                ),
-            )
+            "navigate" -> DynamicActionResult.Navigate(actionHandler.destination(action))
             "external_uri" -> DynamicActionResult.ExternalUri(actionHandler.externalUri(action, context))
             else -> error("Unsupported dynamic action: ${action.type}")
         }
