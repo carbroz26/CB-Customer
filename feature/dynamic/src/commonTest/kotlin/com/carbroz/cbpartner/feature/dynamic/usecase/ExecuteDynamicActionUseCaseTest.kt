@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic.usecase
 
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
@@ -98,6 +98,12 @@ class ExecuteDynamicActionUseCaseTest {
                         message = "OTP sent",
                         data = null,
                         traceId = "trace-1",
+                        destination = DynamicDestination(
+                            screenId = "otp",
+                            templateId = "tpl_OTP",
+                            templateType = "form_template",
+                            endpoint = "/verify-otp",
+                        ),
                     ),
                 )
             }
