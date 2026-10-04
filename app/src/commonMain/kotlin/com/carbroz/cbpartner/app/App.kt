@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 import com.carbroz.cbpartner.data.di.bootstrapModule
 import com.carbroz.cbpartner.data.di.dynamicDataModule
 import com.carbroz.cbpartner.data.di.networkModule
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.feature.dynamic.DynamicContainer
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicEffect
@@ -42,9 +41,7 @@ fun App() {
     MaterialTheme {
         when (val state = splashState) {
             is SplashState.Success -> {
-                val initialDestination = remember(state.output.startup.nextScreen) {
-                    state.output.startup.nextScreen.toDynamicDestination()
-                }
+                val initialDestination = state.output.startup.nextScreen
                 val navigationState = remember(initialDestination) {
                     DynamicNavigationState(initialDestination)
                 }
@@ -84,13 +81,3 @@ fun App() {
         }
     }
 }
-
-private fun com.carbroz.cbpartner.domain.model.bootstrap.NextScreen.toDynamicDestination(): DynamicDestination =
-    DynamicDestination(
-        screenId = screenId,
-        templateId = templateId,
-        templateType = templateType,
-        endpoint = endpoint,
-        method = method,
-        authentication = authentication,
-    )
