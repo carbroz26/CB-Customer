@@ -9,37 +9,38 @@ import com.carbroz.cbpartner.navigation.DynamicNavigationState
 
 class DynamicActionExecutor(
     private val repository: DynamicRepository,
-    private val navigation: DynamicNavigationState,
 ) {
     suspend fun execute(
         action: DynamicAction,
+        navigation: DynamicNavigationState,
         bindings: Map<String, String>,
         context: Map<String, String>,
         previousResponse: DynamicValue?,
     ): Result<DynamicActionResult> = runCatching {
         when (action.type.lowercase()) {
-            "navigate" -> navigate(action)
-            "request" -> request(action, bindings, context, previousResponse)
+            "navigate" -> navigate(action, navigation)
+            "request" -> request(action, navigation, bindings, context, previousResponse)
             "external_uri" -> externalUri(action, context)
             "dismiss", "back" -> {
                 navigation.pop()
                 DynamicActionResult.Completed
             }
-            "present" -> present(action)
+            "present" -> present(action, navigation)
             "state" -> state(action, bindings, context, previousResponse)
-            "sequence" -> sequence(action, bindings, context, previousResponse)
+            "sequence" -> sequence(action, navigation, bindings, context, previousResponse)
             else -> error("Unsupported dynamic action: ${action.type}")
         }
     }
 
-    private fun navigate(action: DynamicAction): DynamicActionResult.Navigate {
+    private fun navigate(action: DynamicAction, navigation: DynamicNavigationState): DynamicActionResult.Navigate {
         val destination = action.destination ?: error("Dynamic navigation destination is missing")
-        applyNavigation(action, destination)
+        applyNavigation(action, destination, navigation)
         return DynamicActionResult.Navigate(destination)
     }
 
     private suspend fun request(
         action: DynamicAction,
+        navigation: DynamicNavigationState,
         bindings: Map<String, String>,
         context: Map<String, String>,
         previousResponse: DynamicValue?,
@@ -49,7 +50,6 @@ class DynamicActionExecutor(
         val method = string(action.payload["method"]) ?: "POST"
         val authentication = string(action.payload["authentication"]) ?: "NONE"
         val body = action.payload["body"]?.resolve(bindings, context, previousResponse)
-
         val response = repository.fetch(
             destination = DynamicDestination(
                 screenId = "action:$endpoint",
@@ -67,16 +67,13 @@ class DynamicActionExecutor(
             else -> {
                 val destination = response.destination
                     ?: error("Dynamic request did not provide data.destination")
-                applyNavigation(action, destination)
+                applyNavigation(action, destination, navigation)
                 DynamicActionResult.Navigate(destination, response)
             }
         }
     }
 
-    private fun externalUri(
-        action: DynamicAction,
-        context: Map<String, String>,
-    ): DynamicActionResult.ExternalUri {
+    private fun externalUri(action: DynamicAction, context: Map<String, String>): DynamicActionResult.ExternalUri {
         val value = action.payload["uri"] ?: error("Dynamic external URI is missing")
         val uri = when (value) {
             is DynamicValue.StringValue -> value.value
@@ -90,7 +87,7 @@ class DynamicActionExecutor(
         return DynamicActionResult.ExternalUri(uri)
     }
 
-    private fun present(action: DynamicAction): DynamicActionResult.Navigate {
+    private fun present(action: DynamicAction, navigation: DynamicNavigationState): DynamicActionResult.Navigate {
         val destination = action.destination ?: error("Dynamic present destination is missing")
         navigation.push(destination)
         return DynamicActionResult.Navigate(destination)
@@ -103,15 +100,13 @@ class DynamicActionExecutor(
         previousResponse: DynamicValue?,
     ): DynamicActionResult.StateChanged {
         val key = string(action.payload["key"]) ?: error("Dynamic state key is missing")
-        val value = action.payload["value"]
-            ?.resolve(bindings, context, previousResponse)
-            ?.asString()
-            ?: ""
+        val value = action.payload["value"]?.resolve(bindings, context, previousResponse)?.asString().orEmpty()
         return DynamicActionResult.StateChanged(key, value)
     }
 
     private suspend fun sequence(
         action: DynamicAction,
+        navigation: DynamicNavigationState,
         bindings: Map<String, String>,
         context: Map<String, String>,
         previousResponse: DynamicValue?,
@@ -124,13 +119,22 @@ class DynamicActionExecutor(
                 ?: error("Dynamic sequence action is invalid")
             val type = string(objectValue.value["type"])
                 ?: error("Dynamic sequence action type is missing")
-            val nested = DynamicAction(type = type, payload = objectValue.value - "type")
-            last = execute(nested, bindings, context, previousResponse).getOrThrow()
+            last = execute(
+                DynamicAction(type = type, payload = objectValue.value - "type"),
+                navigation,
+                bindings,
+                context,
+                previousResponse,
+            ).getOrThrow()
         }
         return last
     }
 
-    private fun applyNavigation(action: DynamicAction, destination: DynamicDestination) {
+    private fun applyNavigation(
+        action: DynamicAction,
+        destination: DynamicDestination,
+        navigation: DynamicNavigationState,
+    ) {
         when (string(action.payload["mode"])?.lowercase()) {
             "push", "add", "present" -> navigation.push(destination)
             "replace" -> navigation.replace(destination)
