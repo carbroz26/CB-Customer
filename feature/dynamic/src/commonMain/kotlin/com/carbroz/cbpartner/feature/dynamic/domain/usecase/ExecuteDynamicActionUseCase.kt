@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic.domain.usecase
 
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
@@ -67,17 +67,8 @@ class ExecuteDynamicActionUseCase(
         }
     }
 
-    private fun DynamicResponse.requireNextDestination(): DynamicDestination {
-        val next = nextScreen ?: error("Dynamic request did not provide nextScreen")
-        return DynamicDestination(
-            screenId = next.screenId,
-            templateId = next.templateId,
-            templateType = next.templateType,
-            endpoint = next.endpoint,
-            method = next.method,
-            authentication = next.authentication,
-        )
-    }
+    private fun DynamicResponse.requireNextDestination(): DynamicDestination =
+        data?.nextScreen ?: error("Dynamic request did not provide data.nextScreen")
 
     private fun DynamicValue.resolve(
         bindings: Map<String, String>,
