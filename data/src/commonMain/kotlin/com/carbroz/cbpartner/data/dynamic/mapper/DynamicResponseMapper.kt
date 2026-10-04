@@ -40,12 +40,20 @@ class DynamicResponseMapper {
 
     fun map(dto: DynamicResponseDto): DynamicResponse {
         val data = dto.data
+        val isScreen = data is JsonObject && SCREEN_FIELDS.all { field -> field in data.keys }
         val screen = data
-            ?.takeIf { it is JsonObject && SCREEN_FIELDS.all { field -> field in it.keys } }
+            ?.takeIf { isScreen }
             ?.let { json.decodeFromJsonElement(DynamicScreenDto.serializer(), it) }
             ?.toDomain()
+        val destination = data
+            ?.takeIf { it is JsonObject }
+            ?.let { it as JsonObject }
+            ?.get("destination")
+            ?.takeIf { it is JsonObject }
+            ?.let { json.decodeFromJsonElement(DynamicDestinationDto.serializer(), it) }
+            ?.toDomain()
         val dataPayload = data
-            ?.takeUnless { it is JsonObject && SCREEN_FIELDS.all { field -> field in it.keys } }
+            ?.takeUnless { isScreen }
             ?.toDynamicValue()
 
         return DynamicResponse(
@@ -55,6 +63,7 @@ class DynamicResponseMapper {
             data = screen,
             traceId = dto.traceId,
             dataPayload = dataPayload,
+            destination = destination,
         )
     }
 
@@ -63,8 +72,6 @@ class DynamicResponseMapper {
         templateId = templateId,
         templateType = templateType,
         endpoint = endpoint,
-        method = method,
-        authentication = authentication,
     )
 
     private fun DynamicScreenDto.toDomain() = DynamicScreen(
@@ -73,7 +80,6 @@ class DynamicResponseMapper {
         targetApp = targetApp,
         template = template.toDomain(),
         theme = theme?.toDomain(),
-        nextScreen = nextScreen?.toDomain(),
     )
 
     private fun DynamicTemplateDto.toDomain() = DynamicTemplate(
@@ -125,13 +131,19 @@ class DynamicResponseMapper {
 
     private fun DynamicActionsDto.toDomain(): Map<String, DynamicAction> {
         val result = mutableMapOf<String, DynamicAction>()
-        onClick?.let { result["onClick"] = DynamicAction(it.type, it.payload.toDynamicValueMap()) }
-        onLongClick?.let { result["onLongClick"] = DynamicAction(it.type, it.payload.toDynamicValueMap()) }
-        onValueChange?.let { result["onValueChange"] = DynamicAction(it.type, it.payload.toDynamicValueMap()) }
-        onFocus?.let { result["onFocus"] = DynamicAction(it.type, it.payload.toDynamicValueMap()) }
-        onSubmit?.let { result["onSubmit"] = DynamicAction(it.type, it.payload.toDynamicValueMap()) }
+        onClick?.let { result["onClick"] = it.toDomain() }
+        onLongClick?.let { result["onLongClick"] = it.toDomain() }
+        onValueChange?.let { result["onValueChange"] = it.toDomain() }
+        onFocus?.let { result["onFocus"] = it.toDomain() }
+        onSubmit?.let { result["onSubmit"] = it.toDomain() }
         return result
     }
+
+    private fun DynamicActionDto.toDomain() = DynamicAction(
+        type = type,
+        payload = payload.toDynamicValueMap(),
+        destination = destination?.toDomain(),
+    )
 
     private fun DynamicThemeDto.toDomain() = DynamicTheme(
         theme = theme,
