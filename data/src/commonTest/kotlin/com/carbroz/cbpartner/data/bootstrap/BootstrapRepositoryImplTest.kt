@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.bootstrap
 
+import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import com.carbroz.cbpartner.network.NetworkResult
@@ -25,8 +26,9 @@ class BootstrapRepositoryImplTest {
         ).fetch()
 
         assertTrue(result.isSuccess)
-        assertEquals("1", result.getOrThrow().config.version)
-        assertEquals("partner_login", result.getOrThrow().startup.destination.screenId)
+        assertEquals("1", result.getOrThrow().version)
+        assertEquals("partner_login", result.getOrThrow().destination.screenId)
+        assertEquals(false, result.getOrThrow().authenticated)
     }
 
     @Test
