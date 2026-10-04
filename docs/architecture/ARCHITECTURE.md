@@ -1,12 +1,15 @@
 # CB-Partner — Frontend Architecture
 
-**Status:** DECISION-FROZEN ARCHITECTURE RECORD THROUGH BASE-ARCH-014  
+**Status:** ACTIVE / FROZEN BASE + CURRENT RECONCILIATION
 **Scope:** Frontend repository only
+**Last Updated:** 2026-10-04
 
 ## Purpose
-Authoritative high-level architecture. Detailed Base Architecture research and frozen decisions are recorded in `BASE-ARCHITECTURE.md`. Feature implementation details belong in feature/module documentation.
 
-## Current Architecture Direction
+This is the high-level architecture index. Detailed frozen Base Architecture decisions remain in `BASE-ARCHITECTURE.md`. The current implementation topology and reconciliation notes are in `ARCHITECTURE-CURRENT-STATE.md`. Feature behavior belongs in feature documentation.
+
+## Frozen Technical Direction
+
 - Kotlin Multiplatform
 - Compose Multiplatform
 - Clean Architecture
@@ -14,53 +17,138 @@ Authoritative high-level architecture. Detailed Base Architecture research and f
 - UDF
 - No ViewModel
 - Multi-module architecture
-- Dependency Injection
+- Koin dependency injection
+- Ktor Client
+- kotlinx.serialization
+- Kermit logging
+- Navigation 3
 - Gradle Convention Plugins
 
-## Base Architecture Decision Record
+## Architecture Records
 
-See:
+### Frozen Base Architecture
 
 `docs/architecture/BASE-ARCHITECTURE.md`
 
-This record documents BASE-ARCH-001 through BASE-ARCH-014. All fourteen units are decision-frozen; 001–003 are the original frozen foundation decisions, and 014 freezes the minimum Gradle/KMP/Compose/build-logic foundation.
+BASE-ARCH-001 through BASE-ARCH-017 are decision-frozen. BASE-ARCH-014 and BASE-ARCH-017 are code-frozen after verification/review.
 
-## Frozen Architecture Through BASE-ARCH-012
+### Current Architecture Reconciliation
 
-- Single `:core` technical foundation with package-level organization.
-- Ktor Client, kotlinx.serialization, kotlinx.coroutines and Kermit selected for the relevant technical foundations.
-- Kotlin `Result<T>` is the generic success/failure primitive.
-- Compose Multiplatform Resources is the selected resource technology.
-- Navigation 3 is the selected primary navigation direction.
-- Single `:navigation` module.
-- Koin is the selected primary DI technology with constructor injection and application composition root.
-- Pure Store + MVI/UDF is the presentation architecture.
-- MVIKotlin is the selected Store implementation/reference technology without adopting its surrounding architecture wholesale.
-- ViewModel is explicitly excluded.
-- Feature-owned Stores are the default.
-- Platform apps are thin entry points.
-- Application Root is the composition boundary.
-- Startup initialization follows Platform Entry → Application Root → DI → Navigation → Splash Store → Bootstrap.
-- Startup failure/retry belongs to Splash.
-- Bootstrap is exposed through a Domain-facing ApplicationBootstrap contract and implemented in Data.
-- BASE-ARCH-013 freezes the direct ApplicationBootstrap ownership model: Splash Store → Domain contract → Data implementation → remote data source → Core Network.
-- No separate bootstrap use-case/repository abstraction chain is required initially.
-- Bootstrap returns a UI-independent `Result<T>`.
-- Bootstrap lifecycle is owned by the Store and is cancellable.
-- Business-specific authentication, booking, payment and SDUI internals remain outside this Base Architecture scope.
+`docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
 
-## Current Scope
+This records the current source topology so the original base record is not confused with later implementation evolution. It does not silently reopen frozen decisions.
 
-BASE-ARCH-001–014 are decision-frozen. BASE-ARCH-001–003 are the frozen foundation decisions for structure, responsibilities/dependencies, and module granularity. BASE-ARCH-014 freezes the minimum Gradle/KMP/Compose/build-logic foundation. Exact implementation APIs, versions, plugin IDs, and other deferred details remain open until implementation planning.
+## Current Gradle Topology
 
-## Implementation Rule
+```text
+:core
+:domain
+:network
+:data
+:navigation
+:app
+:feature:splash
+:feature:dynamic
+:androidApp
+:webApp
+build-logic (included build)
+iosApp/ (native Xcode boundary, not Gradle)
+```
 
-This document and `BASE-ARCHITECTURE.md` are architecture inputs only. Application source implementation requires a separately frozen implementation plan.
+The current branch does not register `:desktopApp`. Older Base Architecture wording contains the earlier Desktop foundation direction. Treat this as a documented reconciliation item; do not add/remove platform code without an explicit architecture decision.
+
+## Current Runtime Shape
+
+```text
+Platform Entry
+  ↓
+App
+  ↓
+ApplicationContent
+  ↓
+SplashStore
+  ↓
+ApplicationBootstrap
+  ↓
+RequestHandler / Ktor
+  ↓
+BootstrapOutput.startup.nextScreen
+  ↓
+DynamicNavigationState
+  ↓
+DynamicContainer
+  ↓
+DynamicStore
+  ↓
+Use Cases
+  ↓
+DynamicRepository
+  ↓
+DynamicRemoteDataSource
+  ↓
+RequestHandler
+  ↓
+DynamicResponse
+  ↓
+DynamicRegistry / DynamicRenderer
+```
+
+## Dynamic Architecture
+
+Dynamic is backend-driven. Login, OTP, Dashboard and future product screens are Dynamic destinations, not native feature screen classes.
+
+Frozen Dynamic decisions are documented in:
+
+`docs/features/dynamic/00-FEATURE-DISCUSSION.md`
+
+The Dynamic runtime boundary is:
+
+```text
+PARSE → RESOLVE → RENDER → DIAGNOSE → FALLBACK → RECOVER SAFELY
+```
+
+## Dependency Direction
+
+```text
+Feature → Domain
+Feature → Core
+Feature → Navigation
+
+Data → Domain
+Data → Core
+Data → Network
+
+Domain → Core
+
+Application → application/shared modules
+```
+
+No feature directly depends on Data for business UI logic. Generic HTTP infrastructure belongs in `:network`.
+
+## State Architecture
+
+Feature state follows Pure Store + MVI/UDF. There is no ViewModel architecture.
+
+Dynamic Store responsibilities include:
+
+- Dynamic state;
+- intents;
+- loading;
+- action/use-case coordination;
+- Dynamic effects.
+
+Dynamic Store does not own generic HTTP implementation, Navigation 3 primitives, or Compose rendering recursion.
+
+## Code Quality Direction
+
+Use the Shaadi project only as a clean-code reference for small responsibilities, explicit mapping, constructor injection and a small request boundary. Do not copy its Android/JVM-only architecture, ViewModel/Hilt structure or engine assumptions.
 
 ## Change Governance
 
-A material architecture change requires discussion, evidence where appropriate, an updated decision, explicit acceptance, and an implementation/migration plan.
+A material architecture change requires:
 
-## Complexity Control
+```text
+DISCUSS → RESEARCH → DECIDE → FREEZE → PLAN → IMPLEMENT → TEST → REVIEW
+```
 
-Patterns, Singleton lifetimes, abstractions and modules require concrete responsibility/lifecycle justification. Do not introduce them speculatively.
+No silent architecture changes.
