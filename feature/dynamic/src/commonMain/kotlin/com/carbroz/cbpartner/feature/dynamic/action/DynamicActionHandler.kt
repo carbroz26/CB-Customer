@@ -3,31 +3,34 @@ package com.carbroz.cbpartner.feature.dynamic.action
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
-import com.carbroz.cbpartner.feature.dynamic.store.DynamicEffect
 
 class DynamicActionHandler {
-    fun handle(action: DynamicAction, emit: (DynamicEffect) -> Unit) {
-        when (action.type) {
-            "navigate" -> {
-                val screenId = string(action.payload["screenId"]) ?: return
-                val endpoint = string(action.payload["endpoint"]) ?: return
-                emit(
-                    DynamicEffect.Navigate(
-                        DynamicDestination(
-                            screenId = screenId,
-                            templateId = string(action.payload["templateId"]),
-                            templateType = string(action.payload["templateType"]),
-                            endpoint = endpoint,
-                            method = string(action.payload["method"]) ?: "GET",
-                            authentication = string(action.payload["authentication"]),
-                        ),
-                    ),
-                )
+    fun destination(action: DynamicAction): DynamicDestination {
+        val screenId = string(action.payload["screenId"])
+            ?: error("Dynamic navigation screenId is missing")
+        val endpoint = string(action.payload["endpoint"])
+            ?: error("Dynamic navigation endpoint is missing")
+
+        return DynamicDestination(
+            screenId = screenId,
+            templateId = string(action.payload["templateId"]),
+            templateType = string(action.payload["templateType"]),
+            endpoint = endpoint,
+            method = string(action.payload["method"]) ?: "GET",
+            authentication = string(action.payload["authentication"]),
+        )
+    }
+
+    fun externalUri(action: DynamicAction, context: Map<String, String>): String {
+        val value = action.payload["uri"] ?: error("Dynamic external URI is missing")
+        return when (value) {
+            is DynamicValue.StringValue -> value.value
+            is DynamicValue.ObjectValue -> {
+                val reference = (value.value["${'$'}context"] as? DynamicValue.StringValue)?.value
+                    ?: error("Dynamic external URI reference is invalid")
+                context[reference] ?: error("Dynamic context value is missing: $reference")
             }
-            "external_uri" -> {
-                string(action.payload["uri"])?.let { emit(DynamicEffect.ExternalUri(it)) }
-            }
-            "request" -> emit(DynamicEffect.Request(action))
+            else -> error("Dynamic external URI value is invalid")
         }
     }
 
