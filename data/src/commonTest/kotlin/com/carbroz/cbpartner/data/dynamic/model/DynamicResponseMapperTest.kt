@@ -24,7 +24,7 @@ class DynamicResponseMapperTest {
                 "schemaVersion": "3.0.0",
                 "targetApp": "PARTNER",
                 "template": {
-                  "id": "tpl_7K2M9Q",
+                  "id": "tpl_P101L",
                   "type": "form_template",
                   "properties": {
                     "orientation": "vertical",
@@ -95,20 +95,22 @@ class DynamicResponseMapperTest {
     }
 
     @Test
-    fun mapsActionOnlyResponseWithNextScreen() {
+    fun mapsActionResponseDestinationInsideData() {
         val response = json.decodeFromString<DynamicResponseDto>(
             """
             {
               "status": 200,
               "code": "OTP_SENT",
               "message": "OTP sent successfully.",
-              "nextScreen": {
-                "screenId": "partner_otp",
-                "templateId": "tpl_otp",
-                "templateType": "form_template",
-                "endpoint": "/api/v1/partner/auth/otp",
-                "method": "GET",
-                "authentication": "NONE"
+              "data": {
+                "message": "OTP sent successfully",
+                "challengeId": "challenge-1",
+                "destination": {
+                  "screenId": "partner_otp",
+                  "templateId": "tpl_P101O",
+                  "templateType": "form_template",
+                  "endpoint": "/api/v1/partner/screen/auth_otp"
+                }
               },
               "traceId": "req-2"
             }
@@ -116,14 +118,15 @@ class DynamicResponseMapperTest {
         )
 
         val domain = DynamicResponseMapper().map(response)
-        val next = assertNotNull(domain.nextScreen)
+        val destination = assertNotNull(domain.destination)
 
         assertEquals("OTP_SENT", domain.code)
-        assertEquals("partner_otp", next.screenId)
-        assertEquals("tpl_otp", next.templateId)
-        assertEquals("form_template", next.templateType)
-        assertEquals("/api/v1/partner/auth/otp", next.endpoint)
+        assertEquals("partner_otp", destination.screenId)
+        assertEquals("tpl_P101O", destination.templateId)
+        assertEquals("form_template", destination.templateType)
+        assertEquals("/api/v1/partner/screen/auth_otp", destination.endpoint)
         assertEquals("req-2", domain.traceId)
         assertEquals(null, domain.data)
+        assertNotNull(domain.dataPayload)
     }
 }
