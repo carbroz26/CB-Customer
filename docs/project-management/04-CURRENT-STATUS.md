@@ -21,6 +21,7 @@ Complete the backend-driven Dynamic UI runtime and verify the first real product
 - Pure Store + MVI/UDF: frozen direction
 - No ViewModel: frozen
 - Backend-driven Dynamic navigation/rendering: frozen
+- Bootstrap Option B refinement: **SELECTED FOR IMPLEMENTATION**
 
 ## Current Work Item
 
@@ -53,20 +54,23 @@ BUILD SUCCESSFUL
 54 actionable tasks: 15 executed, 39 up-to-date
 ```
 
-The earlier `BootstrapRemoteDataSourceTest.nonSuccessfulHttpStatusIsMapped` failure is resolved. The MockEngine test client now uses `expectSuccess = true` so HTTP failures enter the expected mapping path.
-
-Expected Windows warnings remain for iOS simulator tests and Android host-test configuration. They are non-blocking.
+The earlier Bootstrap HTTP-status test failure is resolved. The green JVM result is a baseline only; it does not mean all architectural/runtime gaps are complete.
 
 ## Current Implementation State
 
 ### Bootstrap / Splash
 
-**IMPLEMENTED / JVM VERIFIED**
+**IMPLEMENTED BASELINE / ARCHITECTURAL REFINEMENT REQUIRED**
+
+Splash and Bootstrap are one startup flow:
 
 ```text
 ApplicationContent
- → SplashStore
+ → SplashStore / SplashScreen
  → ApplicationBootstrap
+ → BootstrapRepository
+ → BootstrapRepositoryImpl
+ → BootstrapRemoteDataSource
  → RequestHandler
  → Bootstrap DTO
  → BootstrapMapper
@@ -74,9 +78,19 @@ ApplicationContent
  → DynamicDestination
 ```
 
-Canonical Bootstrap classes are recorded in:
+The current source still contains the transitional direct `DefaultApplicationBootstrap → RequestHandler` path. Option B is selected and must now be implemented so Bootstrap follows the same repository + remote-source layering as Dynamic.
 
-`docs/project-management/14-PROJECT-MASTER-STATE.md`
+Actual Bootstrap contract:
+
+```text
+GET /api/v1/partner/config/bootstrap
+
+X-CarBroz-Platform: ANDROID
+X-CarBroz-App-Version: 1.0.0
+X-CarBroz-Build-Number: 1
+```
+
+The response's `startup.nextScreen` becomes the canonical `DynamicDestination`.
 
 ### Dynamic
 
@@ -101,7 +115,9 @@ Implemented boundaries include:
 - Dynamic repository/data source/DTO/mapper
 - shared `:network` `RequestHandler` + Ktor infrastructure
 
-See the Master State for the complete source/class map.
+Feature use cases are currently under `feature/dynamic/.../domain/usecase/`. They are feature orchestration use cases, not top-level domain use cases. Their package should be cleaned to `feature/dynamic/.../usecase/` without moving feature-specific capabilities into `:domain`.
+
+See the Master State and Dynamic implementation plan for the complete source/class map.
 
 ## Login → OTP Checkpoint
 
@@ -137,24 +153,29 @@ POST /api/v1/partner/auth/verify_otp
 
 The Dynamic runtime remains generic; no OTP-specific Store or screen class is authorized.
 
-## Pending Work
+## Pending Work — No Gap Suppression
 
-1. Reconcile current implementation topology with older base-document wording (`:network/:app/:webApp` versus historical Desktop wording) without silently reopening frozen architecture.
-2. Complete Dynamic request metadata/authentication integration through the frozen runtime/network boundary.
-3. Complete required Dynamic state/reference/action behavior against the actual backend contract.
-4. Complete DYNAMIC-07 fallback/recovery/observability implementation.
-5. Add/finish Login → Send OTP → OTP → Verify OTP integration tests using backend-shaped fixtures.
-6. Verify full backend-driven push/pop/back/replace behavior.
-7. Run Android, iOS/macOS-hosted and Web/Wasm verification where supported.
-8. Perform literal plan-to-source compliance review.
-9. Final Dynamic review and feature freeze.
+1. Implement Option B BootstrapRepository + BootstrapRepositoryImpl + BootstrapRemoteDataSource.
+2. Update Bootstrap DI/tests and remove/rework the direct `DefaultApplicationBootstrap` HTTP path.
+3. Verify complete Splash → Bootstrap → DynamicDestination runtime.
+4. Clean Dynamic use-case package ownership.
+5. Complete Dynamic request metadata/authentication integration.
+6. Complete required Dynamic state/reference/action behavior.
+7. Complete DYNAMIC-07 fallback/recovery/observability implementation.
+8. Add/finish Login → Send OTP → OTP → Verify OTP integration tests using backend-shaped fixtures.
+9. Verify full backend-driven push/pop/back/replace behavior.
+10. Run Android, iOS/macOS-hosted and Web/Wasm verification where supported.
+11. Perform literal plan-to-source compliance review.
+12. Final Dynamic review and feature freeze.
 
 ## Explicitly Not Done
 
+- Bootstrap Option B implementation.
 - Full real-backend Login → OTP → Dashboard end-to-end verification.
 - Production Dynamic observability implementation.
+- Final fallback/error UX implementation.
+- Full platform verification.
 - Final Dynamic feature freeze.
-- Any business-specific Dashboard/Booking/Payment architecture.
 
 ## Recovery Documents
 
@@ -170,4 +191,4 @@ Read first:
 
 ## Next Valid Action
 
-Continue Dynamic implementation/testing from the current green JVM baseline. Do not reopen frozen DYNAMIC-01 → DYNAMIC-07 decisions.
+**Implement Option B Bootstrap boundary first. Then continue the remaining Dynamic gaps in the ordered implementation plan. Do not reopen frozen DYNAMIC-01 → DYNAMIC-07 decisions.**
