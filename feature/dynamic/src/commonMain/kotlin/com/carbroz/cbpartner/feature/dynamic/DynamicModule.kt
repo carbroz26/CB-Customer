@@ -1,8 +1,8 @@
 package com.carbroz.cbpartner.feature.dynamic
 
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionHandler
-import com.carbroz.cbpartner.feature.dynamic.domain.usecase.ExecuteDynamicActionUseCase
-import com.carbroz.cbpartner.feature.dynamic.domain.usecase.LoadDynamicScreenUseCase
+import com.carbroz.cbpartner.feature.dynamic.usecase.ExecuteDynamicActionUseCase
+import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import org.koin.dsl.module
 
 val dynamicModule = module {
