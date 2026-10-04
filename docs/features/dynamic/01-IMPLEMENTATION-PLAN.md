@@ -1,20 +1,111 @@
 # CB-Partner Dynamic UI — Implementation Plan
 
 **Status:** PLAN FROZEN — IMPLEMENTATION AUTHORIZED  
-**Documentation reconciliation:** 2026-10-04
+**Documentation reconciliation:** 2026-10-05
 
-This document is the implementation source of truth after reconciliation with frozen DYNAMIC-01 → DYNAMIC-08 decisions and the final Bootstrap/Dynamic boundary record. It does not reopen frozen architecture decisions.
+This is the single implementation source of truth for the Dynamic feature. It must be read together with the frozen discussion and navigation records below. Older implementation wording that conflicts with these contracts is superseded.
 
-## 1. Frozen runtime architecture
+## 1. Governing documents
+
+Implementation must follow this order of authority:
+
+1. `00-FEATURE-DISCUSSION.md` — all frozen Dynamic architecture decisions.
+2. `03-NAVIGATION-CONTAINER-FREEZE.md` — navigation/container boundary.
+3. `04-DYNAMIC-08-UNIFIED-DESTINATION-DISCUSSION.md` — destination/action/request/binding contract.
+4. `05-DYNAMIC-08-IMPLEMENTATION-PLAN.md` — concrete DYNAMIC-08 implementation steps.
+5. This file — overall implementation sequence and verification.
+6. `02-IMPLEMENTATION-STATUS.md` — current implementation state/next task only; it never overrides a frozen contract.
+
+`00-MODULE-IMPLEMENTATION-PLAN.md` is superseded and must not be used as an implementation mandate.
+
+## 2. Frozen runtime architecture
 
 ```text
-Platform entry
+Platform Entry
+    ↓
+Shared App Composition
+    ↓
+Splash / Bootstrap
+    ↓
+startup.destination
+    ↓
+DynamicDestination
+    ↓
+existing :navigation / Navigation 3
+    ↓
+one Dynamic Container
+    ↓
+Template Registry(templateType)
+    ↓
+LoadDynamicScreenUseCase(endpoint)
+    ↓
+DynamicRepository
+    ↓
+DynamicRemoteDataSource
+    ↓
+Dynamic API
+    ↓
+Complete Dynamic Screen Response
+    ↓
+actual template definition/content
+    ↓
+DynamicRenderer
+    ↓
+Component / Section / Group / Element
+```
+
+There are no business-specific Dynamic screens.
+
+## 3. Canonical destination
+
+```text
+DynamicDestination
+├── screenId
+├── templateId
+├── templateType
+└── endpoint
+```
+
+`method` and `authentication` remain request-action metadata.
+
+The destination never carries business/runtime values.
+
+## 4. Destination lifecycle
+
+The destination already contains the template instance identity, template type, and API endpoint.
+
+```text
+Destination
   ↓
-App
+Dynamic Container
   ↓
+Template Registry(templateType)
+  ↓
+LoadDynamicScreenUseCase(endpoint)
+  ↓
+Dynamic API
+  ↓
+Complete response
+  ↓
+actual template definition
+  ↓
+render
+```
+
+There is no `EmptyTemplateInstance` stage.
+
+The Template Registry resolves the frontend capability for `templateType`; it does not fetch or invent the backend template definition.
+
+The API response is authoritative for the actual template content and its properties, children, events, actions, bindings, references, etc.
+
+## 5. Bootstrap
+
+Bootstrap is one startup flow:
+
+```text
 ApplicationContent
   ↓
-Splash UI / Splash Store
+Splash
   ↓
 ApplicationBootstrap
   ↓
@@ -24,48 +115,161 @@ BootstrapRepositoryImpl
   ↓
 BootstrapRemoteDataSource
   ↓
-RequestHandler / Ktor HttpClient
+RequestHandler
   ↓
-Bootstrap DTO → BootstrapMapper → BootstrapOutput
+BootstrapOutput
+  ↓
+DynamicDestination
+```
+
+The startup destination enters the same Dynamic navigation/container flow as all other destinations.
+
+## 6. Action architecture
+
+Events describe when something happens. Actions describe what happens.
+
+```text
+Element
+  ↓
+Event
+  ↓
+Action
+  ↓
+action-specific runtime behavior
+```
+
+Supported generic action categories:
+
+```text
+request
+navigate
+present
+dismiss
+state
+external_uri
+sequence
+```
+
+There is **no `ExecuteDynamicActionUseCase`**. Action execution remains in Dynamic runtime/action infrastructure and action-specific handlers/capabilities.
+
+## 7. Direct navigate
+
+```text
+navigate action
   ↓
 DynamicDestination
   ↓
-DynamicNavigationState
+:navigation
   ↓
-DynamicContainer
+Dynamic Container
   ↓
-DynamicStore
+Template Registry
   ↓
-Dynamic feature use cases
+LoadDynamicScreenUseCase(endpoint)
   ↓
-DynamicRepository
+Dynamic API
   ↓
-DynamicRepositoryImpl
+complete response
   ↓
-DynamicRemoteDataSource
-  ↓
-RequestHandler / Ktor HttpClient
-  ↓
-Dynamic DTO → DynamicResponseMapper → DynamicResponse
-  ↓
-DynamicRegistry / DynamicRenderer
+render
 ```
 
-Splash and Bootstrap are one startup flow. Splash is the visible startup UI; Bootstrap is the config/startup API execution while Splash is shown.
+## 8. Request action
 
-## 2. Clean Architecture ownership
+Request-owned metadata:
 
 ```text
-:feature:splash  → :domain, :core, :navigation
-:feature:dynamic → :domain, :core, :navigation
-:data            → :domain, :core, :network
-:domain          → :core
-:network         → Ktor + Koin
+method
+endpoint
+authentication
+validation
+headers/query where supported
+body
+responseMode
 ```
 
-Features do not perform HTTP directly. `:data` owns DTOs, mappers, repository implementations and feature-specific remote sources. `:domain` owns canonical contracts/models and repository abstractions. `:network` owns generic Ktor infrastructure.
+References and bindings are resolved before request construction.
 
-## 3. Bootstrap Option B — REQUIRED
+For `responseMode = destination`:
+
+```text
+request
+  ↓
+API
+  ↓
+data.destination
+  ↓
+DynamicDestination
+  ↓
+:navigation
+  ↓
+Dynamic Container
+  ↓
+Template Registry
+  ↓
+LoadDynamicScreenUseCase(endpoint)
+  ↓
+Dynamic API
+  ↓
+complete screen response
+  ↓
+render
+```
+
+For `responseMode = none`, no destination navigation occurs.
+
+Direct navigation and request-generated navigation therefore use exactly one destination/loading flow.
+
+## 9. Binding and references
+
+Binding is generic backend-keyed state:
+
+```text
+input/value change
+  ↓
+binding key
+  ↓
+Dynamic state
+```
+
+Request/action execution resolves:
+
+```text
+$literal
+$binding
+$context
+$response
+```
+
+Binding values are never navigation arguments. Multiple bindings are supported and must be assembled into the backend-defined JSON structure rather than concatenated arbitrarily.
+
+## 10. Module ownership
+
+```text
+:feature:dynamic
+    ↓
+Dynamic UI / Store / Registry / Renderer / action runtime / LoadDynamicScreenUseCase
+    ↓
+:domain
+    ↓
+repository contracts / canonical models
+    ↓
+:data
+    ↓
+repository implementations / remote sources / DTOs / mappers
+    ↓
+:network / existing RequestHandler + Ktor infrastructure
+```
+
+`:navigation` owns application navigation mechanics only.
+
+`:navigation` does not call Dynamic APIs or render Dynamic UI.
+
+Dynamic Store does not own application navigation history and does not call Navigation 3 directly.
+
+## 11. Bootstrap implementation boundary
+
+Use the frozen Option B path:
 
 ```text
 ApplicationBootstrap       :domain
@@ -79,334 +283,111 @@ BootstrapRemoteDataSource  :data
 RequestHandler             :network
 ```
 
-Responsibilities:
+There must be exactly one production Bootstrap HTTP path.
 
-- `ApplicationBootstrap`: startup-facing domain contract.
-- `BootstrapRepository`: domain abstraction.
-- `BootstrapRepositoryImpl`: data orchestration.
-- `BootstrapRemoteDataSource`: endpoint, method, required request headers and transport acquisition.
-- `BootstrapMapper`: explicit DTO → domain mapping.
+## 12. Dynamic screen-loading use case
 
-`DefaultApplicationBootstrap` is transitional and must be removed/reworked so there is exactly one production Bootstrap HTTP path.
-
-## 4. Bootstrap domain model cleanup
-
-The following legacy domain contracts must not remain as parallel contracts:
-
-- `StartupConfig`
-- `NextScreenConfig`
-- standalone `BootstrapConfig`
-
-`ApplicationBootstrap` returns the canonical `BootstrapOutput`. Bootstrap configuration/state is represented by that output, and the startup destination is the canonical `DynamicDestination`.
-
-Transport DTO names may mirror the backend JSON and are not domain contracts.
-
-Canonical destination shape:
+Only one Dynamic screen-loading use case exists:
 
 ```text
-DynamicDestination
-├── screenId
-├── templateId
-├── templateType
-└── endpoint
+LoadDynamicScreenUseCase
 ```
 
-`method` and `authentication` are request metadata and are not part of destination identity.
+Its responsibility is to load the complete Dynamic screen response from a supplied destination endpoint through the repository boundary.
 
-## 5. Bootstrap API contract
+It does not own:
 
-```text
-GET /api/v1/partner/config/bootstrap
-```
+- navigation;
+- registry registration;
+- action dispatch;
+- rendering;
+- business-specific behavior.
 
-Headers:
+## 13. Implementation sequence
 
-```text
-X-CarBroz-Platform: ANDROID
-X-CarBroz-App-Version: 1.0.0
-X-CarBroz-Build-Number: 1
-```
+### Phase A — Bootstrap
 
-Bootstrap startup configuration resolves its startup destination into the canonical `DynamicDestination`.
+1. Keep the single Bootstrap repository/data-source path.
+2. Verify `startup.destination` maps to `DynamicDestination`.
+3. Verify Splash hands the destination to existing navigation.
+4. Verify no legacy Bootstrap destination models remain.
 
-## 6. One DynamicDestination for the complete navigation flow
+### Phase B — Destination/navigation
 
-Bootstrap startup destination, a Dynamic response destination, and a Dynamic `navigate` action are not separate navigation concepts. They are inputs that resolve to the same canonical `DynamicDestination` and are handled by the same Dynamic navigation mechanism.
+5. Verify exactly four destination fields.
+6. Verify Navigation 3 adapter uses the canonical destination without a second destination model.
+7. Verify one Dynamic Container.
+8. Verify push/replace/pop/back behavior.
+9. Verify Dynamic Store does not own navigation state.
 
-```text
-Bootstrap response data.startup.destination ──┐
-Dynamic response data.destination ────────────┼──→ DynamicDestination
-Dynamic navigate action destination ──────────┘            ↓
-                                               DynamicNavigationState
-```
+### Phase C — Dynamic loading/rendering
 
-There is only one destination model and one Dynamic navigation mechanism. `DynamicDestination` lives directly under the shared domain `model` package so Bootstrap, Dynamic and action handling use the same contract.
+10. Verify Template Registry resolves `templateType` only.
+11. Verify `LoadDynamicScreenUseCase` loads `endpoint`.
+12. Verify API response supplies actual template definition/content.
+13. Verify renderer starts from the loaded response.
+14. Verify component/section/group/element ordering and rendering.
 
-`templateType` selects rendering only and never decides business navigation.
+### Phase D — Actions/binding
 
-## 7. Dynamic response data contract
+15. Remove any remaining `ExecuteDynamicActionUseCase` contract.
+16. Verify event → action-specific runtime behavior.
+17. Verify direct `navigate` produces `DynamicDestination`.
+18. Verify `request` builds its body from generic references/bindings.
+19. Verify `responseMode = destination` resolves `data.destination` and reuses the same loading flow.
+20. Verify binding never enters navigation arguments.
+21. Verify `external_uri` remains separate from internal navigation.
 
-When an API response produces a navigation destination, the destination is inside `data`:
+### Phase E — Reliability/observability
 
-```text
-DynamicResponse
-  ├── data: DynamicScreen? / arbitrary DynamicValue?
-  └── destination: DynamicDestination?
-```
+22. Complete frozen request error model.
+23. Complete frozen Dynamic fallback/recovery behavior.
+24. Complete frozen observability boundary.
 
-The mapper resolves `data.destination` when present. The screen document itself does not own `DynamicScreen.nextScreen`.
+### Phase F — Verification
 
-Arbitrary non-screen response data remains available through `DynamicResponse.dataPayload` for chained actions and response references.
+25. Backend-shaped Dynamic screen fixtures.
+26. Direct navigate fixture.
+27. Request-to-destination fixture.
+28. Multi-binding request-body fixtures.
+29. Template push/replace/pop/back tests.
+30. Android verification.
+31. iOS/macOS-hosted verification where supported.
+32. Web/Wasm verification where supported.
+33. Literal plan-to-source compliance review.
+34. Final Dynamic review and code freeze.
 
-## 8. Dynamic feature boundary
+## 14. Explicit prohibitions
 
-```text
-feature:dynamic
- ├── Store / UI / renderer / registry / action capability
- └── feature orchestration use cases
-          ↓
-       :domain
-          ↓
- DynamicRepository
-          ↑
-       :data
- ├── DynamicRepositoryImpl
- ├── DynamicRemoteDataSource
- ├── Dynamic DTO/model
- └── DynamicResponseMapper
-```
+Do not introduce:
 
-`LoadDynamicScreenUseCase` and `ExecuteDynamicActionUseCase` are feature orchestration use cases. They must not be moved into top-level `:domain` while they depend on Dynamic feature capabilities.
+- `ExecuteDynamicActionUseCase`;
+- business-specific screen classes;
+- a second navigation framework;
+- a second Dynamic Container;
+- an empty template/instance abstraction;
+- API calls from `:navigation`;
+- business data in navigation arguments;
+- `method`/`authentication` on `DynamicDestination`;
+- template-type-based push/replace logic;
+- a separate navigation flow for request destinations;
+- screen-specific binding classes;
+- speculative manager/coordinator/router layers.
 
-Current package `feature/dynamic/.../domain/usecase/` is a naming/ownership cleanup target. Move to `feature/dynamic/.../usecase/` without creating a second domain layer.
+## 15. Definition of Done
 
-## 9. Network error contract
-
-The network boundary must classify actual failures precisely:
-
-```text
-BadRequestException
-UnauthorizedException
-ForbiddenException
-NotFoundException
-ConflictException
-ValidationException
-RateLimitException
-ServerException
-NetworkConnectionException
-TimeoutException
-SerializationException
-ProtocolException
-UnknownNetworkException
-```
-
-Rules:
-
-- HTTP status errors are classified centrally.
-- Connection, timeout, serialization and protocol failures remain distinct.
-- `UnknownNetworkException` is only the final fallback.
-- Business/API outcomes are not automatically converted into transport exceptions.
-- Do not duplicate an equivalent existing network error type.
-
-## 10. Current source map
-
-### Application / Navigation
-
-- `app/.../App.kt`
-- `app/.../ApplicationContent.kt`
-- `navigation/.../DynamicNavigationState.kt`
-- `navigation/.../DynamicNavigationHost.kt`
-- `domain/.../model/DynamicDestination.kt`
-
-### Splash / Bootstrap
-
-Target:
-
-```text
-domain/bootstrap/ApplicationBootstrap.kt
-domain/repository/BootstrapRepository.kt
-
-data/bootstrap/BootstrapRepositoryImpl.kt
-data/bootstrap/remote/BootstrapRemoteDataSource.kt
-data/bootstrap/model/*
-data/bootstrap/mapper/BootstrapMapper.kt
-```
-
-Legacy to remove/rework:
-
-```text
-data/bootstrap/DefaultApplicationBootstrap.kt
-domain/model/bootstrap/StartupConfig.kt
-domain/model/bootstrap/NextScreenConfig.kt
-domain/model/bootstrap/BootstrapConfig.kt
-```
-
-### Dynamic
-
-- `feature/dynamic/.../DynamicContainer.kt`
-- `feature/dynamic/.../DynamicModule.kt`
-- `feature/dynamic/.../DynamicStore.kt`
-- `feature/dynamic/.../DynamicActionHandler.kt`
-- `feature/dynamic/.../usecase/LoadDynamicScreenUseCase.kt`
-- `feature/dynamic/.../usecase/ExecuteDynamicActionUseCase.kt`
-- `feature/dynamic/.../registry/DynamicRegistry.kt`
-- `feature/dynamic/.../renderer/DynamicRenderer.kt`
-
-### Data
-
-- `data/dynamic/DynamicRepositoryImpl.kt`
-- `data/dynamic/remote/DynamicRemoteDataSource.kt`
-- `data/dynamic/model/DynamicResponseDto.kt`
-- `data/dynamic/mapper/DynamicResponseMapper.kt`
-- Bootstrap files listed above.
-
-### Network
-
-- `network/http/RequestHandler.kt`
-- `network/http/HttpClientBuilder.kt`
-- `network/http/DefaultError.kt`
-- `network/NetworkException.kt`
-- `network/NetworkResult.kt`
-- `network/Response.kt`
-- `network/Paged.kt`
-- `network/di/NetworkModule.kt`
-
-## 11. Frozen Dynamic vocabulary
-
-Initial definitions:
-
-```text
-stack_template
-stack_component
-stack_section
-stack_group
-text
-image
-```
-
-Frozen actions:
-
-```text
-request
-navigate
-present
-dismiss
-state
-external_uri
-sequence
-```
-
-Frozen references:
-
-```text
-$literal
-$binding
-$context
-$response
-```
-
-Do not create Login/OTP/Dashboard-specific screen architecture.
-
-## 12. Implementation sequence
-
-### Phase A — Bootstrap reconciliation
-
-1. Remove/rework legacy `StartupConfig`, `NextScreenConfig` and standalone `BootstrapConfig` domain contracts.
-2. Implement `BootstrapRepository` domain contract.
-3. Implement `BootstrapRepositoryImpl`.
-4. Implement `BootstrapRemoteDataSource`.
-5. Move DTOs into the Bootstrap transport/model boundary.
-6. Keep `BootstrapMapper` explicit and map the startup destination to `DynamicDestination`.
-7. Remove the direct `DefaultApplicationBootstrap → RequestHandler` production path.
-8. Update Bootstrap DI.
-9. Update Bootstrap unit tests.
-10. Verify one Bootstrap request path only.
-
-### Phase B — Shared destination/navigation
-
-11. Verify Bootstrap, Dynamic response and action destinations all resolve to `DynamicDestination`.
-12. Verify Dynamic response destination is read from `data.destination`.
-13. Verify push/replace/pop/back operate on the same destination type.
-14. Verify no `templateType` business-navigation branching exists.
-
-### Phase C — Dynamic cleanup and runtime completion
-
-15. Move feature use cases from `domain/usecase` to `usecase`.
-16. Complete request metadata/authentication integration.
-17. Complete frozen Dynamic state/reference/action behavior.
-18. Implement the frozen network exception taxonomy without duplicating existing types.
-19. Complete DYNAMIC-07 parse/resolve/diagnose/fallback/recovery/observability behavior.
-
-### Phase D — Product-flow verification
-
-20. Add backend-shaped Login → Send OTP → OTP → Verify OTP tests.
-21. Verify destination transitions and `responseMode` behavior.
-22. Verify Dynamic rendering with the fixed backend contract.
-23. Verify Android.
-24. Verify iOS/macOS-hosted targets where supported.
-25. Verify Web/Wasm where supported.
-
-### Phase E — Final gate
-
-26. Perform literal plan-to-source compliance review.
-27. Resolve every remaining gap.
-28. Run complete feature tests/builds.
-29. Final Dynamic review.
-30. Code-freeze Dynamic.
-
-## 13. Definition of Done
-
-- [ ] Bootstrap Option B fully implemented.
-- [ ] No legacy Bootstrap domain duplicate models remain.
-- [ ] Exactly one production Bootstrap HTTP path exists.
-- [ ] Bootstrap DI/tests updated and green.
-- [x] Affected DYNAMIC-08 source/test alignment is green on JVM.
-- [ ] Bootstrap startup destination maps to canonical `DynamicDestination` at runtime.
-- [ ] Dynamic response destination maps to canonical `DynamicDestination` at runtime.
-- [ ] Dynamic navigate actions use the same `DynamicDestination`.
-- [ ] No templateType-based business navigation.
-- [ ] Dynamic use cases are in the feature-level `usecase` package.
-- [ ] Network exceptions are precisely classified.
-- [ ] Frozen Dynamic actions/references/state behavior complete.
-- [ ] DYNAMIC-07 production fallback/recovery/observability complete.
-- [ ] Login → OTP integration tests pass.
+- [ ] Bootstrap single-path architecture verified.
+- [ ] Four-field `DynamicDestination` verified.
+- [ ] Existing `:navigation` reused.
+- [ ] One Dynamic Container verified.
+- [ ] Template Registry is lookup/capability only.
+- [ ] `LoadDynamicScreenUseCase` is the only Dynamic screen-loading use case.
+- [ ] Complete API response drives actual template rendering.
+- [ ] Direct navigate and request-generated destinations converge.
+- [ ] Generic binding/reference resolution complete.
+- [ ] No `ExecuteDynamicActionUseCase` remains.
 - [ ] Navigation push/replace/pop/back verified.
-- [ ] Android verification passes.
-- [ ] iOS/macOS-hosted verification passes where applicable.
-- [ ] Web/Wasm verification passes where applicable.
+- [ ] Full Dynamic tests pass.
+- [ ] Platform verification passes where supported.
 - [ ] Literal plan-to-source review passes.
-- [ ] Final Dynamic review accepted.
-- [ ] Dynamic code frozen.
-
-## 14. Latest verification baseline
-
-Owner-provided 2026-10-04 verification passed after the DYNAMIC-08 source/test reconciliation.
-
-Compile set:
-
-```text
-:domain:compileKotlinJvm
-:data:compileKotlinJvm
-:feature:splash:compileKotlinJvm
-:feature:dynamic:compileKotlinJvm
-:navigation:compileKotlinJvm
-:app:compileKotlinJvm
-```
-
-Result: **BUILD SUCCESSFUL — 43 actionable tasks: 43 executed**.
-
-JVM verification set:
-
-```text
-:core:jvmTest
-:domain:jvmTest
-:data:jvmTest
-:navigation:jvmTest
-:feature:splash:jvmTest
-:feature:dynamic:jvmTest
-:app:compileKotlinJvm
-```
-
-Result: **BUILD SUCCESSFUL — 62 actionable tasks: 62 executed**.
-
-Known Windows warnings about iOS simulator tests and Android host-test configuration are non-fatal.
+- [ ] Final Dynamic code freeze accepted.
