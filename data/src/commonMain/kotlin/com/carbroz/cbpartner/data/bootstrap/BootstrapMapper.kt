@@ -5,9 +5,9 @@ import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
 import com.carbroz.cbpartner.domain.model.bootstrap.FeatureConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.MaintenanceConfig
-import com.carbroz.cbpartner.domain.model.bootstrap.NextScreenConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.StartupConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.UpdateConfig
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 
 internal fun BootstrapResponseDto.toDomain(): Result<BootstrapOutput> {
     if (status !in 200..299) return Result.failure(BootstrapFailure.Http(status))
@@ -45,7 +45,7 @@ internal fun BootstrapResponseDto.toDomain(): Result<BootstrapOutput> {
             ),
             startup = StartupConfig(
                 authenticated = startup.authenticated ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing authenticated flag")),
-                nextScreen = NextScreenConfig(
+                nextScreen = DynamicDestination(
                     screenId = nextScreen.screenId ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen id")),
                     templateId = nextScreen.templateId ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing template id")),
                     templateType = nextScreen.templateType ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing template type")),
