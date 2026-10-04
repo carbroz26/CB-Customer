@@ -25,6 +25,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicTheme
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -35,16 +36,27 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 
 class DynamicResponseMapper {
+    private val json = Json { ignoreUnknownKeys = true }
 
-    fun map(dto: DynamicResponseDto): DynamicResponse =
-        DynamicResponse(
+    fun map(dto: DynamicResponseDto): DynamicResponse {
+        val data = dto.data
+        val screen = data
+            ?.takeIf { it is JsonObject && SCREEN_FIELDS.all(it.keys.contains) }
+            ?.let { json.decodeFromJsonElement<DynamicScreenDto>(it).toDomain() }
+        val dataPayload = data
+            ?.takeUnless { it is JsonObject && SCREEN_FIELDS.all(it.keys.contains) }
+            ?.toDynamicValue()
+
+        return DynamicResponse(
             status = dto.status,
             code = dto.code,
             message = dto.message,
-            data = dto.data?.toDomain(),
+            data = screen,
             traceId = dto.traceId,
             nextScreen = dto.nextScreen?.toDomain(),
+            dataPayload = dataPayload,
         )
+    }
 
     private fun DynamicNextScreenDto.toDomain() = DynamicNextScreen(
         screenId = screenId,
@@ -142,5 +154,9 @@ class DynamicResponseMapper {
                 else -> DynamicValue.NullValue
             }
         }
+    }
+
+    private companion object {
+        val SCREEN_FIELDS = setOf("screenId", "schemaVersion", "targetApp", "template")
     }
 }
