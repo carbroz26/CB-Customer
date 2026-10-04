@@ -53,6 +53,7 @@ class ExecuteDynamicActionUseCase(
                 endpoint = endpoint,
             ),
             body = body,
+            method = method,
         ).getOrThrow()
 
         return when (string(action.payload["responseMode"])?.lowercase()) {
