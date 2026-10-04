@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class BootstrapRemoteDataSourceTest {
     @Test
@@ -37,8 +38,7 @@ class BootstrapRemoteDataSourceTest {
         ).fetch()
 
         assertIs<NetworkResult.Success<String>>(result)
-        assertEquals("/api/v1/partner/config/bootstrap", requestUrl.substringAfter("/api/v1/partner/config/bootstrap"))
-            .also { assertEquals("", it) }
+        assertTrue(requestUrl.endsWith("/api/v1/partner/config/bootstrap"))
         assertEquals("ANDROID", platform)
         assertEquals("1.0.0", appVersion)
         assertEquals("1", buildNumber)
