@@ -4,6 +4,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionHandler
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -18,6 +19,7 @@ sealed interface DynamicActionResult {
 
 class ExecuteDynamicActionUseCase(
     private val repository: DynamicRepository,
+    private val actionHandler: DynamicActionHandler = DynamicActionHandler(),
 ) {
     suspend operator fun invoke(
         action: DynamicAction,
@@ -26,8 +28,8 @@ class ExecuteDynamicActionUseCase(
     ): Result<DynamicActionResult> = runCatching {
         when (action.type) {
             "request" -> executeRequest(action, bindings, context)
-            "navigate" -> executeNavigate(action)
-            "external_uri" -> executeExternalUri(action, context)
+            "navigate" -> DynamicActionResult.Navigate(actionHandler.destination(action))
+            "external_uri" -> DynamicActionResult.ExternalUri(actionHandler.externalUri(action, context))
             else -> error("Unsupported dynamic action: ${action.type}")
         }
     }
@@ -70,34 +72,6 @@ class ExecuteDynamicActionUseCase(
                 authentication = next.authentication,
             ),
         )
-    }
-
-    private fun executeNavigate(action: DynamicAction): DynamicActionResult.Navigate {
-        val screenId = string(action.payload["screenId"])
-            ?: error("Dynamic navigation screenId is missing")
-        val endpoint = string(action.payload["endpoint"])
-            ?: error("Dynamic navigation endpoint is missing")
-
-        return DynamicActionResult.Navigate(
-            DynamicDestination(
-                screenId = screenId,
-                templateId = string(action.payload["templateId"]),
-                templateType = string(action.payload["templateType"]),
-                endpoint = endpoint,
-                method = string(action.payload["method"]) ?: "GET",
-                authentication = string(action.payload["authentication"]),
-            ),
-        )
-    }
-
-    private fun executeExternalUri(
-        action: DynamicAction,
-        context: Map<String, String>,
-    ): DynamicActionResult.ExternalUri {
-        val uri = action.payload["uri"]?.resolve(context = context)
-            ?.let { (it as? JsonPrimitive)?.content }
-            ?: error("Dynamic external URI is missing")
-        return DynamicActionResult.ExternalUri(uri)
     }
 
     private fun DynamicValue.resolve(
