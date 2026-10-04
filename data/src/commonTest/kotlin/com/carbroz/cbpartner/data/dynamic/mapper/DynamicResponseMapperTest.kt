@@ -5,6 +5,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 class DynamicResponseMapperTest {
@@ -84,5 +85,36 @@ class DynamicResponseMapperTest {
             action?.payload?.get("enabled"),
         )
         assertNotNull(action)
+    }
+
+    @Test
+    fun preservesArbitraryResponseDataForChainedActions() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """
+            {
+              "status": 200,
+              "code": "OTP_SENT",
+              "message": "OTP sent",
+              "data": {
+                "challengeId": "challenge-1",
+                "expiresIn": 60
+              },
+              "traceId": "trace-1"
+            }
+            """.trimIndent(),
+        )
+
+        val response = DynamicResponseMapper().map(dto)
+        val payload = assertIs<DynamicValue.ObjectValue>(response.dataPayload)
+
+        assertEquals(
+            DynamicValue.StringValue("challenge-1"),
+            payload.value["challengeId"],
+        )
+        assertEquals(
+            DynamicValue.NumberValue(60.0),
+            payload.value["expiresIn"],
+        )
+        assertEquals(null, response.data)
     }
 }
