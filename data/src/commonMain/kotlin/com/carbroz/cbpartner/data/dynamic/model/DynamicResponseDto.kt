@@ -95,6 +95,7 @@ data class DynamicActionsDto(
     val onSubmit: DynamicActionDto? = null,
 )
 
+// Action DTO intentionally owns the action type and optional destination contract.
 @Serializable
 data class DynamicActionDto(
     val type: String,
