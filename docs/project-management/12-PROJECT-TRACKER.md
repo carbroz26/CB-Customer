@@ -1,398 +1,207 @@
 # CB-Partner — Project Tracker
 
-**Status:** ACTIVE  
-**Scope:** Frontend repository only  
-**Purpose:** Single execution ledger for recovering and tracking current project state across AI sessions.
+**Status:** ACTIVE
+**Scope:** Frontend repository only
+**Last Updated:** 2026-10-04
+**Purpose:** Single execution ledger for cross-session recovery and work status.
 
 ## Current Project State
-- Phase: Feature implementation — Splash / Bootstrap vertical slice
-- Current module: :feature:splash
-- Current work item: SPLASH-BOOTSTRAP-001 — Implement Application Startup and Splash
-- Workflow state: PLAN_FROZEN / TRELLO_READY — SPLASH-BOOTSTRAP-001
-- Current implementation unit: SPLASH-BOOTSTRAP-001 plan frozen; implementation authorization required
-- Frozen decisions: BASE-ARCH-001 through BASE-ARCH-017
-- Frozen process decision: TRELLO-002 — Simple Frontend Work Board
-- BASE-ARCH-015 decision record: docs/architecture/BASE-ARCH-015-DECISION-RECORD.md
-- BASE-ARCH-016 decision record: docs/architecture/BASE-ARCH-016-DECISION-RECORD.md
-- BASE-ARCH-017 decision record: docs/architecture/BASE-ARCH-017-DECISION-RECORD.md
-- Blockers: Splash/Bootstrap backend request contract is incomplete (endpoint, method, body, authentication, additional headers, error schema); do not invent missing inputs
-- Last completed action: BASE-ARCH-017 verification passed, review accepted, and code freeze recorded on 2026-10-02; Splash/Bootstrap plan and status records established
-- Next valid action: Obtain explicit implementation authorization for SPLASH-BOOTSTRAP-001, then begin Unit 1 — Domain Contract Reconciliation
-- Last updated: 2026-10-02
+
+| Field | Current value |
+|---|---|
+| Phase | Dynamic UI vertical slice implementation |
+| Current module | `:feature:dynamic` + supporting `:app/:navigation/:data/:network` boundaries |
+| Current work item | DYNAMIC-UI-001 — Dynamic UI vertical slice |
+| Workflow | IMPLEMENTATION IN PROGRESS |
+| Branch | `feature/dynamic-ui` |
+| Discussion | DYNAMIC-01 → DYNAMIC-07 FROZEN |
+| Plan | PLAN FROZEN / IMPLEMENTATION AUTHORIZED |
+| Latest JVM verification | BUILD SUCCESSFUL — 2026-10-04 |
+| Blocker | No test/build blocker currently; platform verification and remaining Dynamic implementation are pending |
+| Next action | Continue Dynamic implementation/testing; then Login → OTP integration verification |
 
 ## Base Architecture Register
-| ID | Unit | State | Durable Record | Implementation Authorization |
-|---|---|---|---|---|
-| BASE-ARCH-001 | Project and Gradle Module Structure | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-002 | Module Responsibilities and Dependency Graph | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-003 | Gradle Module Granularity | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-004 | Core Architecture and Technical Infrastructure | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-005 | Navigation and Application Composition | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-006 | Dependency Injection and Application Composition | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-007 | Feature and Pure Store Architecture | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-008 | Application Bootstrap and Startup Flow | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-009 | Application Root and Platform Composition Boundary | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-010 | Application Startup Lifecycle and Initialization Ordering | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-011 | Application Startup Failure, Retry and Recovery Boundary | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-012 | Application Startup State and Bootstrap Contract | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-013 | Application Bootstrap Data Flow and Layer Ownership | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | No separate plan |
-| BASE-ARCH-014 | Minimum Gradle/KMP/Compose/Build-Logic Foundation | IMPLEMENTATION_VERIFIED / CODE_FROZEN | docs/architecture/BASE-ARCH-014-IMPLEMENTATION-PLAN.md | Plan frozen; owner acceptance complete; implementation frozen |
-| BASE-ARCH-015 | Runtime Dependency & Technical Infrastructure Implementation Contract | DECISION_FROZEN | docs/architecture/BASE-ARCH-015-DECISION-RECORD.md | Decision frozen; implementation not authorized by this record |
-| BASE-ARCH-016 | Koin Composition Root & Dependency Injection Implementation Contract | DECISION_FROZEN | docs/architecture/BASE-ARCH-016-DECISION-RECORD.md | Decision frozen; implementation not authorized by this record |
-| BASE-ARCH-017 | Runtime Infrastructure Implementation Boundary | CODE_FROZEN | docs/architecture/BASE-ARCH-017-DECISION-RECORD.md | Implementation verified; review accepted; code frozen 2026-10-02 |
 
-## Process Decision Register
-| ID | Decision | State | Durable Record | Owner Approval |
-|---|---|---|---|---|
-| TRELLO-002 | Simple Frontend Work Board | DECISION_FROZEN | docs/project-management/06-TRELLO-WORKFLOW.md | 2026-09-22 |
+| ID | State | Notes |
+|---|---|---|
+| BASE-ARCH-001 | DECISION_FROZEN | Project/Gradle foundation |
+| BASE-ARCH-002 | DECISION_FROZEN | Responsibilities/dependency direction |
+| BASE-ARCH-003 | DECISION_FROZEN | Module granularity |
+| BASE-ARCH-004 | DECISION_FROZEN | Core technical foundation |
+| BASE-ARCH-005 | DECISION_FROZEN | Navigation/Application composition |
+| BASE-ARCH-006 | DECISION_FROZEN | DI/Application composition |
+| BASE-ARCH-007 | DECISION_FROZEN | Feature/Pure Store architecture |
+| BASE-ARCH-008 | DECISION_FROZEN | Bootstrap/startup flow |
+| BASE-ARCH-009 | DECISION_FROZEN | Application/platform boundary |
+| BASE-ARCH-010 | DECISION_FROZEN | Startup lifecycle |
+| BASE-ARCH-011 | DECISION_FROZEN | Startup failure/recovery |
+| BASE-ARCH-012 | DECISION_FROZEN | Startup state/bootstrap contract |
+| BASE-ARCH-013 | DECISION_FROZEN | Bootstrap data flow/layer ownership |
+| BASE-ARCH-014 | CODE_FROZEN | Foundation implementation verified/accepted |
+| BASE-ARCH-015 | DECISION_FROZEN | Runtime dependency/technical contract |
+| BASE-ARCH-016 | DECISION_FROZEN | Koin/DI implementation contract |
+| BASE-ARCH-017 | CODE_FROZEN | Runtime infrastructure verified/review accepted |
 
-## Work Item Register
-| ID | Module/Feature | Unit | State | Plan | Status | Branch | Trello | Blocker | Next Action |
-|---|---|---|---|---|---|---|---|---|---|
-| ARCH-DOC-001 | Base Architecture | Durable architecture documentation | COMPLETE | docs/architecture/BASE-ARCHITECTURE.md | Complete | docs/base-architecture-record | — | None | Complete |
-| BASE-ARCH-013 | Base Architecture | Application Bootstrap Data Flow & Layer Ownership | DECISION_FROZEN | docs/architecture/BASE-ARCHITECTURE.md | Decision frozen; implementation not authorized by this record | docs/base-architecture-record | — | None | Continue only through separately authorized implementation work |
-| BASE-ARCH-014 | Base Architecture | Minimum Gradle/KMP/Compose/Build-Logic Foundation | CODE FROZEN | docs/architecture/BASE-ARCH-014-IMPLEMENTATION-PLAN.md | 014-01 through 014-09 verified; T01 verified; owner accepted; implementation frozen | feature/base-arch-014 | Completed | None identified | No further 014 changes; proceed only through a new authorized work item |
-| BASE-ARCH-015 | Base Architecture | Runtime Dependency & Technical Infrastructure Implementation Contract | DECISION_FROZEN | docs/architecture/BASE-ARCH-015-DECISION-RECORD.md | A–F accepted and frozen; no production implementation started | — | Not started automatically | None identified | Synchronization complete; select next authorized work item |
-| BASE-ARCH-016 | Base Architecture | Koin Composition Root & Dependency Injection Implementation Contract | DECISION_FROZEN | docs/architecture/BASE-ARCH-016-DECISION-RECORD.md | A–G accepted and frozen; no production implementation started | — | Not started automatically | None identified | Select next authorized architecture work item or implementation unit |
-| BASE-ARCH-017 | Base Architecture | Runtime Infrastructure Implementation Boundary | CODE FROZEN | docs/architecture/BASE-ARCH-017-IMPLEMENTATION-PLAN.md | Implementation verified; review accepted; code frozen 2026-10-02 | feature/base-arch-017-runtime-infrastructure-implementation | Completed | None | Closed; no further 017 changes |
-| SPLASH-BOOTSTRAP-001 | :feature:splash | Application Startup and Splash | PLAN_FROZEN / TRELLO_READY | feature/splash/00-MODULE-IMPLEMENTATION-PLAN.md | Plan frozen; status record established; no source implementation authorized | feature/splash-config-bootstrap | READY | Bootstrap endpoint/method/body/auth/error contract still missing | Obtain explicit implementation authorization; then start Unit 1 |
+Detailed frozen record: `docs/architecture/BASE-ARCHITECTURE.md`
 
-## SPLASH-BOOTSTRAP-001 Durable Record
+## Dynamic Discussion Register
 
-- Module plan: feature/splash/00-MODULE-IMPLEMENTATION-PLAN.md
-- Module status: feature/splash/01-MODULE-IMPLEMENTATION-STATUS.md
-- Trello: SPLASH-BOOTSTRAP-001 — Implement Application Startup and Splash — READY
-- Canonical branch: feature/splash-config-bootstrap
-- State: PLAN_FROZEN / TRELLO_READY
-- Backend request contract remains incomplete; do not invent endpoint, method, body, authentication, additional headers, or error schema.
+| ID | State | Durable record |
+|---|---|---|
+| DYNAMIC-01 | FROZEN | Dynamic container/destination lifecycle |
+| DYNAMIC-02 | FROZEN | Screen/template/component/section/group/element hierarchy |
+| DYNAMIC-03 | FROZEN | Registry architecture |
+| DYNAMIC-04 | FROZEN | Layout/visual/rendering direction |
+| DYNAMIC-05 | FROZEN | Definition/registry/recursive renderer |
+| DYNAMIC-06 | FROZEN | Actions/state/references/request/errors/destination |
+| DYNAMIC-07 | FROZEN | Runtime validation/compatibility/fallback/recovery/observability |
 
-## Trello State
-- Authoritative board: **CB-Partner — Frontend**
-- Workflow: **BACKLOG → TO DO → READY → IN PROGRESS → DONE**
-- Completed BASE-ARCH-014 execution cards remain complete.
-- BASE-ARCH-015, BASE-ARCH-016, and BASE-ARCH-017 do not automatically create or start Trello execution work.
-- No automatic next-task transition is permitted.
+Canonical record: `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
 
-## BASE-ARCH-014 Unit Register
-| Unit | State | Verification | Notes |
-|---|---|---|---|
-| 014-01 | ACCEPTED | `gradle projects` and `gradle tasks` both BUILD SUCCESSFUL; working tree clean | Project skeleton/module registration verified locally |
-| 014-02 | ACCEPTED | `gradle projects` and `gradle tasks` both BUILD SUCCESSFUL; Git clean and synchronized | Version Catalog verified and accepted by user on 2026-09-22 |
-| 014-03 | ACCEPTED | Build-logic build verified; accepted | Build Logic + Four Conventions |
-| 014-04 | ACCEPTED | Blocked previously by missing Android compileSdk; resolved through 014-06 | iOS ARM64, iOS Simulator ARM64, JVM; Android target/configuration supplied by 014-06 |
-| 014-05 | ACCEPTED | `gradle projects` and targeted JVM compilation both BUILD SUCCESSFUL | Compose Configuration verified through actual feature module configuration/compilation |
-| 014-06 | ACCEPTED | `gradle projects` and targeted JVM compilation both BUILD SUCCESSFUL | Android KMP target + Android application compileSdk 36; iOS/Desktop remain thin boundaries |
-| 014-07 | ACCEPTED | Dependency reports and JVM compilation BUILD SUCCESSFUL | Foundation module dependency wiring only |
-| 014-08 | VERIFIED | `gradle projects`, `-p build-logic build`, six `jvmTest` tasks, and six JVM compilation tasks all BUILD SUCCESSFUL | No source changes; Windows iOS simulator warning is expected host limitation |
-| 014-09 | VERIFIED | Fresh repository architecture verification completed | Platform boundaries, dependency direction, Compose boundary, prohibited structures, scope compliance, and iOS/Xcode boundary verified; Windows host limitation recorded |
+## Dynamic Implementation Register
 
-## Verification Record — 014-08 — 2026-09-23
+| Area | State | Current evidence / source |
+|---|---|---|
+| `DynamicDestination` | IMPLEMENTED | `domain/model/dynamic/DynamicModels.kt` |
+| Navigation state | IMPLEMENTED | `navigation/DynamicNavigationState.kt` |
+| Dynamic container | IMPLEMENTED | `feature/dynamic/DynamicContainer.kt` |
+| Dynamic Store | IMPLEMENTED | `feature/dynamic/store/DynamicStore.kt` |
+| Load screen use case | IMPLEMENTED | `LoadDynamicScreenUseCase.kt` |
+| Execute action use case | IMPLEMENTED | `ExecuteDynamicActionUseCase.kt` |
+| Registry | IMPLEMENTED | `DynamicRegistry.kt` |
+| Renderer | IMPLEMENTED | `DynamicRenderer.kt` |
+| Initial definitions | IMPLEMENTED | `StackTemplate`, `StackComponent`, `StackSection`, `StackGroup`, `TextElement`, `ImageElement` |
+| Dynamic repository | IMPLEMENTED | `DynamicRepositoryImpl.kt` |
+| Dynamic remote source | IMPLEMENTED | `DynamicRemoteDataSource.kt` |
+| DTO / mapper | IMPLEMENTED | `DynamicResponseDto.kt`, `DynamicResponseMapper.kt` |
+| Shared network boundary | IMPLEMENTED / JVM VERIFIED | `RequestHandler`, `HttpClientBuilder`, `NetworkModule` |
+| Bootstrap → DynamicDestination | IMPLEMENTED / TESTED | `BootstrapMapper.kt` |
+| DYNAMIC-07 fallback/recovery/observability | PARTIAL / PENDING | Discussion frozen; complete production implementation remains |
+| Login → OTP integration | CONTRACT FROZEN / VERIFICATION PENDING | Backend-shaped contract recorded in Master State |
+| Dashboard | PENDING | Must remain backend-driven; no hardcoded screen architecture |
 
-Authorized baseline verification completed successfully on the project owner's Windows environment.
+## Latest Verification Record — 2026-10-04
 
 Commands:
-- `gradle projects` → **BUILD SUCCESSFUL**; 5 actionable tasks.
-- `gradle -p build-logic build` → **BUILD SUCCESSFUL**; 6 actionable tasks, all up-to-date.
-- `gradle :core:jvmTest :domain:jvmTest :data:jvmTest :navigation:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest` → **BUILD SUCCESSFUL**; 28 actionable tasks.
-- `gradle :core:compileKotlinJvm :domain:compileKotlinJvm :data:compileKotlinJvm :navigation:compileKotlinJvm :feature:splash:compileKotlinJvm :feature:dynamic:compileKotlinJvm` → **BUILD SUCCESSFUL**; 15 actionable tasks.
 
-The `iosSimulatorArm64Test` disabled-target warning is expected on Windows because simulator tests require macOS. No suppression configuration was added.
+```powershell
+.\gradlew.bat :network:compileKotlinJvm
+.\gradlew.bat :data:compileKotlinJvm
+.\gradlew.bat :feature:splash:compileKotlinJvm
+.\gradlew.bat :feature:dynamic:compileKotlinJvm
+.\gradlew.bat :app:compileKotlinJvm
 
-No source-code changes were required for 014-08.
+.\gradlew.bat :network:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
+```
 
-## Verification Record — 014-06
-Implementation completed on branch `feature/base-arch-014`.
+Result:
 
-Changed source files:
-- `build-logic/src/main/kotlin/com/carbroz/cbpartner/buildlogic/KmpConventionPlugin.kt`
-- `build-logic/src/main/kotlin/com/carbroz/cbpartner/buildlogic/AndroidApplicationConventionPlugin.kt`
+```text
+BUILD SUCCESSFUL
+54 actionable tasks: 15 executed, 39 up-to-date
+```
 
-Android `compileSdk = 36` is configured for both the shared Android-KMP target and the Android application convention.
+The previous `BootstrapRemoteDataSourceTest.nonSuccessfulHttpStatusIsMapped` failure is resolved.
 
-Local verification completed successfully on 2026-09-23: `gradle projects` and targeted JVM compilation both returned **BUILD SUCCESSFUL**.
+## Login → OTP Status
 
-## BASE-ARCH-017 Closure Reconciliation — 2026-10-02
+### Login destination
 
-BASE-ARCH-017 is CODE_FROZEN. Verification passed and review was accepted on 2026-10-02. No further 017 implementation work is authorized under the frozen record.
+```text
+screenId      = partner_login
+templateId    = tpl_7K2M9Q
+templateType  = form_template
+endpoint      = /api/v1/partner/screen/auth_login
+method        = GET
+authentication = NONE
+```
+
+### OTP destination
+
+```text
+screenId      = partner_otp
+templateId    = tpl_P6X8N3
+templateType  = form_template
+endpoint      = /api/v1/partner/screen/auth_otp
+method        = GET
+authentication = NONE
+```
+
+### OTP actions
+
+```text
+POST /api/v1/partner/auth/send_otp
+  phoneNumber = $context(authFlow.phoneNumber)
+  deviceId    = $context(deviceId)
+  responseMode = none
+
+POST /api/v1/partner/auth/verify_otp
+  challengeId = $response(data.challengeId)
+  phoneNumber = $context(authFlow.phoneNumber)
+  otp         = $binding(otp)
+  deviceId    = $context(deviceId)
+  responseMode = destination
+```
+
+## Remaining Work Register
+
+| Priority | Work | State |
+|---|---|---|
+| 1 | Reconcile historical architecture wording with current `:network/:app/:webApp` topology | OPEN |
+| 2 | Complete request metadata/auth integration through frozen runtime/network boundary | OPEN |
+| 3 | Complete Dynamic state/reference/action behavior required by actual backend contract | IN PROGRESS |
+| 4 | Complete DYNAMIC-07 fallback/recovery/observability implementation | OPEN |
+| 5 | Login → Send OTP → OTP → Verify OTP integration tests | OPEN |
+| 6 | Full backend-driven navigation/back/replace verification | OPEN |
+| 7 | Android verification | OPEN |
+| 8 | iOS/macOS-hosted verification | OPEN |
+| 9 | Web/Wasm verification | OPEN |
+| 10 | Literal plan-to-source compliance review | OPEN |
+| 11 | Final Dynamic feature review and code freeze | OPEN |
+
+## Explicitly Closed / Do Not Reopen
+
+- BASE-ARCH-014 implementation.
+- BASE-ARCH-017 implementation.
+- DYNAMIC-01 through DYNAMIC-07 discussion decisions.
+- Previously resolved Bootstrap HTTP-status test failure.
+
+Reopening any frozen decision requires the documented reopening process and explicit owner direction.
+
+## Trello
+
+Authoritative board: **CB-Partner — Frontend**
+
+Workflow:
+
+```text
+BACKLOG → TO DO → READY → IN PROGRESS → DONE
+```
+
+Trello tracks execution status; architecture and implementation contracts remain in repository documents.
 
 ## Recovery Algorithm
-1. Read AI_START_HERE.md.
-2. Read this Tracker.
-3. Read Current Status.
-4. Identify current module/work item/state.
-5. Read the relevant frozen implementation plan and status.
-6. Inspect Git branch/status/log and relevant Trello state.
-7. Reconcile contradictions before continuing.
-8. Determine exactly one next valid action.
-9. Do not implement unless state and authorization permit it.
 
-## Freeze Rule
-After a meaningful freeze or documentation checkpoint, update required records, report state, return one next prompt, and stop. Do not automatically start the next unit.
+1. Read `AI_START_HERE.md`.
+2. Read `14-PROJECT-MASTER-STATE.md`.
+3. Read this Tracker.
+4. Read Current Status.
+5. Read the relevant frozen feature discussion.
+6. Read the frozen implementation plan/status.
+7. Inspect Git state.
+8. Reconcile contradictions before continuing.
+9. Determine exactly one next valid action.
+10. Do not implement outside the current authorized feature plan.
 
 ## Documentation Authority
-The authoritative Base Architecture record is:
-docs/architecture/BASE-ARCHITECTURE.md
 
-The frozen BASE-ARCH-014 implementation contract is:
-docs/architecture/BASE-ARCH-014-IMPLEMENTATION-PLAN.md
-
-The frozen BASE-ARCH-015 runtime contract is:
-docs/architecture/BASE-ARCH-015-DECISION-RECORD.md
-
-The frozen BASE-ARCH-016 Koin/DI contract is:
-docs/architecture/BASE-ARCH-016-DECISION-RECORD.md
+- Current cross-session state: `docs/project-management/14-PROJECT-MASTER-STATE.md`
+- Current project status: `docs/project-management/04-CURRENT-STATUS.md`
+- Base architecture: `docs/architecture/BASE-ARCHITECTURE.md`
+- Current architecture reconciliation: `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
+- Dynamic discussion: `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
+- Dynamic implementation plan: `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`
+- Dynamic implementation status: `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md`
+- Gradle: `docs/build/GRADLE-SETUP-AND-WORKFLOW.md`
 
 Historical chat is not an implementation source.
-
-## BASE-ARCH-014-07 Acceptance Checkpoint — 2026-09-23
-
-**Checkpoint state:** 014-07 VERIFIED → ACCEPTED → CHECKPOINTED.
-
-### Verified dependency graph
-- :domain → :core
-- :data → :domain, :core
-- :navigation → :core
-- :feature:splash → :domain, :core, :navigation
-- :feature:dynamic → :domain, :core, :navigation
-
-### Verification
-- Five commonMainImplementation dependency reports: **BUILD SUCCESSFUL**.
-- Targeted JVM compilation for :core, :domain, :data, :navigation, :feature:splash, and :feature:dynamic: **BUILD SUCCESSFUL**.
-- Android KMP namespace/configuration issue resolved through the 014-06 platform-boundary convention.
-- No prohibited modules, runtime architecture implementation, business logic, SDUI internals, fake bootstrap, or fake JSON introduced.
-
-### State transition
-IMPLEMENTING — 014-07 → VERIFIED → ACCEPTED → CHECKPOINTED.
-
-014-08 is **AUTHORIZED and IN PROGRESS** as of 2026-09-23.
-
-### Next valid action
-Execute and record the frozen 014-08 Build/Test Baseline verification. Do not start 014-09.
-
-## BASE-ARCH-014-08 Authorization — 2026-09-23
-
-**State:** IMPLEMENTING
-
-The project owner explicitly authorized 014-08 — Build/Test Baseline.
-
-Scope:
-- minimal shared testing/build verification;
-- actual command/result recording;
-- no architecture expansion or unrelated changes.
-
-014-09 remains gated and must not start automatically.
-
-## BASE-ARCH-014-09 Architecture Verification — 2026-09-23
-
-**Review state:** VERIFIED — F02 resolved; final BASE-ARCH-014 owner acceptance pending.
-
-Formal verification completed after the 014-08 records were reconciled and after following `AI_START_HERE.md` routing.
-
-Verified:
-- approved Gradle project hierarchy for the currently registered modules;
-- build-logic and four approved convention plugins;
-- frozen foundation dependency direction in inspected module build files;
-- Compose boundary;
-- absence of ViewModel/prohibited architecture modules;
-- absence of business-specific/SDUI/fake-bootstrap scope expansion;
-- 014-08 build/test baseline successful.
-
-### Platform Boundary Clarification
-The owner approved and froze the rule that every supported platform has an application boundary, but not every application boundary is a Gradle module.
-
-- Android: `androidApp/` → `:androidApp` Gradle application.
-- Desktop: `desktopApp/` → `:desktopApp` Gradle application.
-- iOS: `iosApp/` → native Xcode application boundary; no `:iosApp` Gradle project.
-
-The previous finding that treated the absence of `:iosApp` from Gradle as a discrepancy is superseded. Fresh 014-09 verification must inspect the actual iOS/Xcode boundary instead.
-
-**Documentation state:** clarification complete.
-**Source changes:** none.
-**Next action:** perform fresh 014-09 architecture verification against the clarified rule.
-
-## BASE-ARCH-014-09 F02 Resolution — 2026-09-23
-
-**State:** VERIFIED — F02 resolved; final 014-09 owner acceptance remains part of the BASE-ARCH-014 final gate.
-
-The owner authorized creation of the native iOS/Xcode application boundary after fresh 014-09 identified BASE-ARCH-014-09-F02.
-
-Implemented under iosApp/:
-- native Xcode project;
-- Xcode workspace metadata;
-- minimal UIKit application entry point;
-- placeholder .gitkeep removed.
-
-Frozen constraints preserved:
-- no :iosApp Gradle project;
-- no iOS Gradle convention plugin;
-- no business/application architecture;
-- no Store, Navigation, Koin, bootstrap, backend, or SDUI implementation.
-
-Fresh verification confirms the iOS application boundary now exists and the complete inspected repository conforms to the clarified BASE-ARCH-014 platform-boundary rule. No new finding was identified.
-
-Windows host limitation: native Xcode/macOS build verification could not be executed. Repository-level Xcode boundary verification was completed.
-
-## BASE-ARCH-014-T01 — Gradle Wrapper + Git/Build Workflow — 2026-09-23
-
-**State:** VERIFIED
-**Owner authorization:** Explicitly granted on 2026-09-23.
-
-Scope:
-- add official Gradle Wrapper targeting Gradle 9.7.1;
-- make clone → build → test → commit → push → PR → merge → sync operationally documented;
-- route AI sessions through the exact terminal/Git command document.
-
-Documentation portion completed:
-- `AI_START_HERE.md` updated;
-- `docs/project-management/11-TERMINAL-GIT-COMMANDS.md` expanded.
-
-Official Gradle 9.7.1 Wrapper generation and verification are complete. The wrapper is committed in `0630982`, and the Wrapper-based baseline passed. No hand-created or fake Wrapper was used.
-
-## BASE-ARCH-014 Final Implementation Verification Checkpoint — 2026-09-23
-
-**State:** IMPLEMENTATION VERIFIED — OWNER ACCEPTANCE PENDING
-
-Actual repository state on `feature/base-arch-014` has been reconciled with the execution records:
-
-- 014-01 through 014-07 → ACCEPTED.
-- 014-08 → VERIFIED.
-- 014-09 → VERIFIED; F02 resolved.
-- T01 → VERIFIED; Gradle 9.7.1 Wrapper and Wrapper-based baseline verified.
-- Native iOS/Xcode application boundary exists under `iosApp/`; no `:iosApp` Gradle module exists.
-- Working implementation branch: `feature/base-arch-014`.
-- No architecture blocker identified.
-
-The repository is now at the final owner acceptance/code-freeze gate. No new implementation unit starts automatically.
-
-## BASE-ARCH-014 CODE FREEZE — 2026-09-23
-
-**State:** FROZEN
-
-The project owner explicitly accepted the complete BASE-ARCH-014 implementation after verification. BASE-ARCH-014 is now code-frozen on `feature/base-arch-014`.
-
-Frozen verification state:
-- 014-01 through 014-07 → ACCEPTED.
-- 014-08 → VERIFIED.
-- 014-09 → VERIFIED; F02 resolved.
-- T01 → VERIFIED; Gradle 9.7.1 Wrapper and Wrapper-based baseline verified.
-- No architecture blocker identified.
-
-No further implementation changes are permitted under BASE-ARCH-014. Any new change must be handled as a new approved work item under the project workflow.
-
-## BASE-ARCH-014 Post-Freeze Checkpoint — 2026-09-23
-
-**State:** FROZEN — MERGE PREPARATION
-
-BASE-ARCH-014 is owner-accepted and code-frozen on `feature/base-arch-014`.
-
-Verified/frozen:
-- 014-01 through 014-07 → ACCEPTED.
-- 014-08 → VERIFIED.
-- 014-09 → VERIFIED; F02 resolved.
-- T01 → VERIFIED; Gradle 9.7.1 Wrapper and Wrapper-based baseline verified.
-- Native iOS/Xcode application boundary exists under `iosApp/`; no `:iosApp` Gradle module.
-- No architecture blocker identified.
-
-No further implementation changes are permitted under BASE-ARCH-014. The next workflow action was PR/merge preparation from `feature/base-arch-014` to `development`; that merge is now complete.
-
-## BASE-ARCH-014 PR — 2026-09-23
-
-**PR:** #2 — Merge BASE-ARCH-014 foundation into development  
-**State:** MERGED / VERIFIED  
-**Head:** `feature/base-arch-014`  
-**Base:** `development`
-
-The frozen implementation was reviewed and merged. Post-merge verification was completed successfully.
-
-## BASE-ARCH-015 Decision Freeze — 2026-09-30
-
-**State:** DECISION_FROZEN
-
-The project owner explicitly accepted and froze BASE-ARCH-015 A–F.
-
-Durable record: `docs/architecture/BASE-ARCH-015-DECISION-RECORD.md`.
-
-No production runtime implementation was started by this freeze. BASE-ARCH-015 is an architecture/implementation contract and must not be treated as automatic authorization for runtime dependency wiring.
-
-## BASE-ARCH-016 Decision Freeze — 2026-09-30
-
-**State:** DECISION_FROZEN
-
-The project owner explicitly accepted and froze BASE-ARCH-016 A–G.
-
-Durable record: `docs/architecture/BASE-ARCH-016-DECISION-RECORD.md`.
-
-No production Koin/DI implementation was started by this freeze. BASE-ARCH-016 is an architecture/implementation contract and must not be treated as automatic authorization to modify production code.
-
-### Frozen 016 boundary
-- Koin 4.2.x + compatible Compiler Plugin baseline for Kotlin 2.4.20.
-- Constructor injection remains primary.
-- DI definitions remain with owning modules; no standalone `:di` module.
-- Compiler validation is the primary DI graph-safety mechanism.
-- Compose integration is added only for an actual consumer; no ViewModel Koin architecture.
-- Platform dependencies enter through the established platform boundaries.
-- Koin does not own Pure Store lifecycle.
-
-## Documentation/Tracker Synchronization — 2026-09-30
-
-**State:** COMPLETE
-
-Synchronized records:
-- `docs/project-management/04-CURRENT-STATUS.md`
-- `docs/project-management/12-PROJECT-TRACKER.md`
-- `docs/architecture/BASE-ARCH-015-DECISION-RECORD.md`
-- `docs/architecture/BASE-ARCH-016-DECISION-RECORD.md`
-- `docs/architecture/BASE-ARCH-017-DECISION-RECORD.md`
-- `docs/architecture/BASE-ARCHITECTURE.md`
-
-The decision state is now durable through BASE-ARCH-017. BASE-ARCH-017 has no implementation authorization; the pre-existing 017 implementation branch requires PLAN-stage reconciliation. No Trello execution work is started automatically.
-
-## BASE-ARCH-017 IMPLEMENTATION AUTHORIZATION — 2026-09-30
-
-**State:** IMPLEMENTATION_AUTHORIZED / IMPLEMENTING
-
-Frozen implementation plan:
-`docs/architecture/BASE-ARCH-017-IMPLEMENTATION-PLAN.md`
-
-The project owner accepted the four outstanding PLAN-stage decisions:
-1. `:data` does not apply the Koin Compiler Plugin for 017.
-2. Data owns the concrete application `HttpClient`; initial configuration remains generic and minimal.
-3. `ktor-client-engine-defaults` is the multiplatform engine strategy; no project-owned `expect/actual` engine abstraction.
-4. The pre-existing 017 branch is reconciled by resulting implementation state, not blindly merged by commit history.
-
-**Implementation authorization:** GRANTED.
-
-Implementation branch: `feature/base-arch-017-runtime-infrastructure-implementation`.
-
-The implementation is complete within the frozen seven-file scope. Verification is pending. No merge to `development` is authorized by this status.
-
-
-
-## BASE-ARCH-017 Decision Freeze — 2026-09-30
-
-**State:** DECISION_FROZEN
-
-The project owner explicitly accepted and froze BASE-ARCH-017 A–F.
-
-Durable record:
-- `docs/architecture/BASE-ARCH-017-DECISION-RECORD.md`
-- `docs/architecture/BASE-ARCHITECTURE.md`
-
-Frozen boundary:
-- Core owns generic coroutine, serialization, logging, and network infrastructure.
-- Data may own concrete data-layer network/client construction without owning generic networking infrastructure.
-- Navigation owns Navigation 3 runtime integration.
-- Application Composition owns runtime infrastructure assembly.
-- Koin Compiler Plugin usage is conditional on concrete implementation need; it is not a blanket module requirement.
-- Ktor engine/client configuration remains implementation-plan detail.
-- Navigation 3 remains previously frozen and is not re-decided by 017.
-
-No production implementation is authorized by this freeze.
-
-### Existing 017 branch reconciliation requirement
-
-The pre-existing `feature/base-arch-017-runtime-infrastructure` branch contains implementation commits created before the 017 decision freeze. Those commits are not retroactively authorized. They must be reviewed/reconciled during PLAN before merge or continued implementation.
-
-### Next valid action
-
-Enter PLAN for BASE-ARCH-017. Do not merge, switch to, correct, or continue the pre-existing implementation branch until the plan/reconciliation gate is completed and implementation is separately authorized.
