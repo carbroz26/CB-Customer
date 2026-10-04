@@ -1,383 +1,345 @@
 # CB-Partner — AI START HERE
 
 **Document type:** Global AI Control / Router
-**Status:** PROPOSED
+**Status:** AUTHORITATIVE
 **Scope:** Entire CB-Partner frontend repository
+**Last Updated:** 2026-10-04
 
 ## 1. NON-NEGOTIABLE RULE
-If this document is provided to you, read and follow it before taking project action. Do not guess what the user wants and do not begin implementation merely because the user says continue, go ahead, proceed, implement, fix, create, or build. First determine the current project and workflow state.
+
+Read this document before taking project action. Determine the documented project state before coding. Never guess, silently redesign, or reconstruct the project from historical chat when a durable record exists.
 
 ## 2. PROJECT IDENTITY
-Project: CB-Partner
-Repository: carbroz26/CB-Partner
-This repository is the frontend/partner application only. Backend has a separate repository, documentation system, and Trello workspace.
 
-## 3. DOCUMENT AUTHORITY
-When information conflicts, use this order:
+- Project: `CB-Partner`
+- Repository: `carbroz26/CB-Partner`
+- Frontend/partner application only.
+- Backend is a separate repository and documentation system.
+
+## 3. AUTHORITATIVE ORDER
+
+When information conflicts:
+
 1. Current explicit user instruction
-2. This AI_START_HERE.md
-3. Accepted/FROZEN decisions
-4. Frozen architecture and technical contracts
+2. `AI_START_HERE.md`
+3. Explicitly accepted/frozen decisions
+4. Current architecture reconciliation / technical contracts
 5. Current project status
-6. Approved feature/module implementation plans
-7. Trello execution state
-8. Current source code and tests
-9. Historical conversations
+6. Approved feature/module implementation plan
+7. Feature implementation status
+8. Trello execution state
+9. Current source/tests
+10. Historical conversation
 
-Historical chat must never override a current frozen repository decision. If authoritative documents conflict, STOP and request resolution.
+If a frozen decision conflicts materially with a current implementation, **STOP → REPORT → DISCUSS → DECIDE → FREEZE → UPDATE PLAN → IMPLEMENT**. Never silently rewrite a frozen decision.
 
-## 4. REQUIRED DOCUMENTS
-Always read:
-- AI_START_HERE.md
-- docs/AI_GUIDELINES.md
-- docs/project-management/00-PROJECT-OPERATING-SYSTEM.md
-- docs/project-management/01-AI-CONTEXT.md
-- docs/project-management/02-AI-RULES.md
-- docs/project-management/03-DECISION-LOG.md
-- docs/project-management/04-CURRENT-STATUS.md
+## 4. REQUIRED NEW-CHAT RECOVERY
 
-Read relevant documents for the task:
-- roadmap, Trello workflow, development workflow, implementation protocol, review protocol, checkpoints, terminal commands
-- architecture/ARCHITECTURE.md
-- frontend/FRONTEND.md
-- api/API_CONTRACT.md
-- relevant feature/module documents
+For a new/recovered session, read in this order:
 
-## 5. FIRST ACTION — DETERMINE WHERE WE ARE
-Every session begins with state detection.
+1. `AI_START_HERE.md`
+2. `docs/project-management/14-PROJECT-MASTER-STATE.md`
+3. `docs/project-management/04-CURRENT-STATUS.md`
+4. `docs/project-management/12-PROJECT-TRACKER.md`
+5. `docs/project-management/03-DECISION-LOG.md`
+6. `docs/project-management/01-AI-CONTEXT.md`
+7. `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
+8. `docs/architecture/BASE-ARCHITECTURE.md` for frozen base decisions
+9. relevant feature discussion/plan/status documents
+10. source/tests only after the state is understood
 
-Determine:
-- Session state: new, continuing, or recovered.
-- Project phase from CURRENT-STATUS.
-- Git branch/status when repository work is involved.
-- Frozen decisions.
-- Relevant Trello card.
-- Existing implementation.
-- Relevant feature/module documentation.
-- Current workflow state.
+Then produce a short SESSION RECOVERY SUMMARY:
 
-### Global Feature Lifecycle
-Every significant feature/module follows exactly three workflow phases:
-
-1. **FEATURE DISCUSSION** — Discuss + Research + Decide → Discussion Frozen
-2. **IMPLEMENTATION PLAN** — Create/review the complete feature plan → Plan Frozen
-3. **IMPLEMENTATION** — Implement the complete feature → Test + Review → Feature Frozen
-
-Once a phase is explicitly accepted/frozen, immediately move to the next phase. Do not create additional approval or freeze gates between implementation units.
-
-Implementation units are organizational subdivisions inside the complete feature. They may be used to sequence work and record progress, but they are not independent workflow phases and must not create separate unit-level authorization, freeze, or stop gates.
-
-Do not reopen already frozen architecture or feature decisions merely because implementation is being organized into units. If implementation reveals a material conflict with a frozen decision, use the reopening process defined below.
-
-Do not stop a feature implementation midway merely to create another planning or freeze gate. After the complete implementation plan is frozen and implementation is authorized, continue through all implementation units required to complete the feature before testing/reviewing the feature as a whole.
-
-Do not skip the three feature phases themselves. The objective is controlled speed: discuss once, plan once, implement completely, test/review, and freeze.
-
-## 6. CONTINUE RULE
-'continue', 'go ahead', 'proceed', 'next', and similar phrases mean resume the next valid action from the documented current state. They do not automatically mean write code.
-
-For CONTINUE:
-1. Read this document.
-2. Read CURRENT-STATUS.
-3. Check frozen decisions.
-4. Inspect active conversation context.
-5. Inspect Git status when relevant.
-6. Identify workflow state.
-7. Identify current module/feature/task.
-8. Determine next valid state.
-9. Perform only that state's permitted action.
-
-If state cannot be determined safely, STOP and ask.
-
-## 7. PROMPT ROUTER
-DISCUSS: no repository modification; clarify requirements, constraints, assumptions, edge cases and open questions. Discussion may include research and decisions needed to reach a complete feature discussion freeze.
-
-RESEARCH: research only what is needed for the current feature discussion; distinguish evidence, interpretation, recommendation and uncertainty; no implementation.
-
-DECIDE: present problem, constraints, options, tradeoffs, proposed decision and consequences. Nothing is frozen until explicitly accepted. Decisions required to complete the feature discussion belong to the same feature-discussion phase; do not create a separate decision gate for each implementation unit.
-
-FEATURE DISCUSSION FREEZE: restate exact frozen feature requirements, scope, non-goals, constraints, consequences, related module/feature and documents, remaining explicitly accepted unknowns, and the next phase. Once accepted, immediately move to the complete implementation plan.
-
-PLAN: create one complete implementation contract for the feature covering objective, scope, out-of-scope, prerequisites, files/modules, architecture impact, dependencies, complete implementation sequence, tests, acceptance criteria, risks and documentation. Implementation units may be listed inside the plan but do not become separate approval gates.
-
-PLAN FREEZE: restate the exact complete implementation contract. Explicit approval is the authorization boundary for implementation. Once frozen and implementation is authorized, immediately begin/continue complete feature implementation without additional unit-level planning gates.
-
-IMPLEMENT: verify requirement, frozen decisions, approved complete plan, Trello readiness where required, correct branch, safe Git state and absence of conflicting user changes. If a prerequisite is missing, do not code. Implement all required units of the feature within the same implementation phase.
-
-TEST: after complete feature implementation, validate the complete feature according to the relevant test/build protocol. Do not weaken verification to make it pass.
-
-REVIEW: after complete feature testing, compare the complete work with requirement, decisions, plan, architecture, tests and scope. Classify findings as BLOCKER, REQUIRED, OPTIONAL or FUTURE. Do not silently fix review findings.
-
-DOCUMENT: update only the appropriate authoritative documents.
-
-STATUS / WHAT'S NEXT: reconstruct state and return the next valid action.
-
-## 8. NEW CHAT / LOST CONTEXT
-A new chat is a context recovery event. Never pretend to remember unavailable conversation history.
-
-Read:
-1. AI_START_HERE
-2. CURRENT-STATUS
-3. DECISION-LOG
-4. AI-CONTEXT
-5. relevant architecture
-6. relevant module/feature docs
-7. Trello when available
-8. Git state/history as needed
-
-Then produce a SESSION RECOVERY SUMMARY:
-- Where the project is
-- What is frozen
-- What is being worked on
-- What is completed
-- What is waiting
+- Current phase
+- Current feature/work item
+- Frozen decisions
+- Completed implementation
+- Latest verification
+- Pending work
+- Blockers/conflicts
 - Next valid action
-- Conflicts/blockers
 
-Only then continue.
+Do not start coding before this state is clear.
 
-## 9. MODULE / FEATURE PROTOCOL
-Mentioning a module does not authorize creating it.
+## 5. CURRENT PROJECT SNAPSHOT
 
-Example: 'We need Auth' starts DISCUSS.
+As of 2026-10-04:
 
-Before creating a module, determine:
-- responsibility
-- reason for separate boundary
-- boundaries
-- consumers/dependencies
-- state ownership
-- shared/platform responsibilities
-- public contract
-- non-goals
-- whether a module is actually justified
+- BASE-ARCH-001 → BASE-ARCH-017: **DECISION_FROZEN**
+- BASE-ARCH-014: **CODE_FROZEN**
+- BASE-ARCH-017: **VERIFIED / REVIEW ACCEPTED / CODE_FROZEN**
+- DYNAMIC-01 → DYNAMIC-07: **DISCUSSION FROZEN**
+- Dynamic implementation plan: **PLAN_FROZEN / IMPLEMENTATION AUTHORIZED**
+- Dynamic implementation: **IN PROGRESS**
+- Latest owner-provided focused compile/JVM test gate: **BUILD SUCCESSFUL**
+- Current branch: `feature/dynamic-ui`
 
-If a module is conceptually approved but absent, documentation/decision work comes first. A source module may be created only when authorized by the approved plan.
+The compact recovery source is:
 
-## 10. DOCUMENTATION-FIRST RULE
-A significant module/feature should have a durable record describing, as applicable:
-- purpose
-- responsibility
-- boundaries
-- public API
-- dependencies
-- dependency direction
-- state ownership
-- Store contract
-- domain responsibilities
-- data/API boundary
-- platform responsibilities
-- testing strategy
-- non-goals
-- related decisions
-- implementation status
+`docs/project-management/14-PROJECT-MASTER-STATE.md`
 
-Distinguish:
-DISCUSSED / PROPOSED / FROZEN / IMPLEMENTED / VERIFIED
+## 6. CURRENT GRADLE AUTHORITY
 
-Never mark a proposal frozen merely because AI wrote it. Never mark implemented merely because files exist.
+For Gradle installation, Wrapper, version policy and build/test commands use:
 
-### Feature Documentation Structure
-Every significant feature/module must have a dedicated documentation directory under `docs/features/`.
+`docs/build/GRADLE-SETUP-AND-WORKFLOW.md`
 
-At minimum, the directory contains:
-- `00-FEATURE-DISCUSSION.md` — durable record of requirements, research, decisions, scope, non-goals, constraints and discussion freeze.
-- `01-IMPLEMENTATION-PLAN.md` — the complete implementation contract created after the feature discussion is frozen.
-- `02-IMPLEMENTATION-STATUS.md` — implementation progress, verification, review findings and final feature-freeze state, maintained once implementation begins.
+Current project baseline: **Gradle 9.7.1**.
 
-Example:
+## 7. CURRENT MODULE TOPOLOGY
+
 ```text
-docs/features/
-└── splash-bootstrap/
-    ├── 00-FEATURE-DISCUSSION.md
-    ├── 01-IMPLEMENTATION-PLAN.md
-    └── 02-IMPLEMENTATION-STATUS.md
+:core
+:domain
+:network
+:data
+:navigation
+:app
+:feature:splash
+:feature:dynamic
+:androidApp
+:webApp
+build-logic (included build)
+iosApp/ (native Xcode boundary, not Gradle)
 ```
 
-These feature documents are the durable source for the feature lifecycle. Do not create separate discussion, plan, authorization or freeze documents for individual implementation units unless a separate durable document is explicitly required by an accepted decision.
+Do not reintroduce `:desktopApp` based only on older Base Architecture wording. The current implementation topology is recorded in `ARCHITECTURE-CURRENT-STATE.md`. Any material platform change requires an explicit architecture decision.
 
-## 11. DISCUSSION PRESERVATION
-During discussion, separate:
-- User requirement
-- Observed fact
-- AI suggestion
-- Open question
-- Proposed decision
-- Frozen decision
+## 8. FROZEN TECHNICAL DIRECTION
 
-If point 8 changes, do not silently rewrite points 1–7. Freeze only explicitly accepted items.
-
-## 12. MULTI-POINT DISCUSSION
-Number points and mark each DISCUSSED, OPEN, PROPOSED or FROZEN.
-
-If points 1–7 are accepted and 8–9 are challenged:
-- freeze 1–7;
-- keep 8–9 open;
-- re-discuss 8–9;
-- never reopen unrelated frozen points.
-
-When all required points are accepted, update the durable record and move directly to the complete implementation plan.
-
-## 13. FREEZE RECORD
-When the user says final/frozen/approved, return:
-- Topic
-- Exact frozen decisions
-- Scope
-- Non-goals
-- Consequences
-- Related module/feature
-- Related ADR/document
-- Allowed behavior
-- Forbidden behavior
-- Remaining open items
-- Next workflow state
-
-A feature discussion freeze is not complete until the durable record reflects it. Once the complete discussion is frozen, the next state is the complete implementation plan. Once the complete plan is frozen and implementation is authorized, the next state is complete feature implementation.
-
-## 14. IMPLEMENTATION PROTECTION
-Before changing code, AI must be able to answer:
-- What exact frozen requirement am I implementing?
-- Which approved complete feature plan authorizes this?
-- Which module owns it?
-- Which decisions constrain it?
-- How will it be verified?
-
-If unclear, stop.
-
-## 15. NO SILENT ARCHITECTURE CHANGES
-If implementation reveals an architectural problem:
-STOP → REPORT → DISCUSS → DECIDE → FREEZE → UPDATE PLAN → IMPLEMENT
-
-A better idea discovered during coding is a new decision, not silent permission to redesign.
-
-## 16. TRELLO ROUTING
-Trello is the execution tracker. For implementation:
-- identify the card;
-- verify scope and acceptance criteria;
-- keep status synchronized;
-- link durable documentation/ADR;
-- do not use Trello as the sole architecture source.
-
-If no appropriate card exists, determine whether the workflow requires creating one before implementation.
-
-## 17. GIT ROUTING
-Before modification inspect status, branch and relevant diff. Preserve user changes. Keep changes scoped. Validate before commit. Inspect final diff. Commit/merge only through the approved workflow. Never use destructive Git commands to resolve uncertainty.
-
-## 18. DOCUMENT ROUTING
-- AI entry/routing → AI_START_HERE.md
-- AI rules → AI_GUIDELINES.md / 02-AI-RULES.md
-- stable context → 01-AI-CONTEXT.md
-- significant decisions → 03-DECISION-LOG.md
-- current state → 04-CURRENT-STATUS.md
-- roadmap → 05-ROADMAP.md
-- Trello process → 06-TRELLO-WORKFLOW.md
-- development lifecycle → 07-DEVELOPMENT-WORKFLOW.md
-- implementation → 08-IMPLEMENTATION-PROTOCOL.md
-- review → 09-REVIEW-PROTOCOL.md
-- recovery → 10-CHECKPOINTS.md
-- Git/terminal → 11-TERMINAL-GIT-COMMANDS.md
-- architecture → architecture/ARCHITECTURE.md
-- frontend engineering → frontend/FRONTEND.md
-- API integration → api/API_CONTRACT.md
-- feature/module behavior → relevant feature/module document
-
-Do not duplicate authoritative information unnecessarily.
-
-## GRADLE DOCUMENT AUTHORITY
-For all Gradle installation, version policy, Wrapper setup, commands, build/test commands, troubleshooting, and version changes, use `docs/build/GRADLE-SETUP-AND-WORKFLOW.md` as the single authoritative Gradle reference. Do not maintain competing Gradle setup instructions in other documents. Project-management documents route to this document; architecture documents do not define Gradle installation procedure.
-
-## 19. MISSING DOCUMENT
-If the correct durable document does not exist:
-1. determine why it is needed;
-2. do not invent a final decision;
-3. create a placeholder/template when appropriate;
-4. mark it PROPOSED;
-5. fill it through DISCUSS → DECIDE → FREEZE;
-6. do not treat a placeholder as accepted.
-
-## 20. USER CHANGES MIND
-A changed idea is not a failure. Determine whether it affects an open discussion, proposed decision, frozen decision, approved plan, or implementation. If frozen material is affected, use the reopening process. Do not rewrite history.
-
-## 21. REOPENING
-A frozen decision may be reopened for changed requirements, incompatibility, security, performance, maintenance, incorrect assumptions or platform limitations.
-
-Record old decision, reason, evidence, impact, alternatives and new decision. Then freeze the replacement.
-
-## 22. SESSION HANDOFF
-At meaningful completion, update current status, decisions, feature/module docs, Trello, roadmap or checkpoint as applicable.
-
-Return:
-COMPLETED
-FROZEN
-OPEN
-IMPLEMENTED
-VERIFIED
-BLOCKED
-NEXT VALID ACTION
-
-## 23. RESPONSE FORMAT
-DISCUSS → Understanding / Facts & constraints / Questions / Options / Tradeoffs / Proposed direction / Open items / Next action
-
-RESEARCH → Question / Evidence / Alternatives / Tradeoffs / Uncertainty / Conclusion / Decision required
-
-FREEZE → Exact frozen points / Scope / Non-goals / Consequences / Related docs / Remaining open / Next prompt
-
-PLAN → Objective / Scope / Files & modules / Sequence / Dependencies / Tests / Acceptance / Risks / Documentation / Approval step
-
-IMPLEMENT → Plan followed / Changes / Tests / Platform verification / Deviations / Limitations / Documentation / Git state / Next step
-
-REVIEW → Scope / Findings / Tests / Architecture / Required actions / Acceptance status
-
-## 24. NEXT PROMPT RULE
-When a phase finishes, return the single next prompt required to progress. The prompt must reflect actual state, not a generic script.
-
-Examples:
-After feature discussion freeze: 'Create the complete implementation plan for the frozen feature contract.'
-After plan freeze: 'Begin implementation of the complete feature according to the frozen plan.'
-After complete implementation: 'Run the required tests and verification for the complete feature.'
-After testing: 'Review the complete implementation against the frozen plan.'
-After review/acceptance: 'Finalize documentation, Git state, and feature freeze.'
-
-Do not generate an intermediate unit-level approval prompt.
-
-## 25. DO NOT CREATE EXTRA GATES TO SAVE OR SPEND TIME
-The objective is productive, progressive, recoverable development without uncontrolled drift or repeated restarts. Use exactly the three feature phases. Do not add unit-level discussion, planning, authorization, freeze, or stop gates merely because a feature contains multiple implementation units.
-
-Scale the amount of discussion, research, testing and review to risk, but never remove scope control, frozen constraints, validation or Git safety.
-
-## 26. CURRENT TECHNICAL DIRECTION
-Currently stated direction:
 - Kotlin Multiplatform
 - Compose Multiplatform
 - Clean Architecture
-- Store-based pure MVI
+- Pure Store-based MVI
 - UDF
 - No ViewModel
 - Multi-module architecture
-- Dependency Injection
+- Koin DI
+- Ktor Client
+- kotlinx.serialization
+- Kermit
+- Navigation 3
 - Gradle Convention Plugins
 
-Exact libraries and implementation technologies remain unfrozen until accepted in the Decision Log.
+Do not add a library or architecture pattern just because it is convenient. Check the frozen decision/feature contract first.
 
-## 27. ABSOLUTE STOP CONDITIONS
-STOP when:
-- required context is missing;
-- documents conflict;
-- requirements materially conflict;
-- a frozen decision must change;
-- implementation plan is missing;
-- implementation authorization is missing;
-- unexpected user changes exist;
-- destructive operation is proposed;
-- material dependency is unexpectedly required;
-- scope materially expands;
-- source contradicts documented architecture;
-- AI would need a significant assumption.
+## 9. FEATURE LIFECYCLE — EXACTLY THREE PHASES
 
-## 28. ANTI-RESTART
-A bad implementation does not automatically mean the project is bad.
+Every significant feature/module follows:
 
-Classify the problem:
+```text
+1. FEATURE DISCUSSION
+   Discuss + Research + Decide → Discussion Frozen
+
+2. IMPLEMENTATION PLAN
+   Complete feature plan → Plan Frozen
+
+3. IMPLEMENTATION
+   Implement completely → Test → Review → Feature Frozen
+```
+
+Implementation units are sequencing aids inside a feature. They are **not** separate approval/freeze gates.
+
+Once a phase is frozen, immediately move to the next phase. Do not create unnecessary unit-level gates.
+
+## 10. MODE ROUTER
+
+### DISCUSS / RESEARCH / DECIDE
+
+No source modification. Resolve requirements, boundaries, alternatives and decisions.
+
+### FEATURE DISCUSSION FREEZE
+
+Record exact frozen requirements, scope, non-goals and constraints, then immediately create/reconcile the complete implementation plan.
+
+### PLAN
+
+One complete implementation contract: objective, scope, files/modules, dependencies, sequence, tests, acceptance, risks and documentation.
+
+### PLAN FREEZE
+
+Explicit approval authorizes implementation. Do not create another planning gate for each unit.
+
+### IMPLEMENT
+
+Verify frozen discussion + frozen plan + correct branch + safe Git state. Implement the complete feature, not speculative adjacent work.
+
+### TEST
+
+Run the required compile/test/platform verification. Do not weaken tests to make them pass.
+
+### REVIEW
+
+Compare implementation with requirements, frozen decisions, plan, architecture, tests and scope. Classify findings; do not silently fix review findings without authority.
+
+### DOCUMENT
+
+Update only authoritative durable records.
+
+### STATUS / WHAT'S NEXT
+
+Recover state and return exactly one next valid action.
+
+## 11. DOCUMENT ROUTING
+
+| Purpose | Authoritative document |
+|---|---|
+| AI entry/routing | `AI_START_HERE.md` |
+| Compact cross-session state | `docs/project-management/14-PROJECT-MASTER-STATE.md` |
+| AI rules | `docs/AI_GUIDELINES.md`, `docs/project-management/02-AI-RULES.md` |
+| Stable context | `docs/project-management/01-AI-CONTEXT.md` |
+| Decisions | `docs/project-management/03-DECISION-LOG.md` |
+| Current state | `docs/project-management/04-CURRENT-STATUS.md` |
+| Roadmap | `docs/project-management/05-ROADMAP.md` |
+| Trello | `docs/project-management/06-TRELLO-WORKFLOW.md` |
+| Development lifecycle | `docs/project-management/07-DEVELOPMENT-WORKFLOW.md` |
+| Implementation protocol | `docs/project-management/08-IMPLEMENTATION-PROTOCOL.md` |
+| Review protocol | `docs/project-management/09-REVIEW-PROTOCOL.md` |
+| Recovery/checkpoints | `docs/project-management/10-CHECKPOINTS.md` |
+| Git/terminal | `docs/project-management/11-TERMINAL-GIT-COMMANDS.md` |
+| Execution ledger | `docs/project-management/12-PROJECT-TRACKER.md` |
+| Branching | `docs/project-management/13-GIT-BRANCHING-WORKFLOW.md` |
+| Current architecture | `docs/architecture/ARCHITECTURE-CURRENT-STATE.md` |
+| Frozen base architecture | `docs/architecture/BASE-ARCHITECTURE.md` |
+| Architecture index | `docs/architecture/ARCHITECTURE.md` |
+| Frontend engineering | `docs/frontend/FRONTEND.md` |
+| API integration | `docs/api/API_CONTRACT.md` |
+| Dynamic discussion | `docs/features/dynamic/00-FEATURE-DISCUSSION.md` |
+| Dynamic implementation plan | `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md` |
+| Dynamic implementation status | `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md` |
+| Gradle | `docs/build/GRADLE-SETUP-AND-WORKFLOW.md` |
+
+## 12. FEATURE DOCUMENT STRUCTURE
+
+Every significant feature uses:
+
+```text
+docs/features/<feature>/
+├── 00-FEATURE-DISCUSSION.md
+├── 01-IMPLEMENTATION-PLAN.md
+└── 02-IMPLEMENTATION-STATUS.md
+```
+
+These are the durable feature records. Do not create separate unit-level freeze/authorization documents unless explicitly required by an accepted decision.
+
+## 13. DYNAMIC DOCUMENT AUTHORITY
+
+For Dynamic work, follow this order:
+
+1. `docs/features/dynamic/00-FEATURE-DISCUSSION.md` — frozen DYNAMIC-01 → DYNAMIC-07 contract
+2. `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md` — complete implementation contract
+3. `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md` — actual implementation/verification state
+4. `docs/project-management/14-PROJECT-MASTER-STATE.md` — cross-session map
+5. current source/tests
+
+Do not use old pasted/review-draft SDUI documents as implementation authority. They may contain useful historical reasoning, but the frozen Dynamic discussion is authoritative.
+
+## 14. DYNAMIC NON-NEGOTIABLES
+
+- Dynamic is backend-driven.
+- No native Login/OTP/Dashboard screen architecture.
+- `templateType` selects rendering; it never selects business navigation.
+- Full `DynamicDestination` is the navigation/back-stack entry.
+- One permanent Dynamic Container.
+- Registry is explicit; no reflection/package scanning.
+- Initial registered vocabulary: `stack_template`, `stack_component`, `stack_section`, `stack_group`, `text`, `image`.
+- Definition rendering and action execution are separate.
+- Dynamic state is destination-scoped and separate from business/domain state.
+- Frozen actions: `request`, `navigate`, `present`, `dismiss`, `state`, `external_uri`, `sequence`.
+- Frozen references: `$literal`, `$binding`, `$context`, `$response`.
+- No duplicate SDUI structural validator.
+- No silent type substitution/property downgrade.
+- Runtime failures are contained and observable through the existing logger.
+- Sensitive data, OTPs, credentials and tokens are never logged.
+
+## 15. LOGIN → OTP CHECKPOINT
+
+Known Dynamic destinations:
+
+```text
+partner_login
+  tpl_7K2M9Q
+  form_template
+  GET /api/v1/partner/screen/auth_login
+
+partner_otp
+  tpl_P6X8N3
+  form_template
+  GET /api/v1/partner/screen/auth_otp
+```
+
+Known OTP actions:
+
+```text
+POST /api/v1/partner/auth/send_otp
+  phoneNumber = $context(authFlow.phoneNumber)
+  deviceId    = $context(deviceId)
+  responseMode = none
+
+POST /api/v1/partner/auth/verify_otp
+  challengeId = $response(data.challengeId)
+  phoneNumber = $context(authFlow.phoneNumber)
+  otp         = $binding(otp)
+  deviceId    = $context(deviceId)
+  responseMode = destination
+```
+
+These are backend-driven Dynamic contracts, not permission to create OTP-specific frontend architecture.
+
+## 16. GIT ROUTING
+
+Before source changes:
+
+```powershell
+git status
+git branch --show-current
+git diff --stat
+```
+
+Preserve user changes. Keep changes scoped. Inspect the final diff. Never use destructive Git commands to resolve uncertainty.
+
+Normal feature flow:
+
+```text
+development
+   ↓
+new feature branch
+   ↓
+implementation
+   ↓
+test/review
+   ↓
+merge through approved workflow
+```
+
+Do not continue from stale branches without checking current project state.
+
+## 17. NO SILENT ARCHITECTURE CHANGES
+
+If implementation reveals a material architecture problem:
+
+```text
+STOP
+ ↓
+REPORT
+ ↓
+DISCUSS / RESEARCH
+ ↓
+DECIDE
+ ↓
+FREEZE
+ ↓
+UPDATE PLAN
+ ↓
+IMPLEMENT
+```
+
+A better idea is not permission to redesign a frozen boundary.
+
+## 18. ANTI-RESTART
+
+Classify problems before restarting anything:
+
 1. Bug
 2. Local design problem
 3. Refactoring opportunity
@@ -385,97 +347,44 @@ Classify the problem:
 5. Architecture problem
 6. Invalid fundamental assumption
 
-Prefer fix, refactor, migrate, isolate or recover to a checkpoint before considering restart.
+Prefer fix/refactor/migrate/recover. Do not restart from scratch merely because implementation is imperfect.
 
-## 29. FINAL ROUTING PRINCIPLE
-READ → LOCATE STATE → CHECK DECISIONS → CHECK SCOPE → DETERMINE MODE → ACT ONLY WITHIN AUTHORITY → VERIFY → DOCUMENT → HANDOFF
+## 19. STOP CONDITIONS
 
-Never:
-GUESS → CODE → DISCOVER CONFLICT → REWRITE EVERYTHING
+STOP when:
 
-The AI must move the project from one known, documented, verified state to the next.
+- required context is missing;
+- documents materially conflict;
+- a frozen decision must change;
+- the implementation plan is missing;
+- implementation authority is missing;
+- unexpected user changes exist;
+- a destructive operation is proposed;
+- a material dependency is unexpectedly required;
+- scope expands materially;
+- source contradicts documented architecture;
+- a significant assumption is required.
 
-## 30. ONE-LINE EXTERNAL AI INSTRUCTION
-'Read AI_START_HERE.md first and strictly follow its routing, authority, workflow, permission, documentation, verification and handoff rules. Determine the current project state before taking action. Never guess or silently skip a required state.'
+## 20. SESSION HANDOFF
 
-## 32. PROJECT TRACKER IS THE CONTROL LEDGER
-The project tracker is the execution ledger for every significant feature/module/work item. It records ID, name, workflow state, current implementation unit, frozen decision reference, implementation-plan reference, status-document reference, Trello reference, Git branch/PR when applicable, test/verification state, blockers, last completed action, next valid action, and last update. The tracker answers "Where are we?" Detailed technical rules remain in their owning documents.
+At meaningful completion, update the relevant status/decision/feature records and report:
 
-## 33. AUTOMATIC DOCUMENT UPDATE MATRIX
-After each transition, update the required records before declaring it complete.
+```text
+COMPLETED
+FROZEN
+IMPLEMENTED
+VERIFIED
+OPEN
+BLOCKED
+NEXT VALID ACTION
+```
 
-| Transition | Required record |
-|---|---|
-| New module/feature discussion | Current Status + Tracker |
-| Durable decision produced | Decision Log + relevant module/feature plan |
-| Feature discussion frozen | Decision Log + feature plan + Tracker |
-| Complete implementation plan created | Feature plan + Tracker |
-| Complete implementation plan frozen | Feature plan + Tracker + Trello |
-| Implementation starts/completes | Feature Status + Tracker |
-| Tests run for complete feature | Feature Status + Tracker + test result |
-| Complete feature review | Feature Status + Tracker |
-| Complete feature accepted/frozen | Feature Status + Current Status + Tracker |
+## 21. CURRENT NEXT ACTION
 
-## 34. FINAL RULE
-The AI must never silently advance the project state. Every transition must be explicit, documented, verifiable and recoverable.
+For the current Dynamic session:
 
-## 35. PROJECT-SPECIFIC BRANCH NAMING
-Feature/module branches must use the feature/module name, not task IDs or numeric workflow IDs.
+**Continue implementation/testing of the frozen Dynamic feature. Do not reopen DYNAMIC-01 → DYNAMIC-07. Resolve only documented implementation gaps, then complete the final Login → OTP integration verification, platform verification, review and feature freeze.**
 
-Examples:
-- `feature/splash-config-bootstrap`
-- `feature/sdui`
-- `feature/booking`
-- `feature/payment`
+## 22. ONE-LINE EXTERNAL AI INSTRUCTION
 
-Do not create branches such as `feature/SPLASH-BOOTSTRAP-001` or `feature/001`.
-
-Task IDs such as `SPLASH-BOOTSTRAP-001` remain tracking identifiers in documentation/Trello; they are not branch names.
-
-## 36. IMPLEMENTATION STATUS
-When a complete feature implementation starts, maintain the feature's `02-IMPLEMENTATION-STATUS.md` throughout implementation, testing and review. It must reflect actual progress and must not be marked COMPLETE/FROZEN until complete-feature verification and review are finished.
-
-## 37. USER-AUTHORIZED GIT OPERATIONS
-When the user explicitly authorizes a destructive or history-changing Git operation, execute only the exact authorized operation, verify the resulting state, and do not expand the authorization to unrelated operations.
-
-## 38. SOURCE OF TRUTH HIERARCHY FOR IMPLEMENTATION
-For implementation, use this precedence:
-1. Current explicit user instruction
-2. AI_START_HERE.md
-3. Frozen architecture decisions
-4. Frozen feature discussion
-5. Frozen complete implementation plan
-6. Approved feature/module status
-7. Current source/tests
-8. Historical material
-
-## 39. BACKEND CONTRACT UNKNOWN
-Do not invent undocumented backend API endpoints, request bodies, headers, status codes, response schemas or error payloads. Record unknowns explicitly and isolate them behind the appropriate frontend contract. When the backend contract is later supplied, reconcile it against the frozen feature contract before changing implementation.
-
-## 40. FEATURE IMPLEMENTATION COMPLETENESS
-A feature is not considered implemented when an individual implementation unit is complete. The implementation phase remains active until all units required by the complete frozen feature plan are implemented and the complete feature is ready for testing.
-
-## 41. NO UNIT-LEVEL FREEZE
-Domain, Data/API, Store/MVI, UI, navigation/startup and tests may be listed as implementation units. They are not separate feature phases. Do not request or record separate Unit 1/Unit 2/etc. freezes unless the user explicitly changes the global workflow.
-
-## 42. COMPLETE FEATURE DISCUSSION
-The feature discussion must cover the complete intended feature scope before it is frozen. It may defer explicitly identified future behavior, but those deferred items must be recorded as out-of-scope/future work rather than reopening the discussion during implementation.
-
-## 43. COMPLETE IMPLEMENTATION PLAN
-The implementation plan must cover the complete feature from its entry point through its final in-scope behavior and verification. It may sequence implementation units, but it must not stop at a partial vertical slice when the approved feature scope is broader.
-
-## 44. COMPLETE FEATURE FREEZE
-Feature freeze occurs only after complete implementation, complete-feature testing, double-check/review and documentation reconciliation. A unit completion is never itself a feature freeze.
-
-## 45. FEATURE DOCUMENTATION LOCATION
-The canonical durable documentation for a feature lives under `docs/features/<feature-name>/`. The feature directory must contain the discussion and implementation plan documents before implementation is authorized; the implementation status document is required once implementation begins.
-
-## 46. SPLASH + BOOTSTRAP CURRENT FEATURE
-Current feature: `splash-bootstrap`.
-
-Canonical feature documents:
-- `docs/features/splash-bootstrap/00-FEATURE-DISCUSSION.md`
-- `docs/features/splash-bootstrap/01-IMPLEMENTATION-PLAN.md`
-- `docs/features/splash-bootstrap/02-IMPLEMENTATION-STATUS.md`
-
-Current feature scope and decisions must be recorded in those documents and must not be inferred only from chat history.
+> Read `AI_START_HERE.md` first. Recover state from the Master State, Current Status and Project Tracker. Follow frozen decisions and the current feature plan. Never guess, silently redesign, create extra gates, or restart the project.
