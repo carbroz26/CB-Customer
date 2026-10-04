@@ -12,9 +12,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -23,11 +20,11 @@ class DynamicStoreTest {
     @Test
     fun requestResolvesBindingAndContextOutsideStore() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
-        var capturedBody: String? = null
+        var capturedBody: DynamicValue? = null
         val repository = object : DynamicRepository {
             override suspend fun fetch(
                 destination: DynamicDestination,
-                body: String?,
+                body: DynamicValue?,
             ): Result<DynamicResponse> {
                 capturedBody = body
                 return Result.success(
@@ -86,10 +83,15 @@ class DynamicStoreTest {
 
         advanceUntilIdle()
 
-        val body = assertNotNull(capturedBody)
-        val json = Json.parseToJsonElement(body).jsonObject
-        assertEquals("John", json["firstName"]?.jsonPrimitive?.content)
-        assertEquals("test-device", json["deviceId"]?.jsonPrimitive?.content)
+        val body = assertNotNull(capturedBody) as DynamicValue.ObjectValue
+        assertEquals(
+            DynamicValue.StringValue("John"),
+            body.value["firstName"],
+        )
+        assertEquals(
+            DynamicValue.StringValue("test-device"),
+            body.value["deviceId"],
+        )
         val effect = store.effects.value
         assertNotNull(effect)
         assertEquals("next", (effect as DynamicEffect.Navigate).destination.screenId)

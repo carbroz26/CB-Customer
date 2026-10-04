@@ -2,15 +2,10 @@ package com.carbroz.cbpartner.feature.dynamic.domain.usecase
 
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionHandler
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 
 sealed interface DynamicActionResult {
     data class Navigate(val destination: DynamicDestination) : DynamicActionResult
@@ -43,9 +38,7 @@ class ExecuteDynamicActionUseCase(
             ?: error("Dynamic request endpoint is missing")
         val method = string(action.payload["method"]) ?: "POST"
         val authentication = string(action.payload["authentication"])
-        val body = action.payload["body"]
-            ?.resolve(bindings, context)
-            ?.let { Json.encodeToString(JsonElement.serializer(), it) }
+        val body = action.payload["body"]?.resolve(bindings, context)
 
         val response = repository.fetch(
             destination = DynamicDestination(
@@ -59,39 +52,45 @@ class ExecuteDynamicActionUseCase(
             body = body,
         ).getOrThrow()
 
-        val next = response.nextScreen
-            ?: error("Dynamic request did not provide nextScreen")
+        return DynamicActionResult.Navigate(response.requireNextDestination())
+    }
 
-        return DynamicActionResult.Navigate(
-            DynamicDestination(
-                screenId = next.screenId,
-                templateId = next.templateId,
-                templateType = next.templateType,
-                endpoint = next.endpoint,
-                method = next.method,
-                authentication = next.authentication,
-            ),
+    private fun DynamicResponse.requireNextDestination(): DynamicDestination {
+        val next = nextScreen ?: error("Dynamic request did not provide nextScreen")
+        return DynamicDestination(
+            screenId = next.screenId,
+            templateId = next.templateId,
+            templateType = next.templateType,
+            endpoint = next.endpoint,
+            method = next.method,
+            authentication = next.authentication,
         )
     }
 
     private fun DynamicValue.resolve(
-        bindings: Map<String, String> = emptyMap(),
-        context: Map<String, String> = emptyMap(),
-    ): JsonElement = when (this) {
+        bindings: Map<String, String>,
+        context: Map<String, String>,
+    ): DynamicValue = when (this) {
         is DynamicValue.ObjectValue -> {
             val binding = (value["${'$'}binding"] as? DynamicValue.StringValue)?.value
             val contextRef = (value["${'$'}context"] as? DynamicValue.StringValue)?.value
+            val literal = value["${'$'}literal"]
+
             when {
-                binding != null -> JsonPrimitive(bindings[binding].orEmpty())
-                contextRef != null -> JsonPrimitive(context[contextRef].orEmpty())
-                else -> JsonObject(value.mapValues { (_, child) -> child.resolve(bindings, context) })
+                binding != null -> DynamicValue.StringValue(bindings[binding].orEmpty())
+                contextRef != null -> DynamicValue.StringValue(context[contextRef].orEmpty())
+                literal != null -> literal.resolve(bindings, context)
+                else -> DynamicValue.ObjectValue(
+                    value.mapValues { (_, child) -> child.resolve(bindings, context) },
+                )
             }
         }
-        is DynamicValue.ArrayValue -> JsonArray(value.map { it.resolve(bindings, context) })
-        is DynamicValue.StringValue -> JsonPrimitive(value)
-        is DynamicValue.NumberValue -> JsonPrimitive(value)
-        is DynamicValue.BooleanValue -> JsonPrimitive(value)
-        DynamicValue.NullValue -> JsonNull
+
+        is DynamicValue.ArrayValue -> DynamicValue.ArrayValue(
+            value.map { it.resolve(bindings, context) },
+        )
+
+        else -> this
     }
 
     private fun string(value: DynamicValue?): String? =
