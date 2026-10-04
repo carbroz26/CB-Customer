@@ -59,7 +59,9 @@ The current branch does not register a `:desktopApp` Gradle project. Older Base 
 
 No feature depends directly on `:data`.
 
-## Runtime Composition
+## Runtime Composition — Target After Bootstrap Refinement
+
+Bootstrap and Splash are one startup flow. Splash is the visible startup UI while Bootstrap executes the config/startup API.
 
 ```text
 Platform boundary
@@ -68,13 +70,27 @@ App
   ↓
 ApplicationContent
   ↓
-SplashStore
+SplashStore / SplashScreen
   ↓
 ApplicationBootstrap
   ↓
+BootstrapRepository
+  ↓
+BootstrapRepositoryImpl
+  ↓
+BootstrapRemoteDataSource
+  ↓
 RequestHandler / HttpClient
   ↓
+BootstrapResponseDto
+  ↓
+BootstrapMapper
+  ↓
+BootstrapOutput
+  ↓
 BootstrapOutput.startup.nextScreen
+  ↓
+DynamicDestination
   ↓
 DynamicNavigationState
   ↓
@@ -82,13 +98,15 @@ DynamicContainer
   ↓
 DynamicStore
   ↓
-LoadDynamicScreenUseCase
+LoadDynamicScreenUseCase / ExecuteDynamicActionUseCase
   ↓
 DynamicRepository
   ↓
+DynamicRepositoryImpl
+  ↓
 DynamicRemoteDataSource
   ↓
-RequestHandler
+RequestHandler / HttpClient
   ↓
 DynamicResponseDto
   ↓
@@ -98,6 +116,8 @@ DynamicResponse
   ↓
 DynamicRegistry / DynamicRenderer
 ```
+
+The Bootstrap target above is **required implementation work**. The current source still has the direct `DefaultApplicationBootstrap → RequestHandler` path and must be refactored to the target without changing the frozen startup responsibility.
 
 ## Current Ownership Rules
 
@@ -111,23 +131,69 @@ Owns the navigation boundary and Dynamic back-stack mechanics. `DynamicDestinati
 
 ### `:feature:splash`
 
-Owns startup UI/state. It does not own HTTP implementation. Bootstrap is a domain contract implemented in Data.
+Owns startup UI/state. It does not own HTTP implementation. `ApplicationBootstrap` is the startup-facing domain contract. Bootstrap transport/repository implementation belongs in `:data`.
 
 ### `:feature:dynamic`
 
-Owns the live Dynamic screen lifecycle, Store/MVI orchestration, registry, renderer and Dynamic definitions. It does not own generic HTTP infrastructure or business-specific screen classes.
+Owns the live Dynamic screen lifecycle, Store/MVI orchestration, registry, renderer, action capability and Dynamic definitions. Feature-level use cases remain feature orchestration when they coordinate feature capabilities. The feature does not own generic HTTP infrastructure or business-specific screen classes.
 
 ### `:domain`
 
-Owns canonical Dynamic and Bootstrap contracts/models and repository/use-case-facing abstractions. It does not depend on Data, Ktor or Compose UI.
+Owns canonical Dynamic and Bootstrap contracts/models and repository abstractions. It does not depend on Data, Ktor or Compose UI.
 
 ### `:data`
 
-Owns DTOs, serialization, mappers, repositories and feature-specific remote sources. It consumes the shared `RequestHandler` from `:network`.
+Owns DTOs, serialization, mappers, repository implementations and feature-specific remote sources. Bootstrap and Dynamic use the same Data layering pattern:
+
+```text
+Repository implementation → RemoteDataSource → RequestHandler
+```
 
 ### `:network`
 
 Owns Ktor infrastructure, the configured shared `HttpClient`, `RequestHandler`, generic network result/error contracts and network DI. It is not a business repository layer.
+
+## Bootstrap Architecture — Option B
+
+Option B is now the selected implementation refinement within the frozen startup responsibility:
+
+```text
+ApplicationBootstrap (domain)
+        ↓
+BootstrapRepository (domain)
+        ↓
+BootstrapRepositoryImpl (data)
+        ↓
+BootstrapRemoteDataSource (data)
+        ↓
+RequestHandler (network)
+```
+
+Responsibilities:
+
+- `ApplicationBootstrap`: startup-facing contract consumed by Splash/application composition.
+- `BootstrapRepository`: domain repository abstraction.
+- `BootstrapRepositoryImpl`: coordinates remote data and maps to the domain result.
+- `BootstrapRemoteDataSource`: owns Bootstrap endpoint, HTTP method, request headers and transport DTO acquisition.
+- `BootstrapMapper`: validates/maps DTO to canonical domain models.
+
+The known endpoint is:
+
+```text
+GET /api/v1/partner/config/bootstrap
+```
+
+Required request headers currently documented/tested:
+
+```text
+X-CarBroz-Platform: ANDROID
+X-CarBroz-App-Version: 1.0.0
+X-CarBroz-Build-Number: 1
+```
+
+Success data includes `config` plus `startup.nextScreen`. The mapper converts `nextScreen` directly to the canonical `DynamicDestination`.
+
+`DefaultApplicationBootstrap` is therefore a transitional implementation and must not remain as a second direct HTTP path after the refinement.
 
 ## Frozen Dynamic Boundary
 
@@ -142,6 +208,28 @@ PARSE → RESOLVE → RENDER → DIAGNOSE → FALLBACK → RECOVER SAFELY
 ```
 
 The frontend does not duplicate backend SDUI structural validation and never silently repairs, substitutes or downgrades backend definitions.
+
+## Dynamic Use-Case Ownership
+
+Current implementation uses:
+
+```text
+feature/dynamic/.../domain/usecase/LoadDynamicScreenUseCase.kt
+feature/dynamic/.../domain/usecase/ExecuteDynamicActionUseCase.kt
+```
+
+These are feature-level orchestration use cases, not a reason to create a second domain layer inside the feature.
+
+- `LoadDynamicScreenUseCase` coordinates screen loading through `DynamicRepository`.
+- `ExecuteDynamicActionUseCase` coordinates Dynamic action execution and feature-owned `DynamicActionHandler` capabilities.
+
+Target package cleanup is:
+
+```text
+feature/dynamic/.../usecase/
+```
+
+They must not be moved into top-level `:domain` while they depend on feature-owned capabilities.
 
 ## Current Code Map
 
@@ -159,8 +247,8 @@ feature/dynamic/
   .../DynamicModule.kt
   .../store/DynamicStore.kt
   .../action/DynamicActionHandler.kt
-  .../domain/usecase/LoadDynamicScreenUseCase.kt
-  .../domain/usecase/ExecuteDynamicActionUseCase.kt
+  .../domain/usecase/LoadDynamicScreenUseCase.kt   [package cleanup pending]
+  .../domain/usecase/ExecuteDynamicActionUseCase.kt [package cleanup pending]
   .../registry/DynamicRegistry.kt
   .../renderer/DynamicRenderer.kt
   .../sdui/template/StackTemplate.kt
@@ -171,8 +259,11 @@ feature/dynamic/
   .../sdui/element/ImageElement.kt
 
 data/
-  .../bootstrap/DefaultApplicationBootstrap.kt
+  .../bootstrap/DefaultApplicationBootstrap.kt       [transitional; replace]
   .../bootstrap/BootstrapMapper.kt
+  .../bootstrap/BootstrapRepositoryImpl.kt            [required]
+  .../bootstrap/remote/BootstrapRemoteDataSource.kt  [required]
+  .../bootstrap/model/*
   .../dynamic/DynamicRepositoryImpl.kt
   .../dynamic/remote/DynamicRemoteDataSource.kt
   .../dynamic/model/DynamicResponseDto.kt
@@ -191,6 +282,7 @@ network/
 domain/
   .../bootstrap/ApplicationBootstrap.kt
   .../model/bootstrap/*
+  .../repository/BootstrapRepository.kt             [required]
   .../model/dynamic/DynamicModels.kt
   .../repository/DynamicRepository.kt
 ```
@@ -199,8 +291,10 @@ domain/
 
 1. Historical base documents mention Desktop while current implementation registers Web/Wasm instead. This must be explicitly reconciled before treating platform support as permanently frozen.
 2. Older Dynamic drafts mention `NavigationStore`, `DynamicScreenStore`, `SduiDecoder`, `SduiSupportChecker`, `SduiActionExecutor`, and other names. Those are historical design vocabulary. The current implementation uses `DynamicNavigationState`, `DynamicStore`, `DynamicRenderer`, `DynamicRegistry`, `LoadDynamicScreenUseCase`, and `ExecuteDynamicActionUseCase`.
-3. Do not reintroduce the historical class names unless the current frozen Dynamic contract requires a new responsibility and the change is deliberately decided.
-4. `DYNAMIC-07` is frozen as a runtime boundary, but its full production observability/fallback implementation is not yet complete.
+3. Do not reintroduce historical class names unless the current frozen Dynamic contract requires a new responsibility and the change is deliberately decided.
+4. DYNAMIC-07 is frozen as a runtime boundary, but its full production observability/fallback implementation is not yet complete.
+5. Bootstrap's old direct Data implementation is now explicitly superseded by Option B and must be removed/reworked during implementation.
+6. The actual Bootstrap API contract is known; any documentation still describing it as unknown is stale and must be updated rather than treated as a blocker.
 
 ## Verification Baseline
 
@@ -212,6 +306,7 @@ The latest owner-provided JVM verification on 2026-10-04 passed:
 :feature:splash:compileKotlinJvm
 :feature:dynamic:compileKotlinJvm
 :app:compileKotlinJvm
+
 :network:jvmTest
 :data:jvmTest
 :domain:jvmTest
@@ -220,3 +315,5 @@ The latest owner-provided JVM verification on 2026-10-04 passed:
 ```
 
 Result: **BUILD SUCCESSFUL**.
+
+This is the current baseline only. It does not certify the remaining Bootstrap layering, Dynamic runtime gaps, Login → OTP flow, DYNAMIC-07 production implementation, or platform verification.
