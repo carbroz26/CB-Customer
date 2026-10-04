@@ -1,6 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic.domain.usecase
 
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 
