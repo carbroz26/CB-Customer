@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 
 class DynamicActionHandler {
