@@ -10,7 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.renderer.DynamicRenderer
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicIntent
