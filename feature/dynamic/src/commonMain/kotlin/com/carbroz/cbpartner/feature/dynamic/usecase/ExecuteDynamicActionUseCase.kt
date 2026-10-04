@@ -43,6 +43,7 @@ class ExecuteDynamicActionUseCase(
         val endpoint = string(action.payload["endpoint"])
             ?: error("Dynamic request endpoint is missing")
         val method = string(action.payload["method"]) ?: "POST"
+        val authentication = string(action.payload["authentication"]) ?: "NONE"
         val body = action.payload["body"]?.resolve(bindings, context, previousResponse)
 
         val response = repository.fetch(
@@ -54,6 +55,7 @@ class ExecuteDynamicActionUseCase(
             ),
             body = body,
             method = method,
+            authentication = authentication,
         ).getOrThrow()
 
         return when (string(action.payload["responseMode"])?.lowercase()) {
