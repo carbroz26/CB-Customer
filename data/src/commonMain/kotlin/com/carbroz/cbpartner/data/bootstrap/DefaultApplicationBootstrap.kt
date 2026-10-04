@@ -43,7 +43,7 @@ internal class DefaultApplicationBootstrap(
                         Result.failure(BootstrapFailure.Http(it))
                     } ?: Result.failure(
                         BootstrapFailure.Transport(
-                            response.exception.message,
+                            response.exception.message ?: "Unable to reach bootstrap service",
                         ),
                     )
                 }
