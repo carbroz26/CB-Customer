@@ -8,16 +8,14 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":domain"))
             implementation(project(":core"))
+            implementation(project(":network"))
             implementation(libs.koin.core)
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.engine.defaults)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kermit)
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation(libs.ktor.client.mock)
             implementation(libs.kotlinx.coroutines.test)
         }
     }
