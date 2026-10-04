@@ -2,11 +2,11 @@
 
 ## Status
 
-**IMPLEMENTATION IN PROGRESS — JVM BASELINE GREEN**
+**IMPLEMENTATION IN PROGRESS — JVM BASELINE GREEN — BOOTSTRAP BOUNDARY REFINEMENT REQUIRED**
 
-Discussion DYNAMIC-01 → DYNAMIC-07 is frozen. The complete implementation plan is frozen and authorized. This document records actual source/verification state only.
+DYNAMIC-01 → DYNAMIC-07 discussion is frozen and the implementation plan is frozen/authorized. This document records the actual implementation state, including gaps that must not be hidden behind a green compile/test result.
 
-## 1. Discussion State
+## 1. Frozen Discussion State
 
 - DYNAMIC-01 — FROZEN
 - DYNAMIC-02 — FROZEN
@@ -29,12 +29,12 @@ Canonical discussion: `00-FEATURE-DISCUSSION.md`
 
 ### Dynamic Store / Use Cases
 
-5. `DynamicStore` follows Pure MVI/UDF orchestration.
+5. `DynamicStore` exists as the feature MVI/UDF orchestration boundary.
 6. `DynamicStore` does not own Ktor or Navigation 3.
 7. `LoadDynamicScreenUseCase` exists and is used for screen loading.
-8. `ExecuteDynamicActionUseCase` exists and handles action/reference resolution/coordination.
+8. `ExecuteDynamicActionUseCase` exists and handles feature action/reference coordination.
 9. Dynamic navigation and external URI are exposed as separate effects.
-10. The Store no longer builds HTTP request transport details itself.
+10. The Store no longer builds HTTP transport details itself.
 
 ### Registry / Renderer
 
@@ -42,26 +42,83 @@ Canonical discussion: `00-FEATURE-DISCUSSION.md`
 12. Duplicate registration is rejected.
 13. `DynamicRenderer` is a small recursive rendering boundary.
 14. `stack_template`, `stack_component`, `stack_section`, `stack_group`, `text`, and `image` implementations exist.
-15. Removed obsolete `FormTemplate`, `InputElement`, and `ButtonElement` Dynamic implementations.
+15. Obsolete `FormTemplate`, `InputElement`, and `ButtonElement` Dynamic implementations were removed from the current runtime.
 
-### Data / Network
+### Dynamic Data / Network
 
 16. Standalone `:network` module exists.
 17. Shared `HttpClient`/`RequestHandler` infrastructure is in `:network`.
 18. Dynamic data uses `RequestHandler` through `DynamicRemoteDataSource`.
 19. Dynamic repository uses explicit DTO/domain mapping.
-20. Transport headers are kept below the Dynamic/domain contract.
-21. Bootstrap uses the shared `RequestHandler`.
+20. Transport headers remain below the Dynamic/domain contract.
+21. Bootstrap currently uses the shared `RequestHandler`.
 22. Bootstrap mapper constructs the canonical `DynamicDestination`.
 23. Duplicate Bootstrap `NextScreenConfig` destination modeling was removed.
 
-### Bootstrap Integration
+### Bootstrap Integration — CURRENTLY PARTIAL
 
 24. Bootstrap success data reaches `BootstrapOutput.startup.nextScreen` as `DynamicDestination`.
 25. Bootstrap destination identity fields are preserved and tested.
 26. Application composition can hand the Bootstrap destination into Dynamic navigation.
+27. The actual Bootstrap endpoint and required headers are now known and documented.
+28. The JVM Bootstrap tests pass at the current baseline.
 
-## 3. Latest Verification — 2026-10-04
+## 3. Bootstrap Gap — MUST BE IMPLEMENTED
+
+The current implementation still has a direct:
+
+```text
+ApplicationBootstrap → DefaultApplicationBootstrap → RequestHandler
+```
+
+path.
+
+This is no longer the target implementation. The selected implementation refinement is Option B:
+
+```text
+ApplicationBootstrap
+    ↓
+BootstrapRepository
+    ↓
+BootstrapRepositoryImpl
+    ↓
+BootstrapRemoteDataSource
+    ↓
+RequestHandler
+```
+
+Required responsibilities:
+
+- `ApplicationBootstrap` remains the startup-facing domain contract.
+- `BootstrapRepository` is a domain repository abstraction.
+- `BootstrapRepositoryImpl` is the data orchestration implementation.
+- `BootstrapRemoteDataSource` owns Bootstrap HTTP transport details.
+- `BootstrapMapper` performs explicit DTO → domain mapping.
+
+`DefaultApplicationBootstrap` must be removed/reworked so it does not remain a second direct HTTP path.
+
+## 4. Dynamic Package Boundary Gap
+
+Current use-case files are under:
+
+```text
+feature/dynamic/.../domain/usecase/
+```
+
+The use cases are not candidates for moving into top-level `:domain`:
+
+- `LoadDynamicScreenUseCase` depends on the Dynamic repository contract.
+- `ExecuteDynamicActionUseCase` coordinates the feature-owned `DynamicActionHandler` and therefore belongs to the feature orchestration layer.
+
+Target package cleanup:
+
+```text
+feature/dynamic/.../usecase/
+```
+
+This is a package ownership clarification, not a new architecture layer.
+
+## 5. Latest Verification — 2026-10-04
 
 Owner pulled `feature/dynamic-ui` and ran:
 
@@ -82,15 +139,9 @@ BUILD SUCCESSFUL
 54 actionable tasks: 15 executed, 39 up-to-date
 ```
 
-The earlier failure:
+The earlier `BootstrapRemoteDataSourceTest.nonSuccessfulHttpStatusIsMapped` failure is resolved. This green result is a verification baseline only; it does not mark the Bootstrap architecture refinement or Dynamic feature complete.
 
-```text
-BootstrapRemoteDataSourceTest.nonSuccessfulHttpStatusIsMapped
-```
-
-is resolved. The test MockEngine client is configured with `expectSuccess = true`, which makes HTTP failures follow the expected mapping path.
-
-## 4. Current Code Map
+## 6. Current Code Map
 
 ### Application
 
@@ -108,8 +159,8 @@ is resolved. The test MockEngine client is configured with `expectSuccess = true
 - `feature/dynamic/.../DynamicModule.kt`
 - `feature/dynamic/.../store/DynamicStore.kt`
 - `feature/dynamic/.../action/DynamicActionHandler.kt`
-- `feature/dynamic/.../domain/usecase/LoadDynamicScreenUseCase.kt`
-- `feature/dynamic/.../domain/usecase/ExecuteDynamicActionUseCase.kt`
+- `feature/dynamic/.../domain/usecase/LoadDynamicScreenUseCase.kt` — target package cleanup pending
+- `feature/dynamic/.../domain/usecase/ExecuteDynamicActionUseCase.kt` — target package cleanup pending
 - `feature/dynamic/.../registry/DynamicRegistry.kt`
 - `feature/dynamic/.../renderer/DynamicRenderer.kt`
 - `feature/dynamic/.../sdui/template/StackTemplate.kt`
@@ -119,34 +170,36 @@ is resolved. The test MockEngine client is configured with `expectSuccess = true
 - `feature/dynamic/.../sdui/element/TextElement.kt`
 - `feature/dynamic/.../sdui/element/ImageElement.kt`
 
-### Data
+### Data — current and target Bootstrap structure
+
+Current:
 
 - `data/.../bootstrap/DefaultApplicationBootstrap.kt`
 - `data/.../bootstrap/BootstrapMapper.kt`
+
+Target:
+
+- `data/.../bootstrap/BootstrapRepositoryImpl.kt`
+- `data/.../bootstrap/remote/BootstrapRemoteDataSource.kt`
+- `data/.../bootstrap/model/*`
+- `data/.../bootstrap/mapper/BootstrapMapper.kt`
+
+Dynamic:
+
 - `data/.../dynamic/DynamicRepositoryImpl.kt`
 - `data/.../dynamic/remote/DynamicRemoteDataSource.kt`
 - `data/.../dynamic/model/DynamicResponseDto.kt`
 - `data/.../dynamic/mapper/DynamicResponseMapper.kt`
 
-### Network
-
-- `network/.../http/RequestHandler.kt`
-- `network/.../http/HttpClientBuilder.kt`
-- `network/.../http/DefaultError.kt`
-- `network/.../NetworkException.kt`
-- `network/.../NetworkResult.kt`
-- `network/.../Response.kt`
-- `network/.../Paged.kt`
-- `network/.../di/NetworkModule.kt`
-
 ### Domain
 
-- `domain/.../model/dynamic/DynamicModels.kt`
-- `domain/.../repository/DynamicRepository.kt`
 - `domain/.../bootstrap/ApplicationBootstrap.kt`
 - `domain/.../model/bootstrap/*`
+- `domain/.../repository/BootstrapRepository.kt` — to be added
+- `domain/.../model/dynamic/DynamicModels.kt`
+- `domain/.../repository/DynamicRepository.kt`
 
-## 5. Login → OTP Checkpoint
+## 7. Login → OTP Checkpoint
 
 Known destination identities:
 
@@ -178,38 +231,44 @@ POST /api/v1/partner/auth/verify_otp
   responseMode = destination
 ```
 
-This is a generic Dynamic contract. No OTP-specific Store, renderer, or navigation branch is authorized.
+This remains generic Dynamic behavior. No OTP-specific Store, renderer, or navigation branch is authorized.
 
-## 6. Remaining Implementation Work
+## 8. Remaining Implementation Work — No Gap Suppression
 
-1. Complete request metadata/authentication integration through the frozen network/runtime boundary.
-2. Complete Dynamic reference/state/action behavior required by the actual backend contract.
-3. Implement the frozen DYNAMIC-07 fallback/recovery/observability boundary.
-4. Add backend-shaped Login → Send OTP → OTP → Verify OTP integration tests.
-5. Verify full backend-driven destination push/pop/replace/back behavior.
-6. Run Android verification.
-7. Run iOS/macOS-hosted verification.
-8. Run Web/Wasm verification.
-9. Perform literal plan-to-source compliance review.
-10. Complete final Dynamic feature review.
-11. Code-freeze Dynamic.
+1. Implement Option B Bootstrap repository/remote-source layering.
+2. Update Bootstrap DI and tests so only one production Bootstrap request path remains.
+3. Verify the full Splash → Bootstrap → DynamicDestination runtime path.
+4. Move Dynamic use cases to the feature-level `usecase` package without moving them to top-level `:domain`.
+5. Complete request metadata/authentication integration.
+6. Complete all required Dynamic reference/state/action behavior from the frozen DYNAMIC-06 contract.
+7. Complete DYNAMIC-07 fallback/recovery/observability behavior.
+8. Add backend-shaped Login → Send OTP → OTP → Verify OTP integration tests.
+9. Verify destination push/pop/replace/back behavior.
+10. Verify Android.
+11. Verify iOS/macOS-hosted targets where supported.
+12. Verify Web/Wasm.
+13. Perform literal plan-to-source compliance review.
+14. Complete final Dynamic feature review.
+15. Code-freeze Dynamic.
 
-## 7. Explicitly Not Complete
+## 9. Explicitly Not Complete
 
+- Option B Bootstrap repository/remote-source layering.
+- Final Bootstrap DI/test cleanup after the layering change.
 - Real backend Login → OTP → Dashboard end-to-end verification.
 - Full DYNAMIC-07 production observability implementation.
 - Final fallback/error UX implementation.
 - Full platform verification.
-- Final feature review/freeze.
+- Final Dynamic feature review/freeze.
 
-## 8. Deviations / Reconciliation
+## 10. Deviations / Reconciliation
 
-No Dynamic architecture decision has been intentionally changed.
+No frozen DYNAMIC-01 → DYNAMIC-07 decision is being reopened.
 
-Documentation reconciliation identifies one historical topology mismatch: older Base Architecture text describes Desktop while the current branch registers Web/Wasm. This is recorded in `docs/architecture/ARCHITECTURE-CURRENT-STATE.md` and must not be silently resolved by changing code.
+The Bootstrap implementation is being refined under the already-frozen startup responsibility using Option B. This is now an explicit implementation requirement rather than an optional cleanup.
 
-Older SDUI review drafts may use names such as `NavigationStore`, `DynamicScreenStore`, `SduiDecoder`, `SduiSupportChecker`, and `SduiActionExecutor`. Those names are historical design vocabulary; current implementation names are authoritative unless a new decision explicitly changes them.
+Historical base-document platform wording remains a separate reconciliation item and is not mixed into this Dynamic implementation change.
 
-## 9. Next Action
+## 11. Next Action
 
-**Continue implementation/testing from the green JVM baseline. Do not reopen DYNAMIC-01 → DYNAMIC-07.**
+**Implement Option B Bootstrap boundary first. Then continue the remaining Dynamic gaps in the ordered implementation plan. Do not mark the feature complete merely because the JVM baseline is green.**
