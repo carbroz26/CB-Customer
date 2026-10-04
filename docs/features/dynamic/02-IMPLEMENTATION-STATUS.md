@@ -52,12 +52,33 @@ No silent deviation is permitted.
 16. Updated Store tests to verify that the Store/use-case boundary passes resolved domain values rather than serialized JSON.
 17. Added destination screen/template identity validation before Dynamic rendering.
 18. Updated `DynamicScreen` to reset/load the Store for each destination and pass the complete destination into rendering.
+19. Changed Bootstrap `StartupConfig.nextScreen` to use the canonical `DynamicDestination` domain model instead of the duplicate `NextScreenConfig` model.
+20. Updated `BootstrapMapper` to construct `DynamicDestination` directly from `startup.nextScreen`.
+21. Added a focused Bootstrap mapper test proving all destination fields are preserved.
+
+## Bootstrap Integration Checkpoint
+
+Completed for the domain/data boundary:
+
+```text
+Bootstrap DTO
+    ↓
+BootstrapMapper
+    ↓
+BootstrapOutput.startup.nextScreen
+    ↓
+DynamicDestination
+```
+
+The canonical destination model now owns the destination contract. No second bootstrap destination model remains in `StartupConfig`.
+
+The actual application-level navigation/back-stack handoff is intentionally still pending; it must be implemented against the existing navigation/application composition boundary rather than invented inside Bootstrap or Dynamic data.
 
 ## Remaining Implementation Work
 
 - verify DI/wiring for Store and use cases;
 - complete common request metadata integration using the existing Runtime Infrastructure boundary, without modifying the frozen BASE-ARCH-017 contract;
-- verify Bootstrap `startup.nextScreen` → `DynamicDestination` integration;
+- complete application composition/navigation handoff from Bootstrap `DynamicDestination`;
 - verify destination/back-stack integration;
 - complete focused Dynamic tests;
 - run Gradle build/test verification;
