@@ -203,17 +203,18 @@ CB-Partner now follows that clean responsibility boundary while adapting the imp
 2. Added `NetworkException`, `NetworkResult`, `Paged`, and `Response` under `com.carbroz.cbpartner.network`.
 3. Added `http/DefaultError`, `http/RequestHandler`, and `http/HttpClientBuilder`.
 4. Added Ktor content negotiation, JSON serialization, auth, logging, mock, and default-engine dependencies required by the network boundary.
-5. Added `networkModule` inside `:network`; it creates the single configured `HttpClient` and the single `RequestHandler`.
-6. Removed `data/di/NetworkModule`.
-7. Removed `data/network/KtorClientBuilder`, `NetworkConfig`, and the generic `RemoteDataSource` wrapper.
-8. Updated `App.kt` and `app/build.gradle.kts` so application composition consumes `:network` directly.
-9. Updated `DefaultApplicationBootstrap` to use the shared `RequestHandler` while preserving bootstrap headers, JSON parsing, cancellation behavior, and HTTP failure mapping.
-10. Updated `DynamicRemoteDataSource` to use `RequestHandler` directly and return `NetworkResult<String>`.
-11. Updated `DynamicRepositoryImpl` to consume `NetworkResult` directly; no generic transport wrapper remains.
-12. Removed the obsolete `RemoteDataSourceTest` and updated bootstrap transport tests to inject `RequestHandler`.
-13. Added focused `RequestHandlerTest` coverage for successful and failed requests.
-14. Preserved HTTP status information in `NetworkException` because Bootstrap has a required `BootstrapFailure.Http(statusCode)` contract.
-15. Kept the network classes small and constructor-injected; no manager/coordinator/factory/helper layer was introduced.
+5. Added `koin.core` to the standalone `:network` module because `networkModule` owns the network DI definitions.
+6. Added `networkModule` inside `:network`; it creates the single configured `HttpClient` and the single `RequestHandler`.
+7. Removed `data/di/NetworkModule`.
+8. Removed `data/network/KtorClientBuilder`, `NetworkConfig`, and the generic `RemoteDataSource` wrapper.
+9. Updated `App.kt` and `app/build.gradle.kts` so application composition consumes `:network` directly.
+10. Updated `DefaultApplicationBootstrap` to use the shared `RequestHandler` while preserving bootstrap headers, JSON parsing, cancellation behavior, and HTTP failure mapping.
+11. Updated `DynamicRemoteDataSource` to use `RequestHandler` directly and return `NetworkResult<String>`.
+12. Updated `DynamicRepositoryImpl` to consume `NetworkResult` directly; no generic transport wrapper remains.
+13. Removed the obsolete `RemoteDataSourceTest` and updated bootstrap transport tests to inject `RequestHandler`.
+14. Added focused `RequestHandlerTest` coverage for successful and failed requests.
+15. Preserved HTTP status information in `NetworkException` because Bootstrap has a required `BootstrapFailure.Http(statusCode)` contract.
+16. Kept the network classes small and constructor-injected; no manager/coordinator/factory/helper layer was introduced.
 
 ### Current source dependency graph
 
@@ -225,7 +226,7 @@ app
  └── features
 
 network
- └── Ktor
+ └── Ktor + Koin
 
 data
  ├── network
@@ -246,9 +247,9 @@ domain
 
 Implementation is applied on `feature/dynamic-ui`.
 
-The available GitHub integration cannot execute the Windows Gradle wrapper in the user's local `D:\CarBroz\CB-Partner` environment, so the final compile/test gate must be run locally after pulling the latest branch state.
+The latest local verification exposed one compile-only dependency omission in the new standalone network module: `NetworkModule.kt` uses Koin DSL but `network/build.gradle.kts` did not declare `libs.koin.core`. That required correction has now been applied.
 
-Required commands:
+Required commands after pulling the correction:
 
 ```powershell
 cd D:\CarBroz\CB-Partner
@@ -264,7 +265,7 @@ git pull --ff-only origin feature/dynamic-ui
 .\gradlew.bat :network:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
 ```
 
-**Status: IMPLEMENTATION APPLIED / LOCAL COMPILE-TEST GATE REQUIRED**
+**Status: IMPLEMENTATION APPLIED / FINAL LOCAL COMPILE-TEST GATE REQUIRED**
 
 Do not mark Unit 3 VERIFIED until the above commands pass.
 
