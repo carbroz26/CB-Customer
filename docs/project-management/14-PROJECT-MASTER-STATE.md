@@ -10,23 +10,24 @@
 - Active branch: `feature/dynamic-ui`
 - Current feature: Dynamic UI vertical slice
 - DYNAMIC-01 → DYNAMIC-07: **FROZEN**
+- DYNAMIC-08 unified destination contract: **FROZEN**
 - Dynamic implementation plan: **PLAN FROZEN / IMPLEMENTATION AUTHORIZED**
 - Dynamic implementation: **IN PROGRESS**
-- Latest JVM baseline: **BUILD SUCCESSFUL — 2026-10-04**
+- Latest JVM compile/test verification: **BUILD SUCCESSFUL — 2026-10-04**
 - BASE-ARCH-014: **CODE FROZEN**
 - BASE-ARCH-017: **CODE FROZEN / VERIFIED / REVIEW ACCEPTED**
 - No ViewModel.
 - Pure Store + MVI/UDF.
 - Backend-driven Dynamic navigation/rendering.
 - Bootstrap Option B: **FROZEN / IMPLEMENTATION REQUIRED**
-- Canonical shared `DynamicDestination`: **FROZEN**
+- Canonical four-field `DynamicDestination`: **FROZEN / JVM VERIFIED**
 - Network exception taxonomy: **FROZEN / IMPLEMENTATION REQUIRED**
 
 ## 2. Frozen Base Architecture
 
 Kotlin Multiplatform, Compose Multiplatform, Clean Architecture, Pure Store/MVI/UDF, no ViewModel, multi-module Gradle, convention plugins, Koin, Ktor Client, kotlinx.serialization, Kermit and Navigation 3 remain frozen as recorded by BASE-ARCH-001 → BASE-ARCH-017.
 
-## 3. Startup / Bootstrap Final Boundary
+## 3. Startup / Bootstrap Boundary
 
 Splash and Bootstrap are one startup flow.
 
@@ -47,7 +48,7 @@ BootstrapRepositoryImpl             :data
   ↓
 BootstrapRemoteDataSource           :data
   ↓
-RequestHandler / HttpClient          :network
+RequestHandler / HttpClient         :network
   ↓
 Bootstrap DTO
   ↓
@@ -91,28 +92,28 @@ standalone BootstrapConfig
 ## 4. Canonical Dynamic Destination
 
 ```text
-Bootstrap API nextScreen ───────┐
-Dynamic API nextScreen ─────────┼──→ DynamicDestination
-Dynamic action destination ─────┘
+Bootstrap startup destination ───┐
+Dynamic API destination ─────────┼──→ DynamicDestination
+Dynamic action destination ──────┘
 ```
 
-There is one destination concept and one navigation/back-stack mechanism.
+Canonical fields:
 
 ```text
 DynamicDestination
 ├── screenId
 ├── templateId
 ├── templateType
-├── endpoint
-├── method
-└── authentication
+└── endpoint
 ```
+
+HTTP method and authentication are request metadata, not destination identity.
 
 `templateType` selects rendering only; it never decides business navigation.
 
 ## 5. Dynamic Architecture State
 
-Frozen DYNAMIC-01 → DYNAMIC-07 remains authoritative for:
+Frozen DYNAMIC-01 → DYNAMIC-08 remains authoritative for:
 
 - one permanent Dynamic Container;
 - Screen → Template → Component → Section → Group → Element hierarchy;
@@ -121,7 +122,8 @@ Frozen DYNAMIC-01 → DYNAMIC-07 remains authoritative for:
 - recursive renderer;
 - Pure Store/MVI/UDF interaction;
 - frozen actions and references;
-- runtime validation/fallback/recovery/diagnostic/observability boundaries.
+- runtime validation/fallback/recovery/diagnostic/observability boundaries;
+- one canonical four-field destination contract.
 
 ## 6. Dynamic Use-Case Ownership
 
@@ -207,32 +209,44 @@ Legacy to remove/rework:
 
 ## 9. Verification Baseline
 
-Owner-provided 2026-10-04 JVM verification passed:
+Owner-provided 2026-10-04 verification passed after DYNAMIC-08 reconciliation.
+
+Compile verification:
 
 ```text
-:network:compileKotlinJvm
+:domain:compileKotlinJvm
 :data:compileKotlinJvm
 :feature:splash:compileKotlinJvm
 :feature:dynamic:compileKotlinJvm
+:navigation:compileKotlinJvm
 :app:compileKotlinJvm
-
-:network:jvmTest
-:data:jvmTest
-:domain:jvmTest
-:feature:splash:jvmTest
-:feature:dynamic:jvmTest
 ```
 
-Result: **BUILD SUCCESSFUL — 54 actionable tasks: 15 executed, 39 up-to-date**.
+Result: **BUILD SUCCESSFUL — 43 actionable tasks: 43 executed**.
 
-This is a baseline only.
+JVM verification:
+
+```text
+:core:jvmTest
+:domain:jvmTest
+:data:jvmTest
+:navigation:jvmTest
+:feature:splash:jvmTest
+:feature:dynamic:jvmTest
+:app:compileKotlinJvm
+```
+
+Result: **BUILD SUCCESSFUL — 62 actionable tasks: 62 executed**.
+
+Known Windows-only warnings are non-fatal: iOS simulator tests require macOS and Android host-test configuration is not enabled for these commonTest sources.
 
 ## 10. Full Gap Register
 
 | Area | State | Required action |
 |---|---|---|
 | BASE-ARCH-001 → 017 | FROZEN | Do not reopen |
-| DYNAMIC-01 → 07 | FROZEN | Do not reopen |
+| DYNAMIC-01 → 08 | FROZEN | Do not reopen |
+| DYNAMIC-08 source alignment | VERIFIED | Keep four-field contract |
 | Bootstrap Option B | FROZEN / OPEN IMPLEMENTATION | Implement completely |
 | Bootstrap legacy domain models | OPEN | Remove/rework |
 | Bootstrap DI/tests | OPEN | Update and verify |
@@ -264,6 +278,4 @@ This is a baseline only.
 
 ## 12. Next Valid Action
 
-**Implement Bootstrap Option B completely, including legacy domain-model cleanup, DI and tests. Then verify the shared `DynamicDestination` runtime hand-off before continuing the remaining Dynamic gaps.**
-
-Do not implement outside the frozen plan and do not reopen frozen architecture decisions.
+**Start the next already-authorized implementation item: complete Bootstrap Option B, including legacy-domain cleanup, DI/test reconciliation, and runtime hand-off verification. Do not reopen frozen Dynamic architecture decisions.**
