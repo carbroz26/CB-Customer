@@ -43,17 +43,14 @@ class ExecuteDynamicActionUseCase(
         val endpoint = string(action.payload["endpoint"])
             ?: error("Dynamic request endpoint is missing")
         val method = string(action.payload["method"]) ?: "POST"
-        val authentication = string(action.payload["authentication"])
         val body = action.payload["body"]?.resolve(bindings, context, previousResponse)
 
         val response = repository.fetch(
             destination = DynamicDestination(
                 screenId = "action:$endpoint",
-                templateId = null,
-                templateType = null,
+                templateId = "action",
+                templateType = "request",
                 endpoint = endpoint,
-                method = method,
-                authentication = authentication,
             ),
             body = body,
         ).getOrThrow()
@@ -61,14 +58,14 @@ class ExecuteDynamicActionUseCase(
         return when (string(action.payload["responseMode"])?.lowercase()) {
             "none" -> DynamicActionResult.Completed(response)
             else -> DynamicActionResult.Navigate(
-                destination = response.requireNextDestination(),
+                destination = response.requireDestination(),
                 response = response,
             )
         }
     }
 
-    private fun DynamicResponse.requireNextDestination(): DynamicDestination =
-        data?.nextScreen ?: error("Dynamic request did not provide data.nextScreen")
+    private fun DynamicResponse.requireDestination(): DynamicDestination =
+        destination ?: error("Dynamic request did not provide data.destination")
 
     private fun DynamicValue.resolve(
         bindings: Map<String, String>,
