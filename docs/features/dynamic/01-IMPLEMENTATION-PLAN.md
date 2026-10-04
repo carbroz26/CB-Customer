@@ -4,60 +4,41 @@
 
 **PLAN FROZEN — IMPLEMENTATION AUTHORIZED**
 
-This is the implementation contract. Implementation proceeds unit-by-unit; no new architecture discussion is introduced unless source inspection exposes a real conflict with a frozen decision.
+Implementation is executed unit-by-unit. No architecture discussion unless actual source exposes a conflict with a frozen decision.
 
-### Strict implementation/code rule
+## Strict implementation/code rule
 
 - Every class has one clear responsibility.
-- Code is minimal, explicit, readable, and production-clean.
+- Code must be minimal, explicit, readable, and production-clean.
 - Do not add code only to make a flow work.
-- Do not add managers, coordinators, routers, wrappers, factories, helpers, or abstractions without an independent responsibility.
+- No unnecessary manager/coordinator/router/wrapper/factory/helper/abstraction.
 - Existing code may be replaced when it violates the frozen boundary.
-- After each unit: source inspection → implementation → compile → focused tests → diff inspection → next unit.
-- Do not leave stale tests or dead code after a source change.
+- After every unit: inspect → implement → compile → focused tests → inspect diff → update this plan → continue.
+- Never leave stale tests or dead code after a source change.
 
-## 1. Frozen architecture
+## Frozen architecture
 
-Supported platforms:
-
-```text
-Android
- iOS
- Web (Wasm)
-```
-
-There is no `desktopApp`.
-
-Application flow:
+Supported platforms: Android, iOS, Web/Wasm. No desktop app.
 
 ```text
 Platform entry
     ↓
 App
     ↓
-Application composition
+ApplicationContent
     ↓
 Navigation 3
     ↓
-one Dynamic Container
+one DynamicContainer
 ```
 
-`:navigation` is the only Navigation 3 boundary. `DynamicDestination` is the canonical navigation key and contains the complete backend destination:
+`:navigation` is the only Navigation 3 boundary. `DynamicDestination` is the canonical navigation key and preserves the complete backend destination (`screenId`, `templateId`, `templateType`, `endpoint`, `method`, `authentication`).
 
-```text
-screenId
-templateId
-templateType
-endpoint
-method
-authentication
-```
-
-Navigation owns back stack/root/push/replace/pop and the NavDisplay host. It does not own business logic.
+Navigation owns root/push/replace/pop and NavDisplay, not business logic.
 
 ### Splash / Bootstrap
 
-Splash and Bootstrap are one startup feature. Splash is the UI/runtime feature boundary; Bootstrap is the startup contract/data mechanism used by Splash. There is no separate `feature:bootstrap`.
+Splash and Bootstrap are one startup feature. Splash is the feature/runtime boundary; Bootstrap is its startup contract/data mechanism. There is no separate bootstrap feature/module.
 
 ```text
 feature:splash
@@ -71,11 +52,7 @@ RemoteDataSource
 Network
 ```
 
-Do not create separate startup flows for Splash and Bootstrap.
-
 ### Dynamic
-
-There is one permanent `DynamicContainer`.
 
 ```text
 DynamicDestination
@@ -91,13 +68,13 @@ DynamicRepository
 RemoteDataSource
 ```
 
-`DynamicStore` is Pure MVI + UDF. It owns state, intents, use-case invocation, runtime bindings, and effects. It does not own Navigation 3, Ktor, rendering recursion, or external URI launching.
+DynamicStore is Pure MVI/UDF. It owns state, intents, use-case invocation, runtime bindings, and effects. It does not own Navigation 3, Ktor, rendering recursion, or external URI launching.
 
-## 2. Shaadi code-quality reference
+## Shaadi clean-code reference
 
-`LalitDev2305/Shaadi` is the clean-code reference. Adopt its useful implementation style, not its Android/JVM-specific architecture.
+`LalitDev2305/Shaadi` is the implementation-quality reference, not an architecture to copy wholesale.
 
-Required lessons:
+Adopt these lessons:
 
 ```text
 central HttpClient construction
@@ -109,63 +86,27 @@ constructor injection
 minimal DI
 ```
 
-The reference uses a central `ShaadiHttpClientBuilder`, a small `RequestHandler`, repositories that simply delegate, and explicit mappers. Do not copy CIO-only engine configuration, Hilt, `Dispatchers.IO`, ViewModel, or Android-only code into KMP.
+Do not copy Shaadi's Android/JVM-only Hilt, ViewModel, `Dispatchers.IO`, or CIO-only engine assumptions into KMP.
 
-## 3. Network/data boundary
-
-Target:
+## Network/data boundary
 
 ```text
-Network configuration
-        ↓
+NetworkConfig
+    ↓
 one configured HttpClient
-        ↓
-one common request boundary
-        ↓
-RemoteDataSource
-        ↓
+    ↓
+one common RemoteDataSource
+    ↓
 repository
 ```
 
-There must be one configured `HttpClient`. Repositories never construct one.
+One configured HttpClient. Repositories never construct clients. Ktor configuration belongs to network infrastructure. Dynamic feature/Store code never configures Ktor.
 
-The common request boundary is intentionally small:
+## Domain/data boundary
 
-```text
-get
-post
-put
-delete
-```
+Domain owns canonical contracts/models: `DynamicDestination`, actions/references, repositories, Dynamic request/result models, `ApplicationBootstrap`, and Bootstrap models.
 
-Ktor configuration belongs to network infrastructure. Dynamic features and Stores do not configure Ktor.
-
-## 4. Domain/data boundary
-
-Domain owns canonical contracts/models:
-
-```text
-DynamicDestination
-DynamicAction
-DynamicReference
-DynamicRepository
-Dynamic request/result models
-ApplicationBootstrap
-Bootstrap models
-```
-
-Data owns:
-
-```text
-DTOs
-serialization
-repository implementations
-RemoteDataSource usage
-DTO → domain mapping
-network infrastructure
-```
-
-Dependency direction:
+Data owns DTOs, serialization, repository implementations, RemoteDataSource usage, explicit DTO→domain mapping, and network infrastructure.
 
 ```text
 Data → Domain
@@ -173,67 +114,17 @@ Feature → Domain
 Domain ✗→ Data
 ```
 
-Mappers are explicit and small. No generic/reflection mapper. No mapper for trivial identity conversion.
+No reflection/generic mapper. No mapper for trivial identity conversion.
 
-## 5. Dynamic use cases
+# Implementation units
 
-Only meaningful use cases exist:
-
-```text
-LoadDynamicScreenUseCase
-ExecuteDynamicActionUseCase
-```
-
-No use case per action type and no generic workflow engine.
-
-## 6. Dynamic registry/renderer
-
-Frozen initial vocabulary:
-
-```text
-Template  → stack_template
-Component → stack_component
-Section   → stack_section
-Group     → stack_group
-Elements  → text, image
-```
-
-`DynamicRegistry` owns registration/lookup only. `DynamicRenderer` is small and recursive. No reflection, scanning, networking, navigation, or Store state in the registry/renderer.
-
-## 7. Actions/references
-
-Frozen actions:
-
-```text
-request
-navigate
-present
-dismiss
-state
-external_uri
-sequence
-```
-
-Frozen references:
-
-```text
-$binding
-$context
-$response
-$literal
-```
-
-No speculative response-history or action framework.
-
-## 8. Implementation units
-
-### Unit 1 — Navigation foundation
+## Unit 1 — Navigation foundation
 
 Minimal Navigation 3 boundary and complete destination stack operations.
 
-**Status: implemented; continue verification only when a later change affects it.**
+**Status: COMPLETE / IMPLEMENTED**
 
-### Unit 2 — Application composition + Dynamic Container
+## Unit 2 — Application composition + Dynamic Container
 
 Required flow:
 
@@ -241,53 +132,104 @@ Required flow:
 Platform entry → App → ApplicationContent → Navigation → one DynamicContainer
 ```
 
-`App` is only the composition entry point. Runtime composition belongs in the application-composition boundary, not in the `App` entry function.
+Correction applied: runtime Splash/Dynamic composition was removed from `App.kt` and moved to `ApplicationContent.kt`. `App.kt` is now only the composition entry point.
 
-**Source finding:** `App.kt` previously contained Splash state handling, DynamicStore creation, Dynamic effect handling, registry creation, and DynamicNavigationHost wiring.
+Test cleanup applied:
+- `DynamicStoreTest` supplies `DynamicActionHandler`.
+- `SplashStoreTest` uses canonical `DynamicDestination`; stale `NextScreenConfig` removed.
 
-**Correction applied:** moved that runtime composition to `ApplicationContent.kt`; `App.kt` now only initializes the shared Koin composition and delegates to `ApplicationContent`.
+**Status: COMPLETE / IMPLEMENTED / VERIFIED**
 
-**Test cleanup applied:**
-- `DynamicStoreTest` now supplies the required `DynamicActionHandler` dependency.
-- `SplashStoreTest` now uses canonical `DynamicDestination`; stale `NextScreenConfig` was removed.
+Local verification reported:
+- `:feature:splash:compileKotlinJvm` PASS
+- `:feature:dynamic:compileKotlinJvm` PASS
+- `:app:compileKotlinJvm` PASS
+- `:navigation:jvmTest` PASS
+- `:data:jvmTest` PASS
+- `:domain:jvmTest` PASS
+- `:feature:splash:jvmTest` PASS
+- `:feature:dynamic:jvmTest` PASS
 
-**Status: implementation applied; local compile/test verification is the next gate.**
+## Unit 3 — Network infrastructure
 
-### Unit 3 — Network infrastructure
-
-Refactor toward the Shaadi-style clean boundary:
+Target:
 
 ```text
-one configured HttpClient
-one common request boundary
-one RemoteDataSource
+NetworkConfig
+    ↓
+KtorClientBuilder
+    ↓
+one HttpClient
+    ↓
+RemoteDataSource
+    ↓
+DynamicRemoteDataSource
+    ↓
+repository
 ```
 
-Inspect and simplify `NetworkModule`, `HttpClient` construction, `RemoteDataSource`, and Dynamic remote wrappers before implementation. Do not duplicate ownership.
+Source inspection compared CB-Partner with Shaadi's `ShaadiHttpClientBuilder` and `RequestHandler`.
 
-**Status: next unfinished implementation unit.**
+### Findings
 
-### Unit 4 — Repository/data cleanup
+- CB-Partner had `NetworkModule` constructing a bare `HttpClient()`.
+- `RemoteDataSource` owned URL resolution and used `bodyAsText()`; this triggered the Ktor internal-API compilation failure seen previously.
+- `DynamicRemoteDataSource` is already a thin Dynamic-specific boundary and should not own Ktor configuration.
+- `DynamicRepositoryImpl` already follows the desired small flow: remote source → DTO → mapper → domain.
 
-Make repositories as small as the Shaadi repository pattern. Remove unnecessary data-layer wrappers. Keep only meaningful DTO/domain mappers.
+### Corrections applied
 
-### Unit 5 — Dynamic use cases
+1. Added `KtorClientBuilder` as the single client-construction boundary.
+2. `NetworkModule` now constructs exactly one `HttpClient` through `KtorClientBuilder` and injects it into `RemoteDataSource`.
+3. `RemoteDataSource` no longer owns `NetworkConfig` or URL concatenation; base URL ownership belongs to the client builder.
+4. Replaced Ktor `bodyAsText()` usage with the public `body<String>()` API.
+5. Updated `RemoteDataSourceTest` to match the simplified constructor and request boundary.
+6. No change was made to `DynamicRemoteDataSource` because its current responsibility is already minimal and correct.
+
+**Status: IMPLEMENTATION APPLIED — LOCAL COMPILE/TEST GATE PENDING**
+
+Required verification:
+
+```powershell
+.\gradlew.bat :data:compileKotlinJvm
+.\gradlew.bat :feature:dynamic:compileKotlinJvm
+.\gradlew.bat :app:compileKotlinJvm
+.\gradlew.bat :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
+```
+
+Do not continue to Unit 4 until this gate passes.
+
+## Unit 4 — Repository/data cleanup
+
+Make repositories as small as the Shaadi repository pattern. Remove only unnecessary data wrappers. Keep meaningful DTO/domain mappers.
+
+**Status: PENDING**
+
+## Unit 5 — Dynamic use cases
 
 Verify/refactor the two meaningful use cases and their dependencies.
 
-### Unit 6 — Dynamic Store cleanup
+**Status: PENDING**
+
+## Unit 6 — Dynamic Store cleanup
 
 Store only state/intent/effect/use-case coordination. No Ktor or Navigation 3.
 
-### Unit 7 — Registry/renderer
+**Status: PENDING**
 
-Enforce the frozen vocabulary and recursive renderer boundary.
+## Unit 7 — Registry/renderer
 
-### Unit 8 — Action/reference integration
+Enforce frozen vocabulary and small recursive renderer boundary.
 
-Connect the frozen action/reference contracts without speculative infrastructure.
+**Status: PENDING**
 
-### Unit 9 — End-to-end flow
+## Unit 8 — Action/reference integration
+
+Connect frozen action/reference contracts without speculative infrastructure.
+
+**Status: PENDING**
+
+## Unit 9 — End-to-end flow
 
 Verify:
 
@@ -313,9 +255,11 @@ next DynamicDestination
 push/replace
 ```
 
-## 9. Required verification gate
+**Status: PENDING**
 
-For every unit:
+# Verification gate
+
+Every unit must follow exactly:
 
 ```text
 source inspection
@@ -335,65 +279,15 @@ update this plan
 next unit
 ```
 
-No unrelated refactor is allowed during a unit.
+No unrelated refactor during a unit.
 
-## 10. Required tests
-
-Navigation:
-
-```text
-root / push / replace / pop
-complete destination preservation
-refresh without new entry
-DynamicDestination serialization
-```
-
-Store/use cases:
-
-```text
-loading/success/error transitions
-Store invokes use cases
-navigation is emitted, not performed
-external URI is emitted separately
-binding/context resolution
-```
-
-Network/data:
-
-```text
-GET/POST/PUT/DELETE
-common request execution
-error normalization
-repository delegation
-DTO → domain mapping
-```
-
-Integration:
-
-```text
-Bootstrap startup.nextScreen → navigation root
-current destination → screen request
-backend next destination → navigation operation
-back → previous complete destination
-```
-
-## 11. Verification commands
+# Verification commands
 
 ```powershell
 cd D:\CarBroz\CB-Partner
-git status
 git fetch origin
 git pull --ff-only origin feature/dynamic-ui
-git branch --show-current
-git log -1 --oneline
-git status
-```
 
-Do not add the existing untracked `kotlin-js-store/` unless explicitly required.
-
-Focused compilation:
-
-```powershell
 .\gradlew.bat :navigation:compileKotlinJvm
 .\gradlew.bat :data:compileKotlinJvm
 .\gradlew.bat :domain:compileKotlinJvm
@@ -401,17 +295,15 @@ Focused compilation:
 .\gradlew.bat :feature:dynamic:compileKotlinJvm
 .\gradlew.bat :app:compileKotlinJvm
 .\gradlew.bat :webApp:compileKotlinWasmJs
-```
 
-Focused tests:
-
-```powershell
 .\gradlew.bat :navigation:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
 ```
 
-Windows cannot run iOS Simulator tests; the disabled-target warning is expected.
+Windows iOS Simulator disabled-target warnings are expected.
 
-## 12. Definition of Done
+Do not add the existing untracked `kotlin-js-store/` unless explicitly required.
+
+# Definition of Done
 
 ```text
 [ ] Android/iOS/Web only
@@ -419,17 +311,17 @@ Windows cannot run iOS Simulator tests; the disabled-target warning is expected.
 [ ] one Navigation 3 boundary
 [ ] DynamicDestination is canonical navigation key
 [ ] one permanent DynamicContainer
-[ ] App is a thin composition entry point
-[ ] Splash is the startup feature; Bootstrap is not a separate feature/module
+[ ] App is thin
+[ ] Splash is the startup feature; no separate bootstrap feature/module
 [ ] one configured HttpClient
 [ ] one common request boundary
 [ ] one RemoteDataSource
-[ ] repositories are small and explicit
-[ ] DTO/domain mapping is explicit and minimal
+[ ] repositories small and explicit
+[ ] DTO/domain mapping explicit and minimal
 [ ] domain does not depend on data
 [ ] DynamicStore is Pure MVI/UDF
 [ ] DynamicStore does not own Navigation 3 or Ktor
-[ ] registry uses only frozen vocabulary
+[ ] registry uses frozen vocabulary
 [ ] renderer is small and recursive
 [ ] no templateType-based business navigation
 [ ] no speculative manager/coordinator/router framework
@@ -438,9 +330,9 @@ Windows cannot run iOS Simulator tests; the disabled-target warning is expected.
 [ ] platform composition compiles where host-supported
 ```
 
-## 13. Final code-quality rule
+# Final code-quality rule
 
-The standard is **Shaadi-level cleanliness adapted to CB-Partner**:
+**Shaadi-level cleanliness adapted to CB-Partner:**
 
 ```text
 one responsibility
@@ -452,4 +344,4 @@ no unnecessary abstraction
 no duplicate ownership
 ```
 
-If a class can be simpler without losing a required boundary, simplify it. If a new class has no independently meaningful responsibility, do not create it. If existing code is wrong, replace it instead of protecting it.
+If a class can be simpler without losing a required boundary, simplify it. If a new class has no independent responsibility, do not create it. If existing code is wrong, replace it instead of protecting it.
