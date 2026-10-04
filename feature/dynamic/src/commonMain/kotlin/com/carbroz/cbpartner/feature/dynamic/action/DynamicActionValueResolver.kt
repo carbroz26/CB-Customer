@@ -26,8 +26,8 @@ internal object DynamicActionValueResolver {
         else -> value
     }
 
-    private fun resolvePath(value: DynamicValue, path: String): DynamicValue =
-        path.split('.').fold(value) { current, segment ->
+    private fun DynamicValue.resolvePath(path: String): DynamicValue =
+        path.split('.').fold(this) { current, segment ->
             when (current) {
                 is DynamicValue.ObjectValue -> current.value[segment] ?: DynamicValue.NullValue
                 else -> DynamicValue.NullValue
