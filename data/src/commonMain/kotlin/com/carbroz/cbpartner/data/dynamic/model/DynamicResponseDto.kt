@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.data.dynamic.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
@@ -8,7 +9,7 @@ data class DynamicResponseDto(
     val status: Int,
     val code: String,
     val message: String,
-    val data: DynamicScreenDto? = null,
+    val data: JsonElement? = null,
     val traceId: String? = null,
     val nextScreen: DynamicNextScreenDto? = null,
 )
