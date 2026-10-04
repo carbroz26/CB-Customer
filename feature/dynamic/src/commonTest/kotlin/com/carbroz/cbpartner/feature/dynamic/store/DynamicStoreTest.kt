@@ -9,6 +9,7 @@ import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.ExecuteDynamicActionUseCase
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.LoadDynamicScreenUseCase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -16,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class DynamicStoreTest {
     @Test
     fun requestResolvesBindingAndContextOutsideStore() = runTest {
