@@ -1,13 +1,13 @@
 package com.carbroz.cbpartner.feature.splash
 
 import com.carbroz.cbpartner.domain.bootstrap.ApplicationBootstrap
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
 import com.carbroz.cbpartner.domain.model.bootstrap.FeatureConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.MaintenanceConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.StartupConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.UpdateConfig
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -79,13 +79,11 @@ class SplashStoreTest {
         ),
         startup = StartupConfig(
             authenticated = false,
-            nextScreen = DynamicDestination(
+            destination = DynamicDestination(
                 screenId = "partner_login",
-                templateId = "tpl_7K2M9Q",
-                templateType = "stack_template",
+                templateId = "tpl_P101L",
+                templateType = "form_template",
                 endpoint = "/api/v1/partner/screen/auth_login",
-                method = "GET",
-                authentication = "NONE",
             ),
         ),
     )
