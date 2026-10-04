@@ -28,6 +28,7 @@ class DynamicStoreTest {
                 destination: DynamicDestination,
                 body: DynamicValue?,
                 method: String,
+                authentication: String,
             ): Result<DynamicResponse> {
                 capturedBody = body
                 return Result.success(
@@ -72,6 +73,7 @@ class DynamicStoreTest {
                     payload = mapOf(
                         "method" to DynamicValue.StringValue("POST"),
                         "endpoint" to DynamicValue.StringValue("/submit"),
+                        "authentication" to DynamicValue.StringValue("NONE"),
                         "body" to DynamicValue.ObjectValue(
                             mapOf(
                                 "firstName" to DynamicValue.ObjectValue(
