@@ -7,17 +7,14 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicGroup
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicSection
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicSection
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ImageElement
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
-import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplate
 import com.carbroz.cbpartner.feature.dynamic.sdui.template.StackTemplate
 
 class DynamicRenderer(
@@ -45,11 +42,13 @@ class DynamicRenderer(
     ) {
         val responseTemplate = screen.template
         val selectedTemplateType = destinationTemplateType ?: responseTemplate.type
-        val template = responseTemplate.copy(type = selectedTemplateType)
+        if (selectedTemplateType != responseTemplate.type) {
+            Text(text = "Dynamic template identity mismatch: $selectedTemplateType != ${responseTemplate.type}")
+            return
+        }
 
         when (val registered = registry.getTemplate(selectedTemplateType)) {
-            is FormTemplate -> registered.Render(template, this)
-            is StackTemplate -> registered.Render(template, this)
+            is StackTemplate -> registered.Render(responseTemplate, this)
             else -> Text(text = "Unsupported template: $selectedTemplateType")
         }
     }
@@ -59,7 +58,7 @@ class DynamicRenderer(
         components.forEach { component ->
             when (val registered = registry.getComponent(component.type)) {
                 is StackComponent -> registered.Render(component, this)
-                else -> Text(text = "Unsupported component: " + component.type)
+                else -> Text(text = "Unsupported component: ${component.type}")
             }
         }
     }
@@ -69,7 +68,7 @@ class DynamicRenderer(
         sections.forEach { section ->
             when (val registered = registry.getSection(section.type)) {
                 is StackSection -> registered.Render(section, this)
-                else -> Text(text = "Unsupported section: " + section.type)
+                else -> Text(text = "Unsupported section: ${section.type}")
             }
         }
     }
@@ -79,7 +78,7 @@ class DynamicRenderer(
         groups.forEach { group ->
             when (val registered = registry.getGroup(group.type)) {
                 is StackGroup -> registered.Render(group, this)
-                else -> Text(text = "Unsupported group: " + group.type)
+                else -> Text(text = "Unsupported group: ${group.type}")
             }
         }
     }
@@ -90,9 +89,7 @@ class DynamicRenderer(
             when (val registered = registry.getElement(element.type)) {
                 is TextElement -> registered.Render(element)
                 is ImageElement -> registered.Render(element)
-                is InputElement -> registered.Render(element, onValueChange)
-                is ButtonElement -> registered.Render(element, onAction)
-                else -> Text(text = "Unsupported element: " + element.type)
+                else -> Text(text = "Unsupported element: ${element.type}")
             }
         }
     }
