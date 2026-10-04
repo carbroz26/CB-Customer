@@ -3,12 +3,15 @@ package com.carbroz.cbpartner.feature.dynamic.store
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -55,13 +58,13 @@ class DynamicStoreTest {
                 DynamicAction(
                     type = "request",
                     payload = mapOf(
-                        "method" to com.carbroz.cbpartner.domain.model.dynamic.DynamicValue.StringValue("POST"),
-                        "endpoint" to com.carbroz.cbpartner.domain.model.dynamic.DynamicValue.StringValue("/api/v1/partner/auth/send_otp"),
-                        "body" to com.carbroz.cbpartner.domain.model.dynamic.DynamicValue.ObjectValue(
+                        "method" to DynamicValue.StringValue("POST"),
+                        "endpoint" to DynamicValue.StringValue("/api/v1/partner/auth/send_otp"),
+                        "body" to DynamicValue.ObjectValue(
                             mapOf(
-                                "phoneNumber" to com.carbroz.cbpartner.domain.model.dynamic.DynamicValue.ObjectValue(
+                                "phoneNumber" to DynamicValue.ObjectValue(
                                     mapOf(
-                                        "${'$'}binding" to com.carbroz.cbpartner.domain.model.dynamic.DynamicValue.StringValue("mobileNumber"),
+                                        "${'$'}binding" to DynamicValue.StringValue("mobileNumber"),
                                     ),
                                 ),
                             ),
