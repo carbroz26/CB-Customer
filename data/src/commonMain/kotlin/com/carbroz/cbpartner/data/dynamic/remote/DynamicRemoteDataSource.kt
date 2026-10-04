@@ -10,10 +10,12 @@ class DynamicRemoteDataSource(
     suspend fun fetch(
         endpoint: String,
         method: String,
+        authentication: String,
         body: String?,
     ): NetworkResult<String> = requestHandler.executeRequest(
         method = HttpMethod.parse(method),
         urlPathSegments = endpoint.split('/').filter(String::isNotEmpty),
+        authentication = authentication,
         body = body,
     )
 }
