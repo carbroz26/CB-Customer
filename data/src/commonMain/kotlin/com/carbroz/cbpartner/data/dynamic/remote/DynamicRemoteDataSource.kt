@@ -7,8 +7,8 @@ import io.ktor.http.HttpMethod
 /**
  * Dynamic-specific remote flow built on the common application RemoteDataSource.
  *
- * This class contains no HTTP client ownership and no duplicated network
- * configuration. Dynamic only supplies the backend-defined request details.
+ * Dynamic supplies only backend request details. Common transport metadata is
+ * owned by the shared RemoteDataSource boundary.
  */
 class DynamicRemoteDataSource(
     private val remoteDataSource: RemoteDataSource,
@@ -16,13 +16,11 @@ class DynamicRemoteDataSource(
     suspend fun fetch(
         endpoint: String,
         method: String,
-        headers: Map<String, String>,
         body: String?,
     ): RemoteResponse =
         remoteDataSource.execute(
             method = HttpMethod.parse(method),
             url = endpoint,
-            headers = headers,
             body = body,
         )
 }
