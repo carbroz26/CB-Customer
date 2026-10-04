@@ -1,6 +1,6 @@
 # CB-Partner — Decision Log
 
-**Status:** ACTIVE — Base Architecture decisions frozen/documented through BASE-ARCH-016; BASE-ARCH-014 implementation accepted and code frozen; TRELLO-002 frozen.
+**Status:** ACTIVE — Base Architecture decisions frozen/documented through BASE-ARCH-017; BASE-ARCH-014 implementation accepted and code frozen; TRELLO-002 frozen.
 
 ## Purpose
 Durable record of significant project decisions. It prevents the project from depending on old conversations to remember why a choice was made.
@@ -22,7 +22,7 @@ Detailed Base Architecture research/freeze record:
 docs/architecture/BASE-ARCHITECTURE.md
 
 ## Base Architecture Status
-BASE-ARCH-001 through BASE-ARCH-016 → DECISION_FROZEN.
+BASE-ARCH-001 through BASE-ARCH-017 → DECISION_FROZEN.
 
 ## Acceptance
 A decision is not accepted because AI recommends it. The project owner explicitly accepts it, then it becomes frozen.
@@ -246,3 +246,60 @@ BASE-ARCH-016 A–G are frozen. The decision covers Koin 4.2.x/compiler-plugin b
 The project records now agree that BASE-ARCH-001 through BASE-ARCH-016 are decision-frozen, BASE-ARCH-014 implementation is code-frozen and merged, and BASE-ARCH-015/016 have frozen contracts without automatic production implementation.
 
 The next action must be a separately authorized work item processed through the established discussion/research/decision/freeze/plan workflow. No automatic implementation starts after this checkpoint.
+
+## DYNAMIC-BOOTSTRAP-001 — Bootstrap Data Boundary Refinement — 2026-10-04
+
+**Decision:** Option B — refine Bootstrap within the frozen startup responsibility
+**State:** ACCEPTED / IMPLEMENTATION REQUIRED
+**Scope:** Frontend Dynamic vertical slice only
+
+### Decision
+Bootstrap will follow the same repository + remote-source Data layering pattern already established for Dynamic, while preserving the frozen `ApplicationBootstrap` startup-facing contract:
+
+```text
+ApplicationBootstrap
+    ↓
+BootstrapRepository
+    ↓
+BootstrapRepositoryImpl
+    ↓
+BootstrapRemoteDataSource
+    ↓
+RequestHandler / Ktor
+```
+
+### Responsibilities
+
+- `ApplicationBootstrap` remains the startup-facing domain contract consumed by Splash/application composition.
+- `BootstrapRepository` is the domain repository abstraction.
+- `BootstrapRepositoryImpl` coordinates Bootstrap data acquisition/mapping.
+- `BootstrapRemoteDataSource` owns the Bootstrap endpoint, HTTP method, request headers and transport DTO acquisition.
+- `BootstrapMapper` performs explicit DTO → domain mapping.
+- `startup.nextScreen` maps to the canonical `DynamicDestination`.
+
+### Important boundary rule
+
+Splash and Bootstrap are one startup flow. Splash is the visible startup UI; Bootstrap is the config/startup API execution behind it. This decision does not create a second Splash/Bootstrap feature architecture and does not reopen BASE-ARCH-012/013.
+
+### Known API contract
+
+```text
+GET /api/v1/partner/config/bootstrap
+
+X-CarBroz-Platform: ANDROID
+X-CarBroz-App-Version: 1.0.0
+X-CarBroz-Build-Number: 1
+```
+
+### Superseded implementation assumption
+
+The previous direct `DefaultApplicationBootstrap → RequestHandler` implementation is transitional and is superseded as the final implementation boundary. It must be removed/reworked so there is one production Bootstrap HTTP path.
+
+### Required documentation/source follow-up
+
+- Update implementation plan/status/tracker/master-state — completed by this reconciliation.
+- Implement the repository/remote-source boundary.
+- Update DI and tests.
+- Verify Splash → Bootstrap → DynamicDestination end-to-end.
+
+This decision is an implementation refinement within the frozen startup responsibility, not a reopening of the frozen base architecture.
