@@ -6,9 +6,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import com.carbroz.cbpartner.data.di.bootstrapModule
@@ -23,6 +21,8 @@ import com.carbroz.cbpartner.feature.splash.SplashScreen
 import com.carbroz.cbpartner.feature.splash.SplashState
 import com.carbroz.cbpartner.feature.splash.SplashStore
 import com.carbroz.cbpartner.feature.splash.splashModule
+import com.carbroz.cbpartner.navigation.DynamicNavigationHost
+import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import org.koin.core.context.startKoin
 
 private val koin by lazy {
@@ -45,22 +45,24 @@ private fun App() {
         when (val state = splashState) {
             is SplashState.Success -> {
                 val startup = state.output.startup
-                var destination by remember(startup.nextScreen) {
-                    mutableStateOf(
-                        DynamicDestination(
-                            screenId = startup.nextScreen.screenId,
-                            templateId = startup.nextScreen.templateId,
-                            templateType = startup.nextScreen.templateType,
-                            endpoint = startup.nextScreen.endpoint,
-                            method = startup.nextScreen.method,
-                            authentication = startup.nextScreen.authentication,
-                        ),
+                val initialDestination = remember(startup.nextScreen) {
+                    DynamicDestination(
+                        screenId = startup.nextScreen.screenId,
+                        templateId = startup.nextScreen.templateId,
+                        templateType = startup.nextScreen.templateType,
+                        endpoint = startup.nextScreen.endpoint,
+                        method = startup.nextScreen.method,
+                        authentication = startup.nextScreen.authentication,
                     )
                 }
-                val dynamicStore = remember(startup.nextScreen) {
+                val navigationState = remember(initialDestination) {
+                    DynamicNavigationState(initialDestination)
+                }
+                val dynamicStore = remember(initialDestination) {
                     DynamicStore(
-                        repository = koin.get(),
-                        destination = destination,
+                        loadDynamicScreen = koin.get(),
+                        executeDynamicAction = koin.get(),
+                        destination = initialDestination,
                     )
                 }
                 val registry = remember { DynamicRegistry().registerDefaults() }
@@ -68,10 +70,7 @@ private fun App() {
                 LaunchedEffect(dynamicStore) {
                     dynamicStore.effects.collect { effect ->
                         when (effect) {
-                            is DynamicEffect.Navigate -> {
-                                destination = effect.destination
-                                dynamicStore.updateDestination(effect.destination)
-                            }
+                            is DynamicEffect.Navigate -> navigationState.push(effect.destination)
                             else -> Unit
                         }
                         dynamicStore.clearEffect()
@@ -82,11 +81,13 @@ private fun App() {
                     onDispose { dynamicStore.close() }
                 }
 
-                DynamicScreen(
-                    destination = destination,
-                    store = dynamicStore,
-                    registry = registry,
-                )
+                DynamicNavigationHost(state = navigationState) { destination ->
+                    DynamicScreen(
+                        destination = destination,
+                        store = dynamicStore,
+                        registry = registry,
+                    )
+                }
             }
 
             else -> SplashScreen(store = splashStore)
