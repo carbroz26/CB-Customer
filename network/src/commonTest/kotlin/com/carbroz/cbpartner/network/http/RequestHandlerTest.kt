@@ -46,9 +46,9 @@ class RequestHandlerTest {
             method = HttpMethod.Get,
             urlPathSegments = listOf("api", "v1", "screen"),
         )
+        val error = result as NetworkResult.Error
 
-        assertTrue(result is NetworkResult.Error)
-        assertTrue(result.exception is NetworkException.NotFoundException)
-        assertEquals(503, result.exception.statusCode)
+        assertTrue(error.exception is NetworkException.NotFoundException)
+        assertEquals(503, error.exception.statusCode)
     }
 }
