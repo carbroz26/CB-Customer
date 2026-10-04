@@ -8,6 +8,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class BootstrapMapperTest {
+    private val mapper = BootstrapMapper()
+
     @Test
     fun apiFailureCodeAndMessageAreMapped() {
         val dto = Json.decodeFromString<BootstrapResponseDto>(
@@ -22,7 +24,7 @@ class BootstrapMapperTest {
             """.trimIndent(),
         )
 
-        val failure = dto.toDomain().exceptionOrNull()
+        val failure = mapper.map(dto).exceptionOrNull()
 
         assertIs<BootstrapFailure.Api>(failure)
         assertEquals("INVALID_REQUEST", failure.code)
@@ -40,30 +42,16 @@ class BootstrapMapperTest {
               "data": {
                 "config": {
                   "version": "1",
-                  "maintenance": {
-                    "enabled": false,
-                    "title": null,
-                    "message": null
-                  },
-                  "update": {
-                    "required": false,
-                    "optional": false,
-                    "minimumVersion": "1.0.0",
-                    "latestVersion": "1.0.0",
-                    "storeUrl": null
-                  },
-                  "features": {
-                    "registrationEnabled": true,
-                    "individualPartnerEnabled": true,
-                    "organizationPartnerEnabled": true
-                  }
+                  "maintenance": {"enabled": false, "title": null, "message": null},
+                  "update": {"required": false, "optional": false, "minimumVersion": "1.0.0", "latestVersion": "1.0.0", "storeUrl": null},
+                  "features": {"registrationEnabled": true, "individualPartnerEnabled": true, "organizationPartnerEnabled": true}
                 },
                 "startup": {
                   "authenticated": false,
                   "nextScreen": {
                     "screenId": "partner_login",
                     "templateId": "tpl_7K2M9Q",
-                    "templateType": "stack_template",
+                    "templateType": "form_template",
                     "endpoint": "/api/v1/partner/screen/auth_login",
                     "method": "GET",
                     "authentication": "NONE"
@@ -75,13 +63,12 @@ class BootstrapMapperTest {
             """.trimIndent(),
         )
 
-        val output = dto.toDomain().getOrThrow()
-        val destination = output.startup.nextScreen
+        val destination = mapper.map(dto).getOrThrow().startup.nextScreen
 
         assertIs<DynamicDestination>(destination)
         assertEquals("partner_login", destination.screenId)
         assertEquals("tpl_7K2M9Q", destination.templateId)
-        assertEquals("stack_template", destination.templateType)
+        assertEquals("form_template", destination.templateType)
         assertEquals("/api/v1/partner/screen/auth_login", destination.endpoint)
         assertEquals("GET", destination.method)
         assertEquals("NONE", destination.authentication)
