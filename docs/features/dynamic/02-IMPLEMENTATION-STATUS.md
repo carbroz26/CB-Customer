@@ -74,9 +74,9 @@ Bootstrap startup destination, Dynamic API response destination, and direct Dyna
 
 The existing source/test alignment for this contract is already JVM verified. Runtime/platform verification remains a later verification gate.
 
-## 4. Next implementation — Dynamic use-case package ownership
+## 4. Phase B — Dynamic use-case package ownership
 
-**Status: IMPLEMENTED / VERIFICATION PENDING**
+**Status: VERIFIED**
 
 Per the frozen implementation plan, Dynamic feature orchestration use cases were moved from the misleading `domain/usecase` package to the feature-level `usecase` package without creating a second domain layer.
 
@@ -98,26 +98,60 @@ Updated consumers:
 - `DynamicModule.kt`
 - `DynamicStore.kt`
 
-No use-case behavior was intentionally changed.
+The latest owner-provided full compile/JVM verification is green.
 
-## 5. Remaining work
+## 5. Phase C-16 — Request metadata/authentication integration
+
+**Status: IMPLEMENTED / VERIFICATION PENDING**
+
+Implemented strictly as request metadata. `DynamicDestination` remains unchanged.
+
+The request path now carries:
+
+```text
+DynamicAction payload
+├── endpoint
+├── method
+└── authentication
+        ↓
+ExecuteDynamicActionUseCase
+        ↓
+DynamicRepository
+        ↓
+DynamicRepositoryImpl
+        ↓
+DynamicRemoteDataSource
+        ↓
+RequestHandler
+```
+
+Rules implemented:
+
+- `authentication` defaults to `NONE` when omitted.
+- `NONE` and `BEARER` are the currently supported authentication metadata values.
+- Unsupported authentication values fail at the network request boundary instead of being silently ignored.
+- No token store, credential provider, or new authentication architecture was introduced.
+- Existing Ktor `Auth` infrastructure remains the transport mechanism for bearer authentication when credentials are later available.
+- `method` and `authentication` remain request metadata and are not added to `DynamicDestination`.
+- Dynamic action tests now verify authentication propagation and the `NONE` default.
+
+## 6. Remaining work
 
 | Priority | Work | State |
 |---:|---|---|
-| 1 | Verify Dynamic use-case package cleanup | **NEXT** |
-| 2 | Complete request metadata/authentication | PENDING |
-| 3 | Complete frozen Dynamic state/reference/action behavior | PENDING |
-| 4 | Implement frozen network exception taxonomy | PENDING |
-| 5 | Complete DYNAMIC-07 production fallback/recovery/observability | PENDING |
-| 6 | Login → Send OTP → OTP → Verify OTP integration tests | PENDING |
-| 7 | Push/replace/pop/back runtime verification | PENDING |
-| 8 | Android verification | PENDING |
-| 9 | iOS/macOS-hosted verification | PENDING |
-| 10 | Web/Wasm verification | PENDING |
-| 11 | Literal plan-to-source compliance review | PENDING |
-| 12 | Final Dynamic review and code freeze | PENDING |
+| 1 | Verify Phase C-16 request metadata/authentication integration | **NEXT** |
+| 2 | Complete frozen Dynamic state/reference/action behavior | PENDING |
+| 3 | Implement frozen network exception taxonomy | PENDING |
+| 4 | Complete DYNAMIC-07 production fallback/recovery/observability | PENDING |
+| 5 | Login → Send OTP → OTP → Verify OTP integration tests | PENDING |
+| 6 | Push/replace/pop/back runtime verification | PENDING |
+| 7 | Android verification | PENDING |
+| 8 | iOS/macOS-hosted verification | PENDING |
+| 9 | Web/Wasm verification | PENDING |
+| 10 | Literal plan-to-source compliance review | PENDING |
+| 11 | Final Dynamic review and code freeze | PENDING |
 
-## 6. Continuation rules
+## 7. Continuation rules
 
 - Do not reopen DYNAMIC-01 → DYNAMIC-08.
 - Do not restore `DynamicScreen.nextScreen`.
@@ -127,6 +161,6 @@ No use-case behavior was intentionally changed.
 - Do not create Login/OTP/Dashboard-specific screen architecture.
 - No speculative cleanup or architecture changes outside the frozen plan.
 
-## 7. Next action
+## 8. Next action
 
-Run the full affected compile/JVM verification for the use-case package move. If green, immediately continue to the next ordered implementation item: **request metadata/authentication**.
+Run the full affected compile/JVM verification for Phase C-16 request metadata/authentication integration. If green, immediately continue to the next ordered implementation item: **frozen Dynamic state/reference/action behavior**.
