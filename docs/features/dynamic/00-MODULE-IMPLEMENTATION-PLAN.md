@@ -2,16 +2,21 @@
 
 ## Status
 
-**SUPERSEDED**
+**SUPERSEDED — DO NOT USE FOR IMPLEMENTATION**
 
-The active implementation contract is now:
+This file is retained only as a historical pointer. It is not an implementation mandate and must not be used to reconstruct older Dynamic architecture.
 
-`docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`
+## Current authoritative documents
 
-That document was updated after the final Navigation 3 / Dynamic Container discussion and is the **single implementation plan** for the current Dynamic refactor.
+Follow these documents instead:
 
-The final navigation/container freeze is recorded in:
+1. `docs/features/dynamic/00-FEATURE-DISCUSSION.md` — canonical frozen Dynamic architecture and runtime decisions.
+2. `docs/features/dynamic/03-NAVIGATION-CONTAINER-FREEZE.md` — canonical navigation/container boundary.
+3. `docs/features/dynamic/04-DYNAMIC-08-UNIFIED-DESTINATION-DISCUSSION.md` — canonical destination/action/request/binding contract.
+4. `docs/features/dynamic/05-DYNAMIC-08-IMPLEMENTATION-PLAN.md` — DYNAMIC-08 implementation plan.
+5. `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md` — overall implementation source of truth.
+6. `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md` — implementation status and next work only.
 
-`docs/features/dynamic/03-NAVIGATION-CONTAINER-FREEZE.md`
+## Explicit rule
 
-Do not use this file as an implementation mandate. It is retained only as a historical record so the project does not carry two competing implementation plans.
+If this historical file conflicts with any current document above, **this file loses**. Do not copy old classes, use cases, destination fields, navigation flows, or architecture from this file.
