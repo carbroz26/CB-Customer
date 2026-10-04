@@ -27,6 +27,7 @@ fun DynamicScreen(
     val state by store.state.collectAsState()
 
     LaunchedEffect(destination) {
+        store.updateDestination(destination)
         store.accept(DynamicIntent.Load)
     }
 
@@ -45,7 +46,7 @@ fun DynamicScreen(
                     onValueChange = { key, value -> store.accept(DynamicIntent.ValueChanged(key, value)) },
                 ).Render(
                     response = current.response,
-                    templateType = destination.templateType,
+                    destination = destination,
                 )
             }
 

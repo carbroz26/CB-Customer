@@ -4,6 +4,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicComponent
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicGroup
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
@@ -25,25 +26,36 @@ class DynamicRenderer(
     @Composable
     fun Render(
         response: DynamicResponse,
-        templateType: String? = null,
+        destination: DynamicDestination,
     ) {
         val screen = response.data
         if (screen == null) {
             Text(text = response.message)
             return
         }
-        renderScreen(screen, templateType)
+        renderScreen(screen, destination)
     }
 
     @Composable
     private fun renderScreen(
         screen: DynamicScreen,
-        destinationTemplateType: String?,
+        destination: DynamicDestination,
     ) {
         val responseTemplate = screen.template
-        val selectedTemplateType = destinationTemplateType ?: responseTemplate.type
+
+        if (screen.screenId != destination.screenId) {
+            Text(text = "Dynamic screen identity mismatch: ${destination.screenId} != ${screen.screenId}")
+            return
+        }
+
+        if (destination.templateId != null && destination.templateId != responseTemplate.id) {
+            Text(text = "Dynamic template identity mismatch: ${destination.templateId} != ${responseTemplate.id}")
+            return
+        }
+
+        val selectedTemplateType = destination.templateType ?: responseTemplate.type
         if (selectedTemplateType != responseTemplate.type) {
-            Text(text = "Dynamic template identity mismatch: $selectedTemplateType != ${responseTemplate.type}")
+            Text(text = "Dynamic template type mismatch: $selectedTemplateType != ${responseTemplate.type}")
             return
         }
 
