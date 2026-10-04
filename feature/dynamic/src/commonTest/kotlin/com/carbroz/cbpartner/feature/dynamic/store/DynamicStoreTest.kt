@@ -5,9 +5,10 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
-import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionHandler
-import com.carbroz.cbpartner.feature.dynamic.usecase.ExecuteDynamicActionUseCase
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
+import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
+import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -49,18 +50,21 @@ class DynamicStoreTest {
             }
         }
 
+        val currentDestination = DynamicDestination(
+            screenId = "current",
+            templateId = "tpl_P100C",
+            templateType = "stack_template",
+            endpoint = "/current",
+        )
+        val navigation = DynamicNavigationState(currentDestination)
+        val actionExecutor = DynamicActionExecutor(
+            handlers = listOf(RequestActionHandler(repository)),
+        )
+
         val store = DynamicStore(
             loadDynamicScreen = LoadDynamicScreenUseCase(repository),
-            executeDynamicAction = ExecuteDynamicActionUseCase(
-                repository = repository,
-                actionHandler = DynamicActionHandler(),
-            ),
-            destination = DynamicDestination(
-                screenId = "current",
-                templateId = "tpl_P100C",
-                templateType = "stack_template",
-                endpoint = "/current",
-            ),
+            actionExecutor = actionExecutor,
+            destination = currentDestination,
             contextProvider = { mapOf("deviceId" to "test-device") },
             scope = CoroutineScope(dispatcher),
         )
@@ -68,7 +72,7 @@ class DynamicStoreTest {
         store.accept(DynamicIntent.ValueChanged("firstName", "John"))
         store.accept(
             DynamicIntent.Action(
-                DynamicAction(
+                action = DynamicAction(
                     type = "request",
                     payload = mapOf(
                         "method" to DynamicValue.StringValue("POST"),
@@ -86,6 +90,7 @@ class DynamicStoreTest {
                         ),
                     ),
                 ),
+                navigation = navigation,
             ),
         )
 
@@ -100,9 +105,11 @@ class DynamicStoreTest {
             DynamicValue.StringValue("test-device"),
             body.value["deviceId"],
         )
-        val effect = store.effects.value
-        assertNotNull(effect)
-        assertEquals("next", (effect as DynamicEffect.Navigate).destination.screenId)
+        assertEquals("next", navigationDestination(navigation).screenId)
         store.close()
+    }
+
+    private fun navigationDestination(navigation: DynamicNavigationState): DynamicDestination {
+        return navigation.currentDestination
     }
 }
