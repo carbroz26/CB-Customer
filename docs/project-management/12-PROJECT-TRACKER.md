@@ -15,17 +15,19 @@
 | Workflow | IMPLEMENTATION IN PROGRESS |
 | Branch | `feature/dynamic-ui` |
 | Discussion | DYNAMIC-01 → DYNAMIC-07 FROZEN |
+| Unified destination contract | DYNAMIC-08 FROZEN |
 | Plan | PLAN FROZEN / IMPLEMENTATION AUTHORIZED |
 | Latest JVM verification | BUILD SUCCESSFUL — 2026-10-04 |
-| Blocker | No compile/test blocker; architecture/runtime gaps remain explicitly tracked |
-| Next action | Implement Bootstrap Option B completely, then verify shared DynamicDestination runtime |
+| Blocker | No compile/test blocker; remaining work is implementation/runtime verification |
+| Next action | Complete Bootstrap Option B, then verify shared DynamicDestination runtime |
 
 ## Dynamic Discussion / Reconciliation Register
 
 | Record | State | Purpose |
 |---|---|---|
 | DYNAMIC-01 → DYNAMIC-07 | FROZEN | Complete Dynamic architecture discussion |
-| `03-FINAL-RECONCILIATION-2026-10-04.md` | FROZEN | Final Bootstrap/navigation/error-model reconciliation |
+| DYNAMIC-08 | FROZEN | Unified four-field destination contract |
+| `03-FINAL-RECONCILIATION-2026-10-04.md` | FROZEN | Bootstrap/navigation/error-model reconciliation |
 | Bootstrap Option B | FROZEN / IMPLEMENTATION REQUIRED | Repository + remote-source layering |
 | Canonical DynamicDestination | FROZEN | Shared destination for Bootstrap/API/action sources |
 | Network exception taxonomy | FROZEN / IMPLEMENTATION REQUIRED | Precise transport/HTTP/protocol classification |
@@ -34,7 +36,7 @@
 
 | Area | State |
 |---|---|
-| `DynamicDestination` | IMPLEMENTED |
+| `DynamicDestination` | IMPLEMENTED / VERIFIED |
 | Navigation state | IMPLEMENTED |
 | Dynamic container | IMPLEMENTED |
 | Dynamic Store | IMPLEMENTED / FINAL REVIEW PENDING |
@@ -44,10 +46,11 @@
 | Initial definitions | IMPLEMENTED |
 | Dynamic repository | IMPLEMENTED |
 | Dynamic remote source | IMPLEMENTED |
-| Dynamic DTO / mapper | IMPLEMENTED |
+| Dynamic DTO / mapper | IMPLEMENTED / JVM VERIFIED |
 | Shared network boundary | IMPLEMENTED / JVM VERIFIED |
+| DYNAMIC-08 destination mapping | IMPLEMENTED / JVM VERIFIED |
 | Bootstrap API contract | KNOWN / DOCUMENTED |
-| Bootstrap → DynamicDestination mapping | BASELINE IMPLEMENTED / RUNTIME VERIFICATION PENDING |
+| Bootstrap → DynamicDestination mapping | IMPLEMENTED / RUNTIME VERIFICATION PENDING |
 | Bootstrap repository | REQUIRED / NEXT |
 | Bootstrap repository implementation | REQUIRED / NEXT |
 | Bootstrap remote source | REQUIRED / NEXT |
@@ -96,10 +99,22 @@ X-CarBroz-Build-Number: 1
 ## Canonical Navigation Contract
 
 ```text
-Bootstrap API nextScreen ───────┐
-Dynamic API nextScreen ─────────┼──→ DynamicDestination → DynamicNavigationState
-Dynamic action destination ─────┘
+Bootstrap startup destination ───┐
+Dynamic API destination ─────────┼──→ DynamicDestination → DynamicNavigationState
+Dynamic action destination ──────┘
 ```
+
+Canonical destination:
+
+```text
+DynamicDestination
+├── screenId
+├── templateId
+├── templateType
+└── endpoint
+```
+
+Request method/authentication are request metadata, not destination identity.
 
 One destination type, one navigation mechanism, one back-stack representation.
 
@@ -127,17 +142,38 @@ HTTP, connection, timeout, serialization and protocol failures must remain disti
 
 ## Latest Verification Record — 2026-10-04
 
-```powershell
-.\gradlew.bat :network:compileKotlinJvm
-.\gradlew.bat :data:compileKotlinJvm
-.\gradlew.bat :feature:splash:compileKotlinJvm
-.\gradlew.bat :feature:dynamic:compileKotlinJvm
-.\gradlew.bat :app:compileKotlinJvm
+Compile verification:
 
-.\gradlew.bat :network:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
+```powershell
+.\gradlew.bat `
+  :domain:compileKotlinJvm `
+  :data:compileKotlinJvm `
+  :feature:splash:compileKotlinJvm `
+  :feature:dynamic:compileKotlinJvm `
+  :navigation:compileKotlinJvm `
+  :app:compileKotlinJvm `
+  --rerun-tasks
 ```
 
-Result: **BUILD SUCCESSFUL — 54 actionable tasks: 15 executed, 39 up-to-date**.
+Result: **BUILD SUCCESSFUL — 43 actionable tasks: 43 executed**.
+
+JVM test verification:
+
+```powershell
+.\gradlew.bat `
+  :core:jvmTest `
+  :domain:jvmTest `
+  :data:jvmTest `
+  :navigation:jvmTest `
+  :feature:splash:jvmTest `
+  :feature:dynamic:jvmTest `
+  :app:compileKotlinJvm `
+  --rerun-tasks
+```
+
+Result: **BUILD SUCCESSFUL — 62 actionable tasks: 62 executed**.
+
+Known Gradle warnings on Windows are non-fatal: iOS simulator tests require macOS and Android host-test configuration is not enabled for these commonTest sources.
 
 ## Remaining Work Register
 
@@ -164,10 +200,10 @@ Result: **BUILD SUCCESSFUL — 54 actionable tasks: 15 executed, 39 up-to-date**
 
 - BASE-ARCH-014 implementation.
 - BASE-ARCH-017 implementation.
-- DYNAMIC-01 through DYNAMIC-07 discussion decisions.
+- DYNAMIC-01 through DYNAMIC-08 discussion decisions.
 - Bootstrap/Splash single-flow decision.
 - Bootstrap Option B boundary.
-- Canonical shared `DynamicDestination` decision.
+- Canonical shared four-field `DynamicDestination` decision.
 - Network exception classification decision.
 
 ## Documentation Authority
