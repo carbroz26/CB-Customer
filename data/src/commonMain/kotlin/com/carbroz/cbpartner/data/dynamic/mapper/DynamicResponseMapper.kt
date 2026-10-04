@@ -3,21 +3,21 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 import com.carbroz.cbpartner.data.dynamic.model.DynamicActionsDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicBindingDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicComponentDto
+import com.carbroz.cbpartner.data.dynamic.model.DynamicDestinationDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicElementDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicGroupDto
-import com.carbroz.cbpartner.data.dynamic.model.DynamicNextScreenDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicResponseDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicScreenDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicSectionDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicTemplateDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicThemeDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicValidationDto
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicGroup
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicNextScreen
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicSection
@@ -54,12 +54,11 @@ class DynamicResponseMapper {
             message = dto.message,
             data = screen,
             traceId = dto.traceId,
-            nextScreen = dto.nextScreen?.toDomain(),
             dataPayload = dataPayload,
         )
     }
 
-    private fun DynamicNextScreenDto.toDomain() = DynamicNextScreen(
+    private fun DynamicDestinationDto.toDomain() = DynamicDestination(
         screenId = screenId,
         templateId = templateId,
         templateType = templateType,
@@ -74,6 +73,7 @@ class DynamicResponseMapper {
         targetApp = targetApp,
         template = template.toDomain(),
         theme = theme?.toDomain(),
+        nextScreen = nextScreen?.toDomain(),
     )
 
     private fun DynamicTemplateDto.toDomain() = DynamicTemplate(
