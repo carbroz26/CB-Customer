@@ -2,13 +2,11 @@
 
 ## Status
 
-**DISCUSSION FROZEN — IMPLEMENTATION AUTHORIZED THROUGH `01-IMPLEMENTATION-PLAN.md`**
+**DISCUSSION FROZEN — IMPLEMENTATION AUTHORIZED**
 
-This record freezes the final navigation/container decisions made after forensic review of the current repository. These decisions supersede any earlier implementation detail that conflicts with them. They do not change the fixed backend JSON contract or the already-frozen DYNAMIC-01 through DYNAMIC-07 SDUI vocabulary.
+This record freezes the final navigation/container decisions after repository and Navigation 3 review. It is the governing navigation/container boundary for Dynamic implementation.
 
-## 1. Supported application platforms
-
-CB-Partner supports:
+## 1. Supported platforms
 
 ```text
 Android
@@ -16,21 +14,19 @@ Android
  Web (Wasm)
 ```
 
-There is **no `desktopApp`** and no desktop-specific Dynamic or navigation implementation will be created.
+There is **no `desktopApp`** and no Desktop-specific Dynamic or navigation implementation.
 
-The shared Compose Multiplatform application architecture is the common implementation. Platform entry points remain thin and exist only at genuine platform boundaries.
+The Dynamic Container, Dynamic runtime, and navigation host are shared Compose Multiplatform code. Platform entry points remain thin and exist only at genuine platform boundaries.
 
 ## 2. Navigation technology
 
-The shared `:navigation` module will use the already-selected Navigation 3 dependencies in the repository. Navigation 3 is the navigation foundation; a second navigation framework is not introduced.
+Use the already-selected Navigation 3 dependencies in the repository. Do not introduce another navigation framework and do not change the pinned versions as part of this implementation.
 
-Navigation 3 is appropriate because its model gives the application ownership of the back stack and represents entries as keys, which matches backend-driven `DynamicDestination` values. The current version-catalog versions remain unchanged by this decision unless a separate dependency decision is explicitly approved.
+Navigation 3 is a good fit because the application owns the observable back stack and `NavDisplay` resolves keys to content. Its multiplatform implementation supports Android, iOS, and Web, with serializable keys for persistent navigation state.
 
-## 3. DynamicDestination is the navigation key
+## 3. Canonical Dynamic destination
 
-The complete backend-defined `DynamicDestination` is the identity of a navigable Dynamic destination.
-
-It contains the information required by the frozen contract, including:
+`DynamicDestination` remains the canonical **domain destination payload** and contains the complete backend-defined information:
 
 ```text
 screenId
@@ -41,73 +37,82 @@ method
 authentication
 ```
 
-The destination must not be reduced to a route string, template type, or template ID alone.
+Meaning:
 
-`templateType` answers:
+```text
+templateType
+    → which registered Template definition renders the destination
 
-> Which registered template definition renders this destination?
+templateId
+    → concrete Dynamic destination/template instance identity
 
-`templateId` identifies the concrete destination/template instance.
+endpoint + method + authentication
+    → how the Dynamic screen document is loaded
+```
 
-`endpoint`, `method`, and `authentication` identify how the actual Dynamic screen document is loaded.
+The complete `DynamicDestination` must be what is stored in navigation history. It must never be reduced to a route string, template type, or template ID alone.
 
-No business-screen route names are hardcoded into the navigation layer.
+## 4. Clean Architecture boundary for Navigation 3 keys
 
-## 4. One permanent Dynamic Container
+`domain` must remain independent of the Navigation 3 framework.
 
-There is exactly one shared Dynamic Container for the Dynamic feature.
+Therefore the domain `DynamicDestination` does **not** depend directly on `NavKey`.
 
-Mental model:
+`:navigation` provides the minimal adapter/key required by Navigation 3, containing the complete canonical `DynamicDestination` payload.
+
+Conceptually:
+
+```text
+Domain
+└── DynamicDestination
+        │
+        │ complete payload
+        ▼
+:navigation
+└── DynamicDestinationNavKey : NavKey
+        │
+        ▼
+Navigation 3 back stack
+```
+
+This is not a second destination model. `DynamicDestinationNavKey` is only the framework adapter required to keep the domain independent of Navigation 3.
+
+The adapter must not duplicate destination fields outside the wrapped canonical `DynamicDestination`.
+
+## 5. One permanent Dynamic Container
+
+There is exactly **one permanent shared Dynamic Container**.
+
+Mental model only:
 
 ```text
 DynamicContainer ≈ stable Activity-like host
 Template         ≈ replaceable Fragment-like content
 ```
 
-This is a conceptual analogy only. The implementation is platform-independent Compose Multiplatform and does not create Activities/Fragments for Dynamic screens.
+This is a conceptual analogy. The implementation does not create Android Activities/Fragments for Dynamic screens.
 
 The container remains stable while the current backend-defined destination/template changes.
 
 ```text
-Application
-  ↓
 Navigation
-  ↓
-Dynamic Container
-  ↓
+   ↓
 current DynamicDestination
-  ↓
+   ↓
+Dynamic Container
+   ↓
 current template definition
-  ↓
+   ↓
 Dynamic screen content
 ```
 
-There are no native `LoginScreen`, `OtpScreen`, `DashboardScreen`, or equivalent business-screen classes.
+There are no native LoginScreen, OtpScreen, DashboardScreen, or equivalent business-screen classes.
 
-## 5. Navigation stack ownership
+## 6. Navigation ownership
 
-Navigation owns navigation history.
+`:navigation` owns navigation history and Navigation 3 mechanics.
 
-The stack contains complete `DynamicDestination` entries.
-
-Example:
-
-```text
-[
-  Login DynamicDestination,
-  OTP DynamicDestination
-]
-```
-
-Back removes the current destination and exposes the previous complete destination.
-
-Refresh reloads the current destination without adding another stack entry.
-
-Navigation does not call the backend and does not render SDUI nodes.
-
-## 6. Navigation operations
-
-The minimum navigation boundary supports only operations that have a concrete current requirement:
+Minimum operations:
 
 ```text
 setRoot(destination)
@@ -116,39 +121,55 @@ replace(destination)
 pop()
 ```
 
-These operations manipulate navigation state. They do not execute Dynamic API requests.
+These operations modify navigation state only. They do not call the backend and do not render SDUI.
 
-`replace` is required because a backend-driven flow may need to replace the current destination rather than add another history entry.
+Do not create a `NavigationManager`, `NavigationCoordinator`, `NavigationRouter`, or framework wrapper hierarchy without a concrete single responsibility.
 
-No generic `NavigationManager`, `NavigationCoordinator`, `NavigationRouter`, or framework wrapper hierarchy is created without a concrete responsibility.
+## 7. Navigation host
 
-## 7. Dynamic action vs navigation capability
+Use Navigation 3 `NavDisplay` and its entry mechanism.
+
+A `DynamicDestinationNavKey` resolves to the one Dynamic Container. The container receives the wrapped canonical `DynamicDestination` and loads/renders it through the Dynamic feature boundary.
+
+There are no business-specific navigation entries.
+
+## 8. Back and refresh
+
+System/application back removes the current complete Dynamic destination and exposes the previous destination.
+
+Refresh reloads the current complete destination and does not add another navigation entry.
+
+The Dynamic Store does not mutate the navigation stack directly.
+
+## 9. Dynamic action vs navigation capability
 
 Backend actions and navigation mechanics remain separate.
 
 ```text
 navigate
   ↓
-Dynamic navigation destination/effect
+Dynamic navigation effect/result
   ↓
-Navigation boundary
+:navigation
 ```
 
 ```text
 external_uri
   ↓
-External URI capability
+external URI capability/effect
+  ↓
+platform boundary
 ```
 
-`external_uri` is **not** represented as an internal navigation destination.
+`external_uri` is never represented as an internal navigation destination.
 
-Future action types such as `dismiss`, `present`, `deeplink`, or other backend-defined actions can be added at their correct capability boundary when the backend contract requires them. They are not preimplemented speculatively.
+Future backend actions such as `dismiss`, `present`, `deeplink`, or additional capabilities can be added at their correct boundary when their contract is required. They are not speculatively implemented now.
 
-## 8. Dynamic Store boundary
+## 10. Dynamic Store boundary
 
-`DynamicStore` does not own navigation state or Navigation 3 APIs.
+`DynamicStore` does not own navigation state and does not import or call Navigation 3 APIs.
 
-It may emit a navigation effect/result when Dynamic action execution requires navigation.
+It can emit a navigation effect/result when Dynamic action execution requires navigation:
 
 ```text
 DynamicStore
@@ -157,16 +178,14 @@ use case / action execution
   ↓
 navigation effect
   ↓
-Navigation boundary
+:navigation boundary
 ```
 
 The Store owns Dynamic screen/runtime state, not application navigation history.
 
-## 9. Dynamic screen loading boundary
+## 11. Dynamic screen loading
 
-The navigation boundary does not load the Dynamic screen API.
-
-The Dynamic Container/Store flow uses the current destination:
+Navigation does not load the Dynamic screen API.
 
 ```text
 DynamicDestination
@@ -180,11 +199,9 @@ RemoteDataSource
 backend
 ```
 
-The resulting screen document is rendered according to its registered `templateType`.
+The returned screen document is rendered according to the destination's registered `templateType`.
 
-## 10. Platform composition
-
-The intended composition is:
+## 12. Platform composition
 
 ```text
 Android entry ─┐
@@ -192,43 +209,44 @@ iOS entry ────┼──→ shared App → shared Navigation → Dynamic 
 Web entry ─────┘
 ```
 
-Navigation and Dynamic Container are common code.
+Platform-specific code is limited to genuine platform boundaries. No platform duplicates the Dynamic Container or navigation implementation.
 
-Platform-specific implementations are introduced only for genuine platform boundaries such as native iOS hosting, browser/platform capabilities, or platform-specific external URI launching.
-
-## 11. Explicit prohibitions
+## 13. Explicit prohibitions
 
 The implementation must not introduce:
 
 - `desktopApp`;
 - a second navigation framework;
-- string-based business routes for Dynamic screens;
+- domain dependency on Navigation 3;
+- duplicate destination models;
+- string-based Dynamic business routes;
 - one navigation class per business screen;
-- navigation logic inside `DynamicStore`;
-- API calls from the navigation module;
+- navigation state inside `DynamicStore`;
+- API calls from `:navigation`;
 - template-type-based navigation rules;
 - external URI as an internal destination;
 - one Dynamic Container per template;
 - Login/OTP/Dashboard native screen classes;
-- speculative `NavigationManager`/`Coordinator`/`Router` abstractions;
-- duplicate Dynamic destination models.
+- speculative manager/coordinator/router abstractions.
 
-## 12. Frozen target flow
+## 14. Frozen target flow
 
 ```text
 Platform Entry
       ↓
 Shared App Composition
       ↓
-Navigation 3
+:navigation
       ↓
-DynamicDestination back stack
+Navigation 3 back stack
       ↓
-Dynamic Container
+DynamicDestinationNavKey
       ↓
-Dynamic Screen Store
+canonical DynamicDestination
       ↓
-LoadDynamicScreenUseCase
+one Dynamic Container
+      ↓
+Dynamic Store / LoadDynamicScreenUseCase
       ↓
 DynamicRepository
       ↓
@@ -254,13 +272,11 @@ DynamicStore
       ↓
 ExecuteDynamicActionUseCase
       ↓
-request/action result
+DynamicDestination / navigation effect
       ↓
-DynamicDestination
+:navigation
       ↓
-Navigation boundary
-      ↓
-Dynamic Container shows new current destination
+Dynamic Container shows the new current destination
 ```
 
 This is the frozen navigation/container boundary for implementation.
