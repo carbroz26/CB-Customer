@@ -1,7 +1,6 @@
 package com.carbroz.cbpartner.data.bootstrap
 
-import com.carbroz.cbpartner.data.network.NetworkConfig
-import com.carbroz.cbpartner.data.network.RemoteDataSource
+import com.carbroz.cbpartner.network.http.RequestHandler
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -106,10 +105,7 @@ class BootstrapRemoteDataSourceTest {
 
     private fun createBootstrap(engine: MockEngine): DefaultApplicationBootstrap =
         DefaultApplicationBootstrap(
-            RemoteDataSource(
-                HttpClient(engine),
-                NetworkConfig("http://localhost:3000"),
-            ),
+            RequestHandler(HttpClient(engine)),
         )
 
     private companion object {
