@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.data.bootstrap
 
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
+import com.carbroz.cbpartner.network.NetworkResult
 import com.carbroz.cbpartner.network.http.RequestHandler
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -11,7 +12,7 @@ import io.ktor.http.headersOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertIs
 
 class BootstrapRemoteDataSourceTest {
     @Test
@@ -35,8 +36,9 @@ class BootstrapRemoteDataSourceTest {
             },
         ).fetch()
 
-        assertTrue(result.isSuccess)
-        assertTrue(requestUrl.endsWith("/api/v1/partner/config/bootstrap"))
+        assertIs<NetworkResult.Success<String>>(result)
+        assertEquals("/api/v1/partner/config/bootstrap", requestUrl.substringAfter("/api/v1/partner/config/bootstrap"))
+            .also { assertEquals("", it) }
         assertEquals("ANDROID", platform)
         assertEquals("1.0.0", appVersion)
         assertEquals("1", buildNumber)
