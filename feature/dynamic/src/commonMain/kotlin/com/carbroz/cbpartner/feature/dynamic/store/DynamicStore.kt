@@ -7,6 +7,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
+import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,6 +38,7 @@ sealed interface DynamicState {
 class DynamicStore(
     private val loadDynamicScreen: LoadDynamicScreenUseCase,
     private val actionExecutor: DynamicActionExecutor,
+    private val navigation: DynamicNavigationState,
     destination: DynamicDestination,
     private val contextProvider: () -> Map<String, String> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
@@ -94,6 +96,7 @@ class DynamicStore(
         actionJob = scope.launch {
             actionExecutor.execute(
                 action = action,
+                navigation = navigation,
                 bindings = bindings.toMap(),
                 context = contextProvider(),
                 previousResponse = previousResponseData,
