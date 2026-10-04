@@ -46,11 +46,13 @@ No silent deviation is permitted.
 10. Removed the hardcoded test device ID from `DynamicStore`.
 11. Kept navigation and external URI as separate Dynamic effects.
 12. Removed transport headers from the Dynamic repository contract so common transport metadata remains below the Dynamic/domain boundary.
-13. Updated focused registry and Store tests to the new contracts.
+13. Moved Dynamic request-body JSON serialization from the use-case into the data repository implementation.
+14. Kept request-body resolution as domain values until the data boundary.
+15. Added focused action-use-case coverage for binding/context resolution and destination response handling.
+16. Updated Store tests to verify that the Store/use-case boundary passes resolved domain values rather than serialized JSON.
 
 ## Remaining Implementation Work
 
-- finish Dynamic action/use-case integration;
 - verify DI/wiring for Store and use cases;
 - complete common request metadata integration using the existing Runtime Infrastructure boundary;
 - verify Bootstrap `startup.nextScreen` → `DynamicDestination` integration;
