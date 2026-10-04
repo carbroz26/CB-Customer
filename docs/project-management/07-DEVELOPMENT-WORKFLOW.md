@@ -1,40 +1,66 @@
 # CB-Partner — Development Workflow
 
-**Status:** FROZEN
+**Status:** FROZEN / CURRENT
+**Last Updated:** 2026-10-04
 
-## Master Lifecycle
-IDEA → DISCUSS → RESEARCH → DECIDE → DECISION FREEZE → PLAN → PLAN FREEZE → TRELLO READY → BRANCH → IMPLEMENT → TEST → REVIEW → ACCEPT → CODE FREEZE → COMMIT → MERGE → DOCUMENT → CHECKPOINT.
+## Master Feature Lifecycle
 
-## Phase Responsibilities
-1. IDEA: capture outcome without prescribing implementation.
-2. DISCUSS: clarify behavior, constraints, assumptions and edge cases. No code.
-3. RESEARCH: collect evidence needed for decisions. No code.
-4. DECIDE: select an approach and record significant decisions.
-5. DECISION FREEZE: owner accepts; decision becomes constraint.
-6. PLAN: inspect repository and create implementation contract.
-7. PLAN FREEZE: owner approves; coding is authorized.
-8. TRELLO READY: create/update actionable card.
-9. BRANCH: start one focused, clearly named working branch from `development`.
-10. IMPLEMENT: execute frozen plan.
-11. TEST: verify behavior and quality.
-12. REVIEW: compare actual diff with frozen contract.
-13. ACCEPT: resolve required findings.
-14. CODE FREEZE: stop unrelated changes.
-15. COMMIT/MERGE: preserve logical Git history and merge the completed task into `development` only after its required gates.
-16. DOCUMENT: update project memory.
-17. CHECKPOINT: record known-good state.
+```text
+FEATURE DISCUSSION
+  Discuss → Research → Decide → Discussion Freeze
+        ↓
+IMPLEMENTATION PLAN
+  Complete Plan → Plan Freeze
+        ↓
+IMPLEMENTATION
+  Implement Completely → Test → Review → Feature Freeze
+```
 
-## Restart Prevention
-Classify problems before reacting: local bug, local refactor, architectural issue, requirement change, or invalid fundamental assumption. Prefer focused fixes and migration over restart.
+This is the current three-phase feature workflow. Do not create separate approval/freeze gates for individual implementation units.
 
-## Small Changes
-Trivial changes may skip formal research/ADR, but must retain appropriate scope, validation and Git discipline.
+## Phase 1 — Feature Discussion
 
-## Controlled Unit Lifecycle
-After PLAN FREEZE, work one implementation unit at a time: SELECT → IMPLEMENT → TEST → REVIEW → ACCEPT/FIX → FREEZE → RECORD → STOP. Do not batch units.
+Clarify behavior, constraints, assumptions, architecture boundaries and important edge cases. Research only what is required. Freeze the complete feature discussion once the required decisions are accepted.
+
+## Phase 2 — Implementation Plan
+
+Create one complete implementation contract covering objective, scope, non-goals, modules/files, dependencies, implementation sequence, tests, acceptance criteria, risks and documentation.
+
+Plan freeze authorizes implementation.
+
+## Phase 3 — Implementation
+
+Implement the complete feature according to the frozen plan. Use internal implementation units only for sequencing. Do not stop for additional unit-level authorization.
+
+Then run complete testing, review the complete feature and freeze it.
+
+## Testing
+
+Testing must cover the behavior required by the feature plan. A successful compile alone is not completion.
+
+## Review
+
+Review the complete implementation against requirements, frozen discussion, plan, architecture, tests, scope and final Git diff.
 
 ## Git Lifecycle
-IMPLEMENTED → VERIFIED → COMMITTED → PUSHED → PR OPEN → REVIEWED → MERGED → SYNCED. These are separate states. The user receives a change report and exact Antigravity sync commands after material code changes.
+
+```text
+working branch
+   ↓
+implementation
+   ↓
+test
+   ↓
+review
+   ↓
+feature freeze
+   ↓
+commit / PR
+   ↓
+development
+   ↓
+main when production-ready
+```
 
 ## Official Branch Model
 
@@ -45,70 +71,27 @@ Permanent branches:
 
 Working branches:
 
-- `architecture/<clear-name>` — architecture work.
-- `feature/<clear-name>` — product feature work.
-- `fix/<clear-name>` — bug fixes.
-- `hotfix/<clear-name>` — urgent production fixes.
+- `architecture/<clear-name>`
+- `feature/<clear-name>`
+- `fix/<clear-name>`
+- `hotfix/<clear-name>`
 
-Branch names must describe the actual work. Do not create generic or numbered branches such as `work`, `test`, `temp`, `dev2`, `feature2`, `implementation2`, `new`, or `final`.
+## Current Feature Branch
 
-Do not create multiple implementation variants for the same task. A task has one focused working branch. Historical recovery branches may remain for their existing lifecycle but do not establish the naming convention for future work.
+Current Dynamic implementation branch:
 
-## Branch Promotion
+`feature/dynamic-ui`
 
-```text
-development
-     ↓
-focused working branch
-     ↓
-implementation → test → review → code freeze
-     ↓
-development
-     ↓
-production-ready feature complete
-     ↓
-main
-```
+Do not continue from stale feature branches without checking the current Tracker and Git state.
 
-Merging into `development` does not automatically mean the feature is production-ready. Merging into `main` is reserved for completed production-ready work.
+## Current Product Progression
 
-## Next Product Working Branch
-
-After BASE-ARCH-017 completes its verification/review/integration gates, the next product vertical slice uses:
-
-`feature/splash-config-bootstrap`
-
-This branch is created from the then-current `development` branch. It must not be created prematurely from an outdated `development` state.
+Base Architecture is frozen through BASE-ARCH-017. Splash/Bootstrap foundation is implemented and integrated with the Dynamic destination contract. The current product vertical slice is Dynamic UI through the Login → OTP contract.
 
 ## Productivity Rule
 
-Once required base architecture contracts are frozen, prefer a small real product vertical slice over speculative additional base-architecture work.
+After a feature discussion is frozen, move immediately to its complete implementation plan. After the plan is frozen, implement the complete feature. Do not create process overhead between implementation units.
 
-The first planned product slice is:
+## Recovery Rule
 
-**FEATURE-001 — Splash + Config/Bootstrap**
-
-```text
-Application Launch
-      ↓
-Splash UI
-      ↓
-Pure MVI / Store
-      ↓
-Config / Bootstrap API
-      ↓
-Domain boundary
-      ↓
-Data / Ktor
-      ↓
-Config response parsing
-      ↓
-Runtime configuration
-      ↓
-Dynamic application entry point
-```
-
-This document does not itself authorize feature implementation. The feature must still pass its own DISCUSS → DECIDE → PLAN → PLAN FREEZE → BRANCH → IMPLEMENT → TEST → REVIEW → ACCEPT → CODE FREEZE lifecycle.
-
-## Post-Freeze Gate
-Every meaningful freeze is a hard stop. Return the current state, records updated, remaining work, and one next prompt. Wait for the user's next objective.
+Use `AI_START_HERE.md`, the Project Master State, Current Status, Project Tracker and the relevant feature documents to recover state. Historical chat is not the workflow source of truth.
