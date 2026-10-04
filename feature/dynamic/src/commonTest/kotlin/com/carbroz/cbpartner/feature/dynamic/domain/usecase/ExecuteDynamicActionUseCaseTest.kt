@@ -6,6 +6,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicNextScreen
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionHandler
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -57,7 +58,7 @@ class ExecuteDynamicActionUseCaseTest {
             ),
         )
 
-        val result = ExecuteDynamicActionUseCase(repository)(
+        val result = ExecuteDynamicActionUseCase(repository, DynamicActionHandler())(
             action = action,
             bindings = mapOf("name" to "John"),
             context = mapOf("deviceId" to "device-1"),
