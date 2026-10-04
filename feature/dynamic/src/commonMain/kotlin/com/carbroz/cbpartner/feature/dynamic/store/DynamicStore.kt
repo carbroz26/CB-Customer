@@ -20,7 +20,10 @@ import kotlinx.coroutines.launch
 sealed interface DynamicIntent {
     data object Load : DynamicIntent
     data object Retry : DynamicIntent
-    data class Action(val action: DynamicAction) : DynamicIntent
+    data class Action(
+        val action: DynamicAction,
+        val navigation: DynamicNavigationState,
+    ) : DynamicIntent
     data class ValueChanged(val key: String, val value: String) : DynamicIntent
 }
 
@@ -38,7 +41,6 @@ sealed interface DynamicState {
 class DynamicStore(
     private val loadDynamicScreen: LoadDynamicScreenUseCase,
     private val actionExecutor: DynamicActionExecutor,
-    private val navigation: DynamicNavigationState,
     destination: DynamicDestination,
     private val contextProvider: () -> Map<String, String> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
@@ -70,7 +72,7 @@ class DynamicStore(
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
             is DynamicIntent.ValueChanged -> bindings[intent.key] = intent.value
-            is DynamicIntent.Action -> handleAction(intent.action)
+            is DynamicIntent.Action -> handleAction(intent.action, intent.navigation)
         }
     }
 
@@ -91,7 +93,7 @@ class DynamicStore(
         }
     }
 
-    private fun handleAction(action: DynamicAction) {
+    private fun handleAction(action: DynamicAction, navigation: DynamicNavigationState) {
         if (actionJob?.isActive == true) return
         actionJob = scope.launch {
             actionExecutor.execute(
