@@ -1,57 +1,111 @@
 # CB-Partner — Frontend Engineering Guide
 
-**Status:** PROPOSED
+**Status:** ACTIVE ENGINEERING GUIDE
 **Scope:** Frontend implementation conventions
+**Last Updated:** 2026-10-04
 
 ## 1. UI Architecture
-Compose Multiplatform is the UI technology direction. Composables render state and emit user events. They should not own business workflows, networking, persistence, or orchestration.
+
+Compose Multiplatform is the UI technology. Composables render state and emit user events. They do not own business workflows, generic networking, persistence or application orchestration.
+
+Dynamic UI is backend-driven. Generic Dynamic rendering must not contain hardcoded Login/OTP/Dashboard branching.
 
 ## 2. State
-All feature state follows the accepted Store + MVI + UDF architecture. There is no ViewModel layer.
 
-A feature should make its state, events/intents, and externally visible effects explicit.
+Feature state follows Pure Store + MVI + UDF. There is no ViewModel layer.
 
-## 3. Feature Boundaries
-A feature should have a clear responsibility and public contract. Avoid creating a “common” abstraction until multiple real consumers justify it.
+State, intents and externally visible effects must be explicit. A Dynamic destination owns its Dynamic interaction state; business/domain state remains separate.
 
-## 4. Domain and UI
-UI models may differ from domain models. Mapping belongs at an intentional boundary rather than being spread through composables.
+## 3. Dynamic UI Rules
 
-## 5. Platform
-Common code is preferred when behavior is genuinely common. Platform-specific code remains explicit through appropriate KMP mechanisms.
+- `templateType` selects rendering capability only.
+- `DynamicDestination` is the navigation/back-stack entry.
+- Registry registration is explicit.
+- Definitions own their own rendering.
+- `DynamicRenderer` handles recursive definition resolution/delegation.
+- Actions execute outside renderer definitions.
+- No reflection/package scanning.
+- No silent unsupported-type substitution.
 
-## 6. Design System
-The project should establish one shared theme/design system rather than allowing every screen to invent its own typography, spacing, colors, shapes, and components.
+## 4. Feature Boundaries
 
-The design system must evolve from actual product needs; it should not become a giant component library before screens exist.
+A feature must have a clear responsibility and public contract. Avoid creating a common abstraction until multiple real consumers justify it.
 
-## 7. Navigation
-Navigation will follow the approved architecture and must not become a second place for business state. Navigation decisions are frozen separately before the navigation foundation is implemented.
+Current primary feature boundaries:
 
-## 8. Resources
-Resource, localization, image, font and icon handling must use the approved multiplatform strategy. Avoid platform-specific resource assumptions in shared code.
+- `:feature:splash` — startup/splash state and UI.
+- `:feature:dynamic` — Dynamic screen lifecycle, Store, registry, renderer and Dynamic definitions.
+
+## 5. Domain / Data / Network
+
+Typical flow:
+
+```text
+UI → Store → Use Case → Repository → Remote Data Source → Network
+Network → DTO → Mapper → Domain → Store → UI
+```
+
+`:network` owns generic Ktor infrastructure. `:data` owns transport DTOs, mapping, repositories and feature-specific remote sources. Domain remains independent of Data and Ktor.
+
+## 6. Navigation
+
+Navigation remains separate from business state. Dynamic navigation is destination-driven. Never infer where to navigate from `templateType` or screen-name conditionals.
+
+## 7. Design System / Visuals
+
+The project should evolve one shared design system from real product needs. Do not create a giant component library before concrete consumers justify it.
+
+Dynamic visual capabilities should reuse small common helpers rather than a generic property framework.
+
+## 8. Resources / Platform
+
+Prefer common KMP code when behavior is genuinely common. Platform-specific behavior remains explicit. `iosApp/` is a native Xcode boundary, not a Gradle module.
 
 ## 9. Accessibility
-Features should account for semantic labels, touch targets, readable contrast, dynamic text where supported, keyboard/desktop interaction where relevant, and screen-reader behavior where applicable.
+
+Features should account for semantics, touch targets, readable contrast, dynamic text where supported, keyboard interaction where relevant, and screen-reader behavior.
 
 ## 10. Performance
-Avoid unnecessary recomposition, uncontrolled collection, excessive work on the main thread, and loading entire datasets when a smaller state is sufficient. Performance optimization must be evidence-driven.
+
+Avoid unnecessary recomposition, uncontrolled collection, excessive main-thread work and unnecessary state duplication. Optimize from evidence, not speculation.
 
 ## 11. Testing
-Test state transitions and business behavior independently of UI where practical. UI tests cover important user-visible behavior. Platform compilation is part of KMP feature verification.
+
+Test state transitions, mapping, action behavior, registry behavior and repository behavior independently where practical. Platform compilation is part of KMP verification.
+
+Current Windows JVM baseline is documented in `docs/build/GRADLE-SETUP-AND-WORKFLOW.md`.
 
 ## 12. Code Review
-Review UI for state ownership, lifecycle safety, platform correctness, accessibility, testability, and unnecessary abstraction.
 
-## 13. Not Yet Frozen
-Exact design system, navigation implementation, resource tooling, localization tooling, UI testing stack, and package/module conventions.
+Review for:
 
-**This document is PROPOSED until explicitly frozen.**
-## Implementation Discipline
-Every feature follows its frozen module/feature plan and works one unit at a time. The implementation status document records actual code, tests, review and freeze state.
+- single responsibility;
+- state ownership;
+- lifecycle safety;
+- platform correctness;
+- accessibility;
+- testability;
+- explicit dependencies;
+- unnecessary abstraction;
+- duplicate ownership;
+- frozen architecture compliance.
 
-## Store Lifecycle
-Store ownership and lifetime must be explicit. Singleton is not a default requirement; use it only when resource/lifecycle/ownership justifies it.
+## 13. Current Dynamic Code-Quality Rule
 
-## Quality Gate
-Code must be reviewable, testable, platform-safe and free of speculative abstractions. Every material code change requires a complete changed-file report and verification results.
+```text
+one responsibility
+small public API
+constructor-injected dependencies
+obvious data flow
+no hidden work
+no unnecessary abstraction
+no duplicate ownership
+```
+
+## 14. Related Authority
+
+- Architecture: `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
+- Frozen base architecture: `docs/architecture/BASE-ARCHITECTURE.md`
+- Dynamic discussion: `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
+- Dynamic implementation plan/status: `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`, `02-IMPLEMENTATION-STATUS.md`
+- Current cross-session map: `docs/project-management/14-PROJECT-MASTER-STATE.md`
