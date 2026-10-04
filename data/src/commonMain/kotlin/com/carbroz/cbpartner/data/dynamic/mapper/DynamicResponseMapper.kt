@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
+import com.carbroz.cbpartner.data.dynamic.model.DynamicActionDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicActionsDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicBindingDto
 import com.carbroz.cbpartner.data.dynamic.model.DynamicComponentDto
