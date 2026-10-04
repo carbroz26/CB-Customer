@@ -9,51 +9,97 @@ import com.carbroz.cbpartner.domain.model.bootstrap.StartupConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.UpdateConfig
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 
-internal fun BootstrapResponseDto.toDomain(): Result<BootstrapOutput> {
-    if (status !in 200..299) return Result.failure(BootstrapFailure.Http(status))
-    if (code != "SUCCESS") return Result.failure(BootstrapFailure.Api(code, message))
+class BootstrapMapper {
+    fun map(response: BootstrapResponseDto): Result<BootstrapOutput> {
+        if (response.status !in 200..299) {
+            return Result.failure(BootstrapFailure.Http(response.status))
+        }
+        if (response.code != "SUCCESS") {
+            return Result.failure(BootstrapFailure.Api(response.code, response.message))
+        }
 
-    val bootstrapData = data ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing bootstrap data"))
-    val config = bootstrapData.config ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing bootstrap config"))
-    val startup = bootstrapData.startup ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing bootstrap startup"))
-    val maintenance = config.maintenance ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing maintenance config"))
-    val update = config.update ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing update config"))
-    val features = config.features ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing feature config"))
-    val nextScreen = startup.nextScreen ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen config"))
+        val data = response.data
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing bootstrap data"))
+        val config = data.config
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing bootstrap config"))
+        val startup = data.startup
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing bootstrap startup"))
+        val maintenance = config.maintenance
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing maintenance config"))
+        val update = config.update
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing update config"))
+        val features = config.features
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing feature config"))
+        val nextScreen = startup.nextScreen
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen config"))
 
-    return Result.success(
-        BootstrapOutput(
-            config = BootstrapConfig(
-                version = config.version ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing config version")),
-                maintenance = MaintenanceConfig(
-                    enabled = maintenance.enabled ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing maintenance enabled flag")),
-                    title = maintenance.title,
-                    message = maintenance.message,
+        val configVersion = config.version
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing config version"))
+        val maintenanceEnabled = maintenance.enabled
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing maintenance enabled flag"))
+        val updateRequired = update.required
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing update required flag"))
+        val updateOptional = update.optional
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing update optional flag"))
+        val minimumVersion = update.minimumVersion
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing minimum version"))
+        val latestVersion = update.latestVersion
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing latest version"))
+        val registrationEnabled = features.registrationEnabled
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing registration flag"))
+        val individualPartnerEnabled = features.individualPartnerEnabled
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing individual partner flag"))
+        val organizationPartnerEnabled = features.organizationPartnerEnabled
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing organization partner flag"))
+        val authenticated = startup.authenticated
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing authenticated flag"))
+        val screenId = nextScreen.screenId
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen id"))
+        val templateId = nextScreen.templateId
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing template id"))
+        val templateType = nextScreen.templateType
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing template type"))
+        val endpoint = nextScreen.endpoint
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen endpoint"))
+        val method = nextScreen.method
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen method"))
+        val authentication = nextScreen.authentication
+            ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen authentication"))
+
+        return Result.success(
+            BootstrapOutput(
+                config = BootstrapConfig(
+                    version = configVersion,
+                    maintenance = MaintenanceConfig(
+                        enabled = maintenanceEnabled,
+                        title = maintenance.title,
+                        message = maintenance.message,
+                    ),
+                    update = UpdateConfig(
+                        required = updateRequired,
+                        optional = updateOptional,
+                        minimumVersion = minimumVersion,
+                        latestVersion = latestVersion,
+                        storeUrl = update.storeUrl,
+                    ),
+                    features = FeatureConfig(
+                        registrationEnabled = registrationEnabled,
+                        individualPartnerEnabled = individualPartnerEnabled,
+                        organizationPartnerEnabled = organizationPartnerEnabled,
+                    ),
                 ),
-                update = UpdateConfig(
-                    required = update.required ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing update required flag")),
-                    optional = update.optional ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing update optional flag")),
-                    minimumVersion = update.minimumVersion ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing minimum version")),
-                    latestVersion = update.latestVersion ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing latest version")),
-                    storeUrl = update.storeUrl,
-                ),
-                features = FeatureConfig(
-                    registrationEnabled = features.registrationEnabled ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing registration flag")),
-                    individualPartnerEnabled = features.individualPartnerEnabled ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing individual partner flag")),
-                    organizationPartnerEnabled = features.organizationPartnerEnabled ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing organization partner flag")),
+                startup = StartupConfig(
+                    authenticated = authenticated,
+                    nextScreen = DynamicDestination(
+                        screenId = screenId,
+                        templateId = templateId,
+                        templateType = templateType,
+                        endpoint = endpoint,
+                        method = method,
+                        authentication = authentication,
+                    ),
                 ),
             ),
-            startup = StartupConfig(
-                authenticated = startup.authenticated ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing authenticated flag")),
-                nextScreen = DynamicDestination(
-                    screenId = nextScreen.screenId ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen id")),
-                    templateId = nextScreen.templateId ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing template id")),
-                    templateType = nextScreen.templateType ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing template type")),
-                    endpoint = nextScreen.endpoint ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen endpoint")),
-                    method = nextScreen.method ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen method")),
-                    authentication = nextScreen.authentication ?: return Result.failure(BootstrapFailure.InvalidResponse("Missing next screen authentication")),
-                ),
-            ),
-        ),
-    )
+        )
+    }
 }
