@@ -4,7 +4,7 @@
 **Updated:** 2026-10-04  
 **Branch:** `feature/dynamic-ui`
 
-DYNAMIC-01 → DYNAMIC-07 remain frozen. DYNAMIC-08 is frozen as the unified destination contract and its source/test alignment is now JVM verified.
+DYNAMIC-01 → DYNAMIC-07 remain frozen. DYNAMIC-08 is frozen as the unified destination contract and its source/test alignment is JVM verified.
 
 ## 1. Frozen architecture status
 
@@ -41,8 +41,6 @@ HTTP method and authentication are request metadata and are handled outside dest
 ### Bootstrap
 
 ```text
-data.startup.nextScreen
-        ↓
 data.startup.destination
         ↓
 DynamicDestination
@@ -51,7 +49,7 @@ DynamicDestination
 ### Dynamic API response
 
 ```text
-data.nextScreen / data.destination
+data.destination
         ↓
 DynamicResponse.destination
 ```
@@ -106,14 +104,15 @@ Request-specific fields remain in `payload`:
 - `DynamicActionHandler` resolves direct navigation from `action.destination`.
 - `ExecuteDynamicActionUseCase` resolves request navigation from `response.destination`.
 - Dynamic repository request method is separated from destination identity.
-- Bootstrap DTO/mapper/domain startup model use `destination` instead of `nextScreen` at the domain boundary.
-- Application startup consumes `startup.destination`.
-- Dynamic mapper, Bootstrap mapper, Dynamic action and Dynamic store tests were aligned with the new contract.
-- Affected compile/test failures were resolved and the owner-provided JVM verification passed.
+- Bootstrap startup destination mapping uses the canonical `DynamicDestination`.
+- Dynamic mapper, Bootstrap mapper, Dynamic action and Dynamic store tests were aligned with the frozen destination contract.
+- Affected DYNAMIC-08 compile/test failures were resolved and the owner-provided JVM verification passed.
 
-## 4. Verification — 2026-10-04
+## 4. Verification baseline — 2026-10-04
 
-Compile verification:
+The verification below is the pre-Bootstrap-Option-B baseline. Bootstrap reconciliation changes made after this baseline require a fresh verification run.
+
+Compile set:
 
 ```text
 :domain:compileKotlinJvm
@@ -126,7 +125,7 @@ Compile verification:
 
 Result: **BUILD SUCCESSFUL — 43 actionable tasks: 43 executed**.
 
-JVM verification:
+JVM verification set:
 
 ```text
 :core:jvmTest
@@ -161,7 +160,27 @@ tpl_P104P  → Partner profile
 
 The frontend treats the ID as opaque and does not parse it.
 
-## 6. Remaining implementation / verification
+## 6. Bootstrap Option B implementation status
+
+Phase A implementation has now been applied to the branch according to the frozen implementation plan and final reconciliation:
+
+- [x] `BootstrapRepository` domain contract exists.
+- [x] `BootstrapRepositoryImpl` owns Bootstrap data orchestration.
+- [x] `BootstrapRemoteDataSource` owns the Bootstrap endpoint, method and required headers.
+- [x] Bootstrap transport DTOs moved under `data/bootstrap/model`.
+- [x] `BootstrapMapper` moved under `data/bootstrap/mapper` and remains explicit DTO → domain mapping.
+- [x] Bootstrap startup destination maps directly to canonical `DynamicDestination`.
+- [x] `BootstrapOutput` no longer depends on legacy `BootstrapConfig` or `StartupConfig` domain contracts.
+- [x] Legacy `BootstrapConfig` domain contract removed.
+- [x] Legacy `StartupConfig` domain contract removed.
+- [x] Transitional `DefaultApplicationBootstrap` removed.
+- [x] `ApplicationBootstrap` DI delegates to the single `BootstrapRepository` path.
+- [x] Splash/application composition consumes `BootstrapOutput.destination`.
+- [x] Bootstrap mapper/repository/Splash tests were reconciled with the new output contract.
+- [ ] Fresh compile/test verification after these changes.
+- [ ] Runtime proof that exactly one production Bootstrap HTTP path is exercised.
+
+## 7. Remaining implementation / verification
 
 | Area | Status |
 |---|---|
@@ -169,14 +188,13 @@ The frontend treats the ID as opaque and does not parse it.
 | Destination domain model | IMPLEMENTED / VERIFIED |
 | Dynamic response destination mapping | IMPLEMENTED / VERIFIED |
 | Dynamic action destination mapping | IMPLEMENTED / VERIFIED |
-| Bootstrap startup destination mapping | IMPLEMENTED / VERIFIED |
-| Affected unit tests | PASSING |
-| Stale destination-model references | VERIFIED FOR CURRENT JVM BUILD |
-| Full JVM compile set | PASSING |
-| Selected JVM test set | PASSING |
-| Bootstrap Option B | NEXT IMPLEMENTATION |
-| Bootstrap legacy-domain cleanup | PENDING |
-| Bootstrap DI/test reconciliation | PENDING |
+| Bootstrap startup destination mapping | IMPLEMENTED |
+| DYNAMIC-08 affected tests | PASSING on baseline |
+| Pre-Phase-A JVM compile set | PASSING |
+| Pre-Phase-A selected JVM test set | PASSING |
+| Bootstrap Option B source reconciliation | IMPLEMENTED |
+| Bootstrap legacy-domain cleanup | IMPLEMENTED |
+| Bootstrap DI/test reconciliation | IMPLEMENTED / VERIFICATION PENDING |
 | Canonical destination runtime hand-off | PENDING |
 | Dynamic use-case package cleanup | PENDING |
 | Request metadata/authentication | PENDING |
@@ -190,7 +208,7 @@ The frontend treats the ID as opaque and does not parse it.
 | Literal plan-to-source compliance review | PENDING |
 | Final Dynamic review/freeze | PENDING |
 
-## 7. Rules for continuation
+## 8. Rules for continuation
 
 - Do not reopen DYNAMIC-01 → DYNAMIC-08.
 - Do not add `DynamicNextScreen` back.
@@ -200,8 +218,10 @@ The frontend treats the ID as opaque and does not parse it.
 - Do not put direct navigation destinations inside action payloads.
 - Do not add method/authentication back into `DynamicDestination`.
 - Keep request metadata outside destination identity.
+- Do not restore `DefaultApplicationBootstrap` as a second production HTTP path.
+- Do not restore `StartupConfig`, `NextScreenConfig`, or standalone `BootstrapConfig` as domain contracts.
 - Start the next authorized implementation item rather than reopening completed discussion.
 
-## 8. Next action
+## 9. Next action
 
-**Start Bootstrap Option B implementation/reconciliation. After it is complete, verify the runtime hand-off into the same four-field `DynamicDestination`, then continue the remaining ordered Dynamic gaps.**
+**Run the fresh Phase A compile/test verification. If green, perform the runtime single-path/canonical-destination hand-off verification and then continue with the next ordered item: Dynamic feature use-case package ownership cleanup.**
