@@ -1,63 +1,231 @@
 # CB-Partner — Frontend API Integration Contract
 
-**Status:** PROPOSED
+**Status:** ACTIVE — backend specification remains authoritative
 **Scope:** Frontend repository only
+**Last Updated:** 2026-10-04
 
 ## 1. Authority
-The backend repository owns the authoritative API specification. This document defines frontend integration rules and records frontend-specific decisions.
+
+The backend repository owns the authoritative API specification. This document records frontend integration rules and the backend contracts currently known to the frontend project.
+
+Do not invent missing backend fields, endpoints or error semantics.
 
 ## 2. Boundary
-UI and Store code must not directly perform HTTP operations. Network access belongs behind the approved data/integration boundary.
 
-## 3. Data Flow
-A typical feature flow is:
+UI and Store code do not perform raw HTTP operations. Network access belongs behind the approved `:data` / `:network` boundary.
 
-UI Event → Store → Use Case / Application Logic → Repository → Data Source / API Client
+```text
+UI → Store → Use Case → Repository → Remote Data Source → RequestHandler → Ktor
+```
 
-and:
+## 3. Current Network Boundary
 
-API Response → DTO → Mapper → Domain Model → Store State → UI.
+`:network` owns:
 
-The exact layers may be simplified when a real feature demonstrates that a layer has no useful responsibility.
+- Ktor `HttpClient` construction;
+- `RequestHandler`;
+- generic network result/error contracts;
+- network DI.
 
-## 4. DTO Rule
-Transport DTOs represent the backend contract. They must not automatically become domain models. Mapping should isolate backend changes from the rest of the application.
+`:data` owns feature-specific remote sources, DTOs, mapping and repository implementations.
 
-## 5. Request/Response
-For every integrated endpoint document:
-- HTTP method
-- path
-- authentication
-- request model
-- response model
-- error/status behavior
-- pagination
-- upload/download behavior
-- required headers
-- versioning assumptions
+## 4. Bootstrap Endpoint Currently Implemented
 
-## 6. Errors
-The frontend should translate transport failures into stable application/domain-facing error representations. UI should not need to understand raw HTTP implementation details.
+```text
+GET /api/v1/partner/config/bootstrap
+```
 
-## 7. Authentication
-Authentication behavior must follow the backend contract and an accepted frontend security decision. Tokens/credentials must not be placed in UI state unnecessarily or logged.
+Known request headers:
 
-## 8. Environments
-Development, test/staging, and production endpoint configuration must be explicit. Secrets must not be committed to the repository.
+```text
+X-CarBroz-Platform: ANDROID
+X-CarBroz-App-Version: 1.0.0
+X-CarBroz-Build-Number: 1
+```
 
-## 9. Retries
-Retry behavior must be deliberate. Do not automatically retry every failure, especially non-idempotent operations.
+The success response contains `data.config` and `data.startup.nextScreen`.
 
-## 10. API Evolution
-When backend changes affect frontend behavior, coordinate the contract change. Update this document only for frontend-relevant durable behavior; keep the backend specification in the backend repository.
+The frontend maps `nextScreen` directly to the canonical `DynamicDestination`:
 
-## 11. Testing
-Test serialization, mapping, repository behavior, error mapping, and important Store behavior without requiring live production services.
+```text
+screenId
+templateId
+templateType
+endpoint
+method
+authentication
+```
 
-## 12. Current API Scope
-The initial technical foundation may use one API endpoint as the first integration slice. The endpoint itself must be documented once its backend contract is available.
+## 5. Login Screen Contract
 
-## 13. Not Yet Frozen
-Client library, base URL strategy, authentication implementation, DTO naming, error taxonomy, retry policy, pagination conventions, and endpoint-specific contracts.
+```text
+GET /api/v1/partner/screen/auth_login
+```
 
-**This document is PROPOSED until explicitly frozen.**
+Destination:
+
+```text
+screenId      = partner_login
+templateId    = tpl_7K2M9Q
+templateType  = form_template
+method        = GET
+authentication = NONE
+```
+
+The Login screen is Dynamic UI. No native Login screen architecture is created.
+
+## 6. OTP Screen Contract
+
+```text
+GET /api/v1/partner/screen/auth_otp
+```
+
+Destination:
+
+```text
+screenId      = partner_otp
+templateId    = tpl_P6X8N3
+templateType  = form_template
+method        = GET
+authentication = NONE
+```
+
+## 7. Send OTP Action Contract
+
+```text
+POST /api/v1/partner/auth/send_otp
+```
+
+Authentication:
+
+```text
+NONE
+```
+
+Request body values:
+
+```text
+phoneNumber = $context(authFlow.phoneNumber)
+deviceId    = $context(deviceId)
+```
+
+Response mode:
+
+```text
+none
+```
+
+## 8. Verify OTP Action Contract
+
+```text
+POST /api/v1/partner/auth/verify_otp
+```
+
+Authentication:
+
+```text
+NONE
+```
+
+Request body values:
+
+```text
+challengeId = $response(data.challengeId)
+phoneNumber = $context(authFlow.phoneNumber)
+otp         = $binding(otp)
+deviceId    = $context(deviceId)
+```
+
+Response mode:
+
+```text
+destination
+```
+
+A successful response therefore produces a `DynamicDestination`. The frontend must not infer the destination from `screenId` or `templateType`.
+
+## 9. Dynamic Action Contract
+
+Frozen action vocabulary:
+
+```text
+request
+navigate
+present
+dismiss
+state
+external_uri
+sequence
+```
+
+Frozen reference vocabulary:
+
+```text
+$literal
+$binding
+$context
+$response
+```
+
+References are resolved before request validation/execution where applicable.
+
+## 10. Request Errors
+
+Dynamic request failures use a structured error model. HTTP status is retained as metadata; it is not the complete Dynamic error taxonomy.
+
+Errors do not automatically create navigation destinations.
+
+## 11. DTO Rule
+
+Transport DTOs represent backend data. They do not automatically become domain models.
+
+Explicit mapping remains the default:
+
+```text
+DTO → Mapper → Domain
+```
+
+Do not add a generic mapper framework.
+
+## 12. Authentication / Security
+
+Authentication follows the backend contract. Credentials, tokens and OTPs must never be logged. Sensitive values should not be copied into UI state unless the Dynamic contract requires them for the current operation.
+
+## 13. Retries
+
+No blanket automatic retry is permitted. Retry behavior must be defined by the relevant action/request contract.
+
+## 14. Current API Scope
+
+Known frontend-integrated flow:
+
+```text
+Bootstrap
+  ↓
+Login destination
+  ↓
+Login screen GET
+  ↓
+Send OTP POST
+  ↓
+OTP destination
+  ↓
+OTP screen GET
+  ↓
+Verify OTP POST
+  ↓
+Destination response
+```
+
+The full real-backend flow is not yet verified end-to-end.
+
+## 15. Testing
+
+Current JVM verification covers network, bootstrap/data, domain, splash and Dynamic tests. Backend-shaped Login/OTP integration tests remain pending.
+
+## 16. Related Authority
+
+- Backend API specification: backend repository.
+- Dynamic contract: `docs/features/dynamic/00-FEATURE-DISCUSSION.md`.
+- Current source/implementation: `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md`.
+- Current architecture: `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`.
