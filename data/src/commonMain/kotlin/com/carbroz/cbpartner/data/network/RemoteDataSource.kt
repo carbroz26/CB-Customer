@@ -3,11 +3,10 @@ package com.carbroz.cbpartner.data.network
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.request
-import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
-import io.ktor.http.contentType
+import io.ktor.http.content.TextContent
 
 /**
  * Single application remote-data boundary used by all feature data sources.
@@ -33,8 +32,10 @@ class RemoteDataSource(
                 header(name, value)
             }
             if (body != null) {
-                contentType(ContentType.Application.Json)
-                setBody(body)
+                // Send the already-serialized JSON as an explicit JSON request
+                // body. Do not rely on ContentNegotiation to serialize a String,
+                // because dynamic requests are runtime-defined payloads.
+                setBody(TextContent(body, ContentType.Application.Json))
             }
         }
 
