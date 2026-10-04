@@ -15,7 +15,7 @@ class DynamicResponseMapperTest {
     }
 
     @Test
-    fun mapsDynamicResponseTreeAndActionPayload() {
+    fun mapsDynamicResponseTreeActionPayloadAndNestedNextScreen() {
         val dto = json.decodeFromString<DynamicResponseDto>(
             """
             {
@@ -60,6 +60,14 @@ class DynamicResponseMapperTest {
                       }]
                     }]
                   }]
+                },
+                "nextScreen": {
+                  "screenId": "partner_otp",
+                  "templateId": "tpl_otp",
+                  "templateType": "form_template",
+                  "endpoint": "/otp",
+                  "method": "GET",
+                  "authentication": "NONE"
                 }
               },
               "traceId": "trace-1"
@@ -72,6 +80,7 @@ class DynamicResponseMapperTest {
         val button = screen.template.components
             .single().sections.single().groups.single().elements.single()
         val action = button.actions["onClick"]
+        val nextScreen = assertNotNull(screen.nextScreen)
 
         assertEquals("partner_login", screen.screenId)
         assertEquals("form_template", screen.template.type)
@@ -84,6 +93,12 @@ class DynamicResponseMapperTest {
             DynamicValue.BooleanValue(true),
             action?.payload?.get("enabled"),
         )
+        assertEquals("partner_otp", nextScreen.screenId)
+        assertEquals("tpl_otp", nextScreen.templateId)
+        assertEquals("form_template", nextScreen.templateType)
+        assertEquals("/otp", nextScreen.endpoint)
+        assertEquals("GET", nextScreen.method)
+        assertEquals("NONE", nextScreen.authentication)
         assertNotNull(action)
     }
 
