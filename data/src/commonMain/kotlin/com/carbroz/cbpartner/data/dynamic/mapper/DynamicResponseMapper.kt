@@ -41,10 +41,11 @@ class DynamicResponseMapper {
     fun map(dto: DynamicResponseDto): DynamicResponse {
         val data = dto.data
         val screen = data
-            ?.takeIf { it is JsonObject && SCREEN_FIELDS.all(it.keys.contains) }
-            ?.let { json.decodeFromJsonElement<DynamicScreenDto>(it).toDomain() }
+            ?.takeIf { it is JsonObject && SCREEN_FIELDS.all { field -> field in it.keys } }
+            ?.let { json.decodeFromJsonElement(DynamicScreenDto.serializer(), it) }
+            ?.toDomain()
         val dataPayload = data
-            ?.takeUnless { it is JsonObject && SCREEN_FIELDS.all(it.keys.contains) }
+            ?.takeUnless { it is JsonObject && SCREEN_FIELDS.all { field -> field in it.keys } }
             ?.toDynamicValue()
 
         return DynamicResponse(
