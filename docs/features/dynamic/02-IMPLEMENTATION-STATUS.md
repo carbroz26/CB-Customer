@@ -1,229 +1,199 @@
 # CB-Partner Dynamic UI — Implementation Status
 
-**Status:** IMPLEMENTATION IN PROGRESS — DOCUMENTATION RECONCILED 2026-10-04  
+**Status:** IMPLEMENTATION IN PROGRESS  
+**Updated:** 2026-10-04  
 **Branch:** `feature/dynamic-ui`
 
-DYNAMIC-01 → DYNAMIC-07 discussion remains frozen. This document records what is actually implemented, what is only a target, and what must be implemented next. A green JVM build is not treated as architectural completion.
+DYNAMIC-01 → DYNAMIC-07 remain frozen. DYNAMIC-08 is frozen as a contract-alignment addition and is currently being implemented.
 
-## 1. Frozen decisions now reflected
+## 1. Frozen architecture status
 
-- Splash and Bootstrap are one startup flow.
-- Bootstrap Option B is the required implementation boundary.
-- `DynamicDestination` is the single canonical destination for Bootstrap `nextScreen`, Dynamic response destinations and Dynamic `navigate` actions.
-- `DynamicDestination` is a shared domain model under `domain.model`, not a Dynamic-specific or Bootstrap-specific model.
-- `DynamicNextScreen` is not a domain model.
-- Dynamic response `nextScreen` belongs inside response `data`; it is not a root-level response field.
-- `StartupConfig`, `NextScreenConfig`, and standalone `BootstrapConfig` remain legacy Bootstrap artifacts until the Bootstrap model cleanup is completed.
-- Dynamic feature use cases remain feature orchestration; they are not moved into top-level `:domain`.
-- Network errors are classified by actual HTTP/transport/protocol cause rather than collapsed into `UnknownException`.
+- DYNAMIC-01 — FROZEN
+- DYNAMIC-02 — FROZEN
+- DYNAMIC-03 — FROZEN
+- DYNAMIC-04 — FROZEN
+- DYNAMIC-05 — FROZEN
+- DYNAMIC-06 — FROZEN
+- DYNAMIC-07 — FROZEN
+- DYNAMIC-08 — FROZEN / IMPLEMENTATION IN PROGRESS
 
-Final reconciliation record: `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md`.
+## 2. DYNAMIC-08 contract now implemented in source
 
-## 2. Last verified JVM baseline
+The canonical destination contract is now:
 
-The owner ran on 2026-10-04 before the latest shared-destination/model refactor:
+```text
+DynamicDestination
+├── screenId
+├── templateId
+├── templateType
+└── endpoint
+```
+
+Removed from the destination model:
+
+```text
+method
+authentication
+```
+
+HTTP method is request metadata and is passed separately to the Dynamic repository boundary.
+
+### Bootstrap
+
+```text
+data.startup.nextScreen
+        ↓
+data.startup.destination
+        ↓
+DynamicDestination
+```
+
+### Dynamic API response
+
+```text
+data.nextScreen
+        ↓
+data.destination
+        ↓
+DynamicResponse.destination
+```
+
+The screen-fetch response remains a screen document and no longer owns `DynamicScreen.nextScreen`.
+
+### Direct navigation action
+
+Canonical shape:
+
+```json
+{
+  "type": "navigate",
+  "destination": {
+    "screenId": "partner_login",
+    "templateId": "tpl_P101L",
+    "templateType": "form_template",
+    "endpoint": "/api/v1/partner/screen/auth_login"
+  }
+}
+```
+
+`destination` is beside `type`; it is not wrapped inside `payload`.
+
+### Request action
+
+Request-specific fields remain in `payload`:
+
+```json
+{
+  "type": "request",
+  "payload": {
+    "method": "POST",
+    "endpoint": "/api/v1/partner/auth/send_otp",
+    "body": {},
+    "responseMode": "destination"
+  }
+}
+```
+
+`responseMode = destination` resolves `DynamicResponse.destination` from `data.destination` and navigates using the same `DynamicDestination` model.
+
+## 3. Source changes completed
+
+- `domain.model.DynamicDestination` simplified to the four canonical fields.
+- `DynamicResponse` now exposes optional `destination`.
+- `DynamicScreen.nextScreen` removed.
+- `DynamicAction` now has optional `destination` beside `type` and `payload`.
+- `DynamicDestinationDto` aligned with the four-field backend contract.
+- `DynamicActionDto` aligned with `destination` beside `payload`.
+- `DynamicResponseMapper` maps `data.destination` and preserves arbitrary response data in `dataPayload`.
+- `DynamicActionHandler` resolves direct navigation from `action.destination`.
+- `ExecuteDynamicActionUseCase` resolves request navigation from `response.destination`.
+- Dynamic repository request method is separated from destination identity.
+- Bootstrap DTO/mapper/domain startup model now use `destination` instead of `nextScreen`.
+- Application startup consumes `startup.destination`.
+- Dynamic mapper, Bootstrap mapper, Dynamic action and Dynamic store tests were aligned with the new contract.
+
+## 4. Documentation added
+
+- `docs/features/dynamic/04-DYNAMIC-08-UNIFIED-DESTINATION-DISCUSSION.md`
+- `docs/features/dynamic/05-DYNAMIC-08-IMPLEMENTATION-PLAN.md`
+
+These documents define the new destination contract, direct navigation shape, response destination shape, and template ID convention.
+
+## 5. Template ID convention
+
+Recommended backend convention:
+
+```text
+tpl_<PartnerPrefix><Sequence><ScreenCode>
+```
+
+Examples:
+
+```text
+tpl_P101L  → Partner login
+tpl_P102O  → Partner OTP
+tpl_P103D  → Partner dashboard
+tpl_P104P  → Partner profile
+```
+
+The frontend treats the ID as opaque and does not parse it.
+
+## 6. Pending implementation / verification
+
+| Area | Status |
+|---|---|
+| DYNAMIC-08 discussion | FROZEN |
+| Destination domain model | IMPLEMENTED |
+| Dynamic response destination mapping | IMPLEMENTED |
+| Dynamic action destination mapping | IMPLEMENTED |
+| Bootstrap startup destination mapping | IMPLEMENTED |
+| Affected unit tests | IMPLEMENTED |
+| Remove every stale `nextScreen` reference | PENDING VERIFICATION |
+| Remove every stale `DynamicNextScreen` reference | PENDING VERIFICATION |
+| Update all remaining `DynamicDestination(...)` call sites | PENDING VERIFICATION |
+| Full JVM compile | PENDING LOCAL VERIFICATION |
+| Full JVM tests | PENDING LOCAL VERIFICATION |
+| Backend integration Login → Send OTP → OTP → Verify OTP | PENDING |
+| Push/replace/pop/back verification | PENDING |
+| DYNAMIC-07 production implementation | PENDING |
+| Android verification | PENDING |
+| iOS/macOS-hosted verification | PENDING |
+| Web/Wasm verification | PENDING |
+| Final Dynamic review/freeze | PENDING |
+
+## 7. Important current baseline
+
+The owner previously confirmed a successful JVM baseline before the latest destination model change. That baseline is not treated as proof for this change.
+
+The next verification must rerun:
 
 ```text
 :domain:compileKotlinJvm
 :data:compileKotlinJvm
 :feature:splash:compileKotlinJvm
 :feature:dynamic:compileKotlinJvm
+:navigation:compileKotlinJvm
 :app:compileKotlinJvm
 
 :data:jvmTest
 :domain:jvmTest
 :feature:splash:jvmTest
 :feature:dynamic:jvmTest
+:navigation:jvmTest
 ```
 
-Result:
-
-```text
-BUILD SUCCESSFUL
-```
-
-This confirms the previous JVM baseline only. The latest model changes must be rerun locally before being considered verified.
-
-## 3. Implemented areas
-
-### Application / Navigation
-
-- `App.kt` is the application composition entry point.
-- `ApplicationContent.kt` composes Splash and Dynamic.
-- `DynamicNavigationState` owns the Dynamic destination stack.
-- `DynamicContainer` is the permanent Dynamic rendering host.
-- `DynamicDestination` is now a shared domain model.
-
-### Dynamic Store / feature orchestration
-
-- `DynamicStore` exists as the Pure Store/MVI/UDF orchestration boundary.
-- `LoadDynamicScreenUseCase` exists.
-- `ExecuteDynamicActionUseCase` exists.
-- These use cases remain feature-owned.
-
-### Registry / Renderer
-
-- `DynamicRegistry` exists with explicit category registration.
-- Initial frozen vocabulary is implemented.
-- `DynamicRenderer` exists as the recursive rendering boundary.
-
-### Dynamic data / network
-
-- `DynamicRepository` and `DynamicRepositoryImpl` exist.
-- `DynamicRemoteDataSource` exists.
-- Dynamic DTO/model and mapper exist.
-- Shared `:network` Ktor/RequestHandler infrastructure exists.
-- Dynamic response mapping now places `nextScreen` inside `DynamicScreen.data` and maps it directly to the shared `DynamicDestination`.
-- `DynamicNextScreenDto` / `DynamicNextScreen` have been removed in favor of the shared destination contract.
-
-### Bootstrap baseline
-
-- Bootstrap API contract is known.
-- Bootstrap mapping to the canonical destination exists.
-- Bootstrap repository/data-source structure exists in source.
-- Bootstrap tests exist and were green in the last owner-provided JVM run.
-
-## 4. Current Bootstrap implementation gap — NEXT
-
-The source still requires final Option B reconciliation.
-
-Required production path:
-
-```text
-ApplicationBootstrap
-    ↓
-BootstrapRepository
-    ↓
-BootstrapRepositoryImpl
-    ↓
-BootstrapRemoteDataSource
-    ↓
-RequestHandler
-```
-
-Required changes:
-
-1. Remove/rework `DefaultApplicationBootstrap` so it is not a direct HTTP implementation.
-2. Complete the canonical Bootstrap domain result model.
-3. Remove legacy `StartupConfig`, `NextScreenConfig`, and standalone `BootstrapConfig` domain contracts.
-4. Keep DTO → domain conversion in `BootstrapMapper`.
-5. Keep exactly one production Bootstrap HTTP path.
-6. Update Bootstrap DI and tests after the model cleanup.
-
-## 5. Canonical destination / response-data status
-
-The canonical runtime relationship is now:
-
-```text
-Bootstrap response data.startup.nextScreen ──┐
-Dynamic response data.nextScreen ────────────┼──→ DynamicDestination
-Dynamic navigate action payload ─────────────┘
-```
-
-This is one destination concept and one navigation mechanism. The three lines are inputs, not separate destination systems.
-
-The Dynamic response contract is now:
-
-```text
-DynamicResponse
-  └── data: DynamicScreen
-        └── nextScreen: DynamicDestination?
-```
-
-Arbitrary non-screen response data remains in `DynamicResponse.dataPayload`.
-
-Remaining verification:
-
-- [ ] Compile all affected modules after latest model refactor.
-- [ ] Run Dynamic mapper tests.
-- [ ] Verify action-request navigation reads `response.data.nextScreen`.
-- [ ] Verify Bootstrap and Dynamic destinations use the exact same domain type.
-- [ ] Verify push/replace/pop/back operate on the same destination stack.
-
-## 6. Domain / feature package cleanup
-
-Current historical package:
-
-```text
-feature/dynamic/.../domain/usecase/
-```
-
-Target:
-
-```text
-feature/dynamic/.../usecase/
-```
-
-This is a package-ownership cleanup only. The use cases remain feature-level and are not moved to `:domain`.
-
-## 7. Network exception implementation gap
-
-Frozen classification:
-
-```text
-BadRequestException
-UnauthorizedException
-ForbiddenException
-NotFoundException
-ConflictException
-ValidationException
-RateLimitException
-ServerException
-NetworkConnectionException
-TimeoutException
-SerializationException
-ProtocolException
-UnknownNetworkException
-```
-
-Implementation must first inspect existing `NetworkException`, `DefaultError`, `RequestHandler` and response/error types so equivalent classes are not duplicated.
-
-## 8. Remaining Dynamic work
-
-| Priority | Work | State |
-|---:|---|---|
-| 1 | Complete Bootstrap Option B implementation | OPEN / NEXT |
-| 2 | Remove legacy Bootstrap domain model duplicates | OPEN |
-| 3 | Complete Bootstrap DI and tests after model cleanup | OPEN |
-| 4 | Verify shared DynamicDestination runtime hand-off | OPEN |
-| 5 | Clean Dynamic use-case package ownership | OPEN |
-| 6 | Complete request metadata/authentication | OPEN |
-| 7 | Complete frozen Dynamic state/reference/action behavior | IN PROGRESS |
-| 8 | Implement frozen network exception taxonomy | OPEN |
-| 9 | Complete DYNAMIC-07 fallback/recovery/diagnostic/observability behavior | OPEN |
-| 10 | Login → Send OTP → OTP → Verify OTP integration tests | OPEN |
-| 11 | Full destination push/replace/pop/back runtime verification | OPEN |
-| 12 | Android verification | OPEN |
-| 13 | iOS/macOS-hosted verification | OPEN |
-| 14 | Web/Wasm verification | OPEN |
-| 15 | Literal plan-to-source compliance review | OPEN |
-| 16 | Final Dynamic review and code freeze | OPEN |
-
-## 9. Explicitly not complete
-
-- Bootstrap Option B is not yet source-complete.
-- Legacy Bootstrap domain model cleanup is not yet source-complete.
-- Final Bootstrap DI/test reconciliation is not complete.
-- Canonical destination runtime verification is not complete.
-- Latest shared-destination/model refactor is not yet locally build-verified.
-- Network exception taxonomy is frozen but not yet implemented/verified.
-- Login → OTP → Dashboard end-to-end verification is pending.
-- DYNAMIC-07 production implementation is pending.
-- Full platform verification is pending.
-- Final Dynamic review/freeze is pending.
-
-## 10. Implementation rules for the next work
+## 8. Rules for continuation
 
 - Do not reopen DYNAMIC-01 → DYNAMIC-07.
-- Do not introduce a Bootstrap-specific navigation system.
+- Do not add `DynamicNextScreen` back.
+- Do not add `nextScreen` aliases to the canonical contract.
+- Do not parse template IDs in the frontend.
 - Do not create Login/OTP/Dashboard-specific screen classes.
-- Do not create a separate `DynamicNextScreen` model.
-- Do not place Dynamic response `nextScreen` at the response-envelope root.
-- Do not move feature orchestration use cases into top-level `:domain`.
-- Do not add network exception classes without checking existing error types first.
-- Do not consider compilation success equivalent to architecture completion.
-- Update this status after each implementation unit and verification gate.
+- Do not put direct navigation destinations inside action payloads.
+- Do not add method/authentication back into `DynamicDestination`.
+- Keep request metadata in request action payload / repository request parameters.
+- Update this status after the verification gate.
 
-## 11. Next action
+## 9. Next action
 
-**Continue Bootstrap Option B implementation and legacy Bootstrap model cleanup. After the current shared-destination/model refactor passes compile/tests, complete DI and tests, then verify the Bootstrap → Dynamic navigation hand-off before continuing the remaining Dynamic gaps.**
+**Immediately complete the remaining source call-site cleanup for the four-field `DynamicDestination`, then run the full JVM compile/tests. If green, proceed directly to backend-shaped Login → Send OTP → OTP → Verify OTP integration verification.**
