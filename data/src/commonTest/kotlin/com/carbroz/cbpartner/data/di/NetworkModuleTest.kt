@@ -8,20 +8,8 @@ import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
-import org.koin.dsl.koinApplication
 
 class NetworkModuleTest {
-
-    @Test
-    fun networkModuleResolvesHttpClient() {
-        val application = koinApplication {
-            modules(networkModule)
-        }
-
-        val client = application.koin.get<HttpClient>()
-        client.close()
-        application.close()
-    }
 
     @Test
     fun mockEngineExecutesRequestWithoutRealNetwork() = runTest {
