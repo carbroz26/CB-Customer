@@ -13,17 +13,20 @@ import kotlin.test.assertIs
 
 class ExecuteDynamicActionUseCaseTest {
     @Test
-    fun requestResolvesBindingAndContextBeforeRepository() = runTest {
+    fun requestResolvesBindingContextMethodAndAuthenticationBeforeRepository() = runTest {
         var capturedBody: DynamicValue? = null
         var capturedMethod: String? = null
+        var capturedAuthentication: String? = null
         val repository = object : DynamicRepository {
             override suspend fun fetch(
                 destination: DynamicDestination,
                 body: DynamicValue?,
                 method: String,
+                authentication: String,
             ): Result<DynamicResponse> {
                 capturedBody = body
                 capturedMethod = method
+                capturedAuthentication = authentication
                 return Result.success(
                     DynamicResponse(
                         status = 200,
@@ -47,6 +50,7 @@ class ExecuteDynamicActionUseCaseTest {
             payload = mapOf(
                 "endpoint" to DynamicValue.StringValue("/submit"),
                 "method" to DynamicValue.StringValue("POST"),
+                "authentication" to DynamicValue.StringValue("NONE"),
                 "body" to DynamicValue.ObjectValue(
                     mapOf(
                         "name" to DynamicValue.ObjectValue(
@@ -70,9 +74,45 @@ class ExecuteDynamicActionUseCaseTest {
         assertEquals(DynamicValue.StringValue("John"), body.value["name"])
         assertEquals(DynamicValue.StringValue("device-1"), body.value["deviceId"])
         assertEquals("POST", capturedMethod)
+        assertEquals("NONE", capturedAuthentication)
 
         val navigation = assertIs<DynamicActionResult.Navigate>(result)
         assertEquals("partner_next", navigation.destination.screenId)
+    }
+
+    @Test
+    fun requestDefaultsAuthenticationToNone() = runTest {
+        var capturedAuthentication: String? = null
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(
+                destination: DynamicDestination,
+                body: DynamicValue?,
+                method: String,
+                authentication: String,
+            ): Result<DynamicResponse> {
+                capturedAuthentication = authentication
+                return Result.success(
+                    DynamicResponse(
+                        status = 200,
+                        code = "OTP_SENT",
+                        message = "OTP sent",
+                        data = null,
+                        traceId = "trace-1",
+                    ),
+                )
+            }
+        }
+
+        ExecuteDynamicActionUseCase(repository, DynamicActionHandler())(
+            action = DynamicAction(
+                type = "request",
+                payload = mapOf("endpoint" to DynamicValue.StringValue("/send-otp")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+        ).getOrThrow()
+
+        assertEquals("NONE", capturedAuthentication)
     }
 
     @Test
@@ -92,6 +132,7 @@ class ExecuteDynamicActionUseCaseTest {
                 destination: DynamicDestination,
                 body: DynamicValue?,
                 method: String,
+                authentication: String,
             ): Result<DynamicResponse> = error("Repository must not be called")
         }
 
@@ -123,6 +164,7 @@ class ExecuteDynamicActionUseCaseTest {
                 destination: DynamicDestination,
                 body: DynamicValue?,
                 method: String,
+                authentication: String,
             ): Result<DynamicResponse> = Result.success(response)
         }
 
@@ -153,6 +195,7 @@ class ExecuteDynamicActionUseCaseTest {
                 destination: DynamicDestination,
                 body: DynamicValue?,
                 method: String,
+                authentication: String,
             ): Result<DynamicResponse> {
                 capturedBody = body
                 return Result.success(
