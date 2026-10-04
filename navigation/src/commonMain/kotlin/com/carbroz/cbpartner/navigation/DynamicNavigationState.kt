@@ -1,13 +1,13 @@
 package com.carbroz.cbpartner.navigation
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 
 class DynamicNavigationState(
     initialDestination: DynamicDestination,
 ) {
-    val backStack: SnapshotStateList<DynamicDestination> =
+    internal val backStack: SnapshotStateList<DynamicDestination> =
         mutableStateListOf(initialDestination)
 
     fun setRoot(destination: DynamicDestination) {
