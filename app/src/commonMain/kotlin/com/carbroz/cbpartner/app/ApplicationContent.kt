@@ -7,7 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.feature.dynamic.DynamicContainer
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicEffect
