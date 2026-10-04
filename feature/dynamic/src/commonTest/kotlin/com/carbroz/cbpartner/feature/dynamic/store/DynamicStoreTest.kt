@@ -6,6 +6,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicNextScreen
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionHandler
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.ExecuteDynamicActionUseCase
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.LoadDynamicScreenUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +50,10 @@ class DynamicStoreTest {
 
         val store = DynamicStore(
             loadDynamicScreen = LoadDynamicScreenUseCase(repository),
-            executeDynamicAction = ExecuteDynamicActionUseCase(repository),
+            executeDynamicAction = ExecuteDynamicActionUseCase(
+                repository = repository,
+                actionHandler = DynamicActionHandler(),
+            ),
             destination = DynamicDestination(
                 screenId = "current",
                 templateId = "tpl_current",
