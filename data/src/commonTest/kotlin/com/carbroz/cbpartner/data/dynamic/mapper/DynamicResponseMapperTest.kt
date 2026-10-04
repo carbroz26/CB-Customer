@@ -15,7 +15,7 @@ class DynamicResponseMapperTest {
     }
 
     @Test
-    fun mapsDynamicResponseTreeActionPayloadAndNestedNextScreen() {
+    fun mapsDynamicResponseTreeActionPayloadAndDestinations() {
         val dto = json.decodeFromString<DynamicResponseDto>(
             """
             {
@@ -53,6 +53,12 @@ class DynamicResponseMapperTest {
                                 "method": "POST",
                                 "endpoint": "/login",
                                 "enabled": true
+                              },
+                              "destination": {
+                                "screenId": "partner_otp",
+                                "templateId": "tpl_otp",
+                                "templateType": "form_template",
+                                "endpoint": "/otp"
                               }
                             }
                           }
@@ -61,13 +67,11 @@ class DynamicResponseMapperTest {
                     }]
                   }]
                 },
-                "nextScreen": {
-                  "screenId": "partner_otp",
-                  "templateId": "tpl_otp",
-                  "templateType": "form_template",
-                  "endpoint": "/otp",
-                  "method": "GET",
-                  "authentication": "NONE"
+                "destination": {
+                  "screenId": "partner_dashboard",
+                  "templateId": "tpl_dashboard",
+                  "templateType": "dashboard_template",
+                  "endpoint": "/api/v1/partner/screen/dashboard"
                 }
               },
               "traceId": "trace-1"
@@ -79,26 +83,29 @@ class DynamicResponseMapperTest {
         val screen = assertNotNull(response.data)
         val button = screen.template.components
             .single().sections.single().groups.single().elements.single()
-        val action = button.actions["onClick"]
-        val nextScreen = assertNotNull(screen.nextScreen)
+        val action = assertNotNull(button.actions["onClick"])
+        val actionDestination = assertNotNull(action.destination)
+        val responseDestination = assertNotNull(response.destination)
 
         assertEquals("partner_login", screen.screenId)
         assertEquals("form_template", screen.template.type)
-        assertEquals("request", action?.type)
+        assertEquals("request", action.type)
         assertEquals(
             DynamicValue.StringValue("/login"),
-            action?.payload?.get("endpoint"),
+            action.payload["endpoint"],
         )
         assertEquals(
             DynamicValue.BooleanValue(true),
-            action?.payload?.get("enabled"),
+            action.payload["enabled"],
         )
-        assertEquals("partner_otp", nextScreen.screenId)
-        assertEquals("tpl_otp", nextScreen.templateId)
-        assertEquals("form_template", nextScreen.templateType)
-        assertEquals("/otp", nextScreen.endpoint)
-        assertEquals("GET", nextScreen.method)
-        assertEquals("NONE", nextScreen.authentication)
+        assertEquals("partner_otp", actionDestination.screenId)
+        assertEquals("tpl_otp", actionDestination.templateId)
+        assertEquals("form_template", actionDestination.templateType)
+        assertEquals("/otp", actionDestination.endpoint)
+        assertEquals("partner_dashboard", responseDestination.screenId)
+        assertEquals("tpl_dashboard", responseDestination.templateId)
+        assertEquals("dashboard_template", responseDestination.templateType)
+        assertEquals("/api/v1/partner/screen/dashboard", responseDestination.endpoint)
         assertNotNull(action)
     }
 
@@ -131,5 +138,6 @@ class DynamicResponseMapperTest {
             payload.value["expiresIn"],
         )
         assertEquals(null, response.data)
+        assertEquals(null, response.destination)
     }
 }
