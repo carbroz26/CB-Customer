@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.store
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.ExecuteDynamicActionUseCase
 import com.carbroz.cbpartner.feature.dynamic.domain.usecase.LoadDynamicScreenUseCase
@@ -49,12 +50,14 @@ class DynamicStore(
 
     private val bindings = mutableMapOf<String, String>()
     private var currentDestination = destination
+    private var previousResponseData: DynamicValue? = null
     private var loadJob: Job? = null
     private var actionJob: Job? = null
 
     fun updateDestination(destination: DynamicDestination) {
         currentDestination = destination
         bindings.clear()
+        previousResponseData = null
         loadJob?.cancel()
         actionJob?.cancel()
         _state.value = DynamicState.Initial
@@ -88,10 +91,17 @@ class DynamicStore(
                 action = action,
                 bindings = bindings.toMap(),
                 context = contextProvider(),
+                previousResponse = previousResponseData,
             ).onSuccess { result ->
-                _effects.value = when (result) {
-                    is DynamicActionResult.Navigate -> DynamicEffect.Navigate(result.destination)
-                    is DynamicActionResult.ExternalUri -> DynamicEffect.ExternalUri(result.uri)
+                when (result) {
+                    is DynamicActionResult.Completed -> previousResponseData = result.response.dataPayload
+                    is DynamicActionResult.Navigate -> {
+                        previousResponseData = result.response?.dataPayload
+                        _effects.value = DynamicEffect.Navigate(result.destination)
+                    }
+                    is DynamicActionResult.ExternalUri -> {
+                        _effects.value = DynamicEffect.ExternalUri(result.uri)
+                    }
                 }
             }.onFailure { error ->
                 _state.value = DynamicState.Failure(
