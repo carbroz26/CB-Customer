@@ -16,6 +16,7 @@ data class DynamicResponse(
     val data: DynamicScreen?,
     val traceId: String?,
     val nextScreen: DynamicNextScreen? = null,
+    val dataPayload: DynamicValue? = null,
 )
 
 data class DynamicNextScreen(
