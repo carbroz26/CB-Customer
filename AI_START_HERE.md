@@ -71,6 +71,7 @@ As of 2026-10-04:
 - DYNAMIC-01 → DYNAMIC-07: **DISCUSSION FROZEN**
 - Dynamic implementation plan: **PLAN_FROZEN / IMPLEMENTATION AUTHORIZED**
 - Dynamic implementation: **IN PROGRESS**
+- Bootstrap Option B: **SELECTED / REQUIRED IMPLEMENTATION**
 - Latest owner-provided focused compile/JVM test gate: **BUILD SUCCESSFUL**
 - Current branch: `feature/dynamic-ui`
 
@@ -234,7 +235,32 @@ For Dynamic work, follow this order:
 
 Do not use old pasted/review-draft SDUI documents as implementation authority. They may contain useful historical reasoning, but the frozen Dynamic discussion is authoritative.
 
-## 14. DYNAMIC NON-NEGOTIABLES
+## 14. STARTUP / BOOTSTRAP NON-NEGOTIABLES
+
+- Splash and Bootstrap are one startup flow, not two separate product features.
+- Splash is the visible startup UI; Bootstrap is the config/startup execution behind it.
+- `ApplicationBootstrap` is the startup-facing domain contract.
+- Bootstrap uses the selected Option B layering:
+
+```text
+ApplicationBootstrap
+  ↓
+BootstrapRepository
+  ↓
+BootstrapRepositoryImpl
+  ↓
+BootstrapRemoteDataSource
+  ↓
+RequestHandler
+```
+
+- Bootstrap endpoint: `GET /api/v1/partner/config/bootstrap`.
+- Bootstrap request headers are documented in the Dynamic implementation plan/current state.
+- `startup.nextScreen` becomes the canonical `DynamicDestination`.
+- Do not retain a second direct Bootstrap HTTP path after implementation.
+- Do not invent a separate Bootstrap UI architecture.
+
+## 15. DYNAMIC NON-NEGOTIABLES
 
 - Dynamic is backend-driven.
 - No native Login/OTP/Dashboard screen architecture.
@@ -252,7 +278,17 @@ Do not use old pasted/review-draft SDUI documents as implementation authority. T
 - Runtime failures are contained and observable through the existing logger.
 - Sensitive data, OTPs, credentials and tokens are never logged.
 
-## 15. LOGIN → OTP CHECKPOINT
+## 16. DYNAMIC USE-CASE OWNERSHIP
+
+The existence of a UseCase class does not mean it belongs in the top-level `:domain` module.
+
+- `LoadDynamicScreenUseCase` is feature orchestration over the Dynamic repository contract.
+- `ExecuteDynamicActionUseCase` coordinates feature-owned `DynamicActionHandler` capabilities.
+- Keep these use cases in `:feature:dynamic`.
+- Current `feature/dynamic/domain/usecase` naming is a cleanup target; target package is `feature/dynamic/usecase`.
+- Do not move feature-owned capabilities into `:domain` merely for naming symmetry.
+
+## 17. LOGIN → OTP CHECKPOINT
 
 Known Dynamic destinations:
 
@@ -286,7 +322,7 @@ POST /api/v1/partner/auth/verify_otp
 
 These are backend-driven Dynamic contracts, not permission to create OTP-specific frontend architecture.
 
-## 16. GIT ROUTING
+## 18. GIT ROUTING
 
 Before source changes:
 
@@ -314,7 +350,7 @@ merge through approved workflow
 
 Do not continue from stale branches without checking current project state.
 
-## 17. NO SILENT ARCHITECTURE CHANGES
+## 19. NO SILENT ARCHITECTURE CHANGES
 
 If implementation reveals a material architecture problem:
 
@@ -336,7 +372,7 @@ IMPLEMENT
 
 A better idea is not permission to redesign a frozen boundary.
 
-## 18. ANTI-RESTART
+## 20. ANTI-RESTART
 
 Classify problems before restarting anything:
 
@@ -349,7 +385,7 @@ Classify problems before restarting anything:
 
 Prefer fix/refactor/migrate/recover. Do not restart from scratch merely because implementation is imperfect.
 
-## 19. STOP CONDITIONS
+## 21. STOP CONDITIONS
 
 STOP when:
 
@@ -365,7 +401,7 @@ STOP when:
 - source contradicts documented architecture;
 - a significant assumption is required.
 
-## 20. SESSION HANDOFF
+## 22. SESSION HANDOFF
 
 At meaningful completion, update the relevant status/decision/feature records and report:
 
@@ -379,12 +415,12 @@ BLOCKED
 NEXT VALID ACTION
 ```
 
-## 21. CURRENT NEXT ACTION
+## 23. CURRENT NEXT ACTION
 
-For the current Dynamic session:
+**Implement Option B Bootstrap repository/remote-source boundary first. Then continue every remaining documented Dynamic gap, followed by Login → OTP integration verification, platform verification, literal plan-to-source review, final Dynamic review and feature freeze.**
 
-**Continue implementation/testing of the frozen Dynamic feature. Do not reopen DYNAMIC-01 → DYNAMIC-07. Resolve only documented implementation gaps, then complete the final Login → OTP integration verification, platform verification, review and feature freeze.**
+Do not reopen DYNAMIC-01 → DYNAMIC-07. Do not mark the feature complete because the JVM baseline is green.
 
-## 22. ONE-LINE EXTERNAL AI INSTRUCTION
+## 24. ONE-LINE EXTERNAL AI INSTRUCTION
 
-> Read `AI_START_HERE.md` first. Recover state from the Master State, Current Status and Project Tracker. Follow frozen decisions and the current feature plan. Never guess, silently redesign, create extra gates, or restart the project.
+> Read `AI_START_HERE.md` first. Recover state from the Master State, Current Status and Project Tracker. Follow frozen decisions and the current feature plan. Never guess, silently redesign, create extra gates, suppress documented gaps, or restart the project.
