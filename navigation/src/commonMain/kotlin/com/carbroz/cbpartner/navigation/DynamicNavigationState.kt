@@ -10,6 +10,9 @@ class DynamicNavigationState(
     internal val backStack: SnapshotStateList<DynamicDestination> =
         mutableStateListOf(initialDestination)
 
+    val currentDestination: DynamicDestination
+        get() = backStack.last()
+
     fun setRoot(destination: DynamicDestination) {
         backStack.clear()
         backStack.add(destination)
