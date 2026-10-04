@@ -1,13 +1,6 @@
 package com.carbroz.cbpartner.domain.model.dynamic
 
-data class DynamicDestination(
-    val screenId: String,
-    val templateId: String?,
-    val templateType: String?,
-    val endpoint: String,
-    val method: String = "GET",
-    val authentication: String? = null,
-)
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 
 data class DynamicResponse(
     val status: Int,
@@ -15,17 +8,7 @@ data class DynamicResponse(
     val message: String,
     val data: DynamicScreen?,
     val traceId: String?,
-    val nextScreen: DynamicNextScreen? = null,
     val dataPayload: DynamicValue? = null,
-)
-
-data class DynamicNextScreen(
-    val screenId: String,
-    val templateId: String,
-    val templateType: String,
-    val endpoint: String,
-    val method: String = "GET",
-    val authentication: String? = null,
 )
 
 data class DynamicScreen(
@@ -34,6 +17,7 @@ data class DynamicScreen(
     val targetApp: String,
     val template: DynamicTemplate,
     val theme: DynamicTheme?,
+    val nextScreen: DynamicDestination? = null,
 )
 
 data class DynamicTemplate(
