@@ -1,26 +1,19 @@
 package com.carbroz.cbpartner.data.dynamic.remote
 
-import com.carbroz.cbpartner.data.network.RemoteDataSource
-import com.carbroz.cbpartner.data.network.RemoteResponse
+import com.carbroz.cbpartner.network.NetworkResult
+import com.carbroz.cbpartner.network.http.RequestHandler
 import io.ktor.http.HttpMethod
 
-/**
- * Dynamic-specific remote flow built on the common application RemoteDataSource.
- *
- * Dynamic supplies only backend request details. Common transport metadata is
- * owned by the shared RemoteDataSource boundary.
- */
 class DynamicRemoteDataSource(
-    private val remoteDataSource: RemoteDataSource,
+    private val requestHandler: RequestHandler,
 ) {
     suspend fun fetch(
         endpoint: String,
         method: String,
         body: String?,
-    ): RemoteResponse =
-        remoteDataSource.execute(
-            method = HttpMethod.parse(method),
-            url = endpoint,
-            body = body,
-        )
+    ): NetworkResult<String> = requestHandler.executeRequest(
+        method = HttpMethod.parse(method),
+        urlPathSegments = endpoint.split('/').filter(String::isNotEmpty),
+        body = body,
+    )
 }
