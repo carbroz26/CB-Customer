@@ -12,8 +12,10 @@ val bootstrapModule = module {
     single { BootstrapMapper() }
     single<BootstrapRepository> { BootstrapRepositoryImpl(get(), get(), get()) }
     single<ApplicationBootstrap> {
+        val repository: BootstrapRepository = get()
         object : ApplicationBootstrap {
-            override suspend fun invoke() = get<BootstrapRepository>().fetch()
+            override suspend fun invoke(): Result<com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput> =
+                repository.fetch()
         }
     }
 }
