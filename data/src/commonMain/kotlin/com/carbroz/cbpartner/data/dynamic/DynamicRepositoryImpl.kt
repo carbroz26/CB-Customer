@@ -24,11 +24,12 @@ class DynamicRepositoryImpl(
     override suspend fun fetch(
         destination: DynamicDestination,
         body: DynamicValue?,
+        method: String,
     ): Result<DynamicResponse> {
         return when (
             val response = remoteDataSource.fetch(
                 endpoint = destination.endpoint,
-                method = destination.method,
+                method = method,
                 body = body?.toJsonElement()?.let {
                     json.encodeToString(JsonElement.serializer(), it)
                 },
