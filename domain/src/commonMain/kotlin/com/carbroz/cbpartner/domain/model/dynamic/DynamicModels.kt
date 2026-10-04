@@ -9,6 +9,7 @@ data class DynamicResponse(
     val data: DynamicScreen?,
     val traceId: String?,
     val dataPayload: DynamicValue? = null,
+    val destination: DynamicDestination? = null,
 )
 
 data class DynamicScreen(
@@ -17,7 +18,6 @@ data class DynamicScreen(
     val targetApp: String,
     val template: DynamicTemplate,
     val theme: DynamicTheme?,
-    val nextScreen: DynamicDestination? = null,
 )
 
 data class DynamicTemplate(
@@ -71,7 +71,8 @@ data class DynamicBinding(
 
 data class DynamicAction(
     val type: String,
-    val payload: Map<String, DynamicValue>,
+    val payload: Map<String, DynamicValue> = emptyMap(),
+    val destination: DynamicDestination? = null,
 )
 
 data class DynamicTheme(
