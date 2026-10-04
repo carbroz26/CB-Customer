@@ -19,9 +19,14 @@ class RequestHandler(val httpClient: HttpClient) {
         method: HttpMethod,
         urlPathSegments: List<Any>,
         headers: Map<String, String>? = null,
+        authentication: String = "NONE",
         body: B? = null,
         queryParams: Map<String, Any>? = null,
     ): NetworkResult<R> {
+        require(authentication.uppercase() in setOf("NONE", "BEARER")) {
+            "Unsupported Dynamic authentication mode: $authentication"
+        }
+
         return try {
             val response = httpClient.prepareRequest {
                 this.method = method
