@@ -1,126 +1,24 @@
 # CB-Partner Dynamic UI — Implementation Status
 
-## Status
+**Status:** IMPLEMENTATION IN PROGRESS — DOCUMENTATION RECONCILED 2026-10-04  
+**Branch:** `feature/dynamic-ui`
 
-**IMPLEMENTATION IN PROGRESS — JVM BASELINE GREEN — BOOTSTRAP BOUNDARY REFINEMENT REQUIRED**
+DYNAMIC-01 → DYNAMIC-07 discussion remains frozen. This document records what is actually implemented, what is only a target, and what must be implemented next. A green JVM build is not treated as architectural completion.
 
-DYNAMIC-01 → DYNAMIC-07 discussion is frozen and the implementation plan is frozen/authorized. This document records the actual implementation state, including gaps that must not be hidden behind a green compile/test result.
+## 1. Frozen decisions now reflected
 
-## 1. Frozen Discussion State
+- Splash and Bootstrap are one startup flow.
+- Bootstrap Option B is the required implementation boundary.
+- `DynamicDestination` is the single canonical destination for Bootstrap `nextScreen`, Dynamic API destinations and Dynamic action destinations.
+- `StartupConfig`, `NextScreenConfig`, and standalone `BootstrapConfig` are legacy domain artifacts and must not remain as parallel contracts.
+- Dynamic feature use cases remain feature orchestration; they are not moved into top-level `:domain`.
+- Network errors are classified by actual HTTP/transport/protocol cause rather than collapsed into `UnknownException`.
 
-- DYNAMIC-01 — FROZEN
-- DYNAMIC-02 — FROZEN
-- DYNAMIC-03 — FROZEN
-- DYNAMIC-04 — FROZEN
-- DYNAMIC-05 — FROZEN
-- DYNAMIC-06 — FROZEN
-- DYNAMIC-07 — FROZEN
+Final reconciliation record: `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md`.
 
-Canonical discussion: `00-FEATURE-DISCUSSION.md`
+## 2. Verified implementation baseline
 
-## 2. Completed Implementation
-
-### Application / Navigation
-
-1. `App.kt` is a thin application composition entry point.
-2. `ApplicationContent.kt` composes Splash → Dynamic.
-3. `DynamicNavigationState` owns the complete `DynamicDestination` back stack with root/push/replace/pop.
-4. Dynamic rendering is hosted through one `DynamicContainer`.
-
-### Dynamic Store / Use Cases
-
-5. `DynamicStore` exists as the feature MVI/UDF orchestration boundary.
-6. `DynamicStore` does not own Ktor or Navigation 3.
-7. `LoadDynamicScreenUseCase` exists and is used for screen loading.
-8. `ExecuteDynamicActionUseCase` exists and handles feature action/reference coordination.
-9. Dynamic navigation and external URI are exposed as separate effects.
-10. The Store no longer builds HTTP transport details itself.
-
-### Registry / Renderer
-
-11. `DynamicRegistry` is restricted to the frozen initial vocabulary.
-12. Duplicate registration is rejected.
-13. `DynamicRenderer` is a small recursive rendering boundary.
-14. `stack_template`, `stack_component`, `stack_section`, `stack_group`, `text`, and `image` implementations exist.
-15. Obsolete `FormTemplate`, `InputElement`, and `ButtonElement` Dynamic implementations were removed from the current runtime.
-
-### Dynamic Data / Network
-
-16. Standalone `:network` module exists.
-17. Shared `HttpClient`/`RequestHandler` infrastructure is in `:network`.
-18. Dynamic data uses `RequestHandler` through `DynamicRemoteDataSource`.
-19. Dynamic repository uses explicit DTO/domain mapping.
-20. Transport headers remain below the Dynamic/domain contract.
-21. Bootstrap currently uses the shared `RequestHandler`.
-22. Bootstrap mapper constructs the canonical `DynamicDestination`.
-23. Duplicate Bootstrap `NextScreenConfig` destination modeling was removed.
-
-### Bootstrap Integration — CURRENTLY PARTIAL
-
-24. Bootstrap success data reaches `BootstrapOutput.startup.nextScreen` as `DynamicDestination`.
-25. Bootstrap destination identity fields are preserved and tested.
-26. Application composition can hand the Bootstrap destination into Dynamic navigation.
-27. The actual Bootstrap endpoint and required headers are now known and documented.
-28. The JVM Bootstrap tests pass at the current baseline.
-
-## 3. Bootstrap Gap — MUST BE IMPLEMENTED
-
-The current implementation still has a direct:
-
-```text
-ApplicationBootstrap → DefaultApplicationBootstrap → RequestHandler
-```
-
-path.
-
-This is no longer the target implementation. The selected implementation refinement is Option B:
-
-```text
-ApplicationBootstrap
-    ↓
-BootstrapRepository
-    ↓
-BootstrapRepositoryImpl
-    ↓
-BootstrapRemoteDataSource
-    ↓
-RequestHandler
-```
-
-Required responsibilities:
-
-- `ApplicationBootstrap` remains the startup-facing domain contract.
-- `BootstrapRepository` is a domain repository abstraction.
-- `BootstrapRepositoryImpl` is the data orchestration implementation.
-- `BootstrapRemoteDataSource` owns Bootstrap HTTP transport details.
-- `BootstrapMapper` performs explicit DTO → domain mapping.
-
-`DefaultApplicationBootstrap` must be removed/reworked so it does not remain a second direct HTTP path.
-
-## 4. Dynamic Package Boundary Gap
-
-Current use-case files are under:
-
-```text
-feature/dynamic/.../domain/usecase/
-```
-
-The use cases are not candidates for moving into top-level `:domain`:
-
-- `LoadDynamicScreenUseCase` depends on the Dynamic repository contract.
-- `ExecuteDynamicActionUseCase` coordinates the feature-owned `DynamicActionHandler` and therefore belongs to the feature orchestration layer.
-
-Target package cleanup:
-
-```text
-feature/dynamic/.../usecase/
-```
-
-This is a package ownership clarification, not a new architecture layer.
-
-## 5. Latest Verification — 2026-10-04
-
-Owner pulled `feature/dynamic-ui` and ran:
+The owner ran on 2026-10-04:
 
 ```powershell
 .\gradlew.bat :network:compileKotlinJvm
@@ -139,136 +37,184 @@ BUILD SUCCESSFUL
 54 actionable tasks: 15 executed, 39 up-to-date
 ```
 
-The earlier `BootstrapRemoteDataSourceTest.nonSuccessfulHttpStatusIsMapped` failure is resolved. This green result is a verification baseline only; it does not mark the Bootstrap architecture refinement or Dynamic feature complete.
+This confirms the current JVM baseline only.
 
-## 6. Current Code Map
+## 3. Implemented areas
 
-### Application
+### Application / Navigation
 
-- `app/.../App.kt`
-- `app/.../ApplicationContent.kt`
+- `App.kt` is the application composition entry point.
+- `ApplicationContent.kt` composes Splash and Dynamic.
+- `DynamicNavigationState` owns the Dynamic destination stack.
+- `DynamicContainer` is the permanent Dynamic rendering host.
 
-### Navigation
+### Dynamic Store / feature orchestration
 
-- `navigation/.../DynamicNavigationState.kt`
-- `navigation/.../DynamicNavigationHost.kt`
+- `DynamicStore` exists as the Pure Store/MVI/UDF orchestration boundary.
+- `LoadDynamicScreenUseCase` exists.
+- `ExecuteDynamicActionUseCase` exists.
+- These use cases remain feature-owned.
 
-### Dynamic
+### Registry / Renderer
 
-- `feature/dynamic/.../DynamicContainer.kt`
-- `feature/dynamic/.../DynamicModule.kt`
-- `feature/dynamic/.../store/DynamicStore.kt`
-- `feature/dynamic/.../action/DynamicActionHandler.kt`
-- `feature/dynamic/.../domain/usecase/LoadDynamicScreenUseCase.kt` — target package cleanup pending
-- `feature/dynamic/.../domain/usecase/ExecuteDynamicActionUseCase.kt` — target package cleanup pending
-- `feature/dynamic/.../registry/DynamicRegistry.kt`
-- `feature/dynamic/.../renderer/DynamicRenderer.kt`
-- `feature/dynamic/.../sdui/template/StackTemplate.kt`
-- `feature/dynamic/.../sdui/component/StackComponent.kt`
-- `feature/dynamic/.../sdui/section/StackSection.kt`
-- `feature/dynamic/.../sdui/group/StackGroup.kt`
-- `feature/dynamic/.../sdui/element/TextElement.kt`
-- `feature/dynamic/.../sdui/element/ImageElement.kt`
+- `DynamicRegistry` exists with explicit category registration.
+- Initial frozen vocabulary is implemented.
+- `DynamicRenderer` exists as the recursive rendering boundary.
 
-### Data — current and target Bootstrap structure
+### Dynamic data / network
 
-Current:
+- `DynamicRepository` and `DynamicRepositoryImpl` exist.
+- `DynamicRemoteDataSource` exists.
+- Dynamic DTO/model and mapper exist.
+- Shared `:network` Ktor/RequestHandler infrastructure exists.
 
-- `data/.../bootstrap/DefaultApplicationBootstrap.kt`
-- `data/.../bootstrap/BootstrapMapper.kt`
+### Bootstrap baseline
+
+- Bootstrap API contract is known.
+- Bootstrap mapping to the canonical destination has been implemented/tested at the current baseline.
+- Bootstrap tests are green at the current JVM baseline.
+
+## 4. Bootstrap implementation gap — NEXT
+
+The source still requires final Option B reconciliation.
+
+Required production path:
+
+```text
+ApplicationBootstrap
+    ↓
+BootstrapRepository
+    ↓
+BootstrapRepositoryImpl
+    ↓
+BootstrapRemoteDataSource
+    ↓
+RequestHandler
+```
+
+Required changes:
+
+1. Remove/rework `DefaultApplicationBootstrap` so it is not a direct HTTP implementation.
+2. Implement/verify `BootstrapRepository` as the domain repository contract.
+3. Implement/verify `BootstrapRepositoryImpl` as the data orchestration layer.
+4. Implement/verify `BootstrapRemoteDataSource` as the Bootstrap transport boundary.
+5. Keep DTO → domain conversion in `BootstrapMapper`.
+6. Remove legacy `StartupConfig`, `NextScreenConfig`, and standalone `BootstrapConfig` domain contracts.
+7. Keep exactly one production Bootstrap HTTP path.
+8. Update Bootstrap DI and tests.
+
+## 5. Canonical destination gap check
+
+The final model is:
+
+```text
+Bootstrap nextScreen ───────┐
+Dynamic API nextScreen ─────┼──→ DynamicDestination
+Dynamic action destination ─┘
+```
+
+No separate destination models or navigation implementations are authorized.
+
+Required verification:
+
+- Bootstrap creates `DynamicDestination`.
+- Dynamic response destination creates the same type.
+- `navigate` action creates the same type.
+- Push/replace/pop/back operate on the same stack entry type.
+- `templateType` never decides business navigation.
+
+## 6. Domain / feature package cleanup
+
+Current historical package:
+
+```text
+feature/dynamic/.../domain/usecase/
+```
 
 Target:
 
-- `data/.../bootstrap/BootstrapRepositoryImpl.kt`
-- `data/.../bootstrap/remote/BootstrapRemoteDataSource.kt`
-- `data/.../bootstrap/model/*`
-- `data/.../bootstrap/mapper/BootstrapMapper.kt`
-
-Dynamic:
-
-- `data/.../dynamic/DynamicRepositoryImpl.kt`
-- `data/.../dynamic/remote/DynamicRemoteDataSource.kt`
-- `data/.../dynamic/model/DynamicResponseDto.kt`
-- `data/.../dynamic/mapper/DynamicResponseMapper.kt`
-
-### Domain
-
-- `domain/.../bootstrap/ApplicationBootstrap.kt`
-- `domain/.../model/bootstrap/*`
-- `domain/.../repository/BootstrapRepository.kt` — to be added
-- `domain/.../model/dynamic/DynamicModels.kt`
-- `domain/.../repository/DynamicRepository.kt`
-
-## 7. Login → OTP Checkpoint
-
-Known destination identities:
-
 ```text
-partner_login
-  templateId = tpl_7K2M9Q
-  templateType = form_template
-  GET /api/v1/partner/screen/auth_login
-
-partner_otp
-  templateId = tpl_P6X8N3
-  templateType = form_template
-  GET /api/v1/partner/screen/auth_otp
+feature/dynamic/.../usecase/
 ```
 
-Known actions:
+This is a package-ownership cleanup only. The use cases remain feature-level and are not moved to `:domain`.
+
+## 7. Network exception implementation gap
+
+Frozen classification:
 
 ```text
-POST /api/v1/partner/auth/send_otp
-  phoneNumber = $context(authFlow.phoneNumber)
-  deviceId = $context(deviceId)
-  responseMode = none
-
-POST /api/v1/partner/auth/verify_otp
-  challengeId = $response(data.challengeId)
-  phoneNumber = $context(authFlow.phoneNumber)
-  otp = $binding(otp)
-  deviceId = $context(deviceId)
-  responseMode = destination
+BadRequestException
+UnauthorizedException
+ForbiddenException
+NotFoundException
+ConflictException
+ValidationException
+RateLimitException
+ServerException
+NetworkConnectionException
+TimeoutException
+SerializationException
+ProtocolException
+UnknownNetworkException
 ```
 
-This remains generic Dynamic behavior. No OTP-specific Store, renderer, or navigation branch is authorized.
+Implementation must first inspect existing `NetworkException`, `DefaultError`, `RequestHandler` and response/error types so equivalent classes are not duplicated.
 
-## 8. Remaining Implementation Work — No Gap Suppression
+Classification must distinguish:
 
-1. Implement Option B Bootstrap repository/remote-source layering.
-2. Update Bootstrap DI and tests so only one production Bootstrap request path remains.
-3. Verify the full Splash → Bootstrap → DynamicDestination runtime path.
-4. Move Dynamic use cases to the feature-level `usecase` package without moving them to top-level `:domain`.
-5. Complete request metadata/authentication integration.
-6. Complete all required Dynamic reference/state/action behavior from the frozen DYNAMIC-06 contract.
-7. Complete DYNAMIC-07 fallback/recovery/observability behavior.
-8. Add backend-shaped Login → Send OTP → OTP → Verify OTP integration tests.
-9. Verify destination push/pop/replace/back behavior.
-10. Verify Android.
-11. Verify iOS/macOS-hosted targets where supported.
-12. Verify Web/Wasm.
-13. Perform literal plan-to-source compliance review.
-14. Complete final Dynamic feature review.
-15. Code-freeze Dynamic.
+- HTTP status failure;
+- connection failure;
+- timeout;
+- serialization/decode failure;
+- protocol/malformed response;
+- genuinely unknown failure.
 
-## 9. Explicitly Not Complete
+Business/API outcomes remain separate from transport exceptions.
 
-- Option B Bootstrap repository/remote-source layering.
-- Final Bootstrap DI/test cleanup after the layering change.
-- Real backend Login → OTP → Dashboard end-to-end verification.
-- Full DYNAMIC-07 production observability implementation.
-- Final fallback/error UX implementation.
-- Full platform verification.
-- Final Dynamic feature review/freeze.
+## 8. Remaining Dynamic work
 
-## 10. Deviations / Reconciliation
+| Priority | Work | State |
+|---:|---|---|
+| 1 | Bootstrap Option B repository/remote-source implementation | OPEN / NEXT |
+| 2 | Remove/rework legacy Bootstrap domain models and direct bootstrap path | OPEN |
+| 3 | Bootstrap DI and tests | OPEN |
+| 4 | Verify Bootstrap → DynamicDestination runtime hand-off | OPEN |
+| 5 | Clean Dynamic use-case package | OPEN |
+| 6 | Complete request metadata/authentication | OPEN |
+| 7 | Complete frozen Dynamic state/reference/action behavior | IN PROGRESS |
+| 8 | Implement frozen network exception taxonomy | OPEN |
+| 9 | Complete DYNAMIC-07 fallback/recovery/diagnostic/observability behavior | OPEN |
+| 10 | Login → Send OTP → OTP → Verify OTP integration tests | OPEN |
+| 11 | Full destination push/replace/pop/back runtime verification | OPEN |
+| 12 | Android verification | OPEN |
+| 13 | iOS/macOS-hosted verification | OPEN |
+| 14 | Web/Wasm verification | OPEN |
+| 15 | Literal plan-to-source compliance review | OPEN |
+| 16 | Final Dynamic review and code freeze | OPEN |
 
-No frozen DYNAMIC-01 → DYNAMIC-07 decision is being reopened.
+## 9. Explicitly not complete
 
-The Bootstrap implementation is being refined under the already-frozen startup responsibility using Option B. This is now an explicit implementation requirement rather than an optional cleanup.
+- Bootstrap Option B implementation is not yet source-complete.
+- Legacy Bootstrap domain model cleanup is not yet source-complete.
+- Final Bootstrap DI/test reconciliation is not complete.
+- Canonical destination runtime verification is not complete.
+- Network exception taxonomy is frozen but not yet implemented/verified.
+- Login → OTP → Dashboard end-to-end verification is pending.
+- DYNAMIC-07 production implementation is pending.
+- Full platform verification is pending.
+- Final Dynamic review/freeze is pending.
 
-Historical base-document platform wording remains a separate reconciliation item and is not mixed into this Dynamic implementation change.
+## 10. Implementation rules for the next work
 
-## 11. Next Action
+- Do not reopen DYNAMIC-01 → DYNAMIC-07.
+- Do not introduce a Bootstrap-specific navigation system.
+- Do not create Login/OTP/Dashboard-specific screen classes.
+- Do not move feature orchestration use cases into top-level `:domain`.
+- Do not add network exception classes without checking existing error types first.
+- Do not consider compilation success equivalent to architecture completion.
+- Update this status after each implementation unit and verification gate.
 
-**Implement Option B Bootstrap boundary first. Then continue the remaining Dynamic gaps in the ordered implementation plan. Do not mark the feature complete merely because the JVM baseline is green.**
+## 11. Next action
+
+**Implement Bootstrap Option B completely, including legacy domain-model cleanup, DI and tests. Then verify the shared `DynamicDestination` runtime hand-off before continuing the remaining Dynamic gaps.**
