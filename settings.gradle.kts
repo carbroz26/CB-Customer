@@ -19,6 +19,7 @@ rootProject.name = "CB-Partner"
 include(
     ":core",
     ":domain",
+    ":network",
     ":data",
     ":navigation",
     ":app",
