@@ -4,6 +4,51 @@ Branch: `feature/dynamic-ui`
 Plan: `CB-Partner-Dynamic-UI-32-Step-Implementation-Plan.md`
 Mode: continuous implementation pass.
 
+## Authoritative Action Boundary — Reconciliation
+
+This section supersedes any older Dynamic discussion/implementation wording that describes a separate `ExecuteDynamicActionUseCase` or a second action-execution orchestration layer.
+
+### Canonical action flow
+
+```text
+User interaction
+    ↓
+DynamicStore
+    ↓
+DynamicActionExecutor
+    ├── request       → NetworkDataSource / repository boundary
+    ├── navigate     → DynamicNavigationState / NavigationStore boundary
+    ├── present      → dynamic runtime navigation state
+    ├── dismiss      → dynamic runtime navigation state
+    ├── state        → Dynamic runtime state
+    ├── external_uri → external URI effect / capability boundary
+    └── sequence     → execute child actions in order
+```
+
+### Frozen reconciliation rules
+
+1. `ExecuteDynamicActionUseCase` is **removed/deprecated** and must not be reintroduced.
+2. `DynamicActionExecutor` is the single Dynamic action-dispatch boundary.
+3. `DynamicStore` owns Dynamic screen runtime state and orchestration; it receives interactions and delegates action execution to `DynamicActionExecutor`.
+4. `LoadDynamicScreenUseCase` remains a separate screen-loading use case. It is not an action executor and must not absorb action execution responsibilities.
+5. Action handlers remain focused on individual action behavior. The executor dispatches to handlers and owns sequence recursion.
+6. Navigation remains a navigation boundary; action execution must not infer destinations from `templateType`.
+7. External URI handling remains distinct from Dynamic navigation and is surfaced as an external effect/capability boundary.
+8. Bound field/runtime state remains owned by the Dynamic runtime state; action execution must not introduce a second state owner.
+9. Do not recreate a generic command/registry/prepared-action pipeline merely to replace the removed use case.
+10. Older documents that still name `ExecuteDynamicActionUseCase` are historical/stale and must be interpreted according to this reconciliation.
+
+### Current code reconciliation snapshot
+
+Verified against `feature/dynamic-ui`:
+
+- `feature/dynamic/.../action/DynamicActionExecutor.kt` exists and is the current action execution entry point.
+- `feature/dynamic/.../store/DynamicStore.kt` injects `DynamicActionExecutor` and delegates action execution to it.
+- `feature/dynamic/.../usecase/LoadDynamicScreenUseCase.kt` is the remaining screen-loading use case and is unrelated to action execution.
+- No `ExecuteDynamicActionUseCase` source is present in the current Dynamic module.
+
+This reconciliation is documentation/state synchronization only. It does not authorize speculative architecture changes.
+
 | Step | Status | Notes |
 |---|---|---|
 | 1 | COMPLETE | Baseline synchronized at commit `671ffec`; Android debug assembly and `clean test` were verified by the developer on Windows. Known iOS simulator and Android host-test warnings are non-failing. |
