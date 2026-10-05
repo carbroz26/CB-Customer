@@ -4,10 +4,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.draw.drawWithCache
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
@@ -15,8 +14,10 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 class DynamicRenderer(
     private val registry: DynamicRegistry,
@@ -58,10 +59,10 @@ class DynamicRenderer(
 
         val angle = (gradient.value["angle"] as? DynamicValue.NumberValue)?.value ?: 0.0
         return drawWithCache {
-            val radians = Math.toRadians(angle)
+            val radians = angle * PI / 180.0
             val direction = Offset(cos(radians).toFloat(), sin(radians).toFloat())
             val center = Offset(size.width / 2f, size.height / 2f)
-            val length = kotlin.math.sqrt(size.width * size.width + size.height * size.height) / 2f
+            val length = sqrt(size.width * size.width + size.height * size.height) / 2f
             val brush = Brush.linearGradient(
                 colors = colors,
                 start = center - direction * length,
