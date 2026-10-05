@@ -24,47 +24,53 @@ class RequestHandler(val httpClient: HttpClient) {
         queryParams: Map<String, Any>? = null,
     ): NetworkResult<R> {
         require(authentication.uppercase() in setOf("NONE", "BEARER")) {
-            "Unsupported Dynamic authentication mode: $authentication"
+            "Unsupported authentication mode: $authentication"
         }
 
         return try {
             val response = httpClient.prepareRequest {
                 this.method = method
                 url {
-                    val pathSegments = urlPathSegments.map { it.toString() }
-                    appendPathSegments(pathSegments)
+                    appendPathSegments(urlPathSegments.map(Any::toString))
                 }
                 headers?.forEach { (key, value) -> header(key, value) }
-                body?.let { setBody(body) }
-                queryParams?.let { params ->
-                    params.forEach { (key, value) ->
-                        parameter(key, value)
-                    }
-                }
+                body?.let(::setBody)
+                queryParams?.forEach { (key, value) -> parameter(key, value) }
             }.execute().body<R>()
+
             NetworkResult.Success(response)
-        } catch (e: Exception) {
-            val networkException = if (e is ResponseException) {
-                val errorMessage = runCatching {
-                    e.response.body<DefaultError>().message
-                }.getOrDefault("API Not found")
+        } catch (error: ResponseException) {
+            NetworkResult.Error(null, error.toNetworkException())
+        } catch (error: kotlinx.serialization.SerializationException) {
+            NetworkResult.Error(
+                null,
+                NetworkException.Serialization(
+                    error.message ?: "Unable to decode network response",
+                    error,
+                ),
+            )
+        } catch (error: Throwable) {
+            NetworkResult.Error(
+                null,
+                NetworkException.Unknown(error.message ?: "Unknown network error", error),
+            )
+        }
+    }
 
-                when (e.response.status) {
-                    HttpStatusCode.Unauthorized -> NetworkException.UnauthorizedException(
-                        errorMessage,
-                        e,
-                    )
+    private suspend fun ResponseException.toNetworkException(): NetworkException {
+        val message = runCatching { response.body<DefaultError>().message }
+            .getOrDefault(response.status.description)
 
-                    else -> NetworkException.NotFoundException(
-                        errorMessage,
-                        e,
-                        e.response.status.value,
-                    )
-                }
-            } else {
-                NetworkException.UnknownException(e.message ?: "Unknown error", e)
-            }
-            NetworkResult.Error(null, networkException)
+        return when (response.status.value) {
+            HttpStatusCode.BadRequest.value -> NetworkException.BadRequest(message, this)
+            HttpStatusCode.Unauthorized.value -> NetworkException.Unauthorized(message, this)
+            HttpStatusCode.Forbidden.value -> NetworkException.Forbidden(message, this)
+            HttpStatusCode.NotFound.value -> NetworkException.NotFound(message, this)
+            HttpStatusCode.Conflict.value -> NetworkException.Conflict(message, this)
+            422 -> NetworkException.Validation(message, this)
+            HttpStatusCode.TooManyRequests.value -> NetworkException.RateLimit(message, this)
+            in 500..599 -> NetworkException.Server(message, this, response.status.value)
+            else -> NetworkException.Protocol(message, this, response.status.value)
         }
     }
 
@@ -73,7 +79,7 @@ class RequestHandler(val httpClient: HttpClient) {
         queryParams: Map<String, Any>? = null,
     ): NetworkResult<R> = executeRequest<Any, R>(
         method = HttpMethod.Get,
-        urlPathSegments = urlPathSegments.toList(),
+        urlPathSegments = urlPathSegments,
         queryParams = queryParams,
     )
 
@@ -82,7 +88,7 @@ class RequestHandler(val httpClient: HttpClient) {
         body: B? = null,
     ): NetworkResult<R> = executeRequest(
         method = HttpMethod.Post,
-        urlPathSegments = urlPathSegments.toList(),
+        urlPathSegments = urlPathSegments,
         body = body,
     )
 
@@ -91,7 +97,7 @@ class RequestHandler(val httpClient: HttpClient) {
         body: B? = null,
     ): NetworkResult<R> = executeRequest(
         method = HttpMethod.Put,
-        urlPathSegments = urlPathSegments.toList(),
+        urlPathSegments = urlPathSegments,
         body = body,
     )
 
@@ -100,7 +106,7 @@ class RequestHandler(val httpClient: HttpClient) {
         body: B? = null,
     ): NetworkResult<R> = executeRequest(
         method = HttpMethod.Delete,
-        urlPathSegments = urlPathSegments.toList(),
+        urlPathSegments = urlPathSegments,
         body = body,
     )
 }
