@@ -19,10 +19,14 @@ internal object DynamicActionValueResolver {
                 contextRef != null -> DynamicValue.StringValue(context[contextRef].orEmpty())
                 responseRef != null -> previousResponse?.resolvePath(responseRef) ?: DynamicValue.NullValue
                 literal != null -> resolve(literal, bindings, context, previousResponse)
-                else -> DynamicValue.ObjectValue(value.value.mapValues { (_, child) -> resolve(child, bindings, context, previousResponse) })
+                else -> DynamicValue.ObjectValue(
+                    value.value.mapValues { (_, child) -> resolve(child, bindings, context, previousResponse) },
+                )
             }
         }
-        is DynamicValue.ArrayValue -> DynamicValue.ArrayValue(value.value.map { resolve(it, bindings, context, previousResponse) })
+        is DynamicValue.ArrayValue -> DynamicValue.ArrayValue(
+            value.value.map { resolve(it, bindings, context, previousResponse) },
+        )
         else -> value
     }
 
@@ -35,5 +39,8 @@ internal object DynamicActionValueResolver {
         }
 
     fun string(value: DynamicValue?): String? = (value as? DynamicValue.StringValue)?.value
+
+    fun boolean(value: DynamicValue?): Boolean? = (value as? DynamicValue.BooleanValue)?.value
+
     fun asString(value: DynamicValue?): String = string(value).orEmpty()
 }
