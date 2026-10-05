@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.sdui.template
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicTemplate
 import com.carbroz.cbpartner.feature.dynamic.registry.TemplateRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
