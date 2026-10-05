@@ -2,6 +2,8 @@ package com.carbroz.cbpartner.feature.dynamic.registry
 
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.DividerElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.IconElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ImageElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
@@ -18,4 +20,6 @@ fun dynamicRendererRegistry(): DynamicRegistry = DynamicRegistry.builder()
     .element("image", ImageElement())
     .element("input", InputElement())
     .element("button", ButtonElement())
+    .element("divider", DividerElement())
+    .element("icon", IconElement())
     .build()
