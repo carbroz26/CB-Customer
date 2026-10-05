@@ -3,7 +3,7 @@ package com.carbroz.cbpartner.data.dynamic
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.DynamicResponseDto
 import com.carbroz.cbpartner.data.dynamic.remote.DynamicRemoteDataSource
-import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
@@ -21,18 +21,13 @@ class DynamicRepositoryImpl(
     private val mapper: DynamicResponseMapper,
 ) : DynamicRepository {
 
-    override suspend fun fetch(
-        destination: DynamicDestination,
-        body: DynamicValue?,
-        method: String,
-        authentication: String,
-    ): Result<DynamicResponse> {
+    override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
         return when (
             val response = remoteDataSource.fetch(
-                endpoint = destination.endpoint,
-                method = method,
-                authentication = authentication,
-                body = body?.toJsonElement()?.let {
+                endpoint = request.destination.endpoint,
+                method = request.method,
+                authentication = request.authentication,
+                body = request.body?.toJsonElement()?.let {
                     json.encodeToString(JsonElement.serializer(), it)
                 },
             )
@@ -40,7 +35,6 @@ class DynamicRepositoryImpl(
             is NetworkResult.Success -> runCatching {
                 mapper.map(json.decodeFromString<DynamicResponseDto>(response.result))
             }
-
             is NetworkResult.Error -> Result.failure(response.exception)
         }
     }
