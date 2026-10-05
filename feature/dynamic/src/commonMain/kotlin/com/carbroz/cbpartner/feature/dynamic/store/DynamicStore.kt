@@ -44,10 +44,10 @@ class DynamicStore(
 ) {
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
-
     private val _bindings = MutableStateFlow<Map<String, String>>(emptyMap())
     val bindings: StateFlow<Map<String, String>> = _bindings.asStateFlow()
-
+    private val _context = MutableStateFlow<Map<String, String>>(contextProvider())
+    val context: StateFlow<Map<String, String>> = _context.asStateFlow()
     private val _effects = MutableStateFlow<DynamicEffect?>(null)
     val effects: StateFlow<DynamicEffect?> = _effects.asStateFlow()
 
@@ -95,12 +95,15 @@ class DynamicStore(
                 action = action,
                 navigation = navigation,
                 bindings = _bindings.value,
-                context = contextProvider(),
+                context = _context.value,
                 previousResponse = previousResponseData,
             ).onSuccess { result ->
                 when (result) {
                     DynamicActionResult.Completed -> Unit
-                    is DynamicActionResult.Navigate -> result.response?.let { previousResponseData = it.asResponseReference() }
+                    is DynamicActionResult.Navigate -> {
+                        result.response?.let { previousResponseData = it.asResponseReference() }
+                        _context.value = _context.value + result.contextChanges
+                    }
                     is DynamicActionResult.ExternalUri -> _effects.value = DynamicEffect.ExternalUri(result.uri)
                     is DynamicActionResult.StateChanged -> _bindings.value = _bindings.value + (result.key to result.value)
                 }
@@ -108,8 +111,7 @@ class DynamicStore(
         }
     }
 
-    private fun DynamicResponse.asResponseReference(): DynamicValue? =
-        dataPayload?.let { DynamicValue.ObjectValue(mapOf("data" to it)) }
+    private fun DynamicResponse.asResponseReference(): DynamicValue? = dataPayload?.let { DynamicValue.ObjectValue(mapOf("data" to it)) }
 
     fun clearEffect() { _effects.value = null }
 
