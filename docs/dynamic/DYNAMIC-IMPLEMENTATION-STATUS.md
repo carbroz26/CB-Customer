@@ -27,17 +27,17 @@ Mode: continuous implementation pass.
 | 19 | COMPLETE | `StackComponent` now applies backend layout properties and renders elements/sections in response order. |
 | 20 | COMPLETE | `StackSection` now applies backend layout properties and renders elements/groups in response order. |
 | 21 | COMPLETE | `StackGroup` now supports vertical/horizontal layout and the supplied Login/OTP group properties. |
-| 22 | COMPLETE | Text styling, spans, font properties and nested leading/trailing decoration definitions are supported. |
+| 22 | COMPLETE | Text styling, spans, font properties, clickable `LinkAnnotation` spans and nested leading/trailing decoration definitions are supported. |
 | 23 | COMPLETE | Added Coil 3.6.3 Compose Multiplatform + Ktor3 support and replaced image placeholder text with `AsyncImage`; relative URLs can use runtime `baseUrl`. |
-| 24 | COMPLETE | Added bound phone/number input rendering, maxLength, keyboard type and OTP segmented presentation. |
+| 24 | COMPLETE | Added bound phone/number input rendering, maxLength, keyboard type, OTP segmented presentation and value-change action dispatch. |
 | 25 | COMPLETE | Added dynamic button rendering, gradient background, shape, enabled state and `onClick` action dispatch. |
 | 26 | COMPLETE | Added divider and icon renderer capabilities and registered them for both root elements and text decorations. |
-| 27 | IN_PROGRESS | Store now owns binding state and runtime orchestration; remaining cleanup is validation/action/effect responsibility separation. |
-| 28 | PENDING | |
-| 29 | PENDING | |
-| 30 | PENDING | |
-| 31 | PENDING | |
-| 32 | PENDING | |
+| 27 | COMPLETE | Store now owns only runtime state/orchestration: loading, bindings, context, previous response and action/effect coordination. Validation moved to focused `DynamicFormValidator`. |
+| 28 | COMPLETE | Sequence handling moved into `DynamicActionExecutor`, so composite actions recursively use the same dispatcher instead of constructing handlers directly. |
+| 29 | COMPLETE | Input changes update bindings before dispatching `onValueChange`; button/text/span actions dispatch through the same DynamicAction pipeline. |
+| 30 | COMPLETE | External URI effects are consumed at `DynamicContainer`; navigation/dismiss/present remain behind `DynamicNavigationState`, not platform APIs. |
+| 31 | PENDING | Exact Login/OTP contract fixtures and end-to-end tests remain. |
+| 32 | PENDING | Final reconciliation and Windows Gradle verification remain. |
 
 ## Execution rule
 
