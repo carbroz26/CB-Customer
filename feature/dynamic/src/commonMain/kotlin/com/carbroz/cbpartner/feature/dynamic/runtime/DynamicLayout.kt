@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ internal fun DynamicRenderContext.applyLayout(
     var result = modifier
     properties.padding()?.let { result = result.padding(it) }
     properties.number("width")?.let { result = result.width(it.dp) }
+    properties.number("maxWidth")?.let { result = result.widthIn(max = it.dp) }
     properties.number("height")?.let { result = result.height(it.dp) }
     if (properties.boolean("fillMaxWidth") == true) result = result.fillMaxWidth()
     if (properties.boolean("fillMaxHeight") == true) result = result.fillMaxHeight()
