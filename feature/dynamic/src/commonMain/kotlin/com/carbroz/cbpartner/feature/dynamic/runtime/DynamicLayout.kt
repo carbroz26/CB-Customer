@@ -28,7 +28,6 @@ internal fun DynamicRenderContext.applyLayout(
     row: Boolean = false,
 ): Modifier {
     var result = modifier
-
     properties.padding()?.let { result = result.padding(it) }
     properties.number("width")?.let { result = result.width(it.dp) }
     properties.number("height")?.let { result = result.height(it.dp) }
@@ -45,23 +44,12 @@ internal fun DynamicRenderContext.applyLayout(
 internal fun Map<String, DynamicValue>.padding(): PaddingValues? {
     val value = this["padding"] as? DynamicValue.ObjectValue ?: return null
     fun number(key: String) = (value.value[key] as? DynamicValue.NumberValue)?.value?.dp ?: 0.dp
-    return PaddingValues(
-        start = number("start"),
-        top = number("top"),
-        end = number("end"),
-        bottom = number("bottom"),
-    )
+    return PaddingValues(start = number("start"), top = number("top"), end = number("end"), bottom = number("bottom"))
 }
 
-internal fun Map<String, DynamicValue>.number(key: String): Double? =
-    (this[key] as? DynamicValue.NumberValue)?.value
-
-internal fun Map<String, DynamicValue>.boolean(key: String): Boolean? =
-    (this[key] as? DynamicValue.BooleanValue)?.value
-
-internal fun Map<String, DynamicValue>.string(key: String): String? =
-    (this[key] as? DynamicValue.StringValue)?.value
-
+internal fun Map<String, DynamicValue>.number(key: String): Double? = (this[key] as? DynamicValue.NumberValue)?.value
+internal fun Map<String, DynamicValue>.boolean(key: String): Boolean? = (this[key] as? DynamicValue.BooleanValue)?.value
+internal fun Map<String, DynamicValue>.string(key: String): String? = (this[key] as? DynamicValue.StringValue)?.value
 internal fun Map<String, DynamicValue>.color(key: String): Color? = string(key)?.toColor()
 
 internal fun Map<String, DynamicValue>.backgroundColor(): Color? {
@@ -78,14 +66,18 @@ internal fun Map<String, DynamicValue>.border(): BorderStroke? {
 
 internal fun Map<String, DynamicValue>.shape(): Shape? {
     val shape = this["shape"] as? DynamicValue.ObjectValue ?: return null
-    val type = (shape.value["type"] as? DynamicValue.StringValue)?.value ?: return null
-    if (type != "roundedCorner") return null
+    if ((shape.value["type"] as? DynamicValue.StringValue)?.value != "roundedCorner") return null
     val radius = (shape.value["cornerRadius"] as? DynamicValue.NumberValue)?.value ?: 0.0
     return RoundedCornerShape(radius.dp)
 }
 
 internal fun String.toColor(): Color? = runCatching {
-    Color(android.graphics.Color.parseColor(this))
+    val hex = removePrefix("#")
+    when (hex.length) {
+        6 -> Color(hex.substring(0, 2).toInt(16) / 255f, hex.substring(2, 4).toInt(16) / 255f, hex.substring(4, 6).toInt(16) / 255f)
+        8 -> Color(hex.substring(2, 4).toInt(16) / 255f, hex.substring(4, 6).toInt(16) / 255f, hex.substring(6, 8).toInt(16) / 255f, hex.substring(0, 2).toInt(16) / 255f)
+        else -> null
+    }
 }.getOrNull()
 
 internal fun Map<String, DynamicValue>.horizontalAlignment(): Alignment.Horizontal = when (string("horizontalAlignment")) {
@@ -104,18 +96,14 @@ internal fun Map<String, DynamicValue>.horizontalArrangement(): Arrangement.Hori
     val arrangement = this["horizontalArrangement"] as? DynamicValue.ObjectValue
     return if ((arrangement?.value?.get("type") as? DynamicValue.StringValue)?.value == "spacedBy") {
         Arrangement.spacedBy(((arrangement.value["spacing"] as? DynamicValue.NumberValue)?.value ?: 0.0).dp)
-    } else {
-        Arrangement.Start
-    }
+    } else Arrangement.Start
 }
 
 internal fun Map<String, DynamicValue>.verticalArrangement(): Arrangement.Vertical {
     val arrangement = this["verticalArrangement"] as? DynamicValue.ObjectValue
     return if ((arrangement?.value?.get("type") as? DynamicValue.StringValue)?.value == "spacedBy") {
         Arrangement.spacedBy(((arrangement.value["spacing"] as? DynamicValue.NumberValue)?.value ?: 0.0).dp)
-    } else {
-        Arrangement.Top
-    }
+    } else Arrangement.Top
 }
 
 @Suppress("UNUSED_PARAMETER")
