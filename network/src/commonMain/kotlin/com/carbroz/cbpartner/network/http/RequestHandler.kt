@@ -9,6 +9,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.prepareRequest
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -16,7 +17,7 @@ import io.ktor.http.appendPathSegments
 
 class RequestHandler(
     private val httpClient: HttpClient,
-    @PublishedApi internal val bearerTokenProvider: () -> String? = { null },
+    private val bearerTokenProvider: () -> String? = { null },
 ) {
     suspend inline fun <reified B, reified R> executeRequest(
         method: HttpMethod,
@@ -29,18 +30,15 @@ class RequestHandler(
         val authenticationMode = authentication.uppercase()
         require(authenticationMode in setOf("NONE", "BEARER")) { "Unsupported authentication mode: $authentication" }
         return try {
-            val response = httpClient.prepareRequest {
-                this.method = method
-                url { appendPathSegments(urlPathSegments.map(Any::toString)) }
-                headers?.forEach { (key, value) -> header(key, value) }
-                if (authenticationMode == "BEARER") {
-                    val token = resolveBearerToken() ?: error("Bearer authentication requested but no credential is available")
-                    header(HttpHeaders.Authorization, "Bearer $token")
-                }
-                body?.let(::setBody)
-                queryParams?.forEach { (key, value) -> parameter(key, value) }
-            }.execute().body<R>()
-            NetworkResult.Success(response)
+            val response = performRequest(
+                method = method,
+                urlPathSegments = urlPathSegments,
+                headers = headers,
+                authenticationMode = authenticationMode,
+                body = body,
+                queryParams = queryParams,
+            )
+            NetworkResult.Success(response.body<R>())
         } catch (error: ResponseException) {
             NetworkResult.Error(null, error.toNetworkException())
         } catch (error: kotlinx.serialization.SerializationException) {
@@ -51,10 +49,28 @@ class RequestHandler(
     }
 
     @PublishedApi
-    internal fun resolveBearerToken(): String? = bearerTokenProvider()
+    internal suspend fun performRequest(
+        method: HttpMethod,
+        urlPathSegments: List<Any>,
+        headers: Map<String, String>?,
+        authenticationMode: String,
+        body: Any?,
+        queryParams: Map<String, Any>?,
+    ): HttpResponse {
+        return httpClient.prepareRequest {
+            this.method = method
+            url { appendPathSegments(urlPathSegments.map(Any::toString)) }
+            headers?.forEach { (key, value) -> header(key, value) }
+            if (authenticationMode == "BEARER") {
+                val token = bearerTokenProvider() ?: error("Bearer authentication requested but no credential is available")
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+            body?.let(::setBody)
+            queryParams?.forEach { (key, value) -> parameter(key, value) }
+        }.execute()
+    }
 
-    @PublishedApi
-    internal suspend fun ResponseException.toNetworkException(): NetworkException {
+    private suspend fun ResponseException.toNetworkException(): NetworkException {
         val message = runCatching { response.body<DefaultError>().message }.getOrDefault(response.status.description)
         return when (response.status.value) {
             HttpStatusCode.BadRequest.value -> NetworkException.BadRequest(message, this)
