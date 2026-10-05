@@ -1,4 +1,5 @@
 import UIKit
+import CBPartnerApp
 
 @main
 final class CBPartnerAppDelegate: UIResponder, UIApplicationDelegate {
@@ -9,7 +10,7 @@ final class CBPartnerAppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = UIViewController()
+        window.rootViewController = MainKt.MainViewController()
         window.makeKeyAndVisible()
         self.window = window
         return true
