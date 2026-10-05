@@ -7,8 +7,8 @@ Mode: continuous implementation pass.
 | Step | Status | Notes |
 |---|---|---|
 | 1 | COMPLETE | Baseline synchronized at commit `671ffec`; Android debug assembly and `clean test` were verified by the developer on Windows. Known iOS simulator and Android host-test warnings are non-failing. |
-| 2 | IN_PROGRESS | Auditing Core test/dependencies before cleanup. |
-| 3 | PENDING | |
+| 2 | COMPLETE | Removed artificial `RuntimeFoundationTest`; removed unused coroutines/serialization Core dependencies. Core now retains only Kermit, which is its actual current responsibility. |
+| 3 | IN_PROGRESS | Removing unused Domain → Core dependency. |
 | 4 | PENDING | |
 | 5 | PENDING | |
 | 6 | PENDING | |
