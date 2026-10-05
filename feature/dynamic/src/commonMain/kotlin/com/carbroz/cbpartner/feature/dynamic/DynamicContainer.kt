@@ -28,6 +28,7 @@ fun DynamicContainer(
 ) {
     val state by store.state.collectAsState()
     val bindings by store.bindings.collectAsState()
+    val context by store.context.collectAsState()
 
     LaunchedEffect(destination) {
         store.updateDestination(destination)
@@ -40,6 +41,7 @@ fun DynamicContainer(
             is DynamicState.Success -> DynamicRenderer(
                 registry = registry,
                 bindings = bindings,
+                contextValues = context,
                 onAction = { store.accept(DynamicIntent.Action(it, navigation)) },
                 onValueChange = { key, value -> store.accept(DynamicIntent.ValueChanged(key, value)) },
             ).Render(current.response, destination)
