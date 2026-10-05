@@ -9,5 +9,5 @@ class LoadDynamicScreenUseCase(
     private val repository: DynamicRepository,
 ) {
     suspend operator fun invoke(destination: DynamicDestination): Result<DynamicResponse> =
-        repository.fetch(DynamicRequest(destination = destination))
+        repository.fetch(DynamicRequest(endpoint = destination.endpoint))
 }
