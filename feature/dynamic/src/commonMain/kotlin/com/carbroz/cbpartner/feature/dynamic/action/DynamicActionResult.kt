@@ -8,6 +8,7 @@ sealed interface DynamicActionResult {
     data class Navigate(
         val destination: DynamicDestination,
         val response: DynamicResponse? = null,
+        val contextChanges: Map<String, String> = emptyMap(),
     ) : DynamicActionResult
     data class ExternalUri(val uri: String) : DynamicActionResult
     data class StateChanged(val key: String, val value: String) : DynamicActionResult
