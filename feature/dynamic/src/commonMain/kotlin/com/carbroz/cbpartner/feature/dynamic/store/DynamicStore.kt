@@ -6,6 +6,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.CoroutineScope
@@ -42,6 +43,7 @@ class DynamicStore(
     private val contextProvider: () -> Map<String, String> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) {
+    private val validator = DynamicFormValidator()
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
     private val _bindings = MutableStateFlow<Map<String, String>>(emptyMap())
@@ -89,6 +91,15 @@ class DynamicStore(
     }
 
     private fun handleAction(action: DynamicAction, navigation: DynamicNavigationState) {
+        val shouldValidate = (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
+        val screen = (_state.value as? DynamicState.Success)?.response?.data
+        if (shouldValidate && screen != null) {
+            validator.validate(screen, _bindings.value)?.let { message ->
+                _state.value = DynamicState.Failure(message)
+                return
+            }
+        }
+
         if (actionJob?.isActive == true) return
         actionJob = scope.launch {
             actionExecutor.execute(
