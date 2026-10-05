@@ -34,7 +34,7 @@ class RequestHandler(
                 url { appendPathSegments(urlPathSegments.map(Any::toString)) }
                 headers?.forEach { (key, value) -> header(key, value) }
                 if (authenticationMode == "BEARER") {
-                    val token = bearerTokenProvider() ?: error("Bearer authentication requested but no credential is available")
+                    val token = resolveBearerToken() ?: error("Bearer authentication requested but no credential is available")
                     header(HttpHeaders.Authorization, "Bearer $token")
                 }
                 body?.let(::setBody)
@@ -49,6 +49,9 @@ class RequestHandler(
             NetworkResult.Error(null, NetworkException.Unknown(error.message ?: "Unknown network error", error))
         }
     }
+
+    @PublishedApi
+    internal fun resolveBearerToken(): String? = bearerTokenProvider()
 
     @PublishedApi
     internal suspend fun ResponseException.toNetworkException(): NetworkException {
