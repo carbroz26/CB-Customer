@@ -196,10 +196,62 @@ Implementation must:
 7. Avoid unrelated cleanup.
 8. Verify Android, iOS, and Web entry boundaries after implementation where the host platform permits.
 
-## 11. Frozen Outcome
+## 11. Audit and Implementation Result
+
+The existing platform boundaries were audited before implementation.
+
+### Existing `:app`
+
+The shared `App()` already composes the existing Koin modules and delegates to `ApplicationContent`. `ApplicationContent` already owns the shared Splash → Dynamic application flow. No replacement application root was introduced.
+
+### Existing `webApp`
+
+`webApp` already had the correct thin entry point:
+
+```kotlin
+fun main() {
+    ComposeViewport(viewportContainerId = "webApp") {
+        App()
+    }
+}
+```
+
+No Web application-flow changes were required.
+
+### Existing `androidApp`
+
+The module previously contained only its convention-plugin Gradle file and had no manifest or source entry point. The minimum Android boundary was added:
+
+```text
+androidApp/
+└── src/main/
+    ├── AndroidManifest.xml
+    └── kotlin/com/carbroz/cbpartner/android/MainActivity.kt
+```
+
+`MainActivity` only calls `App()` through `setContent`.
+
+### Existing `iosApp`
+
+The native Xcode boundary existed, but its entry point previously installed an empty `UIViewController`. It was changed to launch the shared Compose application through a shared iOS `MainViewController()` wrapper.
+
+The shared `:app` module now exposes an iOS framework named `CBPartnerApp`, and the Xcode project uses Kotlin's direct `embedAndSignAppleFrameworkForXcode` integration.
+
+### Implementation status
+
+```text
+Decision                 FROZEN
+Audit                    COMPLETE
+Android boundary         IMPLEMENTED
+Web boundary             ALREADY CORRECT
+iOS boundary             IMPLEMENTED
+Verification              PENDING LOCAL BUILD/RUN
+```
+
+## 12. Frozen Outcome
 
 This document is the authoritative decision record for platform application entry points.
 
 **Decision: FROZEN.**
 
-The next step is an implementation audit of the existing `:app`, `androidApp`, `iosApp`, and `webApp`, followed by implementation of only the missing pieces required by this decision.
+The platform implementation now follows the frozen boundary. Verification must be completed on the supported host platforms before this work is marked VERIFIED.
