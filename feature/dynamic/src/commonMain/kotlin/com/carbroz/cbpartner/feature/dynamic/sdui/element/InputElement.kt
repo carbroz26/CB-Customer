@@ -5,9 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,7 +27,6 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
-import com.carbroz.cbpartner.feature.dynamic.runtime.color
 import com.carbroz.cbpartner.feature.dynamic.runtime.number
 import com.carbroz.cbpartner.feature.dynamic.runtime.string
 
@@ -42,14 +43,15 @@ class InputElement : ElementRenderer {
             else -> KeyboardType.Text
         }
         val presentation = properties["presentation"] as? DynamicValue.ObjectValue
+        val segmented = (presentation?.value?.get("type") as? DynamicValue.StringValue)?.value == "segmented"
 
-        if (presentation?.value?.get("type")?.let { it as? DynamicValue.StringValue }?.value == "segmented") {
+        if (segmented) {
             SegmentedInput(
                 value = value,
-                count = (presentation.value["count"] as? DynamicValue.NumberValue)?.value?.toInt() ?: maxLength ?: 1,
-                spacing = (presentation.value["spacing"] as? DynamicValue.NumberValue)?.value?.dp ?: 8.dp,
-                segmentWidth = (presentation.value["segmentWidth"] as? DynamicValue.NumberValue)?.value?.dp ?: 44.dp,
-                segmentHeight = (presentation.value["segmentHeight"] as? DynamicValue.NumberValue)?.value?.dp ?: 52.dp,
+                count = (presentation?.value?.get("count") as? DynamicValue.NumberValue)?.value?.toInt() ?: maxLength ?: 1,
+                spacing = (presentation?.value?.get("spacing") as? DynamicValue.NumberValue)?.value?.dp ?: 8.dp,
+                segmentWidth = (presentation?.value?.get("segmentWidth") as? DynamicValue.NumberValue)?.value?.dp ?: 44.dp,
+                segmentHeight = (presentation?.value?.get("segmentHeight") as? DynamicValue.NumberValue)?.value?.dp ?: 52.dp,
                 onValueChange = { context.onValueChange(binding, it.take(maxLength ?: Int.MAX_VALUE)) },
             )
         } else {
@@ -80,12 +82,9 @@ class InputElement : ElementRenderer {
             singleLine = true,
             textStyle = androidx.compose.ui.text.TextStyle(color = Color.Transparent),
             decorationBox = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     repeat(count) { index ->
-                        if (index > 0) androidx.compose.foundation.layout.Spacer(Modifier.padding(horizontal = spacing / 2))
+                        if (index > 0) Spacer(Modifier.padding(horizontal = spacing / 2))
                         Box(
                             modifier = Modifier
                                 .width(segmentWidth)
@@ -94,10 +93,7 @@ class InputElement : ElementRenderer {
                                 .border(BorderStroke(1.dp, Color(0xFFCCE0E3)), RoundedCornerShape(12.dp)),
                             contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                text = value.getOrNull(index)?.toString().orEmpty(),
-                                textAlign = TextAlign.Center,
-                            )
+                            Text(value.getOrNull(index)?.toString().orEmpty(), textAlign = TextAlign.Center)
                         }
                     }
                 }
