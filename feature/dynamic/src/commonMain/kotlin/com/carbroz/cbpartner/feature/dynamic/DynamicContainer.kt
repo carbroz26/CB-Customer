@@ -27,32 +27,23 @@ fun DynamicContainer(
     modifier: Modifier = Modifier,
 ) {
     val state by store.state.collectAsState()
+    val bindings by store.bindings.collectAsState()
 
     LaunchedEffect(destination) {
         store.updateDestination(destination)
         store.accept(DynamicIntent.Load)
     }
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         when (val current = state) {
-            DynamicState.Initial,
-            DynamicState.Loading -> CircularProgressIndicator()
-
-            is DynamicState.Success -> {
-                DynamicRenderer(
-                    registry = registry,
-                    onAction = { store.accept(DynamicIntent.Action(it, navigation)) },
-                    onValueChange = { key, value -> store.accept(DynamicIntent.ValueChanged(key, value)) },
-                ).Render(
-                    response = current.response,
-                    destination = destination,
-                )
-            }
-
-            is DynamicState.Failure -> Text(text = current.message)
+            DynamicState.Initial, DynamicState.Loading -> CircularProgressIndicator()
+            is DynamicState.Success -> DynamicRenderer(
+                registry = registry,
+                bindings = bindings,
+                onAction = { store.accept(DynamicIntent.Action(it, navigation)) },
+                onValueChange = { key, value -> store.accept(DynamicIntent.ValueChanged(key, value)) },
+            ).Render(current.response, destination)
+            is DynamicState.Failure -> Text(current.message)
         }
     }
 }
