@@ -18,21 +18,21 @@ Mode: continuous implementation pass.
 | 10 | COMPLETE | `DynamicResponseMapper` remains DTO → domain only; no rendering, navigation or network execution was added. |
 | 11 | COMPLETE | Added type-safe renderer capability contracts for template/component/section/group/element. |
 | 12 | COMPLETE | Registry now stores typed renderer maps and has no rendering/default-registration side effects. |
-| 13 | COMPLETE | Added explicit `dynamicRendererRegistry()` composition point; registration now includes `form_template` and the current stack/text/image capabilities. |
+| 13 | COMPLETE | Added explicit `dynamicRendererRegistry()` composition point; registration now includes `form_template`, stack containers and current element capabilities. |
 | 14 | COMPLETE | Added focused `DynamicRenderContext` for registry access, runtime bindings/context values and UI callbacks. |
 | 15 | COMPLETE | `DynamicRenderer` now only validates destination identity, applies screen theme and delegates the template tree. |
-| 16 | IN_PROGRESS | Screen-level theme gradient is now applied independently of template; gradient angle/status-bar behavior still needs final implementation. |
-| 17 | COMPLETE | Added shared multiplatform layout/style translation for padding, size, fill, alignment, arrangement, background, border, shape and weight. |
+| 16 | IN_PROGRESS | Screen-level theme gradient is applied independently of template and respects backend angle; status-bar platform effect remains pending. |
+| 17 | COMPLETE | Added shared multiplatform layout/style translation for padding, size, maxWidth, fill, alignment, arrangement, background, border, shape and weight. |
 | 18 | COMPLETE | Added `FormTemplateRenderer` for the actual `form_template` contract. |
 | 19 | COMPLETE | `StackComponent` now applies backend layout properties and renders elements/sections in response order. |
 | 20 | COMPLETE | `StackSection` now applies backend layout properties and renders elements/groups in response order. |
 | 21 | COMPLETE | `StackGroup` now supports vertical/horizontal layout and the supplied Login/OTP group properties. |
-| 22 | IN_PROGRESS | Text styling/span rendering is implemented; leading/trailing divider/icon decorations still need completion. |
-| 23 | PENDING | |
-| 24 | PENDING | |
-| 25 | PENDING | |
-| 26 | PENDING | |
-| 27 | PENDING | |
+| 22 | COMPLETE | Text styling, spans, font properties and nested leading/trailing decoration definitions are supported. |
+| 23 | COMPLETE | Added Coil 3.6.3 Compose Multiplatform + Ktor3 support and replaced image placeholder text with `AsyncImage`; relative URLs can use runtime `baseUrl`. |
+| 24 | COMPLETE | Added bound phone/number input rendering, maxLength, keyboard type and OTP segmented presentation. |
+| 25 | COMPLETE | Added dynamic button rendering, gradient background, shape, enabled state and `onClick` action dispatch. |
+| 26 | COMPLETE | Added divider and icon renderer capabilities and registered them for both root elements and text decorations. |
+| 27 | IN_PROGRESS | Store now owns binding state and runtime orchestration; remaining cleanup is validation/action/effect responsibility separation. |
 | 28 | PENDING | |
 | 29 | PENDING | |
 | 30 | PENDING | |
