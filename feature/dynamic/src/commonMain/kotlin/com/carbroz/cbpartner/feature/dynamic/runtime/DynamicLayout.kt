@@ -26,7 +26,6 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 internal fun DynamicRenderContext.applyLayout(
     modifier: Modifier,
     properties: Map<String, DynamicValue>,
-    row: Boolean = false,
 ): Modifier {
     var result = modifier
     properties.padding()?.let { result = result.padding(it) }
@@ -36,7 +35,6 @@ internal fun DynamicRenderContext.applyLayout(
     if (properties.boolean("fillMaxWidth") == true) result = result.fillMaxWidth()
     if (properties.boolean("fillMaxHeight") == true) result = result.fillMaxHeight()
     if (properties.boolean("fillMaxSize") == true) result = result.fillMaxSize()
-    properties.number("weight")?.takeIf { row }?.let { result = result.then(Modifier.weight(it.toFloat())) }
     properties.shape()?.let { result = result.clip(it) }
     properties.backgroundColor()?.let { result = result.background(it, properties.shape() ?: RoundedCornerShape(0.dp)) }
     properties.border()?.let { result = result.border(it, properties.shape() ?: RoundedCornerShape(0.dp)) }
@@ -108,6 +106,5 @@ internal fun Map<String, DynamicValue>.verticalArrangement(): Arrangement.Vertic
     } else Arrangement.Top
 }
 
-@Suppress("UNUSED_PARAMETER")
 internal fun RowScope.dynamicWeight(properties: Map<String, DynamicValue>): Modifier =
     properties.number("weight")?.let { Modifier.weight(it.toFloat()) } ?: Modifier
