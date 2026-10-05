@@ -18,7 +18,6 @@ class RequestHandler(
     private val httpClient: HttpClient,
     @PublishedApi internal val bearerTokenProvider: () -> String? = { null },
 ) {
-
     suspend inline fun <reified B, reified R> executeRequest(
         method: HttpMethod,
         urlPathSegments: List<Any>,
@@ -28,47 +27,32 @@ class RequestHandler(
         queryParams: Map<String, Any>? = null,
     ): NetworkResult<R> {
         val authenticationMode = authentication.uppercase()
-        require(authenticationMode in setOf("NONE", "BEARER")) {
-            "Unsupported authentication mode: $authentication"
-        }
-
+        require(authenticationMode in setOf("NONE", "BEARER")) { "Unsupported authentication mode: $authentication" }
         return try {
             val response = httpClient.prepareRequest {
                 this.method = method
                 url { appendPathSegments(urlPathSegments.map(Any::toString)) }
                 headers?.forEach { (key, value) -> header(key, value) }
                 if (authenticationMode == "BEARER") {
-                    val token = bearerTokenProvider()
-                        ?: error("Bearer authentication requested but no credential is available")
+                    val token = bearerTokenProvider() ?: error("Bearer authentication requested but no credential is available")
                     header(HttpHeaders.Authorization, "Bearer $token")
                 }
                 body?.let(::setBody)
                 queryParams?.forEach { (key, value) -> parameter(key, value) }
             }.execute().body<R>()
-
             NetworkResult.Success(response)
         } catch (error: ResponseException) {
             NetworkResult.Error(null, error.toNetworkException())
         } catch (error: kotlinx.serialization.SerializationException) {
-            NetworkResult.Error(
-                null,
-                NetworkException.Serialization(
-                    error.message ?: "Unable to decode network response",
-                    error,
-                ),
-            )
+            NetworkResult.Error(null, NetworkException.Serialization(error.message ?: "Unable to decode network response", error))
         } catch (error: Throwable) {
-            NetworkResult.Error(
-                null,
-                NetworkException.Unknown(error.message ?: "Unknown network error", error),
-            )
+            NetworkResult.Error(null, NetworkException.Unknown(error.message ?: "Unknown network error", error))
         }
     }
 
-    private suspend fun ResponseException.toNetworkException(): NetworkException {
-        val message = runCatching { response.body<DefaultError>().message }
-            .getOrDefault(response.status.description)
-
+    @PublishedApi
+    internal suspend fun ResponseException.toNetworkException(): NetworkException {
+        val message = runCatching { response.body<DefaultError>().message }.getOrDefault(response.status.description)
         return when (response.status.value) {
             HttpStatusCode.BadRequest.value -> NetworkException.BadRequest(message, this)
             HttpStatusCode.Unauthorized.value -> NetworkException.Unauthorized(message, this)
@@ -82,23 +66,15 @@ class RequestHandler(
         }
     }
 
-    suspend inline fun <reified R> get(
-        urlPathSegments: List<Any>,
-        queryParams: Map<String, Any>? = null,
-    ): NetworkResult<R> = executeRequest<Any, R>(HttpMethod.Get, urlPathSegments, queryParams = queryParams)
+    suspend inline fun <reified R> get(urlPathSegments: List<Any>, queryParams: Map<String, Any>? = null): NetworkResult<R> =
+        executeRequest<Any, R>(HttpMethod.Get, urlPathSegments, queryParams = queryParams)
 
-    suspend inline fun <reified B, reified R> post(
-        urlPathSegments: List<Any>,
-        body: B? = null,
-    ): NetworkResult<R> = executeRequest(HttpMethod.Post, urlPathSegments, body = body)
+    suspend inline fun <reified B, reified R> post(urlPathSegments: List<Any>, body: B? = null): NetworkResult<R> =
+        executeRequest(HttpMethod.Post, urlPathSegments, body = body)
 
-    suspend inline fun <reified B, reified R> put(
-        urlPathSegments: List<Any>,
-        body: B? = null,
-    ): NetworkResult<R> = executeRequest(HttpMethod.Put, urlPathSegments, body = body)
+    suspend inline fun <reified B, reified R> put(urlPathSegments: List<Any>, body: B? = null): NetworkResult<R> =
+        executeRequest(HttpMethod.Put, urlPathSegments, body = body)
 
-    suspend inline fun <reified B, reified R> delete(
-        urlPathSegments: List<Any>,
-        body: B? = null,
-    ): NetworkResult<R> = executeRequest(HttpMethod.Delete, urlPathSegments, body = body)
+    suspend inline fun <reified B, reified R> delete(urlPathSegments: List<Any>, body: B? = null): NetworkResult<R> =
+        executeRequest(HttpMethod.Delete, urlPathSegments, body = body)
 }
