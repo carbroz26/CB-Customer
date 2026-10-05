@@ -17,10 +17,9 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.verticalArrangement
 class StackComponent : ComponentRenderer {
     @Composable
     override fun render(component: DynamicComponent, context: DynamicRenderContext) {
-        val horizontal = component.properties.string("orientation") == "horizontal"
-        if (horizontal) {
+        if (component.properties.string("orientation") == "horizontal") {
             Row(
-                modifier = context.applyLayout(Modifier, component.properties, row = true),
+                modifier = context.applyLayout(Modifier, component.properties),
                 horizontalArrangement = component.properties.horizontalArrangement(),
                 verticalAlignment = component.properties.verticalAlignment(),
             ) {
