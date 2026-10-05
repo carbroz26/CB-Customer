@@ -11,7 +11,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.text.unit.TextUnit
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
@@ -80,7 +81,11 @@ class TextElement : ElementRenderer {
             val color = (objectValue.value["color"] as? DynamicValue.StringValue)?.value?.toColor() ?: baseColor ?: Color.Unspecified
             val fontWeight = (objectValue.value["fontWeight"] as? DynamicValue.NumberValue)?.value?.toInt()?.let(::FontWeight)
             val underline = (objectValue.value["underline"] as? DynamicValue.BooleanValue)?.value == true
-            val style = SpanStyle(color = color, fontWeight = fontWeight, textDecoration = if (underline) androidx.compose.ui.text.style.TextDecoration.Underline else null)
+            val style = SpanStyle(
+                color = color,
+                fontWeight = fontWeight,
+                textDecoration = if (underline) androidx.compose.ui.text.style.TextDecoration.Underline else null,
+            )
             val click = objectValue.value["onClick"] as? DynamicValue.ObjectValue
             val action = click?.toAction()
             if (action != null) {
@@ -89,7 +94,9 @@ class TextElement : ElementRenderer {
                     styles = TextLinkStyles(style = style),
                     linkInteractionListener = { context.onAction(action) },
                 )
-                addLink(link, text)
+                val start = length
+                append(text)
+                addLink(link, start, length)
             } else {
                 withStyle(style) { append(text) }
             }
