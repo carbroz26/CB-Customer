@@ -1,107 +1,59 @@
 package com.carbroz.cbpartner.feature.dynamic.renderer
 
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicComponent
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicGroup
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicSection
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
-import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.ImageElement
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
-import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
-import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
-import com.carbroz.cbpartner.feature.dynamic.sdui.template.StackTemplate
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
+import com.carbroz.cbpartner.feature.dynamic.runtime.color
+import com.carbroz.cbpartner.feature.dynamic.runtime.number
 
 class DynamicRenderer(
     private val registry: DynamicRegistry,
     private val onAction: (DynamicAction) -> Unit = {},
     private val onValueChange: (String, String) -> Unit = { _, _ -> },
+    private val bindings: Map<String, String> = emptyMap(),
+    private val contextValues: Map<String, String> = emptyMap(),
 ) {
     @Composable
-    fun Render(
-        response: DynamicResponse,
-        destination: DynamicDestination,
-    ) {
-        val screen = response.data
-        if (screen == null) {
-            Text(text = response.message)
-            return
-        }
-        renderScreen(screen, destination)
-    }
+    fun Render(response: DynamicResponse, destination: DynamicDestination) {
+        val screen = response.data ?: return
+        if (screen.screenId != destination.screenId) return
+        if (screen.template.id != destination.templateId) return
+        if (screen.template.type != destination.templateType) return
 
-    @Composable
-    private fun renderScreen(
-        screen: DynamicScreen,
-        destination: DynamicDestination,
-    ) {
-        val responseTemplate = screen.template
+        val context = DynamicRenderContext(
+            registry = registry,
+            bindings = bindings,
+            contextValues = contextValues,
+            onAction = onAction,
+            onValueChange = onValueChange,
+        )
 
-        if (screen.screenId != destination.screenId) {
-            Text(text = "Dynamic screen identity mismatch: ${destination.screenId} != ${screen.screenId}")
-            return
-        }
-
-        if (destination.templateId != responseTemplate.id) {
-            Text(text = "Dynamic template identity mismatch: ${destination.templateId} != ${responseTemplate.id}")
-            return
-        }
-
-        if (destination.templateType != responseTemplate.type) {
-            Text(text = "Dynamic template type mismatch: ${destination.templateType} != ${responseTemplate.type}")
-            return
-        }
-
-        when (val registered = registry.getTemplate(destination.templateType)) {
-            is StackTemplate -> registered.Render(responseTemplate, this)
-            else -> Text(text = "Unsupported template: ${destination.templateType}")
+        Box(modifier = Modifier.fillMaxSize().screenTheme(screen.theme?.properties)) {
+            registry.template(screen.template.type)?.render(screen.template, context)
         }
     }
 
-    @Composable
-    fun renderComponents(components: List<DynamicComponent>) {
-        components.forEach { component ->
-            when (val registered = registry.getComponent(component.type)) {
-                is StackComponent -> registered.Render(component, this)
-                else -> Text(text = "Unsupported component: ${component.type}")
+    private fun Modifier.screenTheme(properties: Map<String, DynamicValue>?): Modifier {
+        val gradient = properties?.get("gradient") as? DynamicValue.ObjectValue ?: return this
+        val colors = (gradient.value["colors"] as? DynamicValue.ArrayValue)
+            ?.value
+            ?.mapNotNull { item ->
+                val objectValue = item as? DynamicValue.ObjectValue ?: return@mapNotNull null
+                (objectValue.value["color"] as? DynamicValue.StringValue)?.value?.toColor()
             }
-        }
-    }
-
-    @Composable
-    fun renderSections(sections: List<DynamicSection>) {
-        sections.forEach { section ->
-            when (val registered = registry.getSection(section.type)) {
-                is StackSection -> registered.Render(section, this)
-                else -> Text(text = "Unsupported section: ${section.type}")
-            }
-        }
-    }
-
-    @Composable
-    fun renderGroups(groups: List<DynamicGroup>) {
-        groups.forEach { group ->
-            when (val registered = registry.getGroup(group.type)) {
-                is StackGroup -> registered.Render(group, this)
-                else -> Text(text = "Unsupported group: ${group.type}")
-            }
-        }
-    }
-
-    @Composable
-    fun renderElements(elements: List<DynamicElement>) {
-        elements.forEach { element ->
-            when (val registered = registry.getElement(element.type)) {
-                is TextElement -> registered.Render(element)
-                is ImageElement -> registered.Render(element)
-                else -> Text(text = "Unsupported element: ${element.type}")
-            }
-        }
+            .orEmpty()
+        if (colors.size < 2) return this
+        return background(Brush.linearGradient(colors))
     }
 }
