@@ -1,6 +1,5 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
-import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
@@ -31,7 +30,7 @@ class RequestActionHandler(
 
         val response = repository.fetch(
             DynamicRequest(
-                destination = DynamicDestination("", "", "", endpoint),
+                endpoint = endpoint,
                 method = method,
                 authentication = authentication,
                 validate = validate,
