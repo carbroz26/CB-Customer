@@ -12,6 +12,8 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
