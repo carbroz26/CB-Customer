@@ -16,7 +16,7 @@ import io.ktor.http.appendPathSegments
 
 class RequestHandler(
     private val httpClient: HttpClient,
-    private val bearerTokenProvider: () -> String? = { null },
+    @PublishedApi internal val bearerTokenProvider: () -> String? = { null },
 ) {
 
     suspend inline fun <reified B, reified R> executeRequest(
@@ -35,9 +35,7 @@ class RequestHandler(
         return try {
             val response = httpClient.prepareRequest {
                 this.method = method
-                url {
-                    appendPathSegments(urlPathSegments.map(Any::toString))
-                }
+                url { appendPathSegments(urlPathSegments.map(Any::toString)) }
                 headers?.forEach { (key, value) -> header(key, value) }
                 if (authenticationMode == "BEARER") {
                     val token = bearerTokenProvider()
