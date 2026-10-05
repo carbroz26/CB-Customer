@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -103,3 +105,6 @@ internal fun Map<String, DynamicValue>.verticalArrangement(): Arrangement.Vertic
         Arrangement.spacedBy(((arrangement.value["spacing"] as? DynamicValue.NumberValue)?.value ?: 0.0).dp)
     } else Arrangement.Top
 }
+
+internal fun RowScope.dynamicWeight(properties: Map<String, DynamicValue>): Modifier =
+    properties.number("weight")?.let { weight(it.toFloat()) } ?: Modifier
