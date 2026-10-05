@@ -31,12 +31,7 @@ class RequestActionHandler(
 
         val response = repository.fetch(
             DynamicRequest(
-                destination = DynamicDestination(
-                    screenId = "",
-                    templateId = "",
-                    templateType = "",
-                    endpoint = endpoint,
-                ),
+                destination = DynamicDestination("", "", "", endpoint),
                 method = method,
                 authentication = authentication,
                 validate = validate,
@@ -45,9 +40,7 @@ class RequestActionHandler(
             ),
         ).getOrThrow()
 
-        if (responseMode.equals("none", ignoreCase = true)) {
-            return DynamicActionResult.Completed
-        }
+        if (responseMode.equals("none", ignoreCase = true)) return DynamicActionResult.Completed
 
         val destination = response.destination
             ?: error("Dynamic request did not provide data.destination")
@@ -55,6 +48,13 @@ class RequestActionHandler(
             "push", "add" -> navigation.push(destination)
             else -> navigation.replace(destination)
         }
-        return DynamicActionResult.Navigate(destination, response)
+
+        val contextChanges = buildMap {
+            val phone = (body as? DynamicValue.ObjectValue)?.value?.get("phoneNumber")
+            if (phone is DynamicValue.StringValue && phone.value.isNotBlank()) {
+                put("authFlow.phoneNumber", phone.value)
+            }
+        }
+        return DynamicActionResult.Navigate(destination, response, contextChanges)
     }
 }
