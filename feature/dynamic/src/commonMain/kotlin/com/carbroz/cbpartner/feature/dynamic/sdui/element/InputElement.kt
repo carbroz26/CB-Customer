@@ -62,7 +62,7 @@ class InputElement : ElementRenderer {
             )
         } else {
             OutlinedTextField(
-                modifier = context.applyLayout(Modifier, properties, row = true),
+                modifier = context.applyLayout(Modifier, properties),
                 value = value,
                 onValueChange = ::changed,
                 placeholder = properties.string("placeholder")?.let { { Text(it) } },
