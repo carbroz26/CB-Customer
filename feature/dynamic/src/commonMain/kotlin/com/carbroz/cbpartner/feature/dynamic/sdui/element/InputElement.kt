@@ -45,6 +45,12 @@ class InputElement : ElementRenderer {
         val presentation = properties["presentation"] as? DynamicValue.ObjectValue
         val segmented = (presentation?.value?.get("type") as? DynamicValue.StringValue)?.value == "segmented"
 
+        fun changed(newValue: String) {
+            val limited = newValue.take(maxLength ?: Int.MAX_VALUE)
+            context.onValueChange(binding, limited)
+            element.actions["onValueChange"]?.let(context.onAction)
+        }
+
         if (segmented) {
             SegmentedInput(
                 value = value,
@@ -52,13 +58,13 @@ class InputElement : ElementRenderer {
                 spacing = (presentation?.value?.get("spacing") as? DynamicValue.NumberValue)?.value?.dp ?: 8.dp,
                 segmentWidth = (presentation?.value?.get("segmentWidth") as? DynamicValue.NumberValue)?.value?.dp ?: 44.dp,
                 segmentHeight = (presentation?.value?.get("segmentHeight") as? DynamicValue.NumberValue)?.value?.dp ?: 52.dp,
-                onValueChange = { context.onValueChange(binding, it.take(maxLength ?: Int.MAX_VALUE)) },
+                onValueChange = ::changed,
             )
         } else {
             OutlinedTextField(
                 modifier = context.applyLayout(Modifier, properties, row = true),
                 value = value,
-                onValueChange = { context.onValueChange(binding, it.take(maxLength ?: Int.MAX_VALUE)) },
+                onValueChange = ::changed,
                 placeholder = properties.string("placeholder")?.let { { Text(it) } },
                 keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                 singleLine = true,
