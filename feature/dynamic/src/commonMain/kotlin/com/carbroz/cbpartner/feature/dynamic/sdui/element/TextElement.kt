@@ -11,9 +11,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.unit.TextUnit
-import androidx.compose.ui.text.withLink
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
@@ -91,7 +89,7 @@ class TextElement : ElementRenderer {
                     styles = TextLinkStyles(style = style),
                     linkInteractionListener = { context.onAction(action) },
                 )
-                withLink(link) { append(text) }
+                addLink(link, text)
             } else {
                 withStyle(style) { append(text) }
             }
