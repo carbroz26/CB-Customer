@@ -2,15 +2,16 @@ package com.carbroz.cbpartner.feature.dynamic.sdui.element
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
@@ -46,7 +47,7 @@ class IconElement : ElementRenderer {
             Text(
                 text = glyph,
                 color = properties.color("color") ?: Color.Unspecified,
-                fontSize = properties.number("size")?.dp?.value?.sp ?: 18.dp.value.sp,
+                fontSize = properties.number("size")?.dp?.value?.sp ?: 18.sp,
             )
         }
     }
