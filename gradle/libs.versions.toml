@@ -10,6 +10,7 @@ kermit = "2.1.0"
 navigation3 = "1.2.0-alpha02"
 navigation3Runtime = "1.2.0-alpha04"
 androidxActivity = "1.13.0"
+coil = "3.6.3"
 
 [plugins]
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -35,3 +36,5 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3Runtime" }
 navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
