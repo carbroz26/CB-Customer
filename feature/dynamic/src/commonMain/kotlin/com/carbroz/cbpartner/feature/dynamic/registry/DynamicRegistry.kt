@@ -1,56 +1,55 @@
 package com.carbroz.cbpartner.feature.dynamic.registry
 
-import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.ImageElement
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
-import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
-import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
-import com.carbroz.cbpartner.feature.dynamic.sdui.template.StackTemplate
+class DynamicRegistry(
+    private val templates: Map<String, TemplateRenderer> = emptyMap(),
+    private val components: Map<String, ComponentRenderer> = emptyMap(),
+    private val sections: Map<String, SectionRenderer> = emptyMap(),
+    private val groups: Map<String, GroupRenderer> = emptyMap(),
+    private val elements: Map<String, ElementRenderer> = emptyMap(),
+) {
+    fun template(type: String): TemplateRenderer? = templates[type]
+    fun component(type: String): ComponentRenderer? = components[type]
+    fun section(type: String): SectionRenderer? = sections[type]
+    fun group(type: String): GroupRenderer? = groups[type]
+    fun element(type: String): ElementRenderer? = elements[type]
 
-class DynamicRegistry {
-    private val templates = mutableMapOf<String, Any>()
-    private val components = mutableMapOf<String, Any>()
-    private val sections = mutableMapOf<String, Any>()
-    private val groups = mutableMapOf<String, Any>()
-    private val elements = mutableMapOf<String, Any>()
-
-    fun registerTemplate(type: String, template: Any) {
-        check(templates[type] == null) { "Dynamic template already registered: $type" }
-        templates[type] = template
+    companion object {
+        fun builder(): Builder = Builder()
     }
 
-    fun registerComponent(type: String, component: Any) {
-        check(components[type] == null) { "Dynamic component already registered: $type" }
-        components[type] = component
-    }
+    class Builder {
+        private val templates = linkedMapOf<String, TemplateRenderer>()
+        private val components = linkedMapOf<String, ComponentRenderer>()
+        private val sections = linkedMapOf<String, SectionRenderer>()
+        private val groups = linkedMapOf<String, GroupRenderer>()
+        private val elements = linkedMapOf<String, ElementRenderer>()
 
-    fun registerSection(type: String, section: Any) {
-        check(sections[type] == null) { "Dynamic section already registered: $type" }
-        sections[type] = section
-    }
+        fun template(type: String, renderer: TemplateRenderer) = apply {
+            check(templates.put(type, renderer) == null) { "Dynamic template already registered: $type" }
+        }
 
-    fun registerGroup(type: String, group: Any) {
-        check(groups[type] == null) { "Dynamic group already registered: $type" }
-        groups[type] = group
-    }
+        fun component(type: String, renderer: ComponentRenderer) = apply {
+            check(components.put(type, renderer) == null) { "Dynamic component already registered: $type" }
+        }
 
-    fun registerElement(type: String, element: Any) {
-        check(elements[type] == null) { "Dynamic element already registered: $type" }
-        elements[type] = element
-    }
+        fun section(type: String, renderer: SectionRenderer) = apply {
+            check(sections.put(type, renderer) == null) { "Dynamic section already registered: $type" }
+        }
 
-    fun getTemplate(type: String): Any? = templates[type]
-    fun getComponent(type: String): Any? = components[type]
-    fun getSection(type: String): Any? = sections[type]
-    fun getGroup(type: String): Any? = groups[type]
-    fun getElement(type: String): Any? = elements[type]
+        fun group(type: String, renderer: GroupRenderer) = apply {
+            check(groups.put(type, renderer) == null) { "Dynamic group already registered: $type" }
+        }
 
-    fun registerDefaults(): DynamicRegistry = apply {
-        registerTemplate("stack_template", StackTemplate())
-        registerComponent("stack_component", StackComponent())
-        registerSection("stack_section", StackSection())
-        registerGroup("stack_group", StackGroup())
-        registerElement("text", TextElement())
-        registerElement("image", ImageElement())
+        fun element(type: String, renderer: ElementRenderer) = apply {
+            check(elements.put(type, renderer) == null) { "Dynamic element already registered: $type" }
+        }
+
+        fun build(): DynamicRegistry = DynamicRegistry(
+            templates = templates.toMap(),
+            components = components.toMap(),
+            sections = sections.toMap(),
+            groups = groups.toMap(),
+            elements = elements.toMap(),
+        )
     }
 }
