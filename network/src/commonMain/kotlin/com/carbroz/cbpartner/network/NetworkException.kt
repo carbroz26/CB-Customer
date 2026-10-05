@@ -6,17 +6,42 @@ sealed class NetworkException(
     val statusCode: Int? = null,
 ) : Exception(message, cause) {
 
-    data class UnauthorizedException(
-        override val message: String,
-        override val cause: Throwable,
-    ) : NetworkException(message, cause, 401)
+    class BadRequest(message: String, cause: Throwable, statusCode: Int = 400) :
+        NetworkException(message, cause, statusCode)
 
-    data class NotFoundException(
-        override val message: String,
-        override val cause: Throwable,
-        val httpStatusCode: Int? = null,
-    ) : NetworkException(message, cause, httpStatusCode)
+    class Unauthorized(message: String, cause: Throwable) :
+        NetworkException(message, cause, 401)
 
-    data class UnknownException(override val message: String, override val cause: Throwable) :
+    class Forbidden(message: String, cause: Throwable) :
+        NetworkException(message, cause, 403)
+
+    class NotFound(message: String, cause: Throwable) :
+        NetworkException(message, cause, 404)
+
+    class Conflict(message: String, cause: Throwable, statusCode: Int = 409) :
+        NetworkException(message, cause, statusCode)
+
+    class Validation(message: String, cause: Throwable, statusCode: Int = 422) :
+        NetworkException(message, cause, statusCode)
+
+    class RateLimit(message: String, cause: Throwable, statusCode: Int = 429) :
+        NetworkException(message, cause, statusCode)
+
+    class Server(message: String, cause: Throwable, statusCode: Int) :
+        NetworkException(message, cause, statusCode)
+
+    class Connection(message: String, cause: Throwable) :
+        NetworkException(message, cause)
+
+    class Timeout(message: String, cause: Throwable) :
+        NetworkException(message, cause)
+
+    class Serialization(message: String, cause: Throwable) :
+        NetworkException(message, cause)
+
+    class Protocol(message: String, cause: Throwable, statusCode: Int? = null) :
+        NetworkException(message, cause, statusCode)
+
+    class Unknown(message: String, cause: Throwable) :
         NetworkException(message, cause)
 }
