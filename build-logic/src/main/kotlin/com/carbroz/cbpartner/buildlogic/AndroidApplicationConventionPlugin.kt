@@ -11,7 +11,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
         target.extensions.configure<ApplicationExtension> {
             namespace = "com.carbroz.cbpartner.android"
-            compileSdk = 36
+            compileSdk = 37
         }
     }
 }
