@@ -10,13 +10,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.renderer.DynamicRenderer
+import com.carbroz.cbpartner.feature.dynamic.store.DynamicEffect
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicIntent
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DynamicContainer(
@@ -29,10 +32,21 @@ fun DynamicContainer(
     val state by store.state.collectAsState()
     val bindings by store.bindings.collectAsState()
     val context by store.context.collectAsState()
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(destination) {
         store.updateDestination(destination)
         store.accept(DynamicIntent.Load)
+    }
+
+    LaunchedEffect(store) {
+        store.effects.collectLatest { effect ->
+            when (effect) {
+                is DynamicEffect.ExternalUri -> uriHandler.openUri(effect.uri)
+                null -> Unit
+            }
+            if (effect != null) store.clearEffect()
+        }
     }
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
