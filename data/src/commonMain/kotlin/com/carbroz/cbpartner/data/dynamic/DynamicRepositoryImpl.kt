@@ -24,7 +24,7 @@ class DynamicRepositoryImpl(
     override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
         return when (
             val response = remoteDataSource.fetch(
-                endpoint = request.destination.endpoint,
+                endpoint = request.endpoint,
                 method = request.method,
                 authentication = request.authentication,
                 body = request.body?.toJsonElement()?.let {
