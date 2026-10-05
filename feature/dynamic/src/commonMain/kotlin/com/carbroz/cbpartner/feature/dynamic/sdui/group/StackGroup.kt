@@ -19,7 +19,7 @@ class StackGroup : GroupRenderer {
     override fun render(group: DynamicGroup, context: DynamicRenderContext) {
         if (group.properties.string("orientation") == "horizontal") {
             Row(
-                modifier = context.applyLayout(Modifier, group.properties, row = true),
+                modifier = context.applyLayout(Modifier, group.properties),
                 horizontalArrangement = group.properties.horizontalArrangement(),
                 verticalAlignment = group.properties.verticalAlignment(),
             ) { context.renderElements(group.elements) }
