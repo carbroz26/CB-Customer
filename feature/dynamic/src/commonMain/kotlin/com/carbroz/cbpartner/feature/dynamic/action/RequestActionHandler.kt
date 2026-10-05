@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
@@ -22,23 +23,29 @@ class RequestActionHandler(
             ?: error("Dynamic request endpoint is missing")
         val method = DynamicActionValueResolver.string(action.payload["method"]) ?: "POST"
         val authentication = DynamicActionValueResolver.string(action.payload["authentication"]) ?: "NONE"
+        val validate = DynamicActionValueResolver.boolean(action.payload["validate"]) ?: false
+        val responseMode = DynamicActionValueResolver.string(action.payload["responseMode"]) ?: "destination"
         val body = action.payload["body"]?.let {
             DynamicActionValueResolver.resolve(it, bindings, context, previousResponse)
         }
 
         val response = repository.fetch(
-            destination = DynamicDestination(
-                screenId = "action:$endpoint",
-                templateId = "action",
-                templateType = "request",
-                endpoint = endpoint,
+            DynamicRequest(
+                destination = DynamicDestination(
+                    screenId = "",
+                    templateId = "",
+                    templateType = "",
+                    endpoint = endpoint,
+                ),
+                method = method,
+                authentication = authentication,
+                validate = validate,
+                body = body,
+                responseMode = responseMode,
             ),
-            body = body,
-            method = method,
-            authentication = authentication,
         ).getOrThrow()
 
-        if (DynamicActionValueResolver.string(action.payload["responseMode"])?.lowercase() == "none") {
+        if (responseMode.equals("none", ignoreCase = true)) {
             return DynamicActionResult.Completed
         }
 
