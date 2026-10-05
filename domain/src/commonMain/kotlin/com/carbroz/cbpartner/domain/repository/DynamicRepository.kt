@@ -1,18 +1,9 @@
 package com.carbroz.cbpartner.domain.repository
 
-import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 
-/**
- * Domain boundary for loading Dynamic screens and executing Dynamic requests.
- * Destination identifies a screen; HTTP method and authentication are request metadata.
- */
+/** Domain boundary for loading Dynamic screens and executing Dynamic requests. */
 interface DynamicRepository {
-    suspend fun fetch(
-        destination: DynamicDestination,
-        body: DynamicValue? = null,
-        method: String = "GET",
-        authentication: String = "NONE",
-    ): Result<DynamicResponse>
+    suspend fun fetch(request: DynamicRequest): Result<DynamicResponse>
 }
