@@ -106,4 +106,4 @@ internal fun Map<String, DynamicValue>.verticalArrangement(): Arrangement.Vertic
 }
 
 internal fun RowScope.dynamicWeight(properties: Map<String, DynamicValue>): Modifier =
-    this.weight(properties.number("weight")?.toFloat() ?: 0f)
+    properties.number("weight")?.toFloat()?.let(this::weight) ?: Modifier
