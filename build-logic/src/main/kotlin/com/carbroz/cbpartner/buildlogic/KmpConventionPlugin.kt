@@ -23,7 +23,7 @@ class KmpConventionPlugin : Plugin<Project> {
 
         target.extensions.configure<KotlinMultiplatformExtension> {
             targets.withType(KotlinMultiplatformAndroidLibraryTarget::class.java).configureEach {
-                compileSdk = 36
+                compileSdk = 37
                 namespace = namespaceFor(target.path)
             }
             iosArm64()
