@@ -70,7 +70,8 @@ class RequestHandler(
         }.execute()
     }
 
-    private suspend fun ResponseException.toNetworkException(): NetworkException {
+    @PublishedApi
+    internal suspend fun ResponseException.toNetworkException(): NetworkException {
         val message = runCatching { response.body<DefaultError>().message }.getOrDefault(response.status.description)
         return when (response.status.value) {
             HttpStatusCode.BadRequest.value -> NetworkException.BadRequest(message, this)
