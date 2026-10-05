@@ -1,9 +1,17 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
     id("cbpartner.kmp")
     id("cbpartner.compose")
 }
 
 kotlin {
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.framework {
+            baseName = "CBPartnerApp"
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(project(":domain"))
