@@ -40,6 +40,7 @@ class TextElement : ElementRenderer {
         }
 
         Row(modifier = context.applyLayout(Modifier, properties)) {
+            renderDecorations(properties["leading"], context)
             Text(
                 text = annotated,
                 fontSize = fontSize ?: TextUnit.Unspecified,
@@ -47,8 +48,28 @@ class TextElement : ElementRenderer {
                 color = color,
                 textAlign = textAlign,
                 letterSpacing = properties.number("letterSpacing")?.sp ?: TextUnit.Unspecified,
-                lineHeight = (properties.number("lineHeight") ?: properties.number("leading"))?.sp ?: TextUnit.Unspecified,
+                lineHeight = properties.number("lineHeight")?.sp ?: TextUnit.Unspecified,
             )
+            renderDecorations(properties["trailing"], context)
+        }
+    }
+
+    @Composable
+    private fun renderDecorations(value: DynamicValue?, context: DynamicRenderContext) {
+        val decorations = value as? DynamicValue.ArrayValue ?: return
+        decorations.value.forEach { item ->
+            val definition = item as? DynamicValue.ObjectValue ?: return@forEach
+            val type = (definition.value["type"] as? DynamicValue.StringValue)?.value ?: return@forEach
+            val properties = definition.value["properties"] as? DynamicValue.ObjectValue ?: return@forEach
+            val element = DynamicElement(
+                id = "decoration",
+                type = type,
+                properties = properties.value,
+                validation = null,
+                binding = null,
+                actions = emptyMap(),
+            )
+            context.registry.element(type)?.render(element, context)
         }
     }
 
@@ -58,9 +79,7 @@ class TextElement : ElementRenderer {
                 val objectValue = item as? DynamicValue.ObjectValue ?: return@forEach
                 val text = (objectValue.value["text"] as? DynamicValue.StringValue)?.value ?: return@forEach
                 val style = SpanStyle(
-                    color = (objectValue.value["color"] as? DynamicValue.StringValue)?.value?.toColor()
-                        ?: baseColor
-                        ?: Color.Unspecified,
+                    color = (objectValue.value["color"] as? DynamicValue.StringValue)?.value?.toColor() ?: baseColor ?: Color.Unspecified,
                     fontWeight = (objectValue.value["fontWeight"] as? DynamicValue.NumberValue)?.value?.toInt()?.let(::FontWeight),
                     textDecoration = if ((objectValue.value["underline"] as? DynamicValue.BooleanValue)?.value == true) {
                         androidx.compose.ui.text.style.TextDecoration.Underline
