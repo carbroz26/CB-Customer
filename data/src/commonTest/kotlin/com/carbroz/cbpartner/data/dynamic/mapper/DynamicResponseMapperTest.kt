@@ -1,7 +1,19 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.DynamicResponseDto
+import com.carbroz.cbpartner.domain.model.dynamic.ButtonElement
+import com.carbroz.cbpartner.domain.model.dynamic.DividerElement
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.FormTemplate
+import com.carbroz.cbpartner.domain.model.dynamic.IconElement
+import com.carbroz.cbpartner.domain.model.dynamic.ImageElement
+import com.carbroz.cbpartner.domain.model.dynamic.InputElement
+import com.carbroz.cbpartner.domain.model.dynamic.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.TextElement
+import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -141,3 +153,91 @@ class DynamicResponseMapperTest {
         assertEquals(null, response.destination)
     }
 }
+
+
+    @Test
+    fun mapsAllKnownTypedUiModels() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """
+            {
+              "status": 200,
+              "code": "SUCCESS",
+              "message": "OK",
+              "data": {
+                "screenId": "typed",
+                "schemaVersion": "3.0.0",
+                "targetApp": "PARTNER",
+                "template": {
+                  "id": "tpl",
+                  "type": "form_template",
+                  "components": [{
+                    "id": "component",
+                    "type": "stack_component",
+                    "sections": [{
+                      "id": "section",
+                      "type": "stack_section",
+                      "groups": [{
+                        "id": "group",
+                        "type": "stack_group",
+                        "elements": [
+                          {"id":"text","type":"text","properties":{"text":"Hello"}},
+                          {"id":"image","type":"image","properties":{"url":"https://example.com/a.png"}},
+                          {"id":"input","type":"input","properties":{"keyboardType":"phone","maxLength":10},"binding":{"key":"phone"}},
+                          {"id":"button","type":"button","properties":{"text":"Continue"}},
+                          {"id":"icon","type":"icon","properties":{"name":"arrow_forward","size":20}},
+                          {"id":"divider","type":"divider","properties":{"orientation":"horizontal","thickness":1}}
+                        ]
+                      }]
+                    }]
+                  }]
+                }
+              }
+            }
+            """.trimIndent(),
+        )
+
+        val screen = assertNotNull(DynamicResponseMapper().map(dto).data)
+        assertIs<FormTemplate>(screen.template)
+        assertIs<StackComponent>(screen.template.components.single())
+        assertIs<StackSection>(screen.template.components.single().sections.single())
+        assertIs<StackGroup>(screen.template.components.single().sections.single().groups.single())
+
+        val elements = screen.template.components.single().sections.single().groups.single().elements
+        assertIs<TextElement>(elements[0])
+        assertIs<ImageElement>(elements[1])
+        assertIs<InputElement>(elements[2])
+        assertIs<ButtonElement>(elements[3])
+        assertIs<IconElement>(elements[4])
+        assertIs<DividerElement>(elements[5])
+    }
+
+    @Test
+    fun rejectsUnknownUiElementType() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """
+            {
+              "status": 200,
+              "code": "SUCCESS",
+              "message": "OK",
+              "data": {
+                "screenId": "unknown",
+                "schemaVersion": "3.0.0",
+                "targetApp": "PARTNER",
+                "template": {
+                  "id": "tpl",
+                  "type": "form_template",
+                  "components": [{
+                    "id": "component",
+                    "type": "stack_component",
+                    "elements": [{"id":"unknown","type":"future_element"}]
+                  }]
+                }
+              }
+            }
+            """.trimIndent(),
+        )
+
+        assertFailsWith<IllegalStateException> {
+            DynamicResponseMapper().map(dto)
+        }
+    }
