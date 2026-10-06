@@ -209,7 +209,7 @@ class DynamicStoreTest {
                         "body" to DynamicValue.ObjectValue(
                             mapOf(
                                 "challengeId" to DynamicValue.ObjectValue(
-                                    mapOf("\$response" to DynamicValue.StringValue("data.challengeId")),
+                                    mapOf("\$context" to DynamicValue.StringValue("challengeId")),
                                 ),
                                 "phoneNumber" to DynamicValue.ObjectValue(
                                     mapOf("\$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
