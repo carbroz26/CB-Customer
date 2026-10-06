@@ -3,51 +3,46 @@ package com.carbroz.cbpartner.feature.dynamic.sdui.element
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
+import com.carbroz.cbpartner.domain.model.dynamic.DividerElement as DividerElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.IconElement as IconElementModel
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
-import com.carbroz.cbpartner.feature.dynamic.runtime.color
-import com.carbroz.cbpartner.feature.dynamic.runtime.number
-import com.carbroz.cbpartner.feature.dynamic.runtime.string
+import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
 class DividerElement : ElementRenderer {
     @Composable
-    override fun render(element: DynamicElement, context: DynamicRenderContext) {
-        val properties = element.properties
-        val vertical = properties.string("orientation") == "vertical"
+    override fun render(element: DividerElementModel, context: DynamicRenderContext) {
         Box(
-            modifier = context.applyLayout(Modifier, properties)
-                .width(if (vertical) properties.number("thickness")?.dp ?: 1.dp else properties.number("width")?.dp ?: 1.dp)
-                .height(if (vertical) properties.number("height")?.dp ?: 1.dp else properties.number("thickness")?.dp ?: 1.dp)
-                .background(properties.color("color") ?: Color.Gray),
+            modifier = Modifier
+                .applyLayout(element)
+                .background(element.color?.toColor() ?: Color.Gray),
         )
     }
 }
 
 class IconElement : ElementRenderer {
     @Composable
-    override fun render(element: DynamicElement, context: DynamicRenderContext) {
-        val properties = element.properties
-        val glyph = when (properties.string("name")) {
+    override fun render(element: IconElementModel, context: DynamicRenderContext) {
+        val glyph = when (element.name) {
             "arrow_forward" -> "→"
             "edit" -> "✎"
             else -> "•"
         }
-        Row(modifier = context.applyLayout(Modifier, properties), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.applyLayout(element),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
                 text = glyph,
-                color = properties.color("color") ?: Color.Unspecified,
-                fontSize = properties.number("size")?.dp?.value?.sp ?: 18.sp,
+                color = element.color?.toColor() ?: Color.Unspecified,
+                fontSize = element.size?.sp ?: 18.sp,
             )
         }
     }
