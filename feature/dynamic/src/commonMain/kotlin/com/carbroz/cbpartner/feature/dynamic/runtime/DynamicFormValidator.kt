@@ -1,8 +1,8 @@
 package com.carbroz.cbpartner.feature.dynamic.runtime
 
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
-import com.carbroz.cbpartner.domain.model.dynamic.InputElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 
 class DynamicFormValidator {
     fun validate(screen: DynamicScreen, bindings: Map<String, String>): String? {
@@ -10,9 +10,7 @@ class DynamicFormValidator {
             component.elements.forEach { element -> validateElement(element, bindings)?.let { return it } }
             component.sections.forEach { section ->
                 section.elements.forEach { element -> validateElement(element, bindings)?.let { return it } }
-                section.groups.forEach { group ->
-                    group.elements.forEach { element -> validateElement(element, bindings)?.let { return it } }
-                }
+                section.groups.forEach { group -> group.elements.forEach { element -> validateElement(element, bindings)?.let { return it } } }
             }
         }
         return null

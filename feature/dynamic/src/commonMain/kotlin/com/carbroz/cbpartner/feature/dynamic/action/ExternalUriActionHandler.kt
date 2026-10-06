@@ -1,26 +1,18 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
 
 class ExternalUriActionHandler : DynamicActionHandler {
-    override val type: String = "external_uri"
-
-    override suspend fun handle(
-        action: DynamicAction,
-        navigation: DynamicNavigationState,
-        bindings: Map<String, String>,
-        context: Map<String, String>,
-        previousResponse: DynamicValue?,
-    ): DynamicActionResult.ExternalUri {
+    override val type = "external_uri"
+    override suspend fun handle(action: DynamicAction, navigation: DynamicNavigationState, bindings: Map<String,String>, context: Map<String,String>, previousResponse: DynamicValue?,): DynamicActionResult.ExternalUri {
         val value = action.payload["uri"] ?: error("Dynamic external URI is missing")
         val uri = when (value) {
             is DynamicValue.StringValue -> value.value
             is DynamicValue.ObjectValue -> {
-                val reference = DynamicActionValueResolver.string(value.value["${'$'}context"])
-                    ?: error("Dynamic external URI reference is invalid")
-                context[reference] ?: error("Dynamic context value is missing: $reference")
+                val reference = DynamicActionValueResolver.string(value.value["$context"]) ?: error("Dynamic external URI reference is invalid")
+                context[reference] ?: error("Dynamic context value is missing: " + reference)
             }
             else -> error("Dynamic external URI value is invalid")
         }

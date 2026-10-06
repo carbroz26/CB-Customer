@@ -80,7 +80,7 @@ class DynamicElementMapper(
     )
 
     private fun elements(properties: JsonObject, key: String): List<DynamicElement> =
-        (properties[key] as? JsonArray).orEmpty().mapNotNull { it as? JsonObject }.map(::map)
+        ((properties[key] as? JsonArray)?.mapNotNull { it as? JsonObject } ?: emptyList()).map(::map)
 
     private fun mapActions(dto: DynamicActionsDto?): Map<String, DynamicAction> = buildMap {
         dto?.onClick?.let { put("onClick", it.toDomain()) }
@@ -95,8 +95,6 @@ class DynamicElementMapper(
     private fun DynamicActionDto.toDomain() = DynamicAction(
         type = type,
         payload = values.toDynamicValueMap(payload),
-        destination = destination?.let {
-            DynamicDestination(it.screenId, it.templateId, it.templateType, it.endpoint)
-        },
+        destination = destination?.let { DynamicDestination(it.screenId, it.templateId, it.templateType, it.endpoint) },
     )
 }

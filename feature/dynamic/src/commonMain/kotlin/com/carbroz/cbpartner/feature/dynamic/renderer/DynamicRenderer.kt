@@ -8,9 +8,9 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import com.carbroz.cbpartner.domain.model.DynamicDestination
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
@@ -29,18 +29,9 @@ class DynamicRenderer(
     @Composable
     fun Render(response: DynamicResponse, destination: DynamicDestination) {
         val screen = response.data ?: return
-        if (screen.screenId != destination.screenId) return
-        if (screen.template.id != destination.templateId) return
+        if (screen.screenId != destination.screenId || screen.template.id != destination.templateId) return
         if (destination.templateType != FORM_TEMPLATE_TYPE) return
-
-        val context = DynamicRenderContext(
-            registry = registry,
-            bindings = bindings,
-            contextValues = contextValues,
-            onAction = onAction,
-            onValueChange = onValueChange,
-        )
-
+        val context = DynamicRenderContext(registry, bindings, contextValues, onAction, onValueChange)
         Box(modifier = Modifier.fillMaxSize().screenTheme(screen.theme?.properties)) {
             registry.template(FORM_TEMPLATE_TYPE)?.render(screen.template, context)
         }
@@ -48,31 +39,21 @@ class DynamicRenderer(
 
     private fun Modifier.screenTheme(properties: Map<String, DynamicValue>?): Modifier {
         val gradient = properties?.get("gradient") as? DynamicValue.ObjectValue ?: return this
-        val colors = (gradient.value["colors"] as? DynamicValue.ArrayValue)
-            ?.value
-            ?.mapNotNull { item ->
-                val objectValue = item as? DynamicValue.ObjectValue ?: return@mapNotNull null
-                (objectValue.value["color"] as? DynamicValue.StringValue)?.value?.toColor()
-            }
-            .orEmpty()
+        val colors = (gradient.value["colors"] as? DynamicValue.ArrayValue)?.value?.mapNotNull { item ->
+            val objectValue = item as? DynamicValue.ObjectValue ?: return@mapNotNull null
+            (objectValue.value["color"] as? DynamicValue.StringValue)?.value?.toColor()
+        }.orEmpty()
         if (colors.size < 2) return this
-
         val angle = (gradient.value["angle"] as? DynamicValue.NumberValue)?.value ?: 0.0
         return drawWithCache {
             val radians = angle * PI / 180.0
             val direction = Offset(cos(radians).toFloat(), sin(radians).toFloat())
             val center = Offset(size.width / 2f, size.height / 2f)
             val length = sqrt(size.width * size.width + size.height * size.height) / 2f
-            val brush = Brush.linearGradient(
-                colors = colors,
-                start = center - direction * length,
-                end = center + direction * length,
-            )
+            val brush = Brush.linearGradient(colors = colors, start = center - direction * length, end = center + direction * length)
             onDrawBehind { drawRect(brush = brush) }
         }
     }
 
-    private companion object {
-        const val FORM_TEMPLATE_TYPE = "form_template"
-    }
+    private companion object { const val FORM_TEMPLATE_TYPE = "form_template" }
 }
