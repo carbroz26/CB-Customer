@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.registry
 
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
 import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplateRenderer
@@ -19,6 +20,7 @@ class DynamicRegistryTest {
             .section("stack_section", StackSection())
             .group("stack_group", StackGroup())
             .element("text", TextElement())
+            .content("icon", IconContent())
             .build()
 
         assertNotNull(registry.template("form_template"))
@@ -26,6 +28,7 @@ class DynamicRegistryTest {
         assertNotNull(registry.section("stack_section"))
         assertNotNull(registry.group("stack_group"))
         assertNotNull(registry.element("text"))
+        assertNotNull(registry.content("icon"))
 
         assertNull(registry.template("text"))
         assertNull(registry.element("stack_component"))
@@ -37,6 +40,7 @@ class DynamicRegistryTest {
 
         assertNull(registry.template("unknown_template"))
         assertNull(registry.element("unknown_element"))
+        assertNull(registry.content("unknown_content"))
     }
 
     @Test
