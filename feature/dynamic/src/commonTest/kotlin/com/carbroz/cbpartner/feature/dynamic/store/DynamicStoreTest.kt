@@ -26,12 +26,9 @@ class DynamicStoreTest {
         var capturedBody: DynamicValue? = null
         val repository = object : DynamicRepository {
             override suspend fun fetch(
-                destination: DynamicDestination,
-                body: DynamicValue?,
-                method: String,
-                authentication: String,
+                request: com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest,
             ): Result<DynamicResponse> {
-                capturedBody = body
+                capturedBody = request.body
                 return Result.success(
                     DynamicResponse(
                         status = 200,
