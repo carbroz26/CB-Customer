@@ -28,11 +28,20 @@ class DynamicElementMapper(
         else -> error("Unsupported dynamic element type: " + values.string(element, "type"))
     }
 
-    private fun mapText(dto: TextElementDto) = TextElement(
+    private fun mapText(dto: TextElementDto): TextElement {
+        val textValue = dto.properties["text"]
+        val spans = values.spans(dto.properties).let { mappedSpans ->
+            if (textValue is kotlinx.serialization.json.JsonObject) {
+                listOf(com.carbroz.cbpartner.domain.model.dynamic.value.DynamicTextSpan(text = values.toDynamicValue(textValue))) + mappedSpans
+            } else {
+                mappedSpans
+            }
+        }
+        return TextElement(
         id = dto.id,
         semanticRole = values.string(dto.properties, "semanticRole"),
         text = values.string(dto.properties, "text").orEmpty(),
-        spans = values.spans(dto.properties),
+        spans = spans,
         fontSize = values.number(dto.properties, "fontSize"),
         fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
         letterSpacing = values.number(dto.properties, "letterSpacing"),
@@ -43,7 +52,8 @@ class DynamicElementMapper(
         leadingContent = contentMapper.mapList(dto.properties, "leading"),
         trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = mapActions(dto.actions),
-    )
+        )
+    }
 
     private fun mapImage(dto: ImageElementDto) = ImageElement(
         id = dto.id,
