@@ -45,14 +45,14 @@ class ButtonElement : ElementRenderer {
             contentAlignment = Alignment.Center
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                context.renderElements(model.leading)
+                context.renderContent(model.leadingContent)
                 androidx.compose.material3.Text(
                     text = model.text,
                     color = textColor,
                     fontSize = model.fontSize?.sp ?: 18.sp,
                     fontWeight = model.fontWeight?.let(::FontWeight)
                 )
-                context.renderElements(model.trailing)
+                context.renderContent(model.trailingContent)
             }
         }
     }
