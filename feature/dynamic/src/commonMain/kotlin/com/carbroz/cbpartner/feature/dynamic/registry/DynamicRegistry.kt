@@ -6,12 +6,14 @@ class DynamicRegistry(
     private val sections: Map<String, SectionRenderer> = emptyMap(),
     private val groups: Map<String, GroupRenderer> = emptyMap(),
     private val elements: Map<String, ElementRenderer> = emptyMap(),
+    private val contents: Map<String, ElementContentRenderer> = emptyMap(),
 ) {
     fun template(type: String): TemplateRenderer? = templates[type]
     fun component(type: String): ComponentRenderer? = components[type]
     fun section(type: String): SectionRenderer? = sections[type]
     fun group(type: String): GroupRenderer? = groups[type]
     fun element(type: String): ElementRenderer? = elements[type]
+    fun content(type: String): ElementContentRenderer? = contents[type]
 
     companion object {
         fun builder(): Builder = Builder()
@@ -23,6 +25,7 @@ class DynamicRegistry(
         private val sections = linkedMapOf<String, SectionRenderer>()
         private val groups = linkedMapOf<String, GroupRenderer>()
         private val elements = linkedMapOf<String, ElementRenderer>()
+        private val contents = linkedMapOf<String, ElementContentRenderer>()
 
         fun template(type: String, renderer: TemplateRenderer) = apply {
             check(templates.put(type, renderer) == null) { "Dynamic template already registered: $type" }
@@ -44,12 +47,17 @@ class DynamicRegistry(
             check(elements.put(type, renderer) == null) { "Dynamic element already registered: $type" }
         }
 
+        fun content(type: String, renderer: ElementContentRenderer) = apply {
+            check(contents.put(type, renderer) == null) { "Dynamic content already registered: $type" }
+        }
+
         fun build(): DynamicRegistry = DynamicRegistry(
             templates = templates.toMap(),
             components = components.toMap(),
             sections = sections.toMap(),
             groups = groups.toMap(),
             elements = elements.toMap(),
+            contents = contents.toMap(),
         )
     }
 }
