@@ -4,30 +4,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicGroup
+import com.carbroz.cbpartner.domain.model.dynamic.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.registry.GroupRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
-import com.carbroz.cbpartner.feature.dynamic.runtime.horizontalAlignment
-import com.carbroz.cbpartner.feature.dynamic.runtime.horizontalArrangement
-import com.carbroz.cbpartner.feature.dynamic.runtime.string
-import com.carbroz.cbpartner.feature.dynamic.runtime.verticalAlignment
-import com.carbroz.cbpartner.feature.dynamic.runtime.verticalArrangement
+import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalAlignment
+import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalArrangement
+import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
+import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class StackGroup : GroupRenderer {
     @Composable
-    override fun render(group: DynamicGroup, context: DynamicRenderContext) {
-        if (group.properties.string("orientation") == "horizontal") {
+    override fun render(group: StackGroup, context: DynamicRenderContext) {
+        if (group.orientation == "horizontal") {
             Row(
-                modifier = context.applyLayout(Modifier, group.properties),
-                horizontalArrangement = group.properties.horizontalArrangement(),
-                verticalAlignment = group.properties.verticalAlignment(),
+                modifier = Modifier.applyLayout(group),
+                horizontalArrangement = group.horizontalArrangement.toHorizontalArrangement(),
+                verticalAlignment = group.verticalAlignment.toVerticalAlignment(),
             ) { context.renderElements(group.elements) }
         } else {
             Column(
-                modifier = context.applyLayout(Modifier, group.properties),
-                verticalArrangement = group.properties.verticalArrangement(),
-                horizontalAlignment = group.properties.horizontalAlignment(),
+                modifier = Modifier.applyLayout(group),
+                verticalArrangement = group.verticalArrangement.toVerticalArrangement(),
+                horizontalAlignment = group.horizontalAlignment.toHorizontalAlignment(),
             ) { context.renderElements(group.elements) }
         }
     }
