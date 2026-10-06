@@ -1,5 +1,7 @@
 package com.carbroz.cbpartner.network.http
 
+import com.carbroz.cbpartner.core.runtime.RuntimeMetadata
+import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.network.NetworkException
 import com.carbroz.cbpartner.network.NetworkResult
 import io.ktor.client.HttpClient
@@ -28,6 +30,39 @@ class RequestHandlerTest {
         val result = requestHandler.get<String>(listOf("api", "v1", "screen"))
 
         assertEquals(NetworkResult.Success("response"), result)
+    }
+
+    @Test
+    fun runtimeMetadataHeadersAreApplied() = runTest {
+        var capturedPlatform: String? = null
+        var capturedAppVersion: String? = null
+        var capturedBuildNumber: String? = null
+        val requestHandler = RequestHandler(
+            HttpClient(
+                MockEngine {
+                    capturedPlatform = request.headers["X-CarBroz-Platform"]
+                    capturedAppVersion = request.headers["X-CarBroz-App-Version"]
+                    capturedBuildNumber = request.headers["X-CarBroz-Build-Number"]
+                    respond("response")
+                },
+            ) {
+                expectSuccess = true
+            },
+            runtimeMetadataProvider = RuntimeMetadataProvider {
+                RuntimeMetadata(
+                    platform = "WEB",
+                    appVersion = "1.0.0",
+                    buildNumber = "1",
+                    deviceId = "device-1",
+                )
+            },
+        )
+
+        requestHandler.get<String>(listOf("api", "v1", "screen"))
+
+        assertEquals("WEB", capturedPlatform)
+        assertEquals("1.0.0", capturedAppVersion)
+        assertEquals("1", capturedBuildNumber)
     }
 
     @Test

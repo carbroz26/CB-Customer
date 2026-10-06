@@ -7,6 +7,6 @@ import com.carbroz.cbpartner.app.App
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     ComposeViewport(viewportContainerId = "webApp") {
-        App()
+        App(WebRuntimeMetadataProvider())
     }
 }

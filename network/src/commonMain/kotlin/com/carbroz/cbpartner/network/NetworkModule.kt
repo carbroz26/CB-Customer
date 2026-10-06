@@ -14,5 +14,5 @@ val networkModule = module {
             .port(3000)
             .build()
     }
-    single { RequestHandler(get()) }
+    single { RequestHandler(get(), runtimeMetadataProvider = get()) }
 }

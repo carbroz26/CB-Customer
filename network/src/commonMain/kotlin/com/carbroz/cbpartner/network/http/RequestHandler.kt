@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.network.http
 
+import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.network.NetworkException
 import com.carbroz.cbpartner.network.NetworkResult
 import io.ktor.client.HttpClient
@@ -18,6 +19,7 @@ import io.ktor.http.appendPathSegments
 class RequestHandler(
     private val httpClient: HttpClient,
     private val bearerTokenProvider: () -> String? = { null },
+    private val runtimeMetadataProvider: RuntimeMetadataProvider? = null,
 ) {
     suspend inline fun <reified B, reified R> executeRequest(
         method: HttpMethod,
@@ -60,6 +62,11 @@ class RequestHandler(
         return httpClient.prepareRequest {
             this.method = method
             url { appendPathSegments(urlPathSegments.map(Any::toString)) }
+            runtimeMetadataProvider?.current()?.let { metadata ->
+                header(PLATFORM_HEADER, metadata.platform)
+                header(APP_VERSION_HEADER, metadata.appVersion)
+                header(BUILD_NUMBER_HEADER, metadata.buildNumber)
+            }
             headers?.forEach { (key, value) -> header(key, value) }
             if (authenticationMode == "BEARER") {
                 val token = bearerTokenProvider() ?: error("Bearer authentication requested but no credential is available")
@@ -97,4 +104,10 @@ class RequestHandler(
 
     suspend inline fun <reified B, reified R> delete(urlPathSegments: List<Any>, body: B? = null): NetworkResult<R> =
         executeRequest(HttpMethod.Delete, urlPathSegments, body = body)
+
+    private companion object {
+        const val PLATFORM_HEADER = "X-CarBroz-Platform"
+        const val APP_VERSION_HEADER = "X-CarBroz-App-Version"
+        const val BUILD_NUMBER_HEADER = "X-CarBroz-Build-Number"
+    }
 }

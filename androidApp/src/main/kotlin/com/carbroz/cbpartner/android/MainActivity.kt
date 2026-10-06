@@ -8,8 +8,9 @@ import com.carbroz.cbpartner.app.App
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val runtimeMetadataProvider = AndroidRuntimeMetadataProvider(applicationContext)
         setContent {
-            App()
+            App(runtimeMetadataProvider)
         }
     }
 }
