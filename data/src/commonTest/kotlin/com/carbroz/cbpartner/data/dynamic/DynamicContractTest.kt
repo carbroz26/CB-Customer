@@ -16,7 +16,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.parseToJsonElement
 
 class DynamicContractTest {
     private val json = Json { ignoreUnknownKeys = true }
@@ -64,7 +63,7 @@ class DynamicContractTest {
         assertEquals(
             DynamicValue.ObjectValue(
                 mapOf(
-                    "$context" to DynamicValue.StringValue("profile.displayName"),
+                    "\u0024context" to DynamicValue.StringValue("profile.displayName"),
                 ),
             ),
             title.spans.single().text,
@@ -75,19 +74,19 @@ class DynamicContractTest {
         val body = assertIs<DynamicValue.ObjectValue>(request.payload["body"])
         assertEquals(
             DynamicValue.StringValue("firstName"),
-            (body.value["firstName"] as DynamicValue.ObjectValue).value["$binding"],
+            (body.value["firstName"] as DynamicValue.ObjectValue).value["\u0024binding"],
         )
         assertEquals(
             DynamicValue.StringValue("email"),
-            (body.value["email"] as DynamicValue.ObjectValue).value["$binding"],
+            (body.value["email"] as DynamicValue.ObjectValue).value["\u0024binding"],
         )
         assertEquals(
             DynamicValue.StringValue("session.id"),
-            (body.value["session"] as DynamicValue.ObjectValue).value["$context"],
+            (body.value["session"] as DynamicValue.ObjectValue).value["\u0024context"],
         )
         assertEquals(
             DynamicValue.StringValue("data.referenceId"),
-            (body.value["previous"] as DynamicValue.ObjectValue).value["$response"],
+            (body.value["previous"] as DynamicValue.ObjectValue).value["\u0024response"],
         )
     }
 
