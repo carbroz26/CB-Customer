@@ -3,7 +3,7 @@ package com.carbroz.cbpartner.domain.model.dynamic.value
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 
 data class DynamicTextSpan(
-    val text: String,
+    val text: DynamicValue,
     val color: String? = null,
     val fontWeight: Int? = null,
     val underline: Boolean = false,
