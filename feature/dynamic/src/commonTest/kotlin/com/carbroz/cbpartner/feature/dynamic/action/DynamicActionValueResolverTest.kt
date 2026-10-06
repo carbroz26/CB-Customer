@@ -1,6 +1,5 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
