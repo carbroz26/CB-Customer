@@ -1,4 +1,4 @@
-package com.carbroz.cbpartner.data.dynamic.mapper
+package com/carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionDto
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionsDto
@@ -37,20 +37,20 @@ class DynamicElementMapper(
             }
         }
         return TextElement(
-        id = dto.id,
-        semanticRole = values.string(dto.properties, "semanticRole"),
-        text = values.string(dto.properties, "text").orEmpty(),
-        spans = spans,
-        fontSize = values.number(dto.properties, "fontSize"),
-        fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
-        letterSpacing = values.number(dto.properties, "letterSpacing"),
-        lineHeight = values.number(dto.properties, "lineHeight"),
-        color = values.string(dto.properties, "color"),
-        textAlign = values.string(dto.properties, "textAlign") ?: "center",
-        fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
-        leadingContent = contentMapper.mapList(dto.properties, "leading"),
-        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
-        actions = mapActions(dto.actions),
+            id = dto.id,
+            semanticRole = values.string(dto.properties, "semanticRole"),
+            text = values.string(dto.properties, "text").orEmpty(),
+            spans = spans,
+            fontSize = values.number(dto.properties, "fontSize"),
+            fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
+            letterSpacing = values.number(dto.properties, "letterSpacing"),
+            lineHeight = values.number(dto.properties, "lineHeight"),
+            color = values.string(dto.properties, "color"),
+            textAlign = values.string(dto.properties, "textAlign") ?: "center",
+            fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
+            leadingContent = contentMapper.mapList(dto.properties, "leading"),
+            trailingContent = contentMapper.mapList(dto.properties, "trailing"),
+            actions = mapActions(dto.actions),
         )
     }
 
@@ -104,19 +104,6 @@ class DynamicElementMapper(
         semanticRole = values.string(dto.properties, "semanticRole"),
         name = values.string(dto.properties, "name").orEmpty(),
         size = values.number(dto.properties, "size"),
-        color = values.string(dto.properties, "color"),
-        leadingContent = contentMapper.mapList(dto.properties, "leading"),
-        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
-        actions = mapActions(dto.actions),
-    )
-
-    private fun mapDivider(dto: DividerElementDto) = DividerElement(
-        id = dto.id,
-        semanticRole = values.string(dto.properties, "semanticRole"),
-        orientation = values.string(dto.properties, "orientation") ?: "horizontal",
-        width = values.number(dto.properties, "width"),
-        height = values.number(dto.properties, "height"),
-        thickness = values.number(dto.properties, "thickness") ?: 1.0,
         color = values.string(dto.properties, "color"),
         leadingContent = contentMapper.mapList(dto.properties, "leading"),
         trailingContent = contentMapper.mapList(dto.properties, "trailing"),
