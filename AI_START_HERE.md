@@ -356,7 +356,7 @@ NEXT VALID ACTION
 
 ## 22. CURRENT NEXT ACTION
 
-**Reconcile the Dynamic documentation baseline, repair backend-shaped Dynamic test fixtures against the current source contract, then run the Bootstrap → Login → Send OTP → OTP → Verify test plan.**
+**Run the reconciled Dynamic data/feature JVM test suites, then complete the Bootstrap → Login → Send OTP → OTP → Verify test plan and review any cross-destination response-reference findings.**
 
 Do not reopen DYNAMIC-01 → DYNAMIC-07. Do not change production architecture to satisfy stale fixtures. Do not mark tests green without an actual Gradle run.
 
