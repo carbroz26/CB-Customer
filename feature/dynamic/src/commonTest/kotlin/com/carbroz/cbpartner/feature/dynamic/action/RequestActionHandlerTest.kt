@@ -56,18 +56,18 @@ class RequestActionHandlerTest {
                         "profile" to DynamicValue.ObjectValue(
                             mapOf(
                                 "firstName" to DynamicValue.ObjectValue(
-                                    mapOf("$binding" to DynamicValue.StringValue("firstName")),
+                                    mapOf("\$binding" to DynamicValue.StringValue("firstName")),
                                 ),
                                 "email" to DynamicValue.ObjectValue(
-                                    mapOf("$binding" to DynamicValue.StringValue("email")),
+                                    mapOf("\$binding" to DynamicValue.StringValue("email")),
                                 ),
                             ),
                         ),
                         "sessionId" to DynamicValue.ObjectValue(
-                            mapOf("$context" to DynamicValue.StringValue("session.id")),
+                            mapOf("\$context" to DynamicValue.StringValue("session.id")),
                         ),
                         "referenceId" to DynamicValue.ObjectValue(
-                            mapOf("$response" to DynamicValue.StringValue("data.referenceId")),
+                            mapOf("\$response" to DynamicValue.StringValue("data.referenceId")),
                         ),
                     ),
                 ),
