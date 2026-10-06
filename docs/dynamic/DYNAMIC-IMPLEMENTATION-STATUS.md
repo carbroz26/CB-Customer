@@ -76,6 +76,7 @@ Older `docs/features/dynamic/*` records and dated reconciliation/freeze files ar
 - Action reference resolver coverage now covers `$binding`, `$context`, `$response` and `$literal`.
 - RequestActionHandler coverage now verifies the OTP verify request body from binding/context/previous-response references.
 - Existing Store coverage continues to verify binding/context request resolution and destination convergence.
+- `DynamicBackendFlowContractTest` now covers Bootstrap → Login → Send OTP → OTP as one backend contract chain.
 
 ### Next
 
