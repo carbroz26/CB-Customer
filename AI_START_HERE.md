@@ -3,7 +3,7 @@
 **Document type:** Global AI Control / Router  
 **Status:** AUTHORITATIVE  
 **Scope:** Entire CB-Partner frontend repository  
-**Last Updated:** 2026-10-04
+**Last Updated:** 2026-10-06
 
 ## 1. NON-NEGOTIABLE RULE
 
@@ -44,14 +44,12 @@ Read in this order:
 5. `docs/project-management/03-DECISION-LOG.md`
 6. `docs/project-management/01-AI-CONTEXT.md`
 7. `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
-8. `docs/architecture/BASE-ARCHITECTURE.md` for frozen base decisions
-9. `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
-10. `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md`
-11. `docs/features/dynamic/04-DYNAMIC-08-UNIFIED-DESTINATION-DISCUSSION.md`
-12. `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`
-13. `docs/features/dynamic/05-DYNAMIC-08-IMPLEMENTATION-PLAN.md`
-14. `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md`
-15. source/tests only after the state is understood
+8. `docs/architecture/BASE-ARCHITECTURE.md`
+9. `docs/dynamic/DYNAMIC-ARCHITECTURE-FROZEN.md`
+10. `docs/dynamic/DYNAMIC-DISCUSSION-AND-DECISIONS.md`
+11. `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN-FROZEN.md`
+12. `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md`
+13. source/tests only after the state is understood
 
 Then produce a short SESSION RECOVERY SUMMARY:
 
@@ -186,13 +184,13 @@ Recover state and return exactly one next valid action.
 | Tracker | `docs/project-management/12-PROJECT-TRACKER.md` |
 | Current architecture | `docs/architecture/ARCHITECTURE-CURRENT-STATE.md` |
 | Frozen base architecture | `docs/architecture/BASE-ARCHITECTURE.md` |
-| Dynamic discussion | `docs/features/dynamic/00-FEATURE-DISCUSSION.md` |
-| DYNAMIC-08 destination discussion | `docs/features/dynamic/04-DYNAMIC-08-UNIFIED-DESTINATION-DISCUSSION.md` |
-| Dynamic final reconciliation | `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md` |
-| Dynamic implementation plan | `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md` |
-| DYNAMIC-08 implementation plan | `docs/features/dynamic/05-DYNAMIC-08-IMPLEMENTATION-PLAN.md` |
-| Dynamic implementation status | `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md` |
+| Dynamic frozen architecture | `docs/dynamic/DYNAMIC-ARCHITECTURE-FROZEN.md` |
+| Dynamic discussion/decisions | `docs/dynamic/DYNAMIC-DISCUSSION-AND-DECISIONS.md` |
+| Dynamic frozen implementation plan | `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN-FROZEN.md` |
+| Dynamic current status | `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md` |
 | Gradle | `docs/build/GRADLE-SETUP-AND-WORKFLOW.md` |
+
+There is no second active Dynamic documentation tree. Historical Dynamic records are superseded and are not implementation authority.
 
 ## 12. STARTUP / BOOTSTRAP NON-NEGOTIABLES
 
@@ -279,13 +277,10 @@ A request using `responseMode = destination` reads `data.destination` from the A
 
 ## 15. DYNAMIC USE-CASE OWNERSHIP
 
-The existence of a UseCase class does not mean it belongs in top-level `:domain`.
-
-- `LoadDynamicScreenUseCase` is feature orchestration over the Dynamic repository contract.
-- `ExecuteDynamicActionUseCase` coordinates feature-owned Dynamic action capabilities.
-- Keep both in `:feature:dynamic`.
-- Target package: `feature/dynamic/.../usecase/`.
-- Do not create a second feature-local domain architecture.
+- `LoadDynamicScreenUseCase` is the Dynamic screen-loading use case.
+- `ExecuteDynamicActionUseCase` does not exist and must not be reintroduced.
+- Dynamic action execution belongs to `DynamicActionExecutor` and action-specific handlers/capabilities.
+- Do not create a second feature-local domain architecture or replacement manager/coordinator/command layer.
 
 ## 16. NETWORK EXCEPTION NON-NEGOTIABLES
 
@@ -361,9 +356,9 @@ NEXT VALID ACTION
 
 ## 22. CURRENT NEXT ACTION
 
-**Complete the DYNAMIC-08 four-field destination call-site cleanup, run the full JVM compile/tests, then proceed immediately to backend-shaped Login → Send OTP → OTP → Verify OTP verification.**
+**Reconcile the Dynamic documentation baseline, repair backend-shaped Dynamic test fixtures against the current source contract, then run the Bootstrap → Login → Send OTP → OTP → Verify test plan.**
 
-Do not reopen DYNAMIC-01 → DYNAMIC-07. Do not mark the feature complete because an earlier JVM baseline was green.
+Do not reopen DYNAMIC-01 → DYNAMIC-07. Do not change production architecture to satisfy stale fixtures. Do not mark tests green without an actual Gradle run.
 
 ## 23. ONE-LINE EXTERNAL AI INSTRUCTION
 
