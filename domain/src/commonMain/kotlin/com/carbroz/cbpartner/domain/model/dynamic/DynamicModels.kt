@@ -16,48 +16,144 @@ data class DynamicScreen(
     val screenId: String,
     val schemaVersion: String,
     val targetApp: String,
-    val template: DynamicTemplate,
+    val template: FormTemplate,
     val theme: DynamicTheme?,
 )
 
-data class DynamicTemplate(
+data class FormTemplate(
     val id: String,
-    val type: String,
-    val properties: Map<String, DynamicValue>,
-    val components: List<DynamicComponent>,
+    val orientation: String = "vertical",
+    val verticalArrangement: DynamicArrangement = DynamicArrangement.Top,
+    val horizontalAlignment: DynamicArrangement = DynamicArrangement.Center,
+    val padding: DynamicPadding? = null,
+    val fillMaxSize: Boolean = false,
+    val semanticRole: String? = null,
+    val components: List<StackComponent> = emptyList(),
 )
 
-data class DynamicComponent(
+data class StackComponent(
     val id: String,
-    val type: String,
-    val properties: Map<String, DynamicValue>,
-    val elements: List<DynamicElement>,
-    val sections: List<DynamicSection>,
+    val orientation: String = "vertical",
+    val verticalArrangement: DynamicArrangement = DynamicArrangement.Top,
+    val horizontalArrangement: DynamicArrangement = DynamicArrangement.Start,
+    val horizontalAlignment: DynamicArrangement = DynamicArrangement.Center,
+    val verticalAlignment: DynamicArrangement = DynamicArrangement.Center,
+    val padding: DynamicPadding? = null,
+    val fillMaxWidth: Boolean = false,
+    val elements: List<DynamicElement> = emptyList(),
+    val sections: List<StackSection> = emptyList(),
 )
 
-data class DynamicSection(
+data class StackSection(
     val id: String,
-    val type: String,
-    val properties: Map<String, DynamicValue>,
-    val elements: List<DynamicElement>,
-    val groups: List<DynamicGroup>,
+    val orientation: String = "vertical",
+    val verticalArrangement: DynamicArrangement = DynamicArrangement.Top,
+    val horizontalAlignment: DynamicArrangement = DynamicArrangement.Center,
+    val padding: DynamicPadding? = null,
+    val fillMaxWidth: Boolean = false,
+    val elements: List<DynamicElement> = emptyList(),
+    val groups: List<StackGroup> = emptyList(),
 )
 
-data class DynamicGroup(
+data class StackGroup(
     val id: String,
-    val type: String,
-    val properties: Map<String, DynamicValue>,
-    val elements: List<DynamicElement>,
+    val orientation: String = "vertical",
+    val verticalArrangement: DynamicArrangement = DynamicArrangement.Top,
+    val horizontalArrangement: DynamicArrangement = DynamicArrangement.Start,
+    val horizontalAlignment: DynamicArrangement = DynamicArrangement.Center,
+    val verticalAlignment: DynamicArrangement = DynamicArrangement.Center,
+    val padding: DynamicPadding? = null,
+    val height: Double? = null,
+    val fillMaxWidth: Boolean = false,
+    val background: DynamicBackground? = null,
+    val border: DynamicBorder? = null,
+    val shape: DynamicShape? = null,
+    val elements: List<DynamicElement> = emptyList(),
 )
 
-data class DynamicElement(
-    val id: String,
-    val type: String,
-    val properties: Map<String, DynamicValue>,
-    val validation: DynamicValidation?,
-    val binding: DynamicBinding?,
-    val actions: Map<String, DynamicAction>,
-)
+sealed interface DynamicElement {
+    val id: String
+    val semanticRole: String?
+    val actions: Map<String, DynamicAction>
+}
+
+data class TextElement(
+    override val id: String,
+    override val semanticRole: String? = null,
+    val text: String = "",
+    val spans: List<DynamicTextSpan> = emptyList(),
+    val fontSize: Double? = null,
+    val fontWeight: Int? = null,
+    val letterSpacing: Double? = null,
+    val lineHeight: Double? = null,
+    val color: String? = null,
+    val textAlign: String = "center",
+    val fillMaxWidth: Boolean = false,
+    val leading: List<DynamicElement> = emptyList(),
+    val trailing: List<DynamicElement> = emptyList(),
+    override val actions: Map<String, DynamicAction> = emptyMap(),
+) : DynamicElement
+
+data class ImageElement(
+    override val id: String,
+    override val semanticRole: String? = null,
+    val url: String = "",
+    val width: Double? = null,
+    val height: Double? = null,
+    val maxWidth: Double? = null,
+    val fillMaxWidth: Boolean = false,
+    val contentScale: String = "fit",
+    override val actions: Map<String, DynamicAction> = emptyMap(),
+) : DynamicElement
+
+data class InputElement(
+    override val id: String,
+    override val semanticRole: String? = null,
+    val placeholder: String? = null,
+    val keyboardType: String = "text",
+    val maxLength: Int? = null,
+    val weight: Double? = null,
+    val validation: DynamicValidation? = null,
+    val binding: DynamicBinding? = null,
+    val presentation: DynamicInputPresentation? = null,
+    override val actions: Map<String, DynamicAction> = emptyMap(),
+) : DynamicElement
+
+data class ButtonElement(
+    override val id: String,
+    override val semanticRole: String? = null,
+    val text: String = "",
+    val height: Double? = null,
+    val fillMaxWidth: Boolean = false,
+    val fontSize: Double? = null,
+    val fontWeight: Int? = null,
+    val textColor: String? = null,
+    val background: DynamicBackground? = null,
+    val shape: DynamicShape? = null,
+    val leading: List<DynamicElement> = emptyList(),
+    val trailing: List<DynamicElement> = emptyList(),
+    override val actions: Map<String, DynamicAction> = emptyMap(),
+) : DynamicElement
+
+data class IconElement(
+    override val id: String,
+    override val semanticRole: String? = null,
+    val name: String,
+    val size: Double? = null,
+    val color: String? = null,
+    override val actions: Map<String, DynamicAction> = emptyMap(),
+) : DynamicElement
+
+data class DividerElement(
+    override val id: String,
+    override val semanticRole: String? = null,
+    val orientation: String = "horizontal",
+    val width: Double? = null,
+    val height: Double? = null,
+    val thickness: Double = 1.0,
+    val color: String? = null,
+    override val actions: Map<String, DynamicAction> = emptyMap(),
+) : DynamicElement
 
 data class DynamicValidation(
     val required: Boolean?,
