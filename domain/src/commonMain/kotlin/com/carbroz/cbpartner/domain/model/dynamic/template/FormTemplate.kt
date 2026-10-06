@@ -1,4 +1,8 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.template
+
+import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 
 data class FormTemplate(
     val id: String,

@@ -1,27 +1,11 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicArrangement
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicBackground
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicBorder
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicGradientStop
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicInputPresentation
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicPadding
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicShape
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicTextSpan
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.doubleOrNull
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.value.*
+import kotlinx.serialization.json.*
 
 class DynamicValueMapper {
-    fun toDynamicValueMap(value: JsonObject): Map<String, DynamicValue> =
-        value.entries.associate { (key, item) -> key to toDynamicValue(item) }
+    fun toDynamicValueMap(value: JsonObject): Map<String, DynamicValue> = value.entries.associate { (key, item) -> key to toDynamicValue(item) }
 
     fun toDynamicValue(value: JsonElement): DynamicValue = when (value) {
         JsonNull -> DynamicValue.NullValue

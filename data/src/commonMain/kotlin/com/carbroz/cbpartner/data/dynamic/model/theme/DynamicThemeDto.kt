@@ -1,14 +1,7 @@
-package com.carbroz.cbpartner.data.dynamic.model
+package com.carbroz.cbpartner.data.dynamic.model.theme
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
-
-@Serializable
-data class DynamicValidationDto(
-    val required: Boolean? = null,
-    val pattern: String? = null,
-    val message: String? = null,
-)
 
 @Serializable
 data class DynamicThemeDto(

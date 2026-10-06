@@ -1,4 +1,6 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.value
+
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 
 data class DynamicTextSpan(
     val text: String,

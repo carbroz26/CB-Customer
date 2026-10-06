@@ -1,20 +1,20 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.model.DynamicComponentDto
-import com.carbroz.cbpartner.data.dynamic.model.DynamicGroupDto
-import com.carbroz.cbpartner.data.dynamic.model.DynamicSectionDto
-import com.carbroz.cbpartner.data.dynamic.model.DynamicTemplateDto
-import com.carbroz.cbpartner.domain.model.dynamic.FormTemplate
-import com.carbroz.cbpartner.domain.model.dynamic.StackComponent
-import com.carbroz.cbpartner.domain.model.dynamic.StackGroup
-import com.carbroz.cbpartner.domain.model.dynamic.StackSection
+import com.carbroz.cbpartner.data.dynamic.model.component.StackComponentDto
+import com.carbroz.cbpartner.data.dynamic.model.group.StackGroupDto
+import com.carbroz.cbpartner.data.dynamic.model.section.StackSectionDto
+import com.carbroz.cbpartner.data.dynamic.model.template.FormTemplateDto
+import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 
 class DynamicStructureMapper(
     private val elements: DynamicElementMapper,
     private val values: DynamicValueMapper,
 ) {
-    fun mapTemplate(dto: DynamicTemplateDto): FormTemplate {
-        require(dto.type == "form_template") { "Unsupported dynamic template type: ${dto.type}" }
+    fun mapTemplate(dto: FormTemplateDto): FormTemplate {
+        require(dto.type == "form_template") { "Unsupported dynamic template type: " + dto.type }
         return FormTemplate(
             id = dto.id,
             orientation = values.string(dto.properties, "orientation") ?: "vertical",
@@ -27,8 +27,8 @@ class DynamicStructureMapper(
         )
     }
 
-    fun mapComponent(dto: DynamicComponentDto): StackComponent {
-        require(dto.type == "stack_component") { "Unsupported dynamic component type: ${dto.type}" }
+    fun mapComponent(dto: StackComponentDto): StackComponent {
+        require(dto.type == "stack_component") { "Unsupported dynamic component type: " + dto.type }
         return StackComponent(
             id = dto.id,
             orientation = values.string(dto.properties, "orientation") ?: "vertical",
@@ -43,8 +43,8 @@ class DynamicStructureMapper(
         )
     }
 
-    fun mapSection(dto: DynamicSectionDto): StackSection {
-        require(dto.type == "stack_section") { "Unsupported dynamic section type: ${dto.type}" }
+    fun mapSection(dto: StackSectionDto): StackSection {
+        require(dto.type == "stack_section") { "Unsupported dynamic section type: " + dto.type }
         return StackSection(
             id = dto.id,
             orientation = values.string(dto.properties, "orientation") ?: "vertical",
@@ -57,8 +57,8 @@ class DynamicStructureMapper(
         )
     }
 
-    fun mapGroup(dto: DynamicGroupDto): StackGroup {
-        require(dto.type == "stack_group") { "Unsupported dynamic group type: ${dto.type}" }
+    fun mapGroup(dto: StackGroupDto): StackGroup {
+        require(dto.type == "stack_group") { "Unsupported dynamic group type: " + dto.type }
         return StackGroup(
             id = dto.id,
             orientation = values.string(dto.properties, "orientation") ?: "vertical",

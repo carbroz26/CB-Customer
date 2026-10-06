@@ -1,4 +1,9 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.element
+
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
+import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicInputPresentation
 
 data class InputElement(
     override val id: String,

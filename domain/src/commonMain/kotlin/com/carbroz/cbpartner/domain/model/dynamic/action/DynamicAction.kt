@@ -1,6 +1,7 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 
 data class DynamicAction(
     val type: String,

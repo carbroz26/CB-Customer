@@ -1,4 +1,6 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.element
+
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 
 data class DividerElement(
     override val id: String,

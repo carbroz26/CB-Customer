@@ -1,4 +1,4 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.value
 
 sealed interface DynamicBackground {
     data class Solid(val color: String) : DynamicBackground

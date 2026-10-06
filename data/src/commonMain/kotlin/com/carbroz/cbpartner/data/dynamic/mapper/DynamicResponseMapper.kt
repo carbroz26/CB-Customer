@@ -1,14 +1,15 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.model.DynamicDestinationDto
-import com.carbroz.cbpartner.data.dynamic.model.DynamicResponseDto
-import com.carbroz.cbpartner.data.dynamic.model.DynamicScreenDto
-import com.carbroz.cbpartner.data.dynamic.model.DynamicThemeDto
+import com.carbroz.cbpartner.data.dynamic.model.response.DynamicDestinationDto
+import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
+import com.carbroz.cbpartner.data.dynamic.model.screen.DynamicScreenDto
+import com.carbroz.cbpartner.data.dynamic.model.theme.DynamicThemeDto
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicTheme
+import com.carbroz.cbpartner.domain.model.dynamic.theme.DynamicTheme
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 class DynamicResponseMapper {
     private val json = Json { ignoreUnknownKeys = true }
@@ -18,24 +19,18 @@ class DynamicResponseMapper {
 
     fun map(dto: DynamicResponseDto): DynamicResponse {
         val data = dto.data
-        val isScreen = data is kotlinx.serialization.json.JsonObject &&
-            SCREEN_FIELDS.all { field -> field in data.keys }
+        val isScreen = data is JsonObject && SCREEN_FIELDS.all { field -> field in data.keys }
 
-        val screen = data
-            ?.takeIf { isScreen }
+        val screen = data?.takeIf { isScreen }
             ?.let { json.decodeFromJsonElement(DynamicScreenDto.serializer(), it) }
             ?.let(::mapScreen)
 
-        val destination = data
-            ?.let { it as? kotlinx.serialization.json.JsonObject }
-            ?.get("destination")
-            ?.let { it as? kotlinx.serialization.json.JsonObject }
+        val destination = data?.let { it as? JsonObject }
+            ?.get("destination")?.let { it as? JsonObject }
             ?.let { json.decodeFromJsonElement(DynamicDestinationDto.serializer(), it) }
             ?.let(::mapDestination)
 
-        val dataPayload = data
-            ?.takeUnless { isScreen }
-            ?.let(values::toDynamicValue)
+        val dataPayload = data?.takeUnless { isScreen }?.let(values::toDynamicValue)
 
         return DynamicResponse(
             status = dto.status,

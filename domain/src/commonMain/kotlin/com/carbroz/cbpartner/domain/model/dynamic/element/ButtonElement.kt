@@ -1,4 +1,8 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.element
+
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 
 data class ButtonElement(
     override val id: String,

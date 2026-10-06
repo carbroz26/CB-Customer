@@ -1,4 +1,4 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.value
 
 sealed interface DynamicValue {
     data class StringValue(val value: String) : DynamicValue

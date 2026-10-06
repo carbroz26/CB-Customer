@@ -1,4 +1,9 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.component
+
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 
 data class StackComponent(
     val id: String,

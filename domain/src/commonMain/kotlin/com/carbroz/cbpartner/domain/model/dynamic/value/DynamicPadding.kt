@@ -1,4 +1,4 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.value
 
 data class DynamicPadding(
     val start: Double = 0.0,

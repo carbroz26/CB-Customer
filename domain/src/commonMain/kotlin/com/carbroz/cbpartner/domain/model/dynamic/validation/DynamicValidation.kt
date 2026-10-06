@@ -1,4 +1,4 @@
-package com.carbroz.cbpartner.domain.model.dynamic
+package com.carbroz.cbpartner.domain.model.dynamic.validation
 
 data class DynamicValidation(
     val required: Boolean?,

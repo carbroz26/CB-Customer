@@ -1,5 +1,6 @@
-package com.carbroz.cbpartner.data.dynamic.model
+package com.carbroz.cbpartner.data.dynamic.model.action
 
+import com.carbroz.cbpartner.data.dynamic.model.response.DynamicDestinationDto
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
@@ -20,4 +21,6 @@ data class DynamicActionDto(
 )
 
 @Serializable
-data class DynamicBindingDto(val key: String)
+data class DynamicBindingDto(
+    val key: String,
+)

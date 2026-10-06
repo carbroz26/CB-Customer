@@ -1,4 +1,4 @@
-package com.carbroz.cbpartner.data.dynamic.model
+package com.carbroz.cbpartner.data.dynamic.model.response
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
