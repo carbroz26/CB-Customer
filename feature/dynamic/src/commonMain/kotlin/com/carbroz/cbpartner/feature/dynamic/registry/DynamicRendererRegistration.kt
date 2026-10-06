@@ -7,6 +7,8 @@ import com.carbroz.cbpartner.feature.dynamic.sdui.element.IconElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ImageElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
+import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
 import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplateRenderer
@@ -22,4 +24,6 @@ fun dynamicRendererRegistry(): DynamicRegistry = DynamicRegistry.builder()
     .element("button", ButtonElement())
     .element("divider", DividerElement())
     .element("icon", IconElement())
+    .content("divider", DividerContent())
+    .content("icon", IconContent())
     .build()
