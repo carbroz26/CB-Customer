@@ -88,7 +88,7 @@ class DynamicValueMapper {
     fun spans(properties: JsonObject): List<DynamicTextSpan> = (properties["spans"] as? JsonArray).orEmpty().mapNotNull { item ->
         val value = item as? JsonObject ?: return@mapNotNull null
         DynamicTextSpan(
-            text = string(value, "text").orEmpty(),
+            text = toDynamicValue(value["text"] ?: JsonPrimitive("")),
             color = string(value, "color"),
             fontWeight = number(value, "fontWeight")?.toInt(),
             underline = boolean(value, "underline") ?: false,
