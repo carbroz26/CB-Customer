@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.data.dynamic
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.InputElement
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -20,7 +21,7 @@ class DynamicContractTest {
         assertEquals("SUCCESS", response.code)
         assertEquals("partner_login", screen.screenId)
         assertEquals("3.0.0", screen.schemaVersion)
-        assertEquals("form_template", screen.template.type)
+        assertEquals("vertical", screen.template.orientation)
         assertNotNull(screen.theme)
         val input = screen.template.components
             .flatMap { it.sections }
@@ -41,8 +42,8 @@ class DynamicContractTest {
             .flatMap { it.groups }
             .flatMap { it.elements }
             .first { it.id == "otp_code_input" }
-        val presentation = otp.properties["presentation"] as DynamicValue.ObjectValue
-        assertEquals("segmented", (presentation.value["type"] as DynamicValue.StringValue).value)
+        val presentation = assertNotNull(otp.presentation)
+        assertEquals("segmented", presentation.type)
         assertEquals("otp", otp.binding?.key)
         val verify = screen.template.components
             .flatMap { it.sections }
