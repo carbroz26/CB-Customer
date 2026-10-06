@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.element
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -18,7 +19,9 @@ class ImageElement : ElementRenderer {
         } else {
             model.url
         }
-        AsyncImage(
+        Row {
+            context.renderContent(model.leadingContent)
+            AsyncImage(
             model = url,
             contentDescription = model.semanticRole,
             modifier = Modifier.applyLayout(model),
@@ -30,6 +33,8 @@ class ImageElement : ElementRenderer {
                 "inside" -> ContentScale.Inside
                 else -> ContentScale.Fit
             }
-        )
+            )
+            context.renderContent(model.trailingContent)
+        }
     }
 }
