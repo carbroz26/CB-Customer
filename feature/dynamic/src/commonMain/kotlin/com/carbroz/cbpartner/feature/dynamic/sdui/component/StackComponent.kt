@@ -4,33 +4,32 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicComponent
+import com.carbroz.cbpartner.domain.model.dynamic.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.registry.ComponentRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
-import com.carbroz.cbpartner.feature.dynamic.runtime.horizontalAlignment
-import com.carbroz.cbpartner.feature.dynamic.runtime.horizontalArrangement
-import com.carbroz.cbpartner.feature.dynamic.runtime.string
-import com.carbroz.cbpartner.feature.dynamic.runtime.verticalAlignment
-import com.carbroz.cbpartner.feature.dynamic.runtime.verticalArrangement
+import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalAlignment
+import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalArrangement
+import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
+import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class StackComponent : ComponentRenderer {
     @Composable
-    override fun render(component: DynamicComponent, context: DynamicRenderContext) {
-        if (component.properties.string("orientation") == "horizontal") {
+    override fun render(component: StackComponent, context: DynamicRenderContext) {
+        if (component.orientation == "horizontal") {
             Row(
-                modifier = context.applyLayout(Modifier, component.properties),
-                horizontalArrangement = component.properties.horizontalArrangement(),
-                verticalAlignment = component.properties.verticalAlignment(),
+                modifier = Modifier.applyLayout(component),
+                horizontalArrangement = component.horizontalArrangement.toHorizontalArrangement(),
+                verticalAlignment = component.verticalAlignment.toVerticalAlignment(),
             ) {
                 context.renderElements(component.elements)
                 context.renderSections(component.sections)
             }
         } else {
             Column(
-                modifier = context.applyLayout(Modifier, component.properties),
-                verticalArrangement = component.properties.verticalArrangement(),
-                horizontalAlignment = component.properties.horizontalAlignment(),
+                modifier = Modifier.applyLayout(component),
+                verticalArrangement = component.verticalArrangement.toVerticalArrangement(),
+                horizontalAlignment = component.horizontalAlignment.toHorizontalAlignment(),
             ) {
                 context.renderElements(component.elements)
                 context.renderSections(component.sections)
