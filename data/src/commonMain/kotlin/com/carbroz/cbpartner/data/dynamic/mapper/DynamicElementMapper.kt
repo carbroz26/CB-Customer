@@ -10,13 +10,14 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.element.*
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 
 class DynamicElementMapper(
     private val json: Json,
     private val values: DynamicValueMapper,
 ) {
+    private val contentMapper = ElementContentMapper(json, values)
+
     fun map(element: JsonObject): DynamicElement = when (values.string(element, "type")) {
         "text" -> json.decodeFromJsonElement(TextElementDto.serializer(), element).let(::mapText)
         "image" -> json.decodeFromJsonElement(ImageElementDto.serializer(), element).let(::mapImage)
@@ -28,59 +29,90 @@ class DynamicElementMapper(
     }
 
     private fun mapText(dto: TextElementDto) = TextElement(
-        id = dto.id, semanticRole = values.string(dto.properties, "semanticRole"),
-        text = values.string(dto.properties, "text").orEmpty(), spans = values.spans(dto.properties),
-        fontSize = values.number(dto.properties, "fontSize"), fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
-        letterSpacing = values.number(dto.properties, "letterSpacing"), lineHeight = values.number(dto.properties, "lineHeight"),
-        color = values.string(dto.properties, "color"), textAlign = values.string(dto.properties, "textAlign") ?: "center",
+        id = dto.id,
+        semanticRole = values.string(dto.properties, "semanticRole"),
+        text = values.string(dto.properties, "text").orEmpty(),
+        spans = values.spans(dto.properties),
+        fontSize = values.number(dto.properties, "fontSize"),
+        fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
+        letterSpacing = values.number(dto.properties, "letterSpacing"),
+        lineHeight = values.number(dto.properties, "lineHeight"),
+        color = values.string(dto.properties, "color"),
+        textAlign = values.string(dto.properties, "textAlign") ?: "center",
         fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
-        leading = elements(dto.properties, "leading"), trailing = elements(dto.properties, "trailing"),
+        leadingContent = contentMapper.mapList(dto.properties, "leading"),
+        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = mapActions(dto.actions),
     )
 
     private fun mapImage(dto: ImageElementDto) = ImageElement(
-        id = dto.id, semanticRole = values.string(dto.properties, "semanticRole"),
-        url = values.string(dto.properties, "url").orEmpty(), width = values.number(dto.properties, "width"),
-        height = values.number(dto.properties, "height"), maxWidth = values.number(dto.properties, "maxWidth"),
+        id = dto.id,
+        semanticRole = values.string(dto.properties, "semanticRole"),
+        url = values.string(dto.properties, "url").orEmpty(),
+        width = values.number(dto.properties, "width"),
+        height = values.number(dto.properties, "height"),
+        maxWidth = values.number(dto.properties, "maxWidth"),
         fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
-        contentScale = values.string(dto.properties, "contentScale") ?: "fit", actions = mapActions(dto.actions),
+        contentScale = values.string(dto.properties, "contentScale") ?: "fit",
+        leadingContent = contentMapper.mapList(dto.properties, "leading"),
+        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
+        actions = mapActions(dto.actions),
     )
 
     private fun mapInput(dto: InputElementDto) = InputElement(
-        id = dto.id, semanticRole = values.string(dto.properties, "semanticRole"),
-        placeholder = values.string(dto.properties, "placeholder"), keyboardType = values.string(dto.properties, "keyboardType") ?: "text",
-        maxLength = values.number(dto.properties, "maxLength")?.toInt(), weight = values.number(dto.properties, "weight"),
+        id = dto.id,
+        semanticRole = values.string(dto.properties, "semanticRole"),
+        placeholder = values.string(dto.properties, "placeholder"),
+        keyboardType = values.string(dto.properties, "keyboardType") ?: "text",
+        maxLength = values.number(dto.properties, "maxLength")?.toInt(),
+        weight = values.number(dto.properties, "weight"),
         validation = dto.validation?.let { DynamicValidation(it.required, it.pattern, it.message) },
-        binding = dto.binding?.let(::mapBinding), presentation = values.inputPresentation(dto.properties),
+        binding = dto.binding?.let(::mapBinding),
+        presentation = values.inputPresentation(dto.properties),
+        leadingContent = contentMapper.mapList(dto.properties, "leading"),
+        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = mapActions(dto.actions),
     )
 
     private fun mapButton(dto: ButtonElementDto) = ButtonElement(
-        id = dto.id, semanticRole = values.string(dto.properties, "semanticRole"),
-        text = values.string(dto.properties, "text").orEmpty(), height = values.number(dto.properties, "height"),
+        id = dto.id,
+        semanticRole = values.string(dto.properties, "semanticRole"),
+        text = values.string(dto.properties, "text").orEmpty(),
+        height = values.number(dto.properties, "height"),
         fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
-        fontSize = values.number(dto.properties, "fontSize"), fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
-        textColor = values.string(dto.properties, "textColor"), background = values.background(dto.properties),
-        shape = values.shape(dto.properties), leading = elements(dto.properties, "leading"),
-        trailing = elements(dto.properties, "trailing"), actions = mapActions(dto.actions),
-    )
-
-    private fun mapIcon(dto: IconElementDto) = IconElement(
-        id = dto.id, semanticRole = values.string(dto.properties, "semanticRole"),
-        name = values.string(dto.properties, "name").orEmpty(), size = values.number(dto.properties, "size"),
-        color = values.string(dto.properties, "color"), actions = mapActions(dto.actions),
-    )
-
-    private fun mapDivider(dto: DividerElementDto) = DividerElement(
-        id = dto.id, semanticRole = values.string(dto.properties, "semanticRole"),
-        orientation = values.string(dto.properties, "orientation") ?: "horizontal",
-        width = values.number(dto.properties, "width"), height = values.number(dto.properties, "height"),
-        thickness = values.number(dto.properties, "thickness") ?: 1.0, color = values.string(dto.properties, "color"),
+        fontSize = values.number(dto.properties, "fontSize"),
+        fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
+        textColor = values.string(dto.properties, "textColor"),
+        background = values.background(dto.properties),
+        shape = values.shape(dto.properties),
+        leadingContent = contentMapper.mapList(dto.properties, "leading"),
+        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = mapActions(dto.actions),
     )
 
-    private fun elements(properties: JsonObject, key: String): List<DynamicElement> =
-        ((properties[key] as? JsonArray)?.mapNotNull { it as? JsonObject } ?: emptyList()).map(::map)
+    private fun mapIcon(dto: IconElementDto) = IconElement(
+        id = dto.id,
+        semanticRole = values.string(dto.properties, "semanticRole"),
+        name = values.string(dto.properties, "name").orEmpty(),
+        size = values.number(dto.properties, "size"),
+        color = values.string(dto.properties, "color"),
+        leadingContent = contentMapper.mapList(dto.properties, "leading"),
+        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
+        actions = mapActions(dto.actions),
+    )
+
+    private fun mapDivider(dto: DividerElementDto) = DividerElement(
+        id = dto.id,
+        semanticRole = values.string(dto.properties, "semanticRole"),
+        orientation = values.string(dto.properties, "orientation") ?: "horizontal",
+        width = values.number(dto.properties, "width"),
+        height = values.number(dto.properties, "height"),
+        thickness = values.number(dto.properties, "thickness") ?: 1.0,
+        color = values.string(dto.properties, "color"),
+        leadingContent = contentMapper.mapList(dto.properties, "leading"),
+        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
+        actions = mapActions(dto.actions),
+    )
 
     private fun mapActions(dto: DynamicActionsDto?): Map<String, DynamicAction> = buildMap {
         dto?.onClick?.let { put("onClick", it.toDomain()) }
