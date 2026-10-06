@@ -2,10 +2,10 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import androidx.compose.runtime.Composable
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicGroup
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicSection
+import com.carbroz.cbpartner.domain.model.dynamic.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 
@@ -18,8 +18,8 @@ class DynamicRenderContext(
 ) {
     fun resolve(value: DynamicValue): DynamicValue = when (value) {
         is DynamicValue.ObjectValue -> {
-            val binding = (value.value["${'$'}binding"] as? DynamicValue.StringValue)?.value
-            val context = (value.value["${'$'}context"] as? DynamicValue.StringValue)?.value
+            val binding = (value.value["$binding"] as? DynamicValue.StringValue)?.value
+            val context = (value.value["$context"] as? DynamicValue.StringValue)?.value
             when {
                 binding != null -> DynamicValue.StringValue(bindings[binding].orEmpty())
                 context != null -> DynamicValue.StringValue(contextValues[context].orEmpty())
@@ -40,30 +40,42 @@ class DynamicRenderContext(
         (resolve(properties[key] ?: return null) as? DynamicValue.BooleanValue)?.value
 
     @Composable
-    fun renderComponents(components: List<DynamicComponent>) {
+    fun renderComponents(components: List<StackComponent>) {
         components.forEach { component ->
-            registry.component(component.type)?.render(component, this)
+            registry.component(componentType(component))?.render(component, this)
         }
     }
 
     @Composable
-    fun renderSections(sections: List<DynamicSection>) {
+    fun renderSections(sections: List<StackSection>) {
         sections.forEach { section ->
-            registry.section(section.type)?.render(section, this)
+            registry.section(sectionType(section))?.render(section, this)
         }
     }
 
     @Composable
-    fun renderGroups(groups: List<DynamicGroup>) {
+    fun renderGroups(groups: List<StackGroup>) {
         groups.forEach { group ->
-            registry.group(group.type)?.render(group, this)
+            registry.group(groupType(group))?.render(group, this)
         }
     }
 
     @Composable
     fun renderElements(elements: List<DynamicElement>) {
         elements.forEach { element ->
-            registry.element(element.type)?.render(element, this)
+            registry.element(elementType(element))?.render(element, this)
         }
+    }
+
+    private fun componentType(component: StackComponent): String = "stack_component"
+    private fun sectionType(section: StackSection): String = "stack_section"
+    private fun groupType(group: StackGroup): String = "stack_group"
+    private fun elementType(element: DynamicElement): String = when (element) {
+        is com.carbroz.cbpartner.domain.model.dynamic.TextElement -> "text"
+        is com.carbroz.cbpartner.domain.model.dynamic.ImageElement -> "image"
+        is com.carbroz.cbpartner.domain.model.dynamic.InputElement -> "input"
+        is com.carbroz.cbpartner.domain.model.dynamic.ButtonElement -> "button"
+        is com.carbroz.cbpartner.domain.model.dynamic.IconElement -> "icon"
+        is com.carbroz.cbpartner.domain.model.dynamic.DividerElement -> "divider"
     }
 }
