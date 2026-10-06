@@ -10,10 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement as ButtonElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
@@ -23,15 +24,35 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
 
 class ButtonElement : ElementRenderer {
-    @Composable override fun render(element: ButtonElementModel, context: DynamicRenderContext) {
-        val shape = element.shape.toComposeShape()
-        val textColor = element.textColor?.toColor() ?: Color.White
-        Box(modifier = Modifier.applyLayout(element).clip(shape).background(element.background?.brush() ?: Brush.linearGradient(listOf(element.background?.color() ?: Color.Transparent, element.background?.color() ?: Color.Transparent))).clickable { element.actions["onClick"]?.let(context.onAction) },
-            contentAlignment = Alignment.Center) {
+    @Composable override fun render(element: DynamicElement, context: DynamicRenderContext) {
+        val model = element as? ButtonElementModel ?: return
+        val shape = model.shape.toComposeShape()
+        val textColor = model.textColor?.toColor() ?: Color.White
+        Box(
+            modifier = Modifier
+                .applyLayout(model)
+                .clip(shape)
+                .background(
+                    model.background?.brush()
+                        ?: Brush.linearGradient(
+                            listOf(
+                                model.background?.color() ?: Color.Transparent,
+                                model.background?.color() ?: Color.Transparent
+                            )
+                        )
+                )
+                .clickable { model.actions["onClick"]?.let(context.onAction) },
+            contentAlignment = Alignment.Center
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                context.renderElements(element.leading)
-                androidx.compose.material3.Text(text = element.text, color = textColor, fontSize = element.fontSize?.sp ?: 18.sp, fontWeight = element.fontWeight?.let(::FontWeight))
-                context.renderElements(element.trailing)
+                context.renderElements(model.leading)
+                androidx.compose.material3.Text(
+                    text = model.text,
+                    color = textColor,
+                    fontSize = model.fontSize?.sp ?: 18.sp,
+                    fontWeight = model.fontWeight?.let(::FontWeight)
+                )
+                context.renderElements(model.trailing)
             }
         }
     }
