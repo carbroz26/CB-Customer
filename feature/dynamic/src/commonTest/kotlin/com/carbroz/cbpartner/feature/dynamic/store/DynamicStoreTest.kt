@@ -106,6 +106,131 @@ class DynamicStoreTest {
         store.close()
     }
 
+
+    @Test
+    fun verifyRequestResolvesChallengeIdAcrossSendOtpDestinationTransition() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        var verifyBody: DynamicValue? = null
+        val sendOtpDestination = DynamicDestination(
+            screenId = "partner_otp",
+            templateId = "tpl_P102O",
+            templateType = "form_template",
+            endpoint = "/api/v1/partner/screen/auth_otp",
+        )
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/api/v1/partner/auth/verify_otp") {
+                    verifyBody = request.body
+                    return Result.success(
+                        DynamicResponse(200, "SUCCESS", "Verified", null, "verify"),
+                    )
+                }
+                return Result.success(
+                    DynamicResponse(
+                        status = 200,
+                        code = "SUCCESS",
+                        message = "OTP sent",
+                        data = null,
+                        traceId = "send-otp",
+                        dataPayload = DynamicValue.ObjectValue(
+                            mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
+                        ),
+                        destination = sendOtpDestination,
+                    ),
+                )
+            }
+        }
+
+        val loginDestination = DynamicDestination(
+            screenId = "partner_login",
+            templateId = "tpl_P101L",
+            templateType = "form_template",
+            endpoint = "/api/v1/partner/screen/auth_login",
+        )
+        val navigation = DynamicNavigationState(loginDestination)
+        val actionExecutor = DynamicActionExecutor(
+            handlers = listOf(RequestActionHandler(repository)),
+        )
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = actionExecutor,
+            destination = loginDestination,
+            contextProvider = { mapOf("deviceId" to "test-device") },
+            scope = CoroutineScope(dispatcher),
+        )
+
+        store.accept(DynamicIntent.ValueChanged("mobileNumber", "9876543210"))
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    type = "request",
+                    payload = mapOf(
+                        "endpoint" to DynamicValue.StringValue("/api/v1/partner/auth/send_otp"),
+                        "method" to DynamicValue.StringValue("POST"),
+                        "authentication" to DynamicValue.StringValue("NONE"),
+                        "responseMode" to DynamicValue.StringValue("destination"),
+                        "body" to DynamicValue.ObjectValue(
+                            mapOf(
+                                "phoneNumber" to DynamicValue.ObjectValue(
+                                    mapOf("\$binding" to DynamicValue.StringValue("mobileNumber")),
+                                ),
+                                "deviceId" to DynamicValue.ObjectValue(
+                                    mapOf("\$context" to DynamicValue.StringValue("deviceId")),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+                navigation,
+            ),
+        )
+        advanceUntilIdle()
+        assertEquals("partner_otp", navigation.currentDestination.screenId)
+
+        store.updateDestination(sendOtpDestination)
+        advanceUntilIdle()
+
+        store.accept(DynamicIntent.ValueChanged("otp", "123456"))
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    type = "request",
+                    payload = mapOf(
+                        "endpoint" to DynamicValue.StringValue("/api/v1/partner/auth/verify_otp"),
+                        "method" to DynamicValue.StringValue("POST"),
+                        "authentication" to DynamicValue.StringValue("NONE"),
+                        "responseMode" to DynamicValue.StringValue("none"),
+                        "body" to DynamicValue.ObjectValue(
+                            mapOf(
+                                "challengeId" to DynamicValue.ObjectValue(
+                                    mapOf("\$response" to DynamicValue.StringValue("data.challengeId")),
+                                ),
+                                "phoneNumber" to DynamicValue.ObjectValue(
+                                    mapOf("\$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                                ),
+                                "otp" to DynamicValue.ObjectValue(
+                                    mapOf("\$binding" to DynamicValue.StringValue("otp")),
+                                ),
+                                "deviceId" to DynamicValue.ObjectValue(
+                                    mapOf("\$context" to DynamicValue.StringValue("deviceId")),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+                navigation,
+            ),
+        )
+        advanceUntilIdle()
+
+        val body = assertNotNull(verifyBody) as DynamicValue.ObjectValue
+        assertEquals(DynamicValue.StringValue("challenge-123"), body.value["challengeId"])
+        assertEquals(DynamicValue.StringValue("9876543210"), body.value["phoneNumber"])
+        assertEquals(DynamicValue.StringValue("123456"), body.value["otp"])
+        assertEquals(DynamicValue.StringValue("test-device"), body.value["deviceId"])
+        store.close()
+    }
+
     private fun navigationDestination(navigation: DynamicNavigationState): DynamicDestination {
         return navigation.currentDestination
     }
