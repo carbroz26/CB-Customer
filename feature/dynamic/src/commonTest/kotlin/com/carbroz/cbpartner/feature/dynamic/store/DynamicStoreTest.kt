@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.store
 
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
@@ -26,7 +27,7 @@ class DynamicStoreTest {
         var capturedBody: DynamicValue? = null
         val repository = object : DynamicRepository {
             override suspend fun fetch(
-                request: com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest,
+                request: DynamicRequest,
             ): Result<DynamicResponse> {
                 capturedBody = request.body
                 return Result.success(
