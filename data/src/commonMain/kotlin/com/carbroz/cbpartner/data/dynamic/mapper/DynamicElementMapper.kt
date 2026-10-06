@@ -1,4 +1,4 @@
-package com/carbroz.cbpartner.data.dynamic.mapper
+package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionDto
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionsDto
