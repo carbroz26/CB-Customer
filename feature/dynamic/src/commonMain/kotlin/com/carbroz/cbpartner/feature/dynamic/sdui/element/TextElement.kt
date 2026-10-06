@@ -45,7 +45,7 @@ class TextElement : ElementRenderer {
                     append(spanText)
                     addLink(link, start, length)
                 } else {
-                    withStyle(style) { append(span.text) }
+                    withStyle(style) { append(spanText) }
                 }
             }
         }.toAnnotatedString()
