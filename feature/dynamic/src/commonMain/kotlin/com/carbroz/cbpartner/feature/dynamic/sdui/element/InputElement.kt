@@ -39,24 +39,31 @@ class InputElement : ElementRenderer {
         }
 
         val presentation = model.presentation
-        if (presentation?.type == "segmented") {
-            SegmentedInput(
-                value,
-                presentation.count ?: model.maxLength ?: 1,
-                presentation.spacing?.dp ?: 8.dp,
-                presentation.segmentWidth?.dp ?: 44.dp,
-                presentation.segmentHeight?.dp ?: 52.dp,
-                ::changed
-            )
-        } else {
-            OutlinedTextField(
-                modifier = Modifier.applyLayout(model),
-                value = value,
-                onValueChange = ::changed,
-                placeholder = model.placeholder?.let { { Text(it) } },
-                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-                singleLine = true
-            )
+        Row(
+            modifier = Modifier.applyLayout(model),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            context.renderContent(model.leadingContent)
+            if (presentation?.type == "segmented") {
+                SegmentedInput(
+                    value,
+                    presentation.count ?: model.maxLength ?: 1,
+                    presentation.spacing?.dp ?: 8.dp,
+                    presentation.segmentWidth?.dp ?: 44.dp,
+                    presentation.segmentHeight?.dp ?: 52.dp,
+                    ::changed
+                )
+            } else {
+                OutlinedTextField(
+                    modifier = Modifier.weight(1f),
+                    value = value,
+                    onValueChange = ::changed,
+                    placeholder = model.placeholder?.let { { Text(it) } },
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    singleLine = true
+                )
+            }
+            context.renderContent(model.trailingContent)
         }
     }
 
