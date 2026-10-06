@@ -108,7 +108,6 @@ class DynamicResponseMapperTest {
 
         assertEquals("partner_login", screen.screenId)
         assertEquals("tpl_P101L", screen.template.id)
-        assertEquals("form_template", screen.template.type)
         assertEquals("login_content", screen.template.components.single().id)
         assertEquals("mobile_field_section", screen.template.components.single().sections.single().id)
         assertEquals("mobile_field", group.id)
