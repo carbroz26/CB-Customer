@@ -17,7 +17,7 @@ class DynamicBackendFlowContractTest {
     fun bootstrapToDynamicScreenToNextDestinationFormsGenericFlow() {
         val bootstrap = BootstrapMapper().map(
             json.decodeFromString<BootstrapResponseDto>(
-                """{"status":200,"code":"SUCCESS","message":"Bootstrap completed","data":{"config":{"version":"1","maintenance":{"enabled":false,"title":null,"message":null},"update":{"required":false,"optional":false,"minimumVersion":"1.0.0","latestVersion":"1.0.0","storeUrl":null},"features":{"featureA":true,"featureB":false}},"startup":{"authenticated":false,"destination":{"screenId":"screen_generic","templateId":"tpl_generic","templateType":"form_template","endpoint":"/dynamic/screen"}}},"traceId":"trace-bootstrap"}""",
+                """{"status":200,"code":"SUCCESS","message":"Bootstrap completed","data":{"config":{"version":"1","maintenance":{"enabled":false,"title":null,"message":null},"update":{"required":false,"optional":false,"minimumVersion":"1.0.0","latestVersion":"1.0.0","storeUrl":null},"features":{"registrationEnabled":true,"individualPartnerEnabled":true,"organizationPartnerEnabled":false}},"startup":{"authenticated":false,"destination":{"screenId":"screen_generic","templateId":"tpl_generic","templateType":"form_template","endpoint":"/dynamic/screen"}}},"traceId":"trace-bootstrap"}""",
             ),
         ).getOrThrow()
 
