@@ -15,7 +15,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class StackGroup : GroupRenderer {
     @Composable
-    override fun render(group: StackGroupModel, context: DynamicRenderContext) DynamicRenderContext) {
+    override fun render(group: StackGroupModel, context: DynamicRenderContext) {
         if (group.orientation == "horizontal") {
             Row(
                 modifier = Modifier.applyLayout(group),
