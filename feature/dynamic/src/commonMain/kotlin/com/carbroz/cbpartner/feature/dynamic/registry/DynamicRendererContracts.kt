@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.registry
 
 import androidx.compose.runtime.Composable
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
@@ -22,4 +23,7 @@ fun interface GroupRenderer {
 }
 fun interface ElementRenderer {
     @Composable fun render(element: DynamicElement, context: DynamicRenderContext)
+}
+fun interface ElementContentRenderer {
+    @Composable fun render(content: ElementContent, context: DynamicRenderContext)
 }
