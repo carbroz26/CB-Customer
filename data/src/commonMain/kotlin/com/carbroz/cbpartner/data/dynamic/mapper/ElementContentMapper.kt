@@ -1,14 +1,20 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionDto
+import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionDto
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionsDto
-import com.carbroz.cbpartner.data.dynamic.model.content.ElementContentDto
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 
@@ -22,27 +28,32 @@ class ElementContentMapper(
             .map { map(it) }
 
     fun map(element: JsonObject): ElementContent {
-        val dto = json.decodeFromJsonElement(ElementContentDto.serializer(), element)
-        return when (dto.type) {
+        val type = values.string(element, "type")
+            ?: error("Dynamic element content type is required")
+        val properties = (element["properties"] as? JsonObject).orEmpty()
+        val actions = (element["actions"] as? JsonObject)?.let {
+            json.decodeFromJsonElement(DynamicActionsDto.serializer(), it)
+        }
+        return when (type) {
             "icon" -> IconContent(
-                id = dto.id,
-                semanticRole = values.string(dto.properties, "semanticRole"),
-                name = values.string(dto.properties, "name").orEmpty(),
-                size = values.number(dto.properties, "size"),
-                color = values.string(dto.properties, "color"),
-                actions = mapActions(dto.actions),
+                id = values.string(element, "id"),
+                semanticRole = values.string(properties, "semanticRole"),
+                name = values.string(properties, "name").orEmpty(),
+                size = values.number(properties, "size"),
+                color = values.string(properties, "color"),
+                actions = mapActions(actions),
             )
             "divider" -> DividerContent(
-                id = dto.id,
-                semanticRole = values.string(dto.properties, "semanticRole"),
-                orientation = values.string(dto.properties, "orientation") ?: "horizontal",
-                width = values.number(dto.properties, "width"),
-                height = values.number(dto.properties, "height"),
-                thickness = values.number(dto.properties, "thickness") ?: 1.0,
-                color = values.string(dto.properties, "color"),
-                actions = mapActions(dto.actions),
+                id = values.string(element, "id"),
+                semanticRole = values.string(properties, "semanticRole"),
+                orientation = values.string(properties, "orientation") ?: "horizontal",
+                width = values.number(properties, "width"),
+                height = values.number(properties, "height"),
+                thickness = values.number(properties, "thickness") ?: 1.0,
+                color = values.string(properties, "color"),
+                actions = mapActions(actions),
             )
-            else -> error("Unsupported dynamic element content type: " + dto.type)
+            else -> error("Unsupported dynamic element content type: " + type)
         }
     }
 
