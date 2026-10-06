@@ -67,7 +67,7 @@ class BootstrapRepositoryImplTest {
         assertTrue(result.isFailure)
         assertEquals(
             503,
-            (result.exceptionOrNull() as? com.carbroz.cbpartner.network.NetworkException.NotFoundException)?.statusCode,
+            (result.exceptionOrNull() as? com.carbroz.cbpartner.network.NetworkException.Server)?.statusCode,
         )
     }
 
