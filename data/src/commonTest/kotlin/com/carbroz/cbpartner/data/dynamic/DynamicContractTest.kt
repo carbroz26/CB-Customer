@@ -5,6 +5,7 @@ import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -77,7 +78,10 @@ class DynamicContractTest {
         val response = map(DynamicContractFixtures.SEND_OTP_JSON)
 
         assertEquals("OTP_SENT", response.code)
-        assertEquals("challenge-123", response.dataPayload.toString().contains("challenge-123").let { if (it) "challenge-123" else null })
+        val payload = assertIs<DynamicValue.ObjectValue>(response.dataPayload)
+        assertEquals(DynamicValue.StringValue("challenge-123"), payload.value["challengeId"])
+        assertEquals(DynamicValue.NumberValue(300.0), payload.value["expiresInSeconds"])
+        assertEquals(DynamicValue.BooleanValue(true), payload.value["isNewUser"])
 
         val destination = assertNotNull(response.destination)
         assertEquals("partner_otp", destination.screenId)
