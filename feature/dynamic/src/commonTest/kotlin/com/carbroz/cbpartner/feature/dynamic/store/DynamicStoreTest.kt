@@ -156,7 +156,12 @@ class DynamicStoreTest {
             loadDynamicScreen = LoadDynamicScreenUseCase(repository),
             actionExecutor = actionExecutor,
             destination = loginDestination,
-            contextProvider = { mapOf("deviceId" to "test-device") },
+            contextProvider = {
+                mapOf(
+                    "deviceId" to "test-device",
+                    "authFlow.phoneNumber" to "9876543210",
+                )
+            },
             scope = CoroutineScope(dispatcher),
         )
 
