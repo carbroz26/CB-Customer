@@ -271,10 +271,10 @@ Known Windows-only warnings are non-fatal: iOS simulator tests require macOS and
 3. `docs/project-management/12-PROJECT-TRACKER.md`
 4. `docs/project-management/04-CURRENT-STATUS.md`
 5. `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
-6. `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
-7. `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md`
-8. `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`
-9. `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md`
+6. `docs/dynamic/DYNAMIC-ARCHITECTURE-FROZEN.md`
+7. `docs/dynamic/DYNAMIC-DISCUSSION-AND-DECISIONS.md`
+8. `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN-FROZEN.md`
+9. `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md`
 
 ## 12. Next Valid Action
 
