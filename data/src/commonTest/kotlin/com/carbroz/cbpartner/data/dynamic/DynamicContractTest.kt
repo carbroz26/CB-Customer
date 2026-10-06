@@ -2,6 +2,9 @@ package com.carbroz.cbpartner.data.dynamic
 
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
+import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import kotlin.test.*
 import kotlinx.serialization.json.Json
 
@@ -15,17 +18,21 @@ class DynamicContractTest {
         assertEquals("partner_login", screen.screenId); assertEquals("3.0.0", screen.schemaVersion)
         assertEquals("vertical", screen.template.orientation); assertNotNull(screen.theme)
         val input = screen.template.components.flatMap { it.sections }.flatMap { it.groups }.flatMap { it.elements }.first { it.id == "mobile_number" }
-        assertEquals("mobileNumber", input.binding?.key); assertEquals("request", input.actions["onClick"]?.type)
+        val mobileInput = assertIs<InputElement>(input)
+        assertEquals("mobileNumber", mobileInput.binding?.key); assertEquals("request", mobileInput.actions["onClick"]?.type)
     }
 
     @Test fun otpContract_preservesSegmentedInputContextAndDestinationAction() {
         val screen = assertNotNull(map(otpJson).data)
         val otp = screen.template.components.flatMap { it.sections }.flatMap { it.groups }.flatMap { it.elements }.first { it.id == "otp_code_input" }
-        assertEquals("segmented", assertNotNull(otp.presentation).type); assertEquals("otp", otp.binding?.key)
+        val otpInput = assertIs<InputElement>(otp)
+        assertEquals("segmented", assertNotNull(otpInput.presentation).type); assertEquals("otp", otpInput.binding?.key)
         val verify = screen.template.components.flatMap { it.sections }.flatMap { it.elements }.first { it.id == "otp_verify_button" }
-        assertEquals("request", verify.actions["onClick"]?.type)
+        val verifyButton = assertIs<ButtonElement>(verify)
+        assertEquals("request", verifyButton.actions["onClick"]?.type)
         val phone = screen.template.components.flatMap { it.elements }.first { it.id == "otp_phone_number" }
-        assertNotNull(phone.actions["onClick"]?.destination)
+        val phoneText = assertIs<TextElement>(phone)
+        assertNotNull(phoneText.actions["onClick"]?.destination)
     }
     private fun map(value: String) = mapper.map(json.decodeFromString<DynamicResponseDto>(value))
     private companion object {
