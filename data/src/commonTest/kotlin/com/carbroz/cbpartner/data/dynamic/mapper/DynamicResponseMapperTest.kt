@@ -125,11 +125,11 @@ class DynamicResponseMapperTest {
         assertEquals(DynamicValue.BooleanValue(true), action.payload["validate"])
         val body = assertIs<DynamicValue.ObjectValue>(action.payload["body"])
         assertEquals(
-            DynamicValue.ObjectValue(mapOf("$binding" to DynamicValue.StringValue("mobileNumber"))),
+            DynamicValue.ObjectValue(mapOf("\u0024binding" to DynamicValue.StringValue("mobileNumber"))),
             body.value["phoneNumber"],
         )
         assertEquals(
-            DynamicValue.ObjectValue(mapOf("$context" to DynamicValue.StringValue("deviceId"))),
+            DynamicValue.ObjectValue(mapOf("\u0024context" to DynamicValue.StringValue("deviceId"))),
             body.value["deviceId"],
         )
         assertEquals("destination", (action.payload["responseMode"] as? DynamicValue.StringValue)?.value)
@@ -151,7 +151,7 @@ class DynamicResponseMapperTest {
         val otpScreen = assertNotNull(otpResponse.data)
         val phoneText = assertIs<TextElement>(otpScreen.template.components.first().elements.single())
         assertEquals(
-            DynamicValue.ObjectValue(mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
+            DynamicValue.ObjectValue(mapOf("\u0024context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
             phoneText.spans.single().text,
         )
         val otpInput = assertIs<InputElement>(
@@ -163,19 +163,19 @@ class DynamicResponseMapperTest {
         val verifyAction = assertNotNull(verifyButton.actions["onClick"])
         val verifyBody = assertIs<DynamicValue.ObjectValue>(verifyAction.payload["body"])
         assertEquals(
-            DynamicValue.ObjectValue(mapOf("$response" to DynamicValue.StringValue("data.challengeId"))),
+            DynamicValue.ObjectValue(mapOf("\u0024response" to DynamicValue.StringValue("data.challengeId"))),
             verifyBody.value["challengeId"],
         )
         assertEquals(
-            DynamicValue.ObjectValue(mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
+            DynamicValue.ObjectValue(mapOf("\u0024context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
             verifyBody.value["phoneNumber"],
         )
         assertEquals(
-            DynamicValue.ObjectValue(mapOf("$binding" to DynamicValue.StringValue("otp"))),
+            DynamicValue.ObjectValue(mapOf("\u0024binding" to DynamicValue.StringValue("otp"))),
             verifyBody.value["otp"],
         )
         assertEquals(
-            DynamicValue.ObjectValue(mapOf("$context" to DynamicValue.StringValue("deviceId"))),
+            DynamicValue.ObjectValue(mapOf("\u0024context" to DynamicValue.StringValue("deviceId"))),
             verifyBody.value["deviceId"],
         )
     }
