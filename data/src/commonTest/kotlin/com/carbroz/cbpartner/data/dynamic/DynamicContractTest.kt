@@ -36,9 +36,11 @@ class DynamicContractTest {
         assertNotNull(screen.theme)
 
         val elements = screen.template.components
-            .flatMap { it.sections }
-            .flatMap { it.groups }
-            .flatMap { it.elements }
+            .flatMap { component ->
+                component.elements + component.sections.flatMap { section ->
+                    section.elements + section.groups.flatMap { it.elements }
+                }
+            }
 
         val firstName = assertIs<InputElement>(elements.first { it.id == "first_name" })
         assertEquals("firstName", firstName.binding?.key)
