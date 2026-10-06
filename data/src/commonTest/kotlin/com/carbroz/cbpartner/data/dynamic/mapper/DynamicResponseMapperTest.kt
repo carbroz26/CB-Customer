@@ -25,14 +25,16 @@ class DynamicResponseMapperTest {
     @Test
     fun mapsDynamicResponseTreeActionPayloadAndDestinations() {
         val dto = json.decodeFromString<DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"partner_login","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_login","type":"form_template","properties":{"padding":{"all":16}},"components":[{"id":"component","type":"stack_component","sections":[{"id":"section","type":"stack_section","groups":[{"id":"group","type":"stack_group","elements":[{"id":"login_button","type":"button","properties":{"text":"Login"},"actions":{"onClick":{"type":"request","payload":{"method":"POST","endpoint":"/login","enabled":true},"destination":{"screenId":"partner_otp","templateId":"tpl_otp","templateType":"form_template","endpoint":"/otp"}}}}]}]}]}],"destination":{"screenId":"partner_dashboard","templateId":"tpl_dashboard","templateType":"dashboard_template","endpoint":"/api/v1/partner/screen/dashboard"}},"traceId":"trace-1"}""",
+            DynamicContractFixtures.GENERIC_DESTINATION_RESPONSE_JSON,
         )
+
         val response = DynamicResponseMapper().map(dto)
         val screen = assertNotNull(response.data)
         val button = screen.template.components.single().sections.single().groups.single().elements.single()
         val action = assertNotNull(button.actions["onClick"])
         val actionDestination = assertNotNull(action.destination)
         val responseDestination = assertNotNull(response.destination)
+
         assertEquals("partner_login", screen.screenId)
         assertEquals("vertical", screen.template.orientation)
         assertEquals("request", action.type)
