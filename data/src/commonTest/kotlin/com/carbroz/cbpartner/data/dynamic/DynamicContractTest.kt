@@ -50,11 +50,11 @@ class DynamicContractTest {
         val requestBody = assertIs<DynamicValue.ObjectValue>(continueAction.payload["body"])
         assertEquals(
             DynamicValue.StringValue("mobileNumber"),
-            (requestBody.value["phoneNumber"] as DynamicValue.ObjectValue).value["\\$binding"],
+            (requestBody.value["phoneNumber"] as DynamicValue.ObjectValue).value["\$binding"],
         )
         assertEquals(
             DynamicValue.StringValue("deviceId"),
-            (requestBody.value["deviceId"] as DynamicValue.ObjectValue).value["\\$context"],
+            (requestBody.value["deviceId"] as DynamicValue.ObjectValue).value["\$context"],
         )
     }
 
