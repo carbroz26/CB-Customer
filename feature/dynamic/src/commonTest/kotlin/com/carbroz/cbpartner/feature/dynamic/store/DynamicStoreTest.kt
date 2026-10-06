@@ -63,9 +63,9 @@ class DynamicStoreTest {
                         "method" to DynamicValue.StringValue("POST"),
                         "body" to DynamicValue.ObjectValue(
                             mapOf(
-                                "firstName" to ref("$binding", "firstName"),
-                                "email" to ref("$binding", "email"),
-                                "sessionId" to ref("$context", "session.id"),
+                                "firstName" to ref("\$binding", "firstName"),
+                                "email" to ref("\$binding", "email"),
+                                "sessionId" to ref("\$context", "session.id"),
                             ),
                         ),
                     ),
@@ -147,7 +147,7 @@ class DynamicStoreTest {
                         "responseMode" to DynamicValue.StringValue("none"),
                         "body" to DynamicValue.ObjectValue(
                             mapOf(
-                                "referenceId" to ref("$response", "data.referenceId"),
+                                "referenceId" to ref("\$response", "data.referenceId"),
                             ),
                         ),
                     ),
@@ -190,12 +190,12 @@ class DynamicStoreTest {
                                     InputElement(
                                         id = "required",
                                         binding = com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding("required"),
-                                        validation = DynamicValidation(required = true, message = "Required field"),
+                                        validation = DynamicValidation(required = true, pattern = null, message = "Required field"),
                                     ),
                                     InputElement(
                                         id = "code",
                                         binding = com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding("code"),
-                                        validation = DynamicValidation(pattern = "^[0-9]{4}$", message = "Four digits"),
+                                        validation = DynamicValidation(required = null, pattern = "^[0-9]{4}$", message = "Four digits"),
                                     ),
                                 ),
                             ),
