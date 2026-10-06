@@ -77,7 +77,7 @@ class DynamicResponseMapperTest {
         val domain = DynamicResponseMapper().map(response)
 
         assertEquals("partner_login", domain.data?.screenId)
-        assertEquals("form_template", domain.data?.template?.type)
+        assertEquals("vertical", domain.data?.template?.orientation)
 
         val button = domain.data!!.template.components
             .single()
