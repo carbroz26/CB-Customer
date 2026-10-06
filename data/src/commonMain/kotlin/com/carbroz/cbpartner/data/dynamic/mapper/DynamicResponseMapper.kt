@@ -8,6 +8,7 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
 import com.carbroz.cbpartner.domain.model.dynamic.theme.DynamicTheme
+import com.carbroz.cbpartner.data.dynamic.mapper.template.FormTemplateMapper
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
@@ -15,7 +16,7 @@ class DynamicResponseMapper {
     private val json = Json { ignoreUnknownKeys = true }
     private val values = DynamicValueMapper()
     private val elements = DynamicElementMapper(json, values)
-    private val structure = DynamicStructureMapper(elements, values)
+    private val templateMapper = FormTemplateMapper(elements, values)
 
     fun map(dto: DynamicResponseDto): DynamicResponse {
         val data = dto.data
@@ -47,7 +48,7 @@ class DynamicResponseMapper {
         screenId = dto.screenId,
         schemaVersion = dto.schemaVersion,
         targetApp = dto.targetApp,
-        template = structure.mapTemplate(dto.template),
+        template = templateMapper.map(dto.template),
         theme = dto.theme?.let(::mapTheme),
     )
 
