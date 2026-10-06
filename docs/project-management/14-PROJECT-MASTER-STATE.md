@@ -1,7 +1,7 @@
 # CB-Partner — Project Master State
 
 **Status:** ACTIVE / RECOVERY SOURCE  
-**Last Updated:** 2026-10-04  
+**Last Updated:** 2026-10-06  
 **Scope:** Frontend repository only
 
 ## 1. Current Project State
@@ -12,8 +12,8 @@
 - DYNAMIC-01 → DYNAMIC-07: **FROZEN**
 - DYNAMIC-08 unified destination contract: **FROZEN**
 - Dynamic implementation plan: **PLAN FROZEN / IMPLEMENTATION AUTHORIZED**
-- Dynamic implementation: **IN PROGRESS**
-- Latest JVM compile/test verification: **BUILD SUCCESSFUL — 2026-10-04**
+- Dynamic implementation: **VERIFIED / READY FOR DOCUMENTATION FREEZE**
+- Latest JVM compile/test verification: **BUILD SUCCESSFUL — 2026-10-06**
 - BASE-ARCH-014: **CODE FROZEN**
 - BASE-ARCH-017: **CODE FROZEN / VERIFIED / REVIEW ACCEPTED**
 - No ViewModel.
@@ -208,7 +208,7 @@ Legacy to remove/rework:
 
 ## 9. Verification Baseline
 
-The earlier owner-provided JVM verification is historical. The current branch contains subsequent typed-contract/test-fixture changes, so it is not the current verification result.
+The current branch has completed the typed-contract/test-fixture reconciliation and the latest Windows JVM verification is the authoritative current verification result.
 
 Compile verification:
 
@@ -221,7 +221,7 @@ Compile verification:
 :app:compileKotlinJvm
 ```
 
-Result at that historical baseline: **BUILD SUCCESSFUL**.
+Result at the current verified baseline: **BUILD SUCCESSFUL — 2026-10-06**.
 
 JVM verification:
 
@@ -255,13 +255,13 @@ Known Windows-only warnings are non-fatal: iOS simulator tests require macOS and
 | Dynamic state/reference/action behavior | PARTIAL | Complete frozen contract |
 | Network exception taxonomy | FROZEN / OPEN IMPLEMENTATION | Implement and test |
 | DYNAMIC-07 | PARTIAL | Complete production behavior |
-| Login → OTP integration | IN PROGRESS | Backend-shaped fixtures and action-reference tests added; JVM execution pending |
+| Login → OTP integration | VERIFIED | Backend-shaped fixtures, action-reference tests and runtime destination/context transition verified |
 | Navigation runtime | PENDING | Verify push/replace/pop/back |
 | Android | PENDING | Verify |
 | iOS/macOS-hosted | PENDING | Verify where supported |
 | Web/Wasm | PENDING | Verify where supported |
 | Literal plan-to-source review | PENDING | Complete |
-| Final Dynamic freeze | PENDING | Complete JVM verification and final review |
+| Final Dynamic documentation freeze | CURRENT | Reconcile authoritative docs; no source change required |
 
 ## 11. Recovery Documents
 
@@ -277,4 +277,4 @@ Known Windows-only warnings are non-fatal: iOS simulator tests require macOS and
 
 ## 12. Next Valid Action
 
-**Start the next already-authorized implementation item: complete Bootstrap Option B, including legacy-domain cleanup, DI/test reconciliation, and runtime hand-off verification. Do not reopen frozen Dynamic architecture decisions.**
+**Complete the final Dynamic documentation freeze/reconciliation. The tested Dynamic Bootstrap → Login → Send OTP → OTP → Verify baseline is verified; no new Dynamic architecture or production-behavior change is authorized by this verification.**
