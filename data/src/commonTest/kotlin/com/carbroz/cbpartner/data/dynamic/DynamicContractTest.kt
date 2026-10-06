@@ -36,7 +36,12 @@ class DynamicContractTest {
 
         val mobileInput = assertIs<InputElement>(input)
         assertEquals("mobileNumber", mobileInput.binding?.key)
-        assertEquals("request", mobileInput.actions["onClick"]?.type)
+        val continueButton = screen.template.components
+            .flatMap { it.sections }
+            .flatMap { it.elements }
+            .first { it.id == "continue_button" }
+        val button = assertIs<ButtonElement>(continueButton)
+        assertEquals("request", button.actions["onClick"]?.type)
     }
 
     @Test
