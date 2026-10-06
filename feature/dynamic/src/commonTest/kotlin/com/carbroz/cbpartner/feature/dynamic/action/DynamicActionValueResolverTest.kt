@@ -21,7 +21,48 @@ class DynamicActionValueResolverTest {
         val input = DynamicValue.ObjectValue(
             mapOf(
                 "binding" to DynamicValue.ObjectValue(
-                    mapOf("$binding" to DynamicValue.StringValue("otp")),
+                    mapOf("${' to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
                 ),
                 "context" to DynamicValue.ObjectValue(
                     mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
@@ -53,6 +94,19800 @@ class DynamicActionValueResolverTest {
         val resolved = DynamicActionValueResolver.resolve(
             value = DynamicValue.ObjectValue(
                 mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}binding" to DynamicValue.StringValue("otp")),
+                ),
+                "context" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
+                ),
+                "response" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("$literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("$response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+                ),
+                "literal" to DynamicValue.ObjectValue(
+                    mapOf("${' to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}literal" to DynamicValue.StringValue("POST")),
+                ),
+            ),
+        )
+
+        val resolved = DynamicActionValueResolver.resolve(
+            value = input,
+            bindings = mapOf("otp" to "123456"),
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = previousResponse,
+        ) as DynamicValue.ObjectValue
+
+        assertEquals(DynamicValue.StringValue("123456"), resolved.value["binding"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), resolved.value["context"])
+        assertEquals(DynamicValue.StringValue("challenge-123"), resolved.value["response"])
+        assertEquals(DynamicValue.StringValue("POST"), resolved.value["literal"])
+    }
+
+    @Test
+    fun missingResponseReferenceReturnsNullValue() {
+        val resolved = DynamicActionValueResolver.resolve(
+            value = DynamicValue.ObjectValue(
+                mapOf("${' to DynamicValue.StringValue("data.challengeId")),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            previousResponse = null,
+        )
+
+        assertIs<DynamicValue.NullValue>(resolved)
+    }
+}
+}response" to DynamicValue.StringValue("data.challengeId")),
             ),
             bindings = emptyMap(),
             context = emptyMap(),
