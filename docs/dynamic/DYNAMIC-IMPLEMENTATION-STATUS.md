@@ -15,7 +15,7 @@ This document records current implementation reality only. It is not a historica
 - `DynamicDestination`: four-field contract.
 - `LoadDynamicScreenUseCase`: retained as the screen-loading use case.
 - `ExecuteDynamicActionUseCase`: absent/prohibited.
-- Current known test issue before fixture reconciliation: stale backend-shaped test JSON caused `JsonDecodingException` failures.
+- Stale backend-shaped JSON fixtures have been reconciled to the current DTO/source contract.
 - Windows Gradle verification: pending in the developer checkout.
 
 ## 2. Current source reality
@@ -69,14 +69,21 @@ Older `docs/features/dynamic/*` records and dated reconciliation/freeze files ar
 - Bootstrap network failure assertion reconciliation.
 - Typed DynamicContractTest imports/assertions.
 
+### Current test work
+
+- Reusable backend-shaped Login, Send OTP and OTP fixtures are now aligned to the current DTO contract.
+- Dynamic response mapper contract tests now use the shared fixtures.
+- Action reference resolver coverage now covers `$binding`, `$context`, `$response` and `$literal`.
+- RequestActionHandler coverage now verifies the OTP verify request body from binding/context/previous-response references.
+- Existing Store coverage continues to verify binding/context request resolution and destination convergence.
+
 ### Next
 
-1. Replace stale Login/OTP/mapper JSON with fixtures matching the current DTO contract.
-2. Run `:data:jvmTest`.
-3. Add/complete backend-shaped Bootstrap → Login → Send OTP → OTP → Verify coverage.
-4. Run `:feature:dynamic:jvmTest`.
-5. Run broader compile/test gates.
-6. Review and freeze Dynamic implementation status.
+1. Run `:data:jvmTest`.
+2. Run `:feature:dynamic:jvmTest`.
+3. Run broader compile/test gates.
+4. If the full flow exposes a cross-destination `$response` lifetime problem, stop and reconcile that contract before changing production behavior.
+5. Review and freeze Dynamic implementation status.
 
 ## 5. Known fixture corrections
 
@@ -103,4 +110,4 @@ Required developer-side commands remain:
 
 ## 7. Next valid action
 
-Repair the backend-shaped test fixtures against the current DTO/source contract, then run the data and Dynamic JVM test suites. No production architecture change is required by the fixture failures identified in the source-first audit.
+Run the data and Dynamic JVM test suites from the Windows developer checkout. The fixture-level JSON decoding failures have been addressed without changing production DTO/mapper architecture.
