@@ -3,8 +3,8 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 import com.carbroz.cbpartner.data.dynamic.DynamicContractFixtures
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
-import com.carbroz.cbpartner.domain.model.dynamic.element.DividerElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
@@ -67,7 +67,7 @@ class DynamicResponseMapperTest {
     @Test
     fun mapsAllKnownTypedUiModels() {
         val dto = json.decodeFromString<DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"typed","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","sections":[{"id":"section","type":"stack_section","groups":[{"id":"group","type":"stack_group","elements":[{"id":"text","type":"text","properties":{"text":"Hello"}},{"id":"image","type":"image","properties":{"url":"https://example.com/a.png"}},{"id":"input","type":"input","properties":{"keyboardType":"phone","maxLength":10},"binding":{"key":"phone"}},{"id":"button","type":"button","properties":{"text":"Continue"}},{"id":"icon","type":"icon","properties":{"name":"arrow_forward","size":20}},{"id":"divider","type":"divider","properties":{"orientation":"horizontal","thickness":1}}]}]}]}]}}}""",
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"typed","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","sections":[{"id":"section","type":"stack_section","groups":[{"id":"group","type":"stack_group","elements":[{"id":"text","type":"text","properties":{"text":"Hello"}},{"id":"image","type":"image","properties":{"url":"https://example.com/a.png"}},{"id":"input","type":"input","properties":{"keyboardType":"phone","maxLength":10,"leading":[{"type":"divider","properties":{"orientation":"horizontal","thickness":1}}]},"binding":{"key":"phone"}},{"id":"button","type":"button","properties":{"text":"Continue"}},{"id":"icon","type":"icon","properties":{"name":"arrow_forward","size":20}}]}]}]}]}}}""",
         )
         val screen = assertNotNull(DynamicResponseMapper().map(dto).data)
         assertIs<FormTemplate>(screen.template)
@@ -77,10 +77,10 @@ class DynamicResponseMapperTest {
         val elements = screen.template.components.single().sections.single().groups.single().elements
         assertIs<TextElement>(elements[0])
         assertIs<ImageElement>(elements[1])
-        assertIs<InputElement>(elements[2])
+        val input = assertIs<InputElement>(elements[2])
+        assertIs<DividerContent>(input.leadingContent.single())
         assertIs<ButtonElement>(elements[3])
         assertIs<IconElement>(elements[4])
-        assertIs<DividerElement>(elements[5])
     }
 
     @Test
