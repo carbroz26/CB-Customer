@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.carbroz.cbpartner.domain.model.dynamic.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.StackComponent as StackComponentModel
 import com.carbroz.cbpartner.feature.dynamic.registry.ComponentRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
@@ -15,7 +15,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class StackComponent : ComponentRenderer {
     @Composable
-    override fun render(component: StackComponent, context: DynamicRenderContext) {
+    override fun render(component: StackComponentModel, context: DynamicRenderContext) DynamicRenderContext) {
         if (component.orientation == "horizontal") {
             Row(
                 modifier = Modifier.applyLayout(component),
