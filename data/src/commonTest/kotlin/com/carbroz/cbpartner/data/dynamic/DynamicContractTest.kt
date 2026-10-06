@@ -67,6 +67,31 @@ class DynamicContractTest {
     }
 
     @Test
+    fun universalLeadingAndTrailingContent_mapsForAnyFirstClassElement() {
+        val element = json.parseToJsonElement(
+            """{"id":"generic_text","type":"text","properties":{"text":"Hello","leading":[{"type":"divider","properties":{"width":24,"thickness":2}}],"trailing":[{"type":"icon","properties":{"name":"edit","size":20}}]}}"""
+        ).jsonObject
+        val response = mapper.map(
+            json.decodeFromString<DynamicResponseDto>(
+                DynamicContractFixtures.LOGIN_JSON
+            )
+        )
+        val screen = assertNotNull(response.data)
+        val mapped = screen.template.components
+            .flatMap { it.sections }
+            .flatMap { it.elements }
+            .first { it.id == "continue_button" }
+
+        val button = assertIs<ButtonElement>(mapped)
+        assertIs<IconContent>(button.trailingContent.single())
+        assertIs<DividerContent>(screen.template.components.first().sections.first().groups.first().elements.first().let { it })
+        val directMapper = com.carbroz.cbpartner.data.dynamic.mapper.DynamicElementMapper(json, com.carbroz.cbpartner.data.dynamic.mapper.DynamicValueMapper())
+        val text = assertIs<TextElement>(directMapper.map(element))
+        assertIs<DividerContent>(text.leadingContent.single())
+        assertIs<IconContent>(text.trailingContent.single())
+    }
+
+    @Test
     fun otpContract_preservesSegmentedInputContextAndDestinationAction() {
         val response = map(DynamicContractFixtures.OTP_JSON)
         val screen = assertNotNull(response.data)
