@@ -14,98 +14,67 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicTextSpan
+import com.carbroz.cbpartner.domain.model.dynamic.TextElement as TextElementModel
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
-import com.carbroz.cbpartner.feature.dynamic.runtime.color
-import com.carbroz.cbpartner.feature.dynamic.runtime.number
-import com.carbroz.cbpartner.feature.dynamic.runtime.string
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
 class TextElement : ElementRenderer {
     @Composable
-    override fun render(element: DynamicElement, context: DynamicRenderContext) {
-        val properties = element.properties
-        val text = properties.string("text") ?: ""
-        val spans = properties["spans"] as? DynamicValue.ArrayValue
-        val annotated = if (spans == null) AnnotatedString(text) else buildAnnotatedString(spans, properties.color("color"), context)
-        val fontSize = properties.number("fontSize")?.sp
-        val weight = properties.number("fontWeight")?.toInt()?.let(::FontWeight)
-        val color = properties.color("color") ?: Color.Unspecified
-        val textAlign = when (properties.string("textAlign")) {
-            "start" -> TextAlign.Start
-            "end" -> TextAlign.End
-            "left" -> TextAlign.Left
-            "right" -> TextAlign.Right
-            else -> TextAlign.Center
+    override fun render(element: TextElementModel, context: DynamicRenderContext) {
+        val color = element.color?.toColor() ?: Color.Unspecified
+        val annotated = if (element.spans.isEmpty()) {
+            AnnotatedString(element.text)
+        } else {
+            buildAnnotatedString(element.spans, color, context)
         }
 
-        Row(modifier = context.applyLayout(Modifier, properties)) {
-            renderDecorations(properties["leading"], context)
+        Row(modifier = Modifier.applyLayout(element)) {
+            context.renderElements(element.leading)
             Text(
                 text = annotated,
-                fontSize = fontSize ?: TextUnit.Unspecified,
-                fontWeight = weight,
+                fontSize = element.fontSize?.sp ?: TextUnit.Unspecified,
+                fontWeight = element.fontWeight?.let(::FontWeight),
                 color = color,
-                textAlign = textAlign,
-                letterSpacing = properties.number("letterSpacing")?.sp ?: TextUnit.Unspecified,
-                lineHeight = properties.number("lineHeight")?.sp ?: TextUnit.Unspecified,
+                textAlign = when (element.textAlign) {
+                    "start" -> TextAlign.Start
+                    "end" -> TextAlign.End
+                    "left" -> TextAlign.Left
+                    "right" -> TextAlign.Right
+                    else -> TextAlign.Center
+                },
+                letterSpacing = element.letterSpacing?.sp ?: TextUnit.Unspecified,
+                lineHeight = element.lineHeight?.sp ?: TextUnit.Unspecified,
             )
-            renderDecorations(properties["trailing"], context)
-        }
-    }
-
-    @Composable
-    private fun renderDecorations(value: DynamicValue?, context: DynamicRenderContext) {
-        val decorations = value as? DynamicValue.ArrayValue ?: return
-        decorations.value.forEach { item ->
-            val definition = item as? DynamicValue.ObjectValue ?: return@forEach
-            val type = (definition.value["type"] as? DynamicValue.StringValue)?.value ?: return@forEach
-            val properties = definition.value["properties"] as? DynamicValue.ObjectValue ?: return@forEach
-            val element = DynamicElement("decoration", type, properties.value, null, null, emptyMap())
-            context.registry.element(type)?.render(element, context)
+            context.renderElements(element.trailing)
         }
     }
 
     private fun buildAnnotatedString(
-        value: DynamicValue.ArrayValue,
-        baseColor: Color?,
+        spans: List<DynamicTextSpan>,
+        baseColor: Color,
         context: DynamicRenderContext,
     ): AnnotatedString = AnnotatedString.Builder().apply {
-        value.value.forEach { item ->
-            val objectValue = item as? DynamicValue.ObjectValue ?: return@forEach
-            val text = (objectValue.value["text"] as? DynamicValue.StringValue)?.value ?: return@forEach
-            val color = (objectValue.value["color"] as? DynamicValue.StringValue)?.value?.toColor() ?: baseColor ?: Color.Unspecified
-            val fontWeight = (objectValue.value["fontWeight"] as? DynamicValue.NumberValue)?.value?.toInt()?.let(::FontWeight)
-            val underline = (objectValue.value["underline"] as? DynamicValue.BooleanValue)?.value == true
+        spans.forEach { span ->
             val style = SpanStyle(
-                color = color,
-                fontWeight = fontWeight,
-                textDecoration = if (underline) androidx.compose.ui.text.style.TextDecoration.Underline else null,
+                color = span.color?.toColor() ?: baseColor,
+                fontWeight = span.fontWeight?.let(::FontWeight),
+                textDecoration = if (span.underline) androidx.compose.ui.text.style.TextDecoration.Underline else null,
             )
-            val click = objectValue.value["onClick"] as? DynamicValue.ObjectValue
-            val action = click?.toAction()
-            if (action != null) {
+            if (span.action != null) {
                 val link = LinkAnnotation.Clickable(
-                    tag = text,
+                    tag = span.text,
                     styles = TextLinkStyles(style = style),
-                    linkInteractionListener = { context.onAction(action) },
+                    linkInteractionListener = { context.onAction(span.action) },
                 )
                 val start = length
-                append(text)
+                append(span.text)
                 addLink(link, start, length)
             } else {
-                withStyle(style) { append(text) }
+                withStyle(style) { append(span.text) }
             }
         }
     }.toAnnotatedString()
-
-    private fun DynamicValue.ObjectValue.toAction(): DynamicAction? {
-        val type = (value["type"] as? DynamicValue.StringValue)?.value ?: return null
-        val payload = (value["payload"] as? DynamicValue.ObjectValue)?.value ?: emptyMap()
-        return DynamicAction(type = type, payload = payload)
-    }
 }
