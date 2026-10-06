@@ -45,26 +45,6 @@ internal object DynamicContractFixtures {
                               "binding": {
                                 "key": "mobileNumber"
                               },
-                              "actions": {
-                                "onClick": {
-                                  "type": "request",
-                                  "payload": {
-                                    "method": "POST",
-                                    "endpoint": "/api/v1/partner/auth/send_otp",
-                                    "authentication": "NONE",
-                                    "validate": true,
-                                    "body": {
-                                      "phoneNumber": {
-                                        "$binding": "mobileNumber"
-                                      },
-                                      "deviceId": {
-                                        "$context": "deviceId"
-                                      }
-                                    },
-                                    "responseMode": "destination"
-                                  }
-                                }
-                              }
                             }
                           ]
                         }
@@ -79,6 +59,26 @@ internal object DynamicContractFixtures {
                           "type": "button",
                           "properties": {
                             "text": "Continue"
+                          },
+                          "actions": {
+                            "onClick": {
+                              "type": "request",
+                              "payload": {
+                                "method": "POST",
+                                "endpoint": "/api/v1/partner/auth/send_otp",
+                                "authentication": "NONE",
+                                "validate": true,
+                                "body": {
+                                  "phoneNumber": {
+                                    "$binding": "mobileNumber"
+                                  },
+                                  "deviceId": {
+                                    "$context": "deviceId"
+                                  }
+                                },
+                                "responseMode": "destination"
+                              }
+                            }
                           }
                         }
                       ]
