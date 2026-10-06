@@ -40,7 +40,7 @@ internal object DynamicContractFixtures {
     "theme":{"theme":"light","statusBar":"transparent","properties":{"gradient":{"type":"linear","angle":135,"colors":[]}}}
   },
   "traceId":"req-login"
-}""".trimIndent()
+}"""
     const val OTP_JSON = """{
   "status":200,"code":"SUCCESS","message":"Partner OTP screen fetched successfully.",
   "data":{
@@ -91,7 +91,7 @@ internal object DynamicContractFixtures {
     "theme":{"theme":"light","statusBar":"transparent","properties":{"gradient":{"type":"linear","angle":135,"colors":[]}}}
   },
   "traceId":"req-otp"
-}""".trimIndent()
+}"""
     const val SEND_OTP_JSON = """{
   "status":200,"code":"OTP_SENT","message":"OTP sent successfully",
   "data":{
@@ -102,7 +102,7 @@ internal object DynamicContractFixtures {
     }
   },
   "traceId":"req-send-otp"
-}""".trimIndent()
+}"""
     const val GENERIC_DESTINATION_RESPONSE_JSON = """{
   "status":200,"code":"SUCCESS","message":"OK",
   "data":{
@@ -131,5 +131,5 @@ internal object DynamicContractFixtures {
     "destination":{"screenId":"partner_dashboard","templateId":"tpl_dashboard","templateType":"dashboard_template","endpoint":"/api/v1/partner/screen/dashboard"}
   },
   "traceId":"trace-1"
-}""".trimIndent()
+}"""
 }
