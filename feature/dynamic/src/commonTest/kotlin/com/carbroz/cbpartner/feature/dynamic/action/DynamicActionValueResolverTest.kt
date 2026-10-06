@@ -99,7 +99,12 @@ class DynamicActionValueResolverTest {
 
         assertEquals(DynamicValue.StringValue("ref-1"), objectValue.value["existing"])
         assertEquals(DynamicValue.NullValue, objectValue.value["missing"])
-        assertEquals(DynamicValue.StringValue("ref-1"), objectValue.value["noResponse"])
+        assertEquals(
+            DynamicValue.ObjectValue(
+                mapOf("id" to DynamicValue.StringValue("ref-1")),
+            ),
+            objectValue.value["noResponse"],
+        )
 
         assertEquals(
             DynamicValue.NullValue,
