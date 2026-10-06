@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
+import com.carbroz.cbpartner.data.dynamic.DynamicContractFixtures
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
