@@ -1,0 +1,334 @@
+package com.carbroz.cbpartner.data.dynamic
+
+internal object DynamicContractFixtures {
+    const val LOGIN_JSON = """
+        {
+          "status": 200,
+          "code": "SUCCESS",
+          "message": "Partner login screen fetched successfully.",
+          "data": {
+            "screenId": "partner_login",
+            "schemaVersion": "3.0.0",
+            "targetApp": "PARTNER",
+            "template": {
+              "id": "tpl_P101L",
+              "type": "form_template",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxSize": true
+              },
+              "components": [
+                {
+                  "id": "login_content",
+                  "type": "stack_component",
+                  "sections": [
+                    {
+                      "id": "mobile_field_section",
+                      "type": "stack_section",
+                      "groups": [
+                        {
+                          "id": "mobile_field",
+                          "type": "stack_group",
+                          "elements": [
+                            {
+                              "id": "mobile_number",
+                              "type": "input",
+                              "properties": {
+                                "keyboardType": "phone",
+                                "maxLength": 10
+                              },
+                              "validation": {
+                                "required": true,
+                                "pattern": "^[6-9][0-9]{9}$",
+                                "message": "Enter a valid 10-digit mobile number"
+                              },
+                              "binding": {
+                                "key": "mobileNumber"
+                              },
+                              "actions": {
+                                "onClick": {
+                                  "type": "request",
+                                  "payload": {
+                                    "method": "POST",
+                                    "endpoint": "/api/v1/partner/auth/send_otp",
+                                    "authentication": "NONE",
+                                    "validate": true,
+                                    "body": {
+                                      "phoneNumber": {
+                                        "$binding": "mobileNumber"
+                                      },
+                                      "deviceId": {
+                                        "$context": "deviceId"
+                                      }
+                                    },
+                                    "responseMode": "destination"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "action_section",
+                      "type": "stack_section",
+                      "elements": [
+                        {
+                          "id": "continue_button",
+                          "type": "button",
+                          "properties": {
+                            "text": "Continue"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "theme": {
+              "theme": "light",
+              "statusBar": "transparent",
+              "properties": {
+                "gradient": {
+                  "type": "linear",
+                  "angle": 135,
+                  "colors": []
+                }
+              }
+            }
+          },
+          "traceId": "req-login"
+        }
+    """.trimIndent()
+
+    const val OTP_JSON = """
+        {
+          "status": 200,
+          "code": "SUCCESS",
+          "message": "Partner OTP screen fetched successfully.",
+          "data": {
+            "screenId": "partner_otp",
+            "schemaVersion": "3.0.0",
+            "targetApp": "PARTNER",
+            "template": {
+              "id": "tpl_P102O",
+              "type": "form_template",
+              "components": [
+                {
+                  "id": "otp_brand_content",
+                  "type": "stack_component",
+                  "elements": [
+                    {
+                      "id": "otp_phone_number",
+                      "type": "text",
+                      "properties": {
+                        "text": {
+                          "$context": "authFlow.phoneNumber"
+                        }
+                      },
+                      "actions": {
+                        "onClick": {
+                          "type": "navigate",
+                          "destination": {
+                            "screenId": "partner_login",
+                            "templateId": "tpl_P101L",
+                            "templateType": "form_template",
+                            "endpoint": "/api/v1/partner/screen/auth_login"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "otp_content",
+                  "type": "stack_component",
+                  "sections": [
+                    {
+                      "id": "otp_field_section",
+                      "type": "stack_section",
+                      "groups": [
+                        {
+                          "id": "otp_fields_group",
+                          "type": "stack_group",
+                          "elements": [
+                            {
+                              "id": "otp_code_input",
+                              "type": "input",
+                              "properties": {
+                                "keyboardType": "number",
+                                "maxLength": 6,
+                                "presentation": {
+                                  "type": "segmented",
+                                  "count": 6,
+                                  "spacing": 8
+                                }
+                              },
+                              "validation": {
+                                "required": true,
+                                "pattern": "^[0-9]{6}$"
+                              },
+                              "binding": {
+                                "key": "otp"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "otp_action_section",
+                      "type": "stack_section",
+                      "elements": [
+                        {
+                          "id": "otp_verify_button",
+                          "type": "button",
+                          "actions": {
+                            "onClick": {
+                              "type": "request",
+                              "payload": {
+                                "method": "POST",
+                                "endpoint": "/api/v1/partner/auth/verify_otp",
+                                "authentication": "NONE",
+                                "validate": true,
+                                "body": {
+                                  "challengeId": {
+                                    "$response": "data.challengeId"
+                                  },
+                                  "phoneNumber": {
+                                    "$context": "authFlow.phoneNumber"
+                                  },
+                                  "otp": {
+                                    "$binding": "otp"
+                                  },
+                                  "deviceId": {
+                                    "$context": "deviceId"
+                                  }
+                                },
+                                "responseMode": "destination"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "theme": {
+              "theme": "light",
+              "statusBar": "transparent",
+              "properties": {
+                "gradient": {
+                  "type": "linear",
+                  "angle": 135,
+                  "colors": []
+                }
+              }
+            }
+          },
+          "traceId": "req-otp"
+        }
+    """.trimIndent()
+
+    const val SEND_OTP_JSON = """
+        {
+          "status": 200,
+          "code": "OTP_SENT",
+          "message": "OTP sent successfully",
+          "data": {
+            "challengeId": "challenge-123",
+            "expiresInSeconds": 300,
+            "resendAfterSeconds": 60,
+            "isNewUser": true,
+            "destination": {
+              "screenId": "partner_otp",
+              "templateId": "tpl_P102O",
+              "templateType": "form_template",
+              "endpoint": "/api/v1/partner/screen/auth_otp"
+            }
+          },
+          "traceId": "req-send-otp"
+        }
+    """.trimIndent()
+
+    const val GENERIC_DESTINATION_RESPONSE_JSON = """
+        {
+          "status": 200,
+          "code": "SUCCESS",
+          "message": "OK",
+          "data": {
+            "screenId": "partner_login",
+            "schemaVersion": "3.0.0",
+            "targetApp": "PARTNER",
+            "template": {
+              "id": "tpl_login",
+              "type": "form_template",
+              "properties": {
+                "padding": {
+                  "all": 16
+                }
+              },
+              "components": [
+                {
+                  "id": "component",
+                  "type": "stack_component",
+                  "sections": [
+                    {
+                      "id": "section",
+                      "type": "stack_section",
+                      "groups": [
+                        {
+                          "id": "group",
+                          "type": "stack_group",
+                          "elements": [
+                            {
+                              "id": "login_button",
+                              "type": "button",
+                              "properties": {
+                                "text": "Login"
+                              },
+                              "actions": {
+                                "onClick": {
+                                  "type": "request",
+                                  "payload": {
+                                    "method": "POST",
+                                    "endpoint": "/login",
+                                    "enabled": true
+                                  },
+                                  "destination": {
+                                    "screenId": "partner_otp",
+                                    "templateId": "tpl_otp",
+                                    "templateType": "form_template",
+                                    "endpoint": "/otp"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "theme": {
+              "theme": "light",
+              "statusBar": "transparent",
+              "properties": {}
+            },
+            "destination": {
+              "screenId": "partner_dashboard",
+              "templateId": "tpl_dashboard",
+              "templateType": "dashboard_template",
+              "endpoint": "/api/v1/partner/screen/dashboard"
+            }
+          },
+          "traceId": "trace-1"
+        }
+    """.trimIndent()
+}
