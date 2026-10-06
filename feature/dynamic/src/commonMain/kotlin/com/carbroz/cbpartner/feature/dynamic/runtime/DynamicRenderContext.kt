@@ -18,8 +18,8 @@ class DynamicRenderContext(
 ) {
     fun resolve(value: DynamicValue): DynamicValue = when (value) {
         is DynamicValue.ObjectValue -> {
-            val binding = (value.value["$binding"] as? DynamicValue.StringValue)?.value
-            val context = (value.value["$context"] as? DynamicValue.StringValue)?.value
+            val binding = (value.value["\$binding"] as? DynamicValue.StringValue)?.value
+            val context = (value.value["\$context"] as? DynamicValue.StringValue)?.value
             when {
                 binding != null -> DynamicValue.StringValue(bindings[binding].orEmpty())
                 context != null -> DynamicValue.StringValue(contextValues[context].orEmpty())
@@ -30,14 +30,26 @@ class DynamicRenderContext(
         else -> value
     }
 
-    fun string(properties: Map<String, DynamicValue>, key: String): String? = (resolve(properties[key] ?: return null) as? DynamicValue.StringValue)?.value
-    fun number(properties: Map<String, DynamicValue>, key: String): Double? = (resolve(properties[key] ?: return null) as? DynamicValue.NumberValue)?.value
-    fun boolean(properties: Map<String, DynamicValue>, key: String): Boolean? = (resolve(properties[key] ?: return null) as? DynamicValue.BooleanValue)?.value
+    fun string(properties: Map<String, DynamicValue>, key: String): String? =
+        (resolve(properties[key] ?: return null) as? DynamicValue.StringValue)?.value
 
-    @Composable fun renderComponents(components: List<StackComponent>) = components.forEach { registry.component("stack_component")?.render(it, this) }
-    @Composable fun renderSections(sections: List<StackSection>) = sections.forEach { registry.section("stack_section")?.render(it, this) }
-    @Composable fun renderGroups(groups: List<StackGroup>) = groups.forEach { registry.group("stack_group")?.render(it, this) }
-    @Composable fun renderElements(elements: List<DynamicElement>) = elements.forEach { registry.element(elementType(it))?.render(it, this) }
+    fun number(properties: Map<String, DynamicValue>, key: String): Double? =
+        (resolve(properties[key] ?: return null) as? DynamicValue.NumberValue)?.value
+
+    fun boolean(properties: Map<String, DynamicValue>, key: String): Boolean? =
+        (resolve(properties[key] ?: return null) as? DynamicValue.BooleanValue)?.value
+
+    @Composable fun renderComponents(components: List<StackComponent>) =
+        components.forEach { registry.component("stack_component")?.render(it, this) }
+
+    @Composable fun renderSections(sections: List<StackSection>) =
+        sections.forEach { registry.section("stack_section")?.render(it, this) }
+
+    @Composable fun renderGroups(groups: List<StackGroup>) =
+        groups.forEach { registry.group("stack_group")?.render(it, this) }
+
+    @Composable fun renderElements(elements: List<DynamicElement>) =
+        elements.forEach { registry.element(elementType(it))?.render(it, this) }
 
     private fun elementType(element: DynamicElement): String = when (element) {
         is TextElement -> "text"
