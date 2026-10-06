@@ -39,7 +39,7 @@ class RequestHandlerTest {
         var capturedBuildNumber: String? = null
         val requestHandler = RequestHandler(
             HttpClient(
-                MockEngine {
+                MockEngine { request ->
                     capturedPlatform = request.headers["X-CarBroz-Platform"]
                     capturedAppVersion = request.headers["X-CarBroz-App-Version"]
                     capturedBuildNumber = request.headers["X-CarBroz-Build-Number"]
@@ -83,7 +83,7 @@ class RequestHandlerTest {
         )
         val error = result as NetworkResult.Error
 
-        assertTrue(error.exception is NetworkException.NotFoundException)
+        assertTrue(error.exception is NetworkException.Server)
         assertEquals(503, error.exception.statusCode)
     }
 }
