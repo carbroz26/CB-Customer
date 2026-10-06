@@ -22,6 +22,11 @@ class RequestActionHandler(private val repository: DynamicRepository) : DynamicA
         val contextChanges = buildMap {
             val phone = (body as? DynamicValue.ObjectValue)?.value?.get("phoneNumber")
             if (phone is DynamicValue.StringValue && phone.value.isNotBlank()) put("authFlow.phoneNumber", phone.value)
+
+            val challengeId = (response.dataPayload as? DynamicValue.ObjectValue)?.value?.get("challengeId")
+            if (challengeId is DynamicValue.StringValue && challengeId.value.isNotBlank()) {
+                put("challengeId", challengeId.value)
+            }
         }
         return DynamicActionResult.Navigate(destination, response, contextChanges)
     }
