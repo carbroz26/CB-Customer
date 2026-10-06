@@ -12,7 +12,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class StackSection : SectionRenderer {
     @Composable
-    override fun render(section: StackSectionModel, context: DynamicRenderContext) DynamicRenderContext) {
+    override fun render(section: StackSectionModel, context: DynamicRenderContext) {
         Column(
             modifier = Modifier.applyLayout(section),
             verticalArrangement = section.verticalArrangement.toVerticalArrangement(),
