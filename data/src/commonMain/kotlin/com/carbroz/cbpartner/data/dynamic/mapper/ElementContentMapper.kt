@@ -23,7 +23,7 @@ class ElementContentMapper(
     fun map(element: JsonObject): ElementContent {
         val type = values.string(element, "type")
             ?: error("Dynamic element content type is required")
-        val properties = (element["properties"] as? JsonObject).orEmpty()
+        val properties = element["properties"] as? JsonObject ?: JsonObject(emptyMap())
         val actions = (element["actions"] as? JsonObject)?.let {
             json.decodeFromJsonElement(DynamicActionsDto.serializer(), it)
         }
