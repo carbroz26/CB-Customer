@@ -19,7 +19,7 @@
 | Plan | PLAN FROZEN / IMPLEMENTATION AUTHORIZED |
 | Latest JVM verification | BUILD SUCCESSFUL — 2026-10-04 |
 | Blocker | No compile/test blocker; remaining work is implementation/runtime verification |
-| Next action | Complete Bootstrap Option B, then verify shared DynamicDestination runtime |
+| Next action | Run reconciled Dynamic data/feature JVM tests, then complete Bootstrap → Login → Send OTP → OTP → Verify verification |
 
 ## Dynamic Discussion / Reconciliation Register
 
@@ -40,15 +40,15 @@
 | Navigation state | IMPLEMENTED |
 | Dynamic container | IMPLEMENTED |
 | Dynamic Store | IMPLEMENTED / FINAL REVIEW PENDING |
-| Dynamic use cases | IMPLEMENTED / PACKAGE CLEANUP PENDING |
+| Dynamic use cases | ALIGNED / `LoadDynamicScreenUseCase` retained; action execution uses `DynamicActionExecutor` |
 | Registry | IMPLEMENTED |
 | Renderer | IMPLEMENTED |
 | Initial definitions | IMPLEMENTED |
 | Dynamic repository | IMPLEMENTED |
 | Dynamic remote source | IMPLEMENTED |
-| Dynamic DTO / mapper | IMPLEMENTED / JVM VERIFIED |
+| Dynamic DTO / mapper | IMPLEMENTED / fixture-reconciled; current JVM verification pending |
 | Shared network boundary | IMPLEMENTED / JVM VERIFIED |
-| DYNAMIC-08 destination mapping | IMPLEMENTED / JVM VERIFIED |
+| DYNAMIC-08 destination mapping | IMPLEMENTED / fixture-reconciled; current JVM verification pending |
 | Bootstrap API contract | KNOWN / DOCUMENTED |
 | Bootstrap → DynamicDestination mapping | IMPLEMENTED / RUNTIME VERIFICATION PENDING |
 | Bootstrap repository | REQUIRED / NEXT |
@@ -183,7 +183,7 @@ Known Gradle warnings on Windows are non-fatal: iOS simulator tests require macO
 | 2 | Remove/rework legacy Bootstrap domain models and direct DefaultApplicationBootstrap path | OPEN |
 | 3 | Update Bootstrap DI and tests | OPEN |
 | 4 | Verify Bootstrap → DynamicDestination runtime | OPEN |
-| 5 | Move Dynamic feature use cases to feature `usecase` package | OPEN |
+| 5 | Keep `LoadDynamicScreenUseCase` in feature `usecase`; no action-execution use case | CLOSED |
 | 6 | Complete request metadata/authentication | OPEN |
 | 7 | Complete frozen Dynamic state/reference/action behavior | IN PROGRESS |
 | 8 | Implement network exception taxonomy | OPEN |
