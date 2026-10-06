@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.domain.model.dynamic.element
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
+import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicInputPresentation
 
@@ -15,5 +16,7 @@ data class InputElement(
     val validation: DynamicValidation? = null,
     val binding: DynamicBinding? = null,
     val presentation: DynamicInputPresentation? = null,
+    override val leadingContent: List<ElementContent> = emptyList(),
+    override val trailingContent: List<ElementContent> = emptyList(),
     override val actions: Map<String, DynamicAction> = emptyMap(),
 ) : DynamicElement
