@@ -88,7 +88,7 @@ class DynamicResponseMapperTest {
         val responseDestination = assertNotNull(response.destination)
 
         assertEquals("partner_login", screen.screenId)
-        assertEquals("form_template", screen.template.type)
+        assertEquals("vertical", screen.template.orientation)
         assertEquals("request", action.type)
         assertEquals(
             DynamicValue.StringValue("/login"),
