@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.carbroz.cbpartner.domain.model.dynamic.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.StackGroup as StackGroupModel
 import com.carbroz.cbpartner.feature.dynamic.registry.GroupRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
@@ -15,7 +15,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class StackGroup : GroupRenderer {
     @Composable
-    override fun render(group: StackGroup, context: DynamicRenderContext) {
+    override fun render(group: StackGroupModel, context: DynamicRenderContext) DynamicRenderContext) {
         if (group.orientation == "horizontal") {
             Row(
                 modifier = Modifier.applyLayout(group),
