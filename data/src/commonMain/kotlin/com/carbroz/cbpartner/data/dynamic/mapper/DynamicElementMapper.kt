@@ -24,7 +24,6 @@ class DynamicElementMapper(
         "input" -> json.decodeFromJsonElement(InputElementDto.serializer(), element).let(::mapInput)
         "button" -> json.decodeFromJsonElement(ButtonElementDto.serializer(), element).let(::mapButton)
         "icon" -> json.decodeFromJsonElement(IconElementDto.serializer(), element).let(::mapIcon)
-        "divider" -> json.decodeFromJsonElement(DividerElementDto.serializer(), element).let(::mapDivider)
         else -> error("Unsupported dynamic element type: " + values.string(element, "type"))
     }
 
