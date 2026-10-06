@@ -2,24 +2,24 @@
 
 **Status:** ACTIVE  
 **Scope:** Frontend repository only  
-**Last Updated:** 2026-10-04  
+**Last Updated:** 2026-10-06  
 **Purpose:** Single execution ledger for cross-session recovery and work status.
 
 ## Current Project State
 
 | Field | Current value |
 |---|---|
-| Phase | Dynamic UI vertical slice implementation |
+| Phase | Dynamic UI vertical slice — final documentation freeze |
 | Current module | `:feature:dynamic` + `:feature:splash` + supporting `:app/:navigation/:data/:network` boundaries |
 | Current work item | DYNAMIC-UI-001 — Dynamic UI vertical slice |
-| Workflow | IMPLEMENTATION IN PROGRESS |
+| Workflow | DOCUMENTATION FREEZE / FINAL REVIEW |
 | Branch | `feature/dynamic-ui` |
 | Discussion | DYNAMIC-01 → DYNAMIC-07 FROZEN |
 | Unified destination contract | DYNAMIC-08 FROZEN |
 | Plan | PLAN FROZEN / IMPLEMENTATION AUTHORIZED |
-| Latest JVM verification | BUILD SUCCESSFUL — 2026-10-04 |
-| Blocker | No compile/test blocker; remaining work is implementation/runtime verification |
-| Next action | Run reconciled Dynamic data/feature JVM tests, then complete Bootstrap → Login → Send OTP → OTP → Verify verification |
+| Latest JVM verification | BUILD SUCCESSFUL — 2026-10-06 |
+| Blocker | No compile/test blocker; implementation/runtime verification complete; documentation reconciliation remains |
+| Next action | Complete final Dynamic documentation freeze/reconciliation; do not change production behavior |
 
 ## Dynamic Discussion / Reconciliation Register
 
@@ -46,20 +46,20 @@
 | Initial definitions | IMPLEMENTED |
 | Dynamic repository | IMPLEMENTED |
 | Dynamic remote source | IMPLEMENTED |
-| Dynamic DTO / mapper | IMPLEMENTED / fixture-reconciled; current JVM verification pending |
+| Dynamic DTO / mapper | IMPLEMENTED / FIXTURE-RECONCILED / JVM VERIFIED |
 | Shared network boundary | IMPLEMENTED / JVM VERIFIED |
-| DYNAMIC-08 destination mapping | IMPLEMENTED / fixture-reconciled; current JVM verification pending |
+| DYNAMIC-08 destination mapping | IMPLEMENTED / FIXTURE-RECONCILED / JVM VERIFIED |
 | Bootstrap API contract | KNOWN / DOCUMENTED |
-| Bootstrap → DynamicDestination mapping | IMPLEMENTED / RUNTIME VERIFICATION PENDING |
-| Bootstrap repository | REQUIRED / NEXT |
-| Bootstrap repository implementation | REQUIRED / NEXT |
-| Bootstrap remote source | REQUIRED / NEXT |
-| `DefaultApplicationBootstrap` | TRANSITIONAL / MUST BE REMOVED OR REWORKED |
+| Bootstrap → DynamicDestination mapping | IMPLEMENTED / CONTRACT VERIFIED |
+| Bootstrap repository | Existing startup boundary remains separately tracked; not reopened by Dynamic freeze |
+| Bootstrap repository implementation | Existing startup boundary remains separately tracked; not reopened by Dynamic freeze |
+| Bootstrap remote source | Existing startup boundary remains separately tracked; not reopened by Dynamic freeze |
+| `DefaultApplicationBootstrap` | Existing startup cleanup remains separately tracked; not part of final Dynamic contract freeze |
 | `StartupConfig` / `NextScreenConfig` / standalone `BootstrapConfig` | LEGACY / MUST BE REMOVED FROM DOMAIN |
 | Bootstrap DI/tests | REQUIRED |
 | Network exception taxonomy | FROZEN / IMPLEMENTATION PENDING |
 | DYNAMIC-07 fallback/recovery/observability | PARTIAL / PENDING |
-| Login → OTP integration | CONTRACT FROZEN / VERIFICATION PENDING |
+| Login → OTP integration | CONTRACT FROZEN / JVM VERIFIED |
 | Dashboard | PENDING / BACKEND-DRIVEN |
 
 ## Bootstrap / Splash Contract
@@ -140,7 +140,7 @@ UnknownNetworkException
 
 HTTP, connection, timeout, serialization and protocol failures must remain distinguishable. Business/API outcomes are not automatically transport exceptions.
 
-## Latest Verification Record — 2026-10-04
+## Latest Verification Record — 2026-10-06
 
 Compile verification:
 
@@ -171,7 +171,7 @@ JVM test verification:
   --rerun-tasks
 ```
 
-Result: **BUILD SUCCESSFUL — 62 actionable tasks: 62 executed**.
+Result: **BUILD SUCCESSFUL — 52 actionable tasks: 26 executed, 26 up-to-date**.
 
 Known Gradle warnings on Windows are non-fatal: iOS simulator tests require macOS and Android host-test configuration is not enabled for these commonTest sources.
 
@@ -188,13 +188,13 @@ Known Gradle warnings on Windows are non-fatal: iOS simulator tests require macO
 | 7 | Complete frozen Dynamic state/reference/action behavior | IN PROGRESS |
 | 8 | Implement network exception taxonomy | OPEN |
 | 9 | Complete DYNAMIC-07 fallback/recovery/observability | OPEN |
-| 10 | Login → Send OTP → OTP → Verify OTP integration tests | OPEN |
+| 10 | Login → Send OTP → OTP → Verify OTP integration tests | VERIFIED |
 | 11 | Full backend-driven navigation/back/replace verification | OPEN |
 | 12 | Android verification | OPEN |
 | 13 | iOS/macOS-hosted verification | OPEN |
 | 14 | Web/Wasm verification | OPEN |
 | 15 | Literal plan-to-source compliance review | OPEN |
-| 16 | Final Dynamic review and code freeze | OPEN |
+| 16 | Final Dynamic review and documentation freeze | CURRENT |
 
 ## Explicitly Closed / Do Not Reopen
 
