@@ -32,7 +32,7 @@ class DynamicBackendFlowContractTest {
             ).data,
         )
         assertEquals(bootstrap.destination.screenId, screen.screenId)
-        assertEquals(bootstrap.destination.template.id, screen.template.id)
+        assertEquals(bootstrap.destination.templateId, screen.template.id)
 
         val nextResponse = dynamicMapper.map(
             json.decodeFromString<DynamicResponseDto>(
