@@ -13,6 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 class DynamicContractTest {
     private val json = Json { ignoreUnknownKeys = true }
