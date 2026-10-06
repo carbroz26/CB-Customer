@@ -52,7 +52,7 @@ class DynamicStore(
 
     fun updateDestination(destination: DynamicDestination) {
         if (currentDestination == destination) return
-        currentDestination = destination; _bindings.value = emptyMap(); previousResponseData = null
+        currentDestination = destination; _bindings.value = emptyMap()
         loadJob?.cancel(); actionJob?.cancel(); _state.value = DynamicState.Initial; _effects.value = null
     }
     fun accept(intent: DynamicIntent) {
