@@ -1,6 +1,6 @@
 # CB-Partner Dynamic UI — Implementation Status
 
-**Status:** ACTIVE STATUS ONLY  
+**Status:** VERIFIED / READY FOR DYNAMIC FREEZE  
 **Updated:** 2026-10-06  
 **Branch:** `feature/dynamic-ui`
 
@@ -15,8 +15,9 @@ This document records current implementation reality only. It is not a historica
 - `DynamicDestination`: four-field contract.
 - `LoadDynamicScreenUseCase`: retained as the screen-loading use case.
 - `ExecuteDynamicActionUseCase`: absent/prohibited.
-- Stale backend-shaped JSON fixtures have been reconciled to the current DTO/source contract.
-- Windows Gradle verification: pending in the developer checkout.
+- Backend-shaped JSON fixtures: reconciled to the current DTO/source contract.
+- Data and Dynamic JVM verification: passing on Windows.
+- Bootstrap → Login → Send OTP → OTP → Verify contract/runtime coverage: passing.
 
 ## 2. Current source reality
 
@@ -48,7 +49,7 @@ data.destination → DynamicDestination
 non-screen data → DynamicValue payload
 ```
 
-The current source does not require an empty template instance before API loading.
+The current source does not require an empty template instance before API loading. The backend response provides the template identity and the template's complete returned structure.
 
 ## 3. Documentation baseline
 
@@ -61,54 +62,70 @@ The only active Dynamic documentation is:
 
 Older `docs/features/dynamic/*` records and dated reconciliation/freeze files are superseded and must not be used as active implementation authority.
 
-## 4. Current test work
+## 4. Verification completed
 
-### Completed
+The following Windows Gradle verification completed successfully:
 
-- Typed DTO/domain mapper reconciliation.
-- Bootstrap network failure assertion reconciliation.
-- Typed DynamicContractTest imports/assertions.
+- `:data:jvmTest`
+- `:feature:dynamic:jvmTest`
+- `:feature:splash:jvmTest`
 
-### Current test work
-
-- Reusable backend-shaped Login, Send OTP and OTP fixtures are now aligned to the current DTO contract.
-- Dynamic response mapper contract tests now use the shared fixtures.
-- Action reference resolver coverage now covers `$binding`, `$context`, `$response` and `$literal`.
-- RequestActionHandler coverage now verifies the OTP verify request body from binding/context/previous-response references.
-- Existing Store coverage continues to verify binding/context request resolution and destination convergence.
-- `DynamicBackendFlowContractTest` now covers Bootstrap → Login → Send OTP → OTP as one backend contract chain.
-
-### Next
-
-1. Run `:data:jvmTest`.
-2. Run `:feature:dynamic:jvmTest`.
-3. Run broader compile/test gates.
-4. If the full flow exposes a cross-destination `$response` lifetime problem, stop and reconcile that contract before changing production behavior.
-5. Review and freeze Dynamic implementation status.
-
-## 5. Known fixture corrections
-
-The current stale tests have these known structural problems:
-
-- Login/OTP fixtures place `theme` under `template`; the current DTO expects screen-level `data.theme`.
-- The mapper destination fixture places `destination` under `template`; the current response contract expects `data.destination`.
-- Existing minimal fixtures omit backend fields needed to test the intended Login/OTP contract.
-
-Production mapper changes are not justified by these fixture mismatches.
-
-## 6. Verification status
-
-Do not mark tests green without an actual Gradle run.
-
-Required developer-side commands remain:
+The final combined run reported:
 
 ```
-./gradlew.bat :data:jvmTest
-./gradlew.bat :feature:dynamic:jvmTest
-./gradlew.bat :data:compileKotlinJvm
-./gradlew.bat :feature:dynamic:compileKotlinJvm
+BUILD SUCCESSFUL
+52 actionable tasks: 26 executed, 26 up-to-date
 ```
 
-## 7. Next valid action
+Coverage includes:
 
-Run the data and Dynamic JVM test suites from the Windows developer checkout. The fixture-level JSON decoding failures have been addressed without changing production DTO/mapper architecture.
+- typed DTO/domain mapping;
+- shared Login, Send OTP and OTP backend-shaped fixtures;
+- Dynamic response destination mapping;
+- `$binding`, `$context`, `$response` and `$literal` resolution;
+- Login → Send OTP request construction;
+- Send OTP destination transition;
+- runtime `challengeId` persistence into Dynamic context;
+- OTP → Verify request construction using `$context.challengeId`;
+- `authFlow.phoneNumber`, OTP binding and device context resolution;
+- Bootstrap → Login → Send OTP → OTP backend contract continuity.
+
+## 5. Runtime context contract verified
+
+The authentication flow does not require a dedicated authentication-specific runtime model.
+
+The verified generic runtime context carries values such as:
+
+```
+authFlow.phoneNumber
+challengeId
+deviceId
+```
+
+The same mechanism remains available for future dynamic values such as booking identifiers without introducing business-specific runtime architecture.
+
+## 6. Fixture reconciliation
+
+The previously identified fixture mismatches are resolved:
+
+- screen-level `theme` is represented under `data.theme`;
+- destination is represented under `data.destination`;
+- backend fields required by the Login/OTP contract are present in the shared fixtures.
+
+No production DTO/mapper architecture change was required to fix these fixture mismatches.
+
+## 7. Verification status
+
+Current JVM verification is green on the Windows developer checkout.
+
+The Windows warnings about disabled iOS simulator tests and unavailable Android host tests are environment/target warnings; they did not fail the JVM test suites.
+
+This verification does not claim iOS simulator execution on Windows.
+
+## 8. Final Dynamic documentation gate
+
+The implementation and current JVM verification are complete for the tested Dynamic Login → OTP flow.
+
+The next action is documentation freeze/reconciliation only. No new Dynamic architecture or production behavior change is justified by the completed verification.
+
+After the documentation freeze, future Dynamic work must begin as a new explicitly scoped discussion/change rather than modifying the frozen baseline implicitly.
