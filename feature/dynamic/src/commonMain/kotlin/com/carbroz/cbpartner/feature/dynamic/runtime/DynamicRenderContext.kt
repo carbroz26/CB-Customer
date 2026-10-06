@@ -66,6 +66,5 @@ class DynamicRenderContext(
         is InputElement -> "input"
         is ButtonElement -> "button"
         is IconElement -> "icon"
-        is DividerElement -> "divider"
     }
 }
