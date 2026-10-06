@@ -1,5 +1,7 @@
 package com.carbroz.cbpartner.data.bootstrap
 
+import com.carbroz.cbpartner.core.runtime.RuntimeMetadata
+import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
 import com.carbroz.cbpartner.network.NetworkResult
 import com.carbroz.cbpartner.network.http.RequestHandler
@@ -47,8 +49,16 @@ class BootstrapRemoteDataSourceTest {
     private fun createDataSource(engine: MockEngine): BootstrapRemoteDataSource =
         BootstrapRemoteDataSource(
             RequestHandler(
-                HttpClient(engine) {
+                httpClient = HttpClient(engine) {
                     expectSuccess = true
+                },
+                runtimeMetadataProvider = RuntimeMetadataProvider {
+                    RuntimeMetadata(
+                        platform = "ANDROID",
+                        appVersion = "1.0.0",
+                        buildNumber = "1",
+                        deviceId = "test-device-id",
+                    )
                 },
             ),
         )
