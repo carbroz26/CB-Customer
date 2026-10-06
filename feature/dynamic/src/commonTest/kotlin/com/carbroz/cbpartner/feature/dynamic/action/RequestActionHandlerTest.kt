@@ -45,7 +45,7 @@ class RequestActionHandlerTest {
                 "responseMode" to DynamicValue.StringValue("destination"),
                 "body" to DynamicValue.ObjectValue(
                     mapOf(
-                        "challengeId" to DynamicValue.ObjectValue(mapOf("${DOLLAR}response" to DynamicValue.StringValue("data.challengeId"))),
+                        "challengeId" to DynamicValue.ObjectValue(mapOf("${DOLLAR}context" to DynamicValue.StringValue("challengeId"))),
                         "phoneNumber" to DynamicValue.ObjectValue(mapOf("${DOLLAR}context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
                         "otp" to DynamicValue.ObjectValue(mapOf("${DOLLAR}binding" to DynamicValue.StringValue("otp"))),
                     ),
