@@ -60,8 +60,7 @@ internal fun Modifier.applyLayout(element: DynamicElement): Modifier = when (ele
     is ButtonElement -> padding(null)
         .thenIf(element.height != null) { height(element.height!!.dp) }
         .thenIf(element.fillMaxWidth) { fillMaxWidth() }
-        .background(element.background)
-        .border(element.shape, element.shape)
+        
     is com.carbroz.cbpartner.domain.model.dynamic.IconElement -> padding(null)
         .thenIf(element.size != null) { width(element.size!!.dp); height(element.size!!.dp) }
     is com.carbroz.cbpartner.domain.model.dynamic.DividerElement -> padding(null)
