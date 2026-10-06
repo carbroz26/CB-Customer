@@ -91,3 +91,40 @@ For every step: implement → verify → update this status → immediately cont
 ## Verification note
 
 Repository edits are being applied directly to `feature/dynamic-ui`. Full Gradle verification must be run from the developer's Windows checkout because this environment cannot execute the repository's Gradle wrapper.
+
+
+---
+
+# Final Reconciliation — 2026-10-06
+
+The final Dynamic architecture reconciliation is recorded in:
+
+`docs/dynamic/DYNAMIC-FINAL-RECONCILIATION-2026-10-06.md`
+
+This document is the current reconciliation record for the Dynamic implementation and does not reopen frozen architecture decisions.
+
+## Reconciled boundaries
+
+- `DynamicStore` owns Dynamic screen lifecycle, runtime state, and canonical binding state.
+- `DynamicActionExecutor` is the single action-dispatch boundary.
+- `ExecuteDynamicActionUseCase` remains removed/prohibited.
+- `LoadDynamicScreenUseCase` remains the screen-loading use case and is not an action executor.
+- `DynamicDestination` remains a four-field destination identity contract.
+- `DynamicRequest` owns request execution metadata.
+- `navigate` remains behind the navigation boundary.
+- `present` / `dismiss` remain Dynamic runtime presentation operations.
+- `external_uri` remains separate from Dynamic navigation and is returned as an external effect/result.
+- Runtime, renderer, SDUI, data, and network responsibilities remain separated according to the reconciled architecture.
+- Historical documents containing superseded architecture vocabulary must be treated as historical and marked superseded where they contradict the reconciled contract.
+
+## Current documentation gate
+
+```
+ARCHITECTURE AUDIT       COMPLETE
+DOCUMENTATION RECONCILIATION  COMPLETE
+DOCUMENTATION FREEZE     NEXT
+IMPLEMENTATION PLAN      AFTER DOCUMENTATION FREEZE
+```
+
+No code changes are authorized by this documentation record.
+
