@@ -109,7 +109,7 @@ class DynamicStoreTest {
 
 
     @Test
-    fun verifyRequestResolvesChallengeIdAcrossSendOtpDestinationTransition() = runTest {
+    fun verifyRequestResolvesChallengeIdFromRuntimeContextAcrossSendOtpDestinationTransition() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         var verifyBody: DynamicValue? = null
         val sendOtpDestination = DynamicDestination(
