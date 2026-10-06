@@ -31,7 +31,7 @@ class DynamicRenderer(
         val screen = response.data ?: return
         if (screen.screenId != destination.screenId) return
         if (screen.template.id != destination.templateId) return
-        if (screen.template.type != destination.templateType) return
+        if (destination.templateType != FORM_TEMPLATE_TYPE) return
 
         val context = DynamicRenderContext(
             registry = registry,
@@ -42,7 +42,7 @@ class DynamicRenderer(
         )
 
         Box(modifier = Modifier.fillMaxSize().screenTheme(screen.theme?.properties)) {
-            registry.template(screen.template.type)?.render(screen.template, context)
+            registry.template(FORM_TEMPLATE_TYPE)?.render(screen.template, context)
         }
     }
 
@@ -70,5 +70,9 @@ class DynamicRenderer(
             )
             onDrawBehind { drawRect(brush = brush) }
         }
+    }
+
+    private companion object {
+        const val FORM_TEMPLATE_TYPE = "form_template"
     }
 }
