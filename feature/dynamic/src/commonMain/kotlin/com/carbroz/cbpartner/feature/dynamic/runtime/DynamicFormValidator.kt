@@ -2,7 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.InputElement
 
 class DynamicFormValidator {
     fun validate(screen: DynamicScreen, bindings: Map<String, String>): String? {
@@ -19,6 +19,7 @@ class DynamicFormValidator {
     }
 
     private fun validateElement(element: DynamicElement, bindings: Map<String, String>): String? {
+        if (element !is InputElement) return null
         val validation = element.validation ?: return null
         val key = element.binding?.key ?: return null
         val value = bindings[key].orEmpty()
