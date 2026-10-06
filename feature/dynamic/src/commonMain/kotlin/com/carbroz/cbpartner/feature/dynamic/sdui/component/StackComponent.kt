@@ -15,7 +15,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class StackComponent : ComponentRenderer {
     @Composable
-    override fun render(component: StackComponentModel, context: DynamicRenderContext) DynamicRenderContext) {
+    override fun render(component: StackComponentModel, context: DynamicRenderContext) {
         if (component.orientation == "horizontal") {
             Row(
                 modifier = Modifier.applyLayout(component),
