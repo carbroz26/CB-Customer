@@ -345,7 +345,7 @@ class DynamicResponseMapper {
                 color = value.string("color"),
                 fontWeight = value.number("fontWeight")?.toInt(),
                 underline = value.boolean("underline") ?: false,
-                action = value["action"]?.let { it as? JsonObject }?.toAction(),
+                action = (value["action"] as? JsonObject ?: value["onClick"] as? JsonObject)?.toAction(),
             )
         }
 
