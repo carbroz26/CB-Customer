@@ -22,50 +22,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.InputElement as InputElementModel
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
-import com.carbroz.cbpartner.feature.dynamic.runtime.number
-import com.carbroz.cbpartner.feature.dynamic.runtime.string
 
 class InputElement : ElementRenderer {
     @Composable
-    override fun render(element: DynamicElement, context: DynamicRenderContext) {
+    override fun render(element: InputElementModel, context: DynamicRenderContext) {
         val binding = element.binding?.key ?: return
-        val properties = element.properties
         val value = context.bindings[binding].orEmpty()
-        val maxLength = properties.number("maxLength")?.toInt()
-        val keyboardType = when (properties.string("keyboardType")) {
+        val keyboardType = when (element.keyboardType) {
             "phone" -> KeyboardType.Phone
             "number" -> KeyboardType.Number
             else -> KeyboardType.Text
         }
-        val presentation = properties["presentation"] as? DynamicValue.ObjectValue
-        val segmented = (presentation?.value?.get("type") as? DynamicValue.StringValue)?.value == "segmented"
 
         fun changed(newValue: String) {
-            val limited = newValue.take(maxLength ?: Int.MAX_VALUE)
+            val limited = newValue.take(element.maxLength ?: Int.MAX_VALUE)
             context.onValueChange(binding, limited)
             element.actions["onValueChange"]?.let(context.onAction)
         }
 
-        if (segmented) {
+        if (element.presentation?.type == "segmented") {
             SegmentedInput(
                 value = value,
-                count = (presentation?.value?.get("count") as? DynamicValue.NumberValue)?.value?.toInt() ?: maxLength ?: 1,
-                spacing = (presentation?.value?.get("spacing") as? DynamicValue.NumberValue)?.value?.dp ?: 8.dp,
-                segmentWidth = (presentation?.value?.get("segmentWidth") as? DynamicValue.NumberValue)?.value?.dp ?: 44.dp,
-                segmentHeight = (presentation?.value?.get("segmentHeight") as? DynamicValue.NumberValue)?.value?.dp ?: 52.dp,
+                count = element.presentation.count ?: element.maxLength ?: 1,
+                spacing = element.presentation.spacing?.dp ?: 8.dp,
+                segmentWidth = element.presentation.segmentWidth?.dp ?: 44.dp,
+                segmentHeight = element.presentation.segmentHeight?.dp ?: 52.dp,
                 onValueChange = ::changed,
             )
         } else {
             OutlinedTextField(
-                modifier = context.applyLayout(Modifier, properties),
+                modifier = Modifier.applyLayout(element),
                 value = value,
                 onValueChange = ::changed,
-                placeholder = properties.string("placeholder")?.let { { Text(it) } },
+                placeholder = element.placeholder?.let { { Text(it) } },
                 keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                 singleLine = true,
             )
