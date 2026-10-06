@@ -34,8 +34,7 @@ internal fun Modifier.applyLayout(element: DynamicElement): Modifier = when (ele
     is ImageElement -> padding(null).thenIf(element.width != null) { width(element.width!!.dp) }.thenIf(element.height != null) { height(element.height!!.dp) }.thenIf(element.maxWidth != null) { widthIn(max = element.maxWidth!!.dp) }.thenIf(element.fillMaxWidth) { fillMaxWidth() }
     is InputElement -> padding(null)
     is ButtonElement -> padding(null).thenIf(element.height != null) { height(element.height!!.dp) }.thenIf(element.fillMaxWidth) { fillMaxWidth() }
-    is IconElement -> padding(null).thenIf(element.size != null) { width(element.size!!.dp); height(element.size!!.dp) }
-    is DividerElement -> padding(null).thenIf(element.width != null) { width(element.width!!.dp) }.thenIf(element.height != null) { height(element.height!!.dp) }
+    is IconElement -> padding(null).thenIf(element.size != null) { width(element.size!!.dp).height(element.size!!.dp) }
 }
 internal fun Modifier.padding(padding: DynamicPadding?): Modifier = padding?.let { androidx.compose.foundation.layout.PaddingValues(it.start.dp, it.top.dp, it.end.dp, it.bottom.dp) }?.let(::padding) ?: this
 internal fun DynamicArrangement.toVerticalArrangement(): Arrangement.Vertical = when (this) {
