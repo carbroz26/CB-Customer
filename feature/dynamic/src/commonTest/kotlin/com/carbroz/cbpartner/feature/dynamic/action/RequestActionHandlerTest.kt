@@ -26,6 +26,12 @@ class RequestActionHandlerTest {
                         message = "Verified",
                         data = null,
                         traceId = "verify",
+                        destination = DynamicDestination(
+                            screenId = "partner_dashboard",
+                            templateId = "tpl_dashboard",
+                            templateType = "form_template",
+                            endpoint = "/api/v1/partner/screen/dashboard",
+                        ),
                     ),
                 )
             }
