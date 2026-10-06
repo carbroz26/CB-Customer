@@ -230,3 +230,34 @@ WINDOWS GRADLE VERIFICATION        PENDING
 ```
 
 *Freeze is source/architecture complete; build verification remains a required developer-environment acceptance step.
+
+## Typed SDUI Contract Implementation — 2026-10-06
+
+The frozen Typed SDUI Contract implementation plan was authorized and implementation has been applied on branch feature/dynamic-ui.
+
+Implemented:
+
+- Replaced generic UI domain models with typed reusable models: FormTemplate, StackComponent, StackSection, StackGroup, TextElement, ImageElement, InputElement, ButtonElement, IconElement, DividerElement.
+- Added shared typed UI value models for padding, arrangement, background/gradient, border, shape, text spans, and input presentation.
+- Kept DynamicValue at the dynamic/raw boundary for action payloads and arbitrary response data.
+- Migrated DynamicResponseMapper from property-map UI models to typed domain models.
+- Added controlled rejection of unsupported UI type positions.
+- Migrated renderer contracts and all existing SDUI renderers to typed models.
+- Preserved the existing registry architecture and renderer selection boundary.
+- Preserved recursive text decorations and button leading/trailing elements as typed UI elements.
+- Updated form/input validation to operate on typed InputElement.
+- Updated mapper, registry, Login/OTP contract, and typed-model tests.
+
+Out of scope and unchanged:
+
+- Dynamic action architecture.
+- DynamicStore ownership/state architecture.
+- Navigation and external URI boundaries.
+- Network/data repository architecture.
+- Bootstrap/authentication architecture.
+- Warning cleanup unrelated to this migration.
+
+Verification:
+
+- Source implementation: COMPLETE.
+- Windows Gradle verification: PENDING developer checkout.
