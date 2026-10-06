@@ -117,14 +117,30 @@ This document is the current reconciliation record for the Dynamic implementatio
 - Runtime, renderer, SDUI, data, and network responsibilities remain separated according to the reconciled architecture.
 - Historical documents containing superseded architecture vocabulary must be treated as historical and marked superseded where they contradict the reconciled contract.
 
-## Current documentation gate
+## Documentation Freeze — 2026-10-06
+
+Documentation reconciliation is now frozen.
+
+The authoritative freeze record is:
+
+`docs/dynamic/DYNAMIC-DOCUMENTATION-FREEZE-2026-10-06.md`
+
+The reconciled architecture record remains:
+
+`docs/dynamic/DYNAMIC-FINAL-RECONCILIATION-2026-10-06.md`
+
+The frozen documentation establishes the basis for the next implementation-plan phase. It does not authorize source-code changes.
+
+### Frozen gate
 
 ```
-ARCHITECTURE AUDIT       COMPLETE
-DOCUMENTATION RECONCILIATION  COMPLETE
-DOCUMENTATION FREEZE     NEXT
-IMPLEMENTATION PLAN      AFTER DOCUMENTATION FREEZE
+ARCHITECTURE AUDIT             COMPLETE
+DOCUMENTATION RECONCILIATION   COMPLETE
+DOCUMENTATION FREEZE           COMPLETE
+IMPLEMENTATION PLAN            NEXT
+PLAN FREEZE                    AFTER PLAN
+IMPLEMENTATION AUTHORIZATION   REQUIRED BEFORE CODE
 ```
 
-No code changes are authorized by this documentation record.
+No source-code changes are authorized by this documentation freeze.
 
