@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.data.di.bootstrapModule
 import com.carbroz.cbpartner.data.di.dynamicDataModule
@@ -13,17 +14,19 @@ import org.koin.dsl.module
 
 @Composable
 fun App(runtimeMetadataProvider: RuntimeMetadataProvider) {
-    val koin = startKoin {
-        modules(
-            module { single<RuntimeMetadataProvider> { runtimeMetadataProvider } },
-            networkModule,
-            serializationModule,
-            bootstrapModule,
-            dynamicDataModule,
-            dynamicModule,
-            splashModule,
-        )
-    }.koin
+    val koin = remember(runtimeMetadataProvider) {
+        startKoin {
+            modules(
+                module { single<RuntimeMetadataProvider> { runtimeMetadataProvider } },
+                networkModule,
+                serializationModule,
+                bootstrapModule,
+                dynamicDataModule,
+                dynamicModule,
+                splashModule,
+            )
+        }.koin
+    }
 
     ApplicationContent(koin, runtimeMetadataProvider)
 }
