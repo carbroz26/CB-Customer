@@ -2,7 +2,7 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionDto
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionsDto
-import com.carbroz.cbpartner.data.dynamic.model.element.ElementContentDto
+import com.carbroz.cbpartner.data.dynamic.model.content.ElementContentDto
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
