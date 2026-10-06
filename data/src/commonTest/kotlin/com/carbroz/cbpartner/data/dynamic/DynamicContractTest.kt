@@ -41,7 +41,21 @@ class DynamicContractTest {
             .flatMap { it.elements }
             .first { it.id == "continue_button" }
         val button = assertIs<ButtonElement>(continueButton)
-        assertEquals("request", button.actions["onClick"]?.type)
+        val continueAction = assertNotNull(button.actions["onClick"])
+        assertEquals("request", continueAction.type)
+        assertEquals(
+            DynamicValue.StringValue("/api/v1/partner/auth/send_otp"),
+            continueAction.payload["endpoint"],
+        )
+        val requestBody = assertIs<DynamicValue.ObjectValue>(continueAction.payload["body"])
+        assertEquals(
+            DynamicValue.StringValue("mobileNumber"),
+            (requestBody.value["phoneNumber"] as DynamicValue.ObjectValue).value["\\$binding"],
+        )
+        assertEquals(
+            DynamicValue.StringValue("deviceId"),
+            (requestBody.value["deviceId"] as DynamicValue.ObjectValue).value["\\$context"],
+        )
     }
 
     @Test
