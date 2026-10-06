@@ -127,14 +127,14 @@ Frozen DYNAMIC-01 → DYNAMIC-08 remains authoritative for:
 
 ## 6. Dynamic Use-Case Ownership
 
-`LoadDynamicScreenUseCase` and `ExecuteDynamicActionUseCase` are feature orchestration use cases.
+`LoadDynamicScreenUseCase` is the Dynamic screen-loading use case.
 
-They are not a reason to create a second domain layer and must not be moved into top-level `:domain` while they depend on Dynamic feature capabilities.
+`ExecuteDynamicActionUseCase` does not exist and is prohibited by the frozen Dynamic contract. Dynamic action execution belongs to `DynamicActionExecutor` and action-specific handlers/capabilities.
 
-Current package cleanup target:
+Current package:
 
 ```text
-feature/dynamic/.../usecase/
+feature/dynamic/.../usecase/LoadDynamicScreenUseCase.kt
 ```
 
 ## 7. Network Exception Contract
@@ -191,7 +191,6 @@ Legacy to remove/rework:
 - `feature/dynamic/store/DynamicStore.kt`
 - `feature/dynamic/action/DynamicActionHandler.kt`
 - `feature/dynamic/usecase/LoadDynamicScreenUseCase.kt`
-- `feature/dynamic/usecase/ExecuteDynamicActionUseCase.kt`
 - `feature/dynamic/registry/DynamicRegistry.kt`
 - `feature/dynamic/renderer/DynamicRenderer.kt`
 
@@ -209,7 +208,7 @@ Legacy to remove/rework:
 
 ## 9. Verification Baseline
 
-Owner-provided 2026-10-04 verification passed after DYNAMIC-08 reconciliation.
+The earlier owner-provided JVM verification is historical. The current branch contains subsequent typed-contract/test-fixture changes, so it is not the current verification result.
 
 Compile verification:
 
@@ -222,7 +221,7 @@ Compile verification:
 :app:compileKotlinJvm
 ```
 
-Result: **BUILD SUCCESSFUL — 43 actionable tasks: 43 executed**.
+Result at that historical baseline: **BUILD SUCCESSFUL**.
 
 JVM verification:
 
@@ -236,7 +235,7 @@ JVM verification:
 :app:compileKotlinJvm
 ```
 
-Result: **BUILD SUCCESSFUL — 62 actionable tasks: 62 executed**.
+Result at that historical baseline: **BUILD SUCCESSFUL**.
 
 Known Windows-only warnings are non-fatal: iOS simulator tests require macOS and Android host-test configuration is not enabled for these commonTest sources.
 
@@ -256,13 +255,13 @@ Known Windows-only warnings are non-fatal: iOS simulator tests require macOS and
 | Dynamic state/reference/action behavior | PARTIAL | Complete frozen contract |
 | Network exception taxonomy | FROZEN / OPEN IMPLEMENTATION | Implement and test |
 | DYNAMIC-07 | PARTIAL | Complete production behavior |
-| Login → OTP integration | PENDING | Add backend-shaped tests |
+| Login → OTP integration | IN PROGRESS | Backend-shaped fixtures and action-reference tests added; JVM execution pending |
 | Navigation runtime | PENDING | Verify push/replace/pop/back |
 | Android | PENDING | Verify |
 | iOS/macOS-hosted | PENDING | Verify where supported |
 | Web/Wasm | PENDING | Verify where supported |
 | Literal plan-to-source review | PENDING | Complete |
-| Final Dynamic freeze | PENDING | Final gate |
+| Final Dynamic freeze | PENDING | Complete JVM verification and final review |
 
 ## 11. Recovery Documents
 
