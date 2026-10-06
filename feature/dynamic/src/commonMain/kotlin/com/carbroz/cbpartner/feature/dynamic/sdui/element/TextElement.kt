@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
@@ -32,15 +33,16 @@ class TextElement : ElementRenderer {
                     fontWeight = span.fontWeight?.let(::FontWeight),
                     textDecoration = if (span.underline) androidx.compose.ui.text.style.TextDecoration.Underline else null
                 )
+                val spanText = (context.resolve(span.text) as? DynamicValue.StringValue)?.value.orEmpty()
                 val action = span.action
                 if (action != null) {
                     val link = LinkAnnotation.Clickable(
-                        tag = span.text,
+                        tag = spanText,
                         styles = TextLinkStyles(style = style),
                         linkInteractionListener = { context.onAction(action) }
                     )
                     val start = length
-                    append(span.text)
+                    append(spanText)
                     addLink(link, start, length)
                 } else {
                     withStyle(style) { append(span.text) }
@@ -49,7 +51,7 @@ class TextElement : ElementRenderer {
         }.toAnnotatedString()
 
         Row(modifier = Modifier.applyLayout(model)) {
-            context.renderElements(model.leading)
+            context.renderContent(model.leadingContent)
             Text(
                 text = annotated,
                 fontSize = model.fontSize?.sp ?: TextUnit.Unspecified,
@@ -65,7 +67,7 @@ class TextElement : ElementRenderer {
                 letterSpacing = model.letterSpacing?.sp ?: TextUnit.Unspecified,
                 lineHeight = model.lineHeight?.sp ?: TextUnit.Unspecified
             )
-            context.renderElements(model.trailing)
+            context.renderContent(model.trailingContent)
         }
     }
 }
