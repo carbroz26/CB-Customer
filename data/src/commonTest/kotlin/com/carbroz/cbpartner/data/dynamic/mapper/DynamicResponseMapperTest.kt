@@ -84,6 +84,103 @@ class DynamicResponseMapperTest {
     }
 
     @Test
+    fun mapsBootstrapDestinationToLogin() {
+        val dto = json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.BOOTSTRAP_JSON)
+        val response = DynamicResponseMapper().map(dto)
+        val destination = assertNotNull(response.destination)
+        assertEquals("partner_login", destination.screenId)
+        assertEquals("tpl_P101L", destination.templateId)
+        assertEquals("form_template", destination.templateType)
+        assertEquals("/api/v1/partner/screen/auth_login", destination.endpoint)
+        assertEquals(null, response.data)
+    }
+
+    @Test
+    fun mapsPartnerLoginContractIncludingBindingValidationActionsAndNestedContent() {
+        val dto = json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.LOGIN_JSON)
+        val response = DynamicResponseMapper().map(dto)
+        val screen = assertNotNull(response.data)
+        val group = screen.template.components.single().sections.single().groups.single()
+        val input = assertIs<InputElement>(group.elements.single())
+        val divider = assertIs<DividerContent>(input.leadingContent.single())
+        val button = screen.template.components[0].sections[1].elements.single()
+        val action = assertNotNull(button.actions["onClick"])
+
+        assertEquals("partner_login", screen.screenId)
+        assertEquals("tpl_P101L", screen.template.id)
+        assertEquals("form_template", screen.template.type)
+        assertEquals("login_content", screen.template.components.single().id)
+        assertEquals("mobile_field_section", screen.template.components.single().sections.single().id)
+        assertEquals("mobile_field", group.id)
+        assertEquals("mobileNumber", input.binding?.key)
+        assertEquals(true, input.validation?.required)
+        assertEquals("^[6-9][0-9]{9}$", input.validation?.pattern)
+        assertEquals("phone", input.keyboardType)
+        assertEquals(10, input.maxLength)
+        assertEquals("horizontal", divider.orientation)
+        assertEquals(36.0, divider.width)
+        assertEquals(2.0, divider.thickness)
+        assertEquals("request", action.type)
+        assertEquals(DynamicValue.StringValue("/api/v1/partner/auth/send_otp"), action.payload["endpoint"])
+        assertEquals(DynamicValue.BooleanValue(true), action.payload["validate"])
+        val body = assertIs<DynamicValue.ObjectValue>(action.payload["body"])
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("$binding" to DynamicValue.StringValue("mobileNumber"))),
+            body.value["phoneNumber"],
+        )
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("$context" to DynamicValue.StringValue("deviceId"))),
+            body.value["deviceId"],
+        )
+        assertEquals("destination", (action.payload["responseMode"] as? DynamicValue.StringValue)?.value)
+    }
+
+    @Test
+    fun mapsSendOtpAndOtpVerifyContracts() {
+        val sendDto = json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.SEND_OTP_JSON)
+        val sendResponse = DynamicResponseMapper().map(sendDto)
+        val sendPayload = assertIs<DynamicValue.ObjectValue>(sendResponse.dataPayload)
+        assertEquals(DynamicValue.StringValue("challenge-123"), sendPayload.value["challengeId"])
+        assertEquals(DynamicValue.NumberValue(300.0), sendPayload.value["expiresInSeconds"])
+        val destination = assertIs<DynamicValue.ObjectValue>(sendPayload.value["destination"])
+        assertEquals(DynamicValue.StringValue("partner_otp"), destination.value["screenId"])
+        assertEquals(DynamicValue.StringValue("tpl_P102O"), destination.value["templateId"])
+
+        val otpDto = json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.OTP_JSON)
+        val otpResponse = DynamicResponseMapper().map(otpDto)
+        val otpScreen = assertNotNull(otpResponse.data)
+        val phoneText = assertIs<TextElement>(otpScreen.template.components.first().elements.single())
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
+            phoneText.spans.single().text,
+        )
+        val otpInput = assertIs<InputElement>(
+            otpScreen.template.components[1].sections.single().groups.single().elements.single(),
+        )
+        assertEquals("otp", otpInput.binding?.key)
+        assertEquals("^[0-9]{6}$", otpInput.validation?.pattern)
+        val verifyButton = otpScreen.template.components[1].sections[1].elements.single()
+        val verifyAction = assertNotNull(verifyButton.actions["onClick"])
+        val verifyBody = assertIs<DynamicValue.ObjectValue>(verifyAction.payload["body"])
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("$response" to DynamicValue.StringValue("data.challengeId"))),
+            verifyBody.value["challengeId"],
+        )
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("$context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
+            verifyBody.value["phoneNumber"],
+        )
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("$binding" to DynamicValue.StringValue("otp"))),
+            verifyBody.value["otp"],
+        )
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("$context" to DynamicValue.StringValue("deviceId"))),
+            verifyBody.value["deviceId"],
+        )
+    }
+
+    @Test
     fun rejectsUnknownUiElementType() {
         val dto = json.decodeFromString<DynamicResponseDto>(
             """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"unknown","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","elements":[{"id":"unknown","type":"future_element"}]}]}}}""",
