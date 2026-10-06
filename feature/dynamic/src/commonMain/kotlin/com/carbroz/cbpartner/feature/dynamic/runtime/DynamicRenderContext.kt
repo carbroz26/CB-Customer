@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 import androidx.compose.runtime.Composable
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.*
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
@@ -50,6 +51,14 @@ class DynamicRenderContext(
 
     @Composable fun renderElements(elements: List<DynamicElement>) =
         elements.forEach { registry.element(elementType(it))?.render(it, this) }
+
+    @Composable fun renderContent(contents: List<ElementContent>) =
+        contents.forEach { registry.content(contentType(it))?.render(it, this) }
+
+    private fun contentType(content: ElementContent): String = when (content) {
+        is com.carbroz.cbpartner.domain.model.dynamic.content.IconContent -> "icon"
+        is com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent -> "divider"
+    }
 
     private fun elementType(element: DynamicElement): String = when (element) {
         is TextElement -> "text"
