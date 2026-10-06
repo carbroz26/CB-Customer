@@ -56,8 +56,14 @@ class RequestActionHandlerTest {
             action = action,
             navigation = navigation,
             bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210", "challengeId" to "challenge-123"),
-            previousResponse = null,
+            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
+            previousResponse = DynamicValue.ObjectValue(
+                mapOf(
+                    "data" to DynamicValue.ObjectValue(
+                        mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
+                    ),
+                ),
+            ),
         )
 
         assertIs<DynamicActionResult.Navigate>(result)
