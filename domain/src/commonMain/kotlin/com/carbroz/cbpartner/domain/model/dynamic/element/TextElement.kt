@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.domain.model.dynamic.element
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicTextSpan
 
 data class TextElement(
@@ -15,7 +16,7 @@ data class TextElement(
     val color: String? = null,
     val textAlign: String = "center",
     val fillMaxWidth: Boolean = false,
-    val leading: List<DynamicElement> = emptyList(),
-    val trailing: List<DynamicElement> = emptyList(),
+    override val leadingContent: List<ElementContent> = emptyList(),
+    override val trailingContent: List<ElementContent> = emptyList(),
     override val actions: Map<String, DynamicAction> = emptyMap(),
 ) : DynamicElement
