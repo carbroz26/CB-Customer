@@ -4,7 +4,7 @@ import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
 import com.carbroz.cbpartner.data.bootstrap.model.BootstrapResponseDto
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -30,7 +30,7 @@ class DynamicBackendFlowContractTest {
             dynamicMapper.map(json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.LOGIN_JSON)).data,
         )
         assertEquals(bootstrap.destination.screenId, login.screenId)
-        assertEquals(bootstrap.destination.template.id, login.template.id)
+        assertEquals(bootstrap.destination.templateId, login.template.id)
 
         val continueAction = login.template.components
             .flatMap { it.sections }
