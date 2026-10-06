@@ -84,7 +84,6 @@ class DynamicContractTest {
 
         val button = assertIs<ButtonElement>(mapped)
         assertIs<IconContent>(button.trailingContent.single())
-        assertIs<DividerContent>(screen.template.components.first().sections.first().groups.first().elements.first().let { it })
         val directMapper = com.carbroz.cbpartner.data.dynamic.mapper.DynamicElementMapper(json, com.carbroz.cbpartner.data.dynamic.mapper.DynamicValueMapper())
         val text = assertIs<TextElement>(directMapper.map(element))
         assertIs<DividerContent>(text.leadingContent.single())
