@@ -72,13 +72,13 @@ As of 2026-10-04:
 - BASE-ARCH-014: **CODE_FROZEN**
 - BASE-ARCH-017: **VERIFIED / REVIEW ACCEPTED / CODE_FROZEN**
 - DYNAMIC-01 → DYNAMIC-07: **DISCUSSION FROZEN**
-- DYNAMIC-08 Unified Destination Contract: **FROZEN / IMPLEMENTATION IN PROGRESS**
+- DYNAMIC-08 Unified Destination Contract: **FROZEN / VERIFIED**
 - Dynamic implementation plan: **PLAN_FROZEN / IMPLEMENTATION AUTHORIZED**
-- Dynamic implementation: **IN PROGRESS**
+- Dynamic implementation: **VERIFIED / READY FOR DOCUMENTATION FREEZE**
 - Bootstrap Option B: **FROZEN / REQUIRED IMPLEMENTATION**
 - Canonical shared `DynamicDestination`: **FROZEN**
 - Network exception taxonomy: **FROZEN / REQUIRED IMPLEMENTATION**
-- Latest owner-provided JVM gate: **BUILD SUCCESSFUL before the DYNAMIC-08 model change**
+- Latest verified JVM gate: **BUILD SUCCESSFUL — 2026-10-06**
 - Current branch: `feature/dynamic-ui`
 
 ## 6. CURRENT GRADLE AUTHORITY
@@ -356,9 +356,9 @@ NEXT VALID ACTION
 
 ## 22. CURRENT NEXT ACTION
 
-**Run the reconciled Dynamic data/feature JVM test suites, then complete the Bootstrap → Login → Send OTP → OTP → Verify test plan and review any cross-destination response-reference findings.**
+**Complete the final Dynamic documentation freeze/reconciliation. The implementation and current JVM verification are complete for the tested Bootstrap → Login → Send OTP → OTP → Verify flow.**
 
-Do not reopen DYNAMIC-01 → DYNAMIC-07. Do not change production architecture to satisfy stale fixtures. Do not mark tests green without an actual Gradle run.
+Do not reopen DYNAMIC-01 → DYNAMIC-08. Do not change production architecture to satisfy stale fixtures. The verified baseline is now documentation-freeze work only.
 
 ## 23. ONE-LINE EXTERNAL AI INSTRUCTION
 
