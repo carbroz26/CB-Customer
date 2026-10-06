@@ -54,13 +54,13 @@ class DynamicActionExecutor(
                 ?: error("Dynamic sequence action type is missing")
             val payload = (objectValue.value["payload"] as? DynamicValue.ObjectValue)?.value ?: emptyMap()
             val destination = (objectValue.value["destination"] as? DynamicValue.ObjectValue)?.toDestination()
-            last = dispatch(
-                DynamicAction(type = type, payload = payload, destination = destination),
-                navigation,
-                bindings,
-                context,
-                previousResponse,
-            )
+            last = execute(
+                action = DynamicAction(type = type, payload = payload, destination = destination),
+                navigation = navigation,
+                bindings = bindings,
+                context = context,
+                previousResponse = previousResponse,
+            ).getOrThrow()
         }
         return last
     }
