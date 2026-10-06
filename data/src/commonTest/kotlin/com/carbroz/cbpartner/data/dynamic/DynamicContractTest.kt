@@ -2,6 +2,8 @@ package com.carbroz.cbpartner.data.dynamic
 
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
+import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
+import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
@@ -36,11 +38,17 @@ class DynamicContractTest {
 
         val mobileInput = assertIs<InputElement>(input)
         assertEquals("mobileNumber", mobileInput.binding?.key)
+        val mobileLeading = assertIs<DividerContent>(mobileInput.leadingContent.single())
+        assertEquals(null, mobileLeading.id)
+        assertEquals(36.0, mobileLeading.width)
         val continueButton = screen.template.components
             .flatMap { it.sections }
             .flatMap { it.elements }
             .first { it.id == "continue_button" }
         val button = assertIs<ButtonElement>(continueButton)
+        val buttonTrailing = assertIs<IconContent>(button.trailingContent.single())
+        assertEquals(null, buttonTrailing.id)
+        assertEquals("arrow_forward", buttonTrailing.name)
         val continueAction = assertNotNull(button.actions["onClick"])
         assertEquals("request", continueAction.type)
         assertEquals(
@@ -90,6 +98,11 @@ class DynamicContractTest {
 
         val phoneText = assertIs<TextElement>(phone)
         assertNotNull(phoneText.actions["onClick"]?.destination)
+        val phoneSpan = assertNotNull(phoneText.spans.singleOrNull())
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("\$context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
+            phoneSpan.text,
+        )
     }
 
     @Test
