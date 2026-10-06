@@ -211,10 +211,10 @@ Known Gradle warnings on Windows are non-fatal: iOS simulator tests require macO
 - Cross-session state: `docs/project-management/14-PROJECT-MASTER-STATE.md`
 - Current status: `docs/project-management/04-CURRENT-STATUS.md`
 - Current architecture: `docs/architecture/ARCHITECTURE-CURRENT-STATE.md`
-- Dynamic discussion: `docs/features/dynamic/00-FEATURE-DISCUSSION.md`
-- Final reconciliation: `docs/features/dynamic/03-FINAL-RECONCILIATION-2026-10-04.md`
-- Dynamic plan: `docs/features/dynamic/01-IMPLEMENTATION-PLAN.md`
-- Dynamic status: `docs/features/dynamic/02-IMPLEMENTATION-STATUS.md`
+- Dynamic discussion: `docs/dynamic/DYNAMIC-ARCHITECTURE-FROZEN.md`
+- Final reconciliation: `docs/dynamic/DYNAMIC-DISCUSSION-AND-DECISIONS.md`
+- Dynamic plan: `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN-FROZEN.md`
+- Dynamic status: `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md`
 - Historical base decisions: `docs/architecture/BASE-ARCHITECTURE.md`
 
 Historical chat is not an implementation source.
