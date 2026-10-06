@@ -20,7 +20,11 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 class DividerElement : ElementRenderer {
     @Composable override fun render(element: DynamicElement, context: DynamicRenderContext) {
         val model = element as? DividerElementModel ?: return
-        Box(modifier = Modifier.applyLayout(model).background(model.color?.toColor() ?: Color.Gray))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            context.renderContent(model.leadingContent)
+            Box(modifier = Modifier.applyLayout(model).background(model.color?.toColor() ?: Color.Gray))
+            context.renderContent(model.trailingContent)
+        }
     }
 }
 
@@ -32,8 +36,10 @@ class IconElement : ElementRenderer {
             "edit" -> "✎"
             else -> "•"
         }
-        Row(modifier = Modifier.applyLayout(model), verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            context.renderContent(model.leadingContent)
             Text(text = glyph, color = model.color?.toColor() ?: Color.Unspecified, fontSize = model.size?.sp ?: 18.sp)
+            context.renderContent(model.trailingContent)
         }
     }
 }
