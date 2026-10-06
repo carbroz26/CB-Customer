@@ -13,6 +13,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class RequestActionHandlerTest {
+    private companion object {
+        const val DOLLAR = "$"
+    }
+
     @Test
     fun verifyRequestResolvesBindingContextAndPreviousResponse() = runTest {
         var capturedRequest: DynamicRequest? = null
@@ -21,31 +25,16 @@ class RequestActionHandlerTest {
                 capturedRequest = request
                 return Result.success(
                     DynamicResponse(
-                        status = 200,
-                        code = "SUCCESS",
-                        message = "Verified",
-                        data = null,
-                        traceId = "verify",
-                        destination = DynamicDestination(
-                            screenId = "partner_dashboard",
-                            templateId = "tpl_dashboard",
-                            templateType = "form_template",
-                            endpoint = "/api/v1/partner/screen/dashboard",
-                        ),
+                        status = 200, code = "SUCCESS", message = "Verified", data = null, traceId = "verify",
+                        destination = DynamicDestination("partner_dashboard", "tpl_dashboard", "form_template", "/api/v1/partner/screen/dashboard"),
                     ),
                 )
             }
         }
 
         val navigation = DynamicNavigationState(
-            DynamicDestination(
-                screenId = "partner_otp",
-                templateId = "tpl_P102O",
-                templateType = "form_template",
-                endpoint = "/api/v1/partner/screen/auth_otp",
-            ),
+            DynamicDestination("partner_otp", "tpl_P102O", "form_template", "/api/v1/partner/screen/auth_otp"),
         )
-
         val action = DynamicAction(
             type = "request",
             payload = mapOf(
@@ -56,29 +45,18 @@ class RequestActionHandlerTest {
                 "responseMode" to DynamicValue.StringValue("destination"),
                 "body" to DynamicValue.ObjectValue(
                     mapOf(
-                        "challengeId" to DynamicValue.ObjectValue(
-                            mapOf("${' to DynamicValue.StringValue("data.challengeId")),
-                        ),
-                        "phoneNumber" to DynamicValue.ObjectValue(
-                            mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
-                        ),
-                        "otp" to DynamicValue.ObjectValue(
-                            mapOf("${' to DynamicValue.StringValue("otp")),
-                        ),
+                        "challengeId" to DynamicValue.ObjectValue(mapOf("${DOLLAR}response" to DynamicValue.StringValue("data.challengeId"))),
+                        "phoneNumber" to DynamicValue.ObjectValue(mapOf("${DOLLAR}context" to DynamicValue.StringValue("authFlow.phoneNumber"))),
+                        "otp" to DynamicValue.ObjectValue(mapOf("${DOLLAR}binding" to DynamicValue.StringValue("otp"))),
                     ),
                 ),
             ),
         )
-
         val previousResponse = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
-                ),
-            ),
+            mapOf("data" to DynamicValue.ObjectValue(mapOf("challengeId" to DynamicValue.StringValue("challenge-123")))),
         )
 
-        RequestActionHandler(repository).handle(
+        val result = RequestActionHandler(repository).handle(
             action = action,
             navigation = navigation,
             bindings = mapOf("otp" to "123456"),
@@ -86,336 +64,14 @@ class RequestActionHandlerTest {
             previousResponse = previousResponse,
         )
 
+        assertIs<DynamicActionResult.Navigate>(result)
         val request = requireNotNull(capturedRequest)
         val body = assertIs<DynamicValue.ObjectValue>(request.body)
-
         assertEquals("/api/v1/partner/auth/verify_otp", request.endpoint)
         assertEquals("POST", request.method)
         assertEquals("NONE", request.authentication)
-        assertEquals(
-            DynamicValue.StringValue("challenge-123"),
-            body.value["challengeId"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("+919876543210"),
-            body.value["phoneNumber"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("123456"),
-            body.value["otp"],
-        )
-    }
-}
-}binding" to DynamicValue.StringValue("otp")),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        val previousResponse = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
-                ),
-            ),
-        )
-
-        RequestActionHandler(repository).handle(
-            action = action,
-            navigation = navigation,
-            bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
-            previousResponse = previousResponse,
-        )
-
-        val request = requireNotNull(capturedRequest)
-        val body = assertIs<DynamicValue.ObjectValue>(request.body)
-
-        assertEquals("/api/v1/partner/auth/verify_otp", request.endpoint)
-        assertEquals("POST", request.method)
-        assertEquals("NONE", request.authentication)
-        assertEquals(
-            DynamicValue.StringValue("challenge-123"),
-            body.value["challengeId"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("+919876543210"),
-            body.value["phoneNumber"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("123456"),
-            body.value["otp"],
-        )
-    }
-}
-}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
-                        ),
-                        "otp" to DynamicValue.ObjectValue(
-                            mapOf("${' to DynamicValue.StringValue("otp")),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        val previousResponse = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
-                ),
-            ),
-        )
-
-        RequestActionHandler(repository).handle(
-            action = action,
-            navigation = navigation,
-            bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
-            previousResponse = previousResponse,
-        )
-
-        val request = requireNotNull(capturedRequest)
-        val body = assertIs<DynamicValue.ObjectValue>(request.body)
-
-        assertEquals("/api/v1/partner/auth/verify_otp", request.endpoint)
-        assertEquals("POST", request.method)
-        assertEquals("NONE", request.authentication)
-        assertEquals(
-            DynamicValue.StringValue("challenge-123"),
-            body.value["challengeId"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("+919876543210"),
-            body.value["phoneNumber"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("123456"),
-            body.value["otp"],
-        )
-    }
-}
-}binding" to DynamicValue.StringValue("otp")),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        val previousResponse = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
-                ),
-            ),
-        )
-
-        RequestActionHandler(repository).handle(
-            action = action,
-            navigation = navigation,
-            bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
-            previousResponse = previousResponse,
-        )
-
-        val request = requireNotNull(capturedRequest)
-        val body = assertIs<DynamicValue.ObjectValue>(request.body)
-
-        assertEquals("/api/v1/partner/auth/verify_otp", request.endpoint)
-        assertEquals("POST", request.method)
-        assertEquals("NONE", request.authentication)
-        assertEquals(
-            DynamicValue.StringValue("challenge-123"),
-            body.value["challengeId"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("+919876543210"),
-            body.value["phoneNumber"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("123456"),
-            body.value["otp"],
-        )
-    }
-}
-}response" to DynamicValue.StringValue("data.challengeId")),
-                        ),
-                        "phoneNumber" to DynamicValue.ObjectValue(
-                            mapOf("${' to DynamicValue.StringValue("authFlow.phoneNumber")),
-                        ),
-                        "otp" to DynamicValue.ObjectValue(
-                            mapOf("${' to DynamicValue.StringValue("otp")),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        val previousResponse = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
-                ),
-            ),
-        )
-
-        RequestActionHandler(repository).handle(
-            action = action,
-            navigation = navigation,
-            bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
-            previousResponse = previousResponse,
-        )
-
-        val request = requireNotNull(capturedRequest)
-        val body = assertIs<DynamicValue.ObjectValue>(request.body)
-
-        assertEquals("/api/v1/partner/auth/verify_otp", request.endpoint)
-        assertEquals("POST", request.method)
-        assertEquals("NONE", request.authentication)
-        assertEquals(
-            DynamicValue.StringValue("challenge-123"),
-            body.value["challengeId"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("+919876543210"),
-            body.value["phoneNumber"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("123456"),
-            body.value["otp"],
-        )
-    }
-}
-}binding" to DynamicValue.StringValue("otp")),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        val previousResponse = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
-                ),
-            ),
-        )
-
-        RequestActionHandler(repository).handle(
-            action = action,
-            navigation = navigation,
-            bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
-            previousResponse = previousResponse,
-        )
-
-        val request = requireNotNull(capturedRequest)
-        val body = assertIs<DynamicValue.ObjectValue>(request.body)
-
-        assertEquals("/api/v1/partner/auth/verify_otp", request.endpoint)
-        assertEquals("POST", request.method)
-        assertEquals("NONE", request.authentication)
-        assertEquals(
-            DynamicValue.StringValue("challenge-123"),
-            body.value["challengeId"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("+919876543210"),
-            body.value["phoneNumber"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("123456"),
-            body.value["otp"],
-        )
-    }
-}
-}context" to DynamicValue.StringValue("authFlow.phoneNumber")),
-                        ),
-                        "otp" to DynamicValue.ObjectValue(
-                            mapOf("${' to DynamicValue.StringValue("otp")),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        val previousResponse = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
-                ),
-            ),
-        )
-
-        RequestActionHandler(repository).handle(
-            action = action,
-            navigation = navigation,
-            bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
-            previousResponse = previousResponse,
-        )
-
-        val request = requireNotNull(capturedRequest)
-        val body = assertIs<DynamicValue.ObjectValue>(request.body)
-
-        assertEquals("/api/v1/partner/auth/verify_otp", request.endpoint)
-        assertEquals("POST", request.method)
-        assertEquals("NONE", request.authentication)
-        assertEquals(
-            DynamicValue.StringValue("challenge-123"),
-            body.value["challengeId"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("+919876543210"),
-            body.value["phoneNumber"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("123456"),
-            body.value["otp"],
-        )
-    }
-}
-}binding" to DynamicValue.StringValue("otp")),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        val previousResponse = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf("challengeId" to DynamicValue.StringValue("challenge-123")),
-                ),
-            ),
-        )
-
-        RequestActionHandler(repository).handle(
-            action = action,
-            navigation = navigation,
-            bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
-            previousResponse = previousResponse,
-        )
-
-        val request = requireNotNull(capturedRequest)
-        val body = assertIs<DynamicValue.ObjectValue>(request.body)
-
-        assertEquals("/api/v1/partner/auth/verify_otp", request.endpoint)
-        assertEquals("POST", request.method)
-        assertEquals("NONE", request.authentication)
-        assertEquals(
-            DynamicValue.StringValue("challenge-123"),
-            body.value["challengeId"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("+919876543210"),
-            body.value["phoneNumber"],
-        )
-        assertEquals(
-            DynamicValue.StringValue("123456"),
-            body.value["otp"],
-        )
+        assertEquals(DynamicValue.StringValue("challenge-123"), body.value["challengeId"])
+        assertEquals(DynamicValue.StringValue("+919876543210"), body.value["phoneNumber"])
+        assertEquals(DynamicValue.StringValue("123456"), body.value["otp"])
     }
 }
