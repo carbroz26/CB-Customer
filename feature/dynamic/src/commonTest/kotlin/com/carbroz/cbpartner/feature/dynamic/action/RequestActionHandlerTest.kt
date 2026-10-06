@@ -18,7 +18,7 @@ class RequestActionHandlerTest {
     }
 
     @Test
-    fun verifyRequestResolvesBindingContextAndPreviousResponse() = runTest {
+    fun verifyRequestResolvesBindingContextAndChallengeId() = runTest {
         var capturedRequest: DynamicRequest? = null
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
@@ -52,16 +52,12 @@ class RequestActionHandlerTest {
                 ),
             ),
         )
-        val previousResponse = DynamicValue.ObjectValue(
-            mapOf("data" to DynamicValue.ObjectValue(mapOf("challengeId" to DynamicValue.StringValue("challenge-123")))),
-        )
-
         val result = RequestActionHandler(repository).handle(
             action = action,
             navigation = navigation,
             bindings = mapOf("otp" to "123456"),
-            context = mapOf("authFlow.phoneNumber" to "+919876543210"),
-            previousResponse = previousResponse,
+            context = mapOf("authFlow.phoneNumber" to "+919876543210", "challengeId" to "challenge-123"),
+            previousResponse = null,
         )
 
         assertIs<DynamicActionResult.Navigate>(result)
