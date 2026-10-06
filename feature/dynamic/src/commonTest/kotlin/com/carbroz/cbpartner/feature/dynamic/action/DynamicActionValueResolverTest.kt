@@ -10,8 +10,8 @@ class DynamicActionValueResolverTest {
     fun resolvesMultipleBindings() {
         val input = DynamicValue.ObjectValue(
             mapOf(
-                "first" to ref("$binding", "firstName"),
-                "second" to ref("$binding", "email"),
+                "first" to ref("\$binding", "firstName"),
+                "second" to ref("\$binding", "email"),
             ),
         )
 
@@ -37,12 +37,12 @@ class DynamicActionValueResolverTest {
     fun resolvesContextInsideNestedObjectAndArray() {
         val input = DynamicValue.ObjectValue(
             mapOf(
-                "session" to ref("$context", "session.id"),
+                "session" to ref("\$context", "session.id"),
                 "items" to DynamicValue.ArrayValue(
                     listOf(
-                        ref("$context", "device.id"),
+                        ref("\$context", "device.id"),
                         DynamicValue.ObjectValue(
-                            mapOf("region" to ref("$context", "device.region")),
+                            mapOf("region" to ref("\$context", "device.region")),
                         ),
                     ),
                 ),
@@ -72,9 +72,9 @@ class DynamicActionValueResolverTest {
     fun resolvesResponsePathAndMissingReferencesSafely() {
         val input = DynamicValue.ObjectValue(
             mapOf(
-                "existing" to ref("$response", "data.reference.id"),
-                "missing" to ref("$response", "data.unknown"),
-                "noResponse" to ref("$response", "data.reference"),
+                "existing" to ref("\$response", "data.reference.id"),
+                "missing" to ref("\$response", "data.unknown"),
+                "noResponse" to ref("\$response", "data.reference"),
             ),
         )
         val previous = DynamicValue.ObjectValue(
@@ -104,7 +104,7 @@ class DynamicActionValueResolverTest {
         assertEquals(
             DynamicValue.NullValue,
             DynamicActionValueResolver.resolve(
-                ref("$response", "data.reference"),
+                ref("\$response", "data.reference"),
                 emptyMap(),
                 emptyMap(),
                 null,
@@ -115,10 +115,10 @@ class DynamicActionValueResolverTest {
     @Test
     fun resolvesLiteralRecursively() {
         val input = ref(
-            "$literal",
+            "\$literal",
             DynamicValue.ObjectValue(
                 mapOf(
-                    "raw" to ref("$binding", "value"),
+                    "raw" to ref("\$binding", "value"),
                 ),
             ),
         )
