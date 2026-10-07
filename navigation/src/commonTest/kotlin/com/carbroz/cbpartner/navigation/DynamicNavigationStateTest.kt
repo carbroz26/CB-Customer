@@ -32,6 +32,19 @@ class DynamicNavigationStateTest {
         assertFalse(state.pop())
     }
 
+    @Test
+    fun replaceReplacesOnlyTheCurrentEntry() {
+        val state = DynamicNavigationState(destination("root"))
+        val first = state.currentEntry
+
+        state.push(destination("second"))
+        state.replace(destination("replacement"))
+
+        assertSame(first, state.backStack.first())
+        assertEquals("replacement", state.currentDestination.screenId)
+        assertTrue(state.backStack.size == 2)
+    }
+
     private fun destination(id: String) =
         DynamicDestination(id, "tpl_$id", "form_template", "/$id")
 }
