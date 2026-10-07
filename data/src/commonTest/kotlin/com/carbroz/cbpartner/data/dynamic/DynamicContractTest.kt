@@ -80,7 +80,7 @@ class DynamicContractTest {
         )
         assertEquals(
             DynamicValue.StringValue("fieldB"),
-            (body.value["fieldB"] as DynamicValue.ObjectValue).value["$binding"],
+            (body.value["fieldB"] as DynamicValue.ObjectValue).value["\$binding"],
         )
         assertEquals(
             DynamicValue.StringValue("deviceId"),
