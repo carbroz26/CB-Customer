@@ -100,8 +100,9 @@ class RequestHandler(
 
     @PublishedApi
     internal fun formatJson(value: String): String = runCatching {
-        val element = Json.parseToJsonElement(value)
-        Json { prettyPrint = true }.encodeToString(JsonElement.serializer(), element)
+        val formatter = Json { prettyPrint = true }
+        val element = formatter.parseToJsonElement(value)
+        formatter.encodeToString(JsonElement.serializer(), element)
     }.getOrElse { value }
 
     @PublishedApi
