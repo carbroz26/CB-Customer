@@ -42,7 +42,7 @@ class DynamicReferenceResolverTest {
         assertFailsWith<IllegalStateException> {
             DynamicReferenceResolver.resolve(
                 DynamicValue.ObjectValue(
-                    mapOf("$response" to DynamicValue.StringValue("data.reference")),
+                    mapOf("\$response" to DynamicValue.StringValue("data.reference")),
                 ),
                 emptyMap(),
                 emptyMap(),
@@ -56,7 +56,7 @@ class DynamicReferenceResolverTest {
         assertFailsWith<IllegalStateException> {
             DynamicReferenceResolver.resolve(
                 DynamicValue.ObjectValue(
-                    mapOf("$unknown" to DynamicValue.StringValue("value")),
+                    mapOf("\$unknown" to DynamicValue.StringValue("value")),
                 ),
                 emptyMap(),
                 emptyMap(),
