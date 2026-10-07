@@ -82,13 +82,16 @@ class DynamicActionExecutor(
                 depth + 1,
             )
             when (val result = last) {
-                is DynamicActionResult.StateChanged -> sequenceState[result.key] = result.value
+                is DynamicActionResult.StateChanged -> sequenceState.putAll(result.changes)
                 is DynamicActionResult.Navigate -> sequenceState.putAll(result.stateChanges)
                 else -> Unit
             }
         }
         return when (last) {
-            is DynamicActionResult.Navigate -> last.copy(stateChanges = sequenceState - state.keys)
+            is DynamicActionResult.Navigate -> last.copy(stateChanges = sequenceState.filterKeys { key -> state[key] != sequenceState[key] })
+            is DynamicActionResult.StateChanged -> DynamicActionResult.StateChanged(
+                sequenceState.filterKeys { key -> state[key] != sequenceState[key] },
+            )
             else -> last
         }
     }
