@@ -24,8 +24,10 @@ class DynamicActionExecutorTest {
                     context: Map<String, DynamicValue>,
                     state: Map<String, DynamicValue>,
                 ): DynamicActionResult = DynamicActionResult.StateChanged(
-                    key = (action.payload["key"] as DynamicValue.StringValue).value,
-                    value = action.payload["value"] ?: DynamicValue.NullValue,
+                    mapOf(
+                        (action.payload["key"] as DynamicValue.StringValue).value to
+                            (action.payload["value"] ?: DynamicValue.NullValue),
+                    ),
                 )
             }),
         )
@@ -57,8 +59,7 @@ class DynamicActionExecutorTest {
             state = emptyMap(),
         )
         val stateChanged = assertIs<DynamicActionResult.StateChanged>(result.getOrThrow())
-        assertEquals("step", stateChanged.key)
-        assertEquals(DynamicValue.StringValue("nested"), stateChanged.value)
+        assertEquals(DynamicValue.StringValue("nested"), stateChanged.changes["step"])
     }
 
     @Test
