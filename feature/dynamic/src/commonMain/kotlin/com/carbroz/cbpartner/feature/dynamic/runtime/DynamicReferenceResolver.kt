@@ -23,6 +23,10 @@ internal object DynamicReferenceResolver {
             }
 
             val referenceKeys = value.value.keys.intersect(namespaces - "\$response")
+            val unknownReferenceKeys = value.value.keys.filter { it.startsWith("\$") && it !in namespaces }
+            check(unknownReferenceKeys.isEmpty()) {
+                "Unsupported Dynamic reference namespace: " + unknownReferenceKeys.first()
+            }
             check(referenceKeys.size <= 1) {
                 "Dynamic value contains multiple reference namespaces"
             }
