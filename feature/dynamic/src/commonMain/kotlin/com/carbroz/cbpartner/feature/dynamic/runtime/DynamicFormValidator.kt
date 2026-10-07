@@ -17,7 +17,7 @@ class DynamicFormValidator {
         return null
     }
 
-    private fun validateElement(element: DynamicElement, bindings: Map<String, String>): String? {
+    private fun validateElement(element: DynamicElement, bindings: Map<String, DynamicValue>): String? {
         if (element !is InputElement) return null
         val validation = element.validation ?: return null
         val key = element.binding?.key ?: return null
