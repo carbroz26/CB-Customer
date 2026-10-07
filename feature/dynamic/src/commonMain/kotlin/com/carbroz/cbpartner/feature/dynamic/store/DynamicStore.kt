@@ -12,9 +12,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 sealed interface DynamicIntent {
@@ -48,8 +50,8 @@ class DynamicStore(
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
 
-    private val _effects = MutableStateFlow<DynamicEffect?>(null)
-    val effects: StateFlow<DynamicEffect?> = _effects.asStateFlow()
+    private val _effects = Channel<DynamicEffect>(Channel.BUFFERED)
+    val effects = _effects.receiveAsFlow()
 
     private var loadJob: Job? = null
     private var actionJob: Job? = null
@@ -133,11 +135,11 @@ class DynamicStore(
             is DynamicActionResult.StateChanged -> runtimeState.setAll(result.changes)
             is DynamicActionResult.Navigate -> {
                 runtimeState.setAll(result.stateChanges)
-                _effects.value = DynamicEffect.Navigation(result)
+                _effects.trySend(DynamicEffect.Navigation(result))
             }
             is DynamicActionResult.ExternalUri -> {
                 runtimeState.setAll(result.stateChanges)
-                _effects.value = DynamicEffect.ExternalUri(result.uri)
+                _effects.trySend(DynamicEffect.ExternalUri(result.uri))
             }
         }
     }
@@ -152,9 +154,6 @@ class DynamicStore(
         _state.value = DynamicState.Success(screen)
     }
 
-    fun clearEffect() {
-        _effects.value = null
-    }
 
     fun close() {
         loadJob?.cancel()
