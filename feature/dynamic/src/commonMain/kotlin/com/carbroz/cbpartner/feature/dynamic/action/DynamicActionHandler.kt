@@ -6,5 +6,11 @@ import com.carbroz.cbpartner.navigation.DynamicNavigationState
 
 interface DynamicActionHandler {
     val type: String
-    suspend fun handle(action: DynamicAction, navigation: DynamicNavigationState, bindings: Map<String,String>, context: Map<String,String>, previousResponse: DynamicValue?): DynamicActionResult
+    suspend fun handle(
+        action: DynamicAction,
+        navigation: DynamicNavigationState,
+        bindings: Map<String, DynamicValue>,
+        context: Map<String, DynamicValue>,
+        state: Map<String, DynamicValue>,
+    ): DynamicActionResult
 }
