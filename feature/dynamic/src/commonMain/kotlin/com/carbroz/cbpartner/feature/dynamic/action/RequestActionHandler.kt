@@ -73,7 +73,7 @@ class RequestActionHandler(
         )
         return mappings.value.mapNotNull { (key, pathValue) ->
             val path = DynamicActionValueResolver.string(pathValue) ?: return@mapNotNull null
-            key to DynamicActionValueResolver.resolvePath(root, path)
+            key to DynamicActionValueResolver.resolvePath(root.value, path)
         }.toMap()
     }
 }
