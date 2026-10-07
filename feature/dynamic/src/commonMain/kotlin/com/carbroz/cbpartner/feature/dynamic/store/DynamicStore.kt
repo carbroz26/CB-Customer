@@ -1,6 +1,5 @@
 package com.carbroz.cbpartner.feature.dynamic.store
 
-import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
@@ -40,17 +39,14 @@ sealed interface DynamicState {
 class DynamicStore(
     private val loadDynamicScreen: LoadDynamicScreenUseCase,
     private val actionExecutor: DynamicActionExecutor,
+    private val validator: DynamicFormValidator,
     private val entry: DynamicNavigationEntry,
     private val runtimeState: DynamicRuntimeState,
     private val contextProvider: () -> Map<String, DynamicValue> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) {
-    private val validator = DynamicFormValidator()
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
-
-    val context: Map<String, DynamicValue> = contextProvider()
-    val runtimeValues: StateFlow<Map<String, DynamicValue>> = runtimeState.values
 
     private val _effects = MutableStateFlow<DynamicEffect?>(null)
     val effects: StateFlow<DynamicEffect?> = _effects.asStateFlow()
@@ -98,21 +94,24 @@ class DynamicStore(
 
     private fun handleAction(action: DynamicAction) {
         val current = currentScreen() ?: return
-        val shouldValidate = (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
-        if (shouldValidate && current.response?.data != null) {
-            val message = validator.validate(current.response.data, current.bindings)
-            if (message != null) {
-                reduce(current.copy(validationMessage = message))
-                return
+        if (requiresValidation(action)) {
+            val screen = current.response?.data
+            if (screen != null) {
+                val message = validator.validate(screen, current.bindings)
+                if (message != null) {
+                    reduce(current.copy(validationMessage = message))
+                    return
+                }
+                reduce(current.copy(validationMessage = null))
             }
-            reduce(current.copy(validationMessage = null))
         }
+
         if (actionJob?.isActive == true) return
         actionJob = scope.launch {
             actionExecutor.execute(
                 action = action,
                 bindings = current.bindings,
-                context = context,
+                context = contextProvider(),
                 state = runtimeState.values.value,
             ).onSuccess(::applyActionResult)
                 .onFailure { error ->
@@ -125,6 +124,9 @@ class DynamicStore(
         }
     }
 
+    private fun requiresValidation(action: DynamicAction): Boolean =
+        (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
+
     private fun applyActionResult(result: DynamicActionResult) {
         when (result) {
             DynamicActionResult.Completed -> Unit
@@ -133,7 +135,10 @@ class DynamicStore(
                 runtimeState.setAll(result.stateChanges)
                 _effects.value = DynamicEffect.Navigation(result)
             }
-            is DynamicActionResult.ExternalUri -> _effects.value = DynamicEffect.ExternalUri(result.uri)
+            is DynamicActionResult.ExternalUri -> {
+                runtimeState.setAll(result.stateChanges)
+                _effects.value = DynamicEffect.ExternalUri(result.uri)
+            }
         }
     }
 
