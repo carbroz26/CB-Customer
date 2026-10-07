@@ -485,3 +485,94 @@ RuntimeState supports dotted paths such as `session.reference.id`. State writes 
 ### 20.8 Shared JSON mapper
 `DynamicResponseMapper` receives the existing injected kotlinx.serialization `Json`. It must not instantiate a private Json configuration. `DynamicDataModule` remains the DI owner of the mapper.
 
+
+## 21. Source-by-source reconciliation contract — 2026-10-07
+
+This section is mandatory. It maps the inspected source to the frozen target. Implementation is incomplete until every item is satisfied.
+
+### 21.1 Store
+Current violations:
+- constructs DynamicFormValidator internally;
+- decides validation from raw action payload;
+- combines loading, action jobs, screen reduction, runtime-state application and effect conversion;
+- exposes RuntimeState directly;
+- stores Context as a snapshot property;
+- branches on DynamicActionResult variants.
+
+Target:
+- DynamicStore remains the Pure MVI orchestration boundary; do not create managers for trivial responsibilities.
+- Inject DynamicFormValidator as a pure capability.
+- Store may coordinate generic validation requested by an action, but validation rules remain only in DynamicFormValidator.
+- Store may reduce action results into canonical state/effects; it must not implement request/navigation/URI capability details.
+- RuntimeState mutation occurs only through DynamicRuntimeState.
+- Store exposes canonical DynamicState and one-shot DynamicEffect.
+- No navigation object, repository, HTTP client, renderer or platform launcher is owned by Store.
+
+### 21.2 Screen state
+DynamicScreenState is immutable and belongs to exactly one navigation entry. It contains the screen document, typed bindings and validation information. Loading/failure remain part of the surrounding MVI state.
+It must not contain RuntimeState, navigation stack, executor, repository or mutable Context.
+There is no second BindingState source of truth.
+
+### 21.3 RuntimeState
+DynamicRuntimeState is the sole retained Dynamic flow-state capability:
+- read current typed tree;
+- resolve nested paths;
+- apply typed changes.
+Change sets should be applied atomically rather than emitting one intermediate state per retained key.
+No frontend-defined business namespace or business-specific API is allowed.
+
+### 21.4 Context
+Context is immutable/read-only typed application composition data. Dynamic never mutates or persists it. Only platform, appVersion, buildNumber and deviceId are supplied by the current frozen runtime metadata contract.
+
+### 21.5 Reference resolver
+DynamicReferenceResolver is the only path traversal implementation. Exactly these namespaces are supported:
+- $binding
+- $context
+- $state
+- $literal
+$response is not a namespace and must not appear in the supported namespace set.
+The resolver preserves DynamicValue types and recursively resolves ObjectValue/ArrayValue children.
+
+### 21.6 Action executor and handlers
+DynamicActionExecutor only normalizes, validates duplicate registration, dispatches and sequences actions with a finite depth boundary. It never mutates navigation, performs HTTP or retains response data.
+DynamicActionHandler implements one capability and returns DynamicActionResult. It never mutates navigation or platform state.
+RequestActionHandler resolves generic request metadata/body, calls DynamicRepository, extracts only explicitly configured retain mappings and returns transient state changes/navigation instructions.
+StateActionHandler writes arbitrary server-defined RuntimeState keys using typed DynamicValue.
+Navigate/Present/Dismiss return navigation instructions only.
+ExternalUri returns an external URI effect only.
+
+### 21.7 Sequence semantics
+Each state-producing action in a sequence must feed its state changes into the state snapshot used by subsequent actions. Typed values, navigation result and explicit state changes must be preserved. Sequence depth protection remains deterministic.
+
+### 21.8 Navigation
+NavigationState is the only stack owner. DynamicNavigationEntry remains identity-only and contains only DynamicDestination.
+DynamicContainer is the effect/application boundary. No action handler mutates DynamicNavigationState.
+Normal back is pop. Returning to a prior entry must reveal its existing screen state without a destination-driven reload.
+
+### 21.9 Entry-scoped Store lifecycle
+Navigation entry identity, not destination equality, is the Store lifecycle key. No global Store map, DynamicScreenCache, DynamicNavigationStack or destination-keyed cache is allowed.
+If Navigation 3 requires an existing entry-scoped state-retention decorator to preserve entry composition/state while the entry remains on the back stack, use that existing navigation mechanism rather than creating Dynamic infrastructure.
+
+### 21.10 Rendering
+DynamicRenderer validates screen/destination identity, resolves template.type through DynamicRegistry, constructs DynamicRenderContext and delegates. No concrete template branch exists in the root renderer.
+Rendering follows Template → Component → Section → Group → Element → Content where applicable.
+Renderers do not execute actions, call repositories, mutate RuntimeState or mutate navigation.
+
+### 21.11 Registry
+Separate template/component/section/group/element/content registries remain behind DynamicRegistry. Duplicate normalized keys fail deterministically. No silent replacement.
+
+### 21.12 Domain/data/network
+Domain remains generic. DynamicDestination is identity only.
+Data owns Dynamic repository and mapping; mapper preserves String/Number/Boolean/Object/Array/Null and uses injected Json.
+Network owns HTTP infrastructure and canonical authentication/metadata/logging behavior. Dynamic creates no HttpClient.
+
+### 21.13 Generic fixture
+The authoritative fixture must demonstrate bootstrap destination, screen document, binding, context, request, transient response, explicit retention into RuntimeState, next destination, $state lookup, normal back restoration, generic navigation, external URI, validation and typed values.
+No $response or business-specific namespace is permitted.
+
+### 21.14 Final source audit
+Before final build/test inspect every Dynamic commonMain file, every Dynamic test, navigation integration, application composition/DI, Dynamic domain/data contracts and mapper, then search for all forbidden patterns and review the complete diff against this plan. A passing build does not override an SRP/boundary violation.
+
+### 21.15 Implementation order
+Implement sequentially: runtime/reference/value contracts → screen state/Store → action executor/handlers → navigation integration → renderer/registry → domain/data → composition/DI → tests/fixtures → docs/status → source audit → final Gradle build/test.
+No unrelated architecture may be added.
