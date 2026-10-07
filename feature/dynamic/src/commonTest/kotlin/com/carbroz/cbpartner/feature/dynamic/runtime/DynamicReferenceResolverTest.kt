@@ -20,7 +20,7 @@ class DynamicReferenceResolverTest {
         assertEquals(
             DynamicValue.NumberValue(3.0),
             DynamicReferenceResolver.resolve(
-                DynamicValue.ObjectValue(mapOf("$state" to DynamicValue.StringValue("flow.count"))),
+                DynamicValue.ObjectValue(mapOf("\$state" to DynamicValue.StringValue("flow.count"))),
                 emptyMap(),
                 emptyMap(),
                 state,
@@ -29,7 +29,7 @@ class DynamicReferenceResolverTest {
         assertEquals(
             DynamicValue.BooleanValue(true),
             DynamicReferenceResolver.resolve(
-                DynamicValue.ObjectValue(mapOf("$state" to DynamicValue.StringValue("flow.enabled"))),
+                DynamicValue.ObjectValue(mapOf("\$state" to DynamicValue.StringValue("flow.enabled"))),
                 emptyMap(),
                 emptyMap(),
                 state,
@@ -71,7 +71,7 @@ class DynamicReferenceResolverTest {
             DynamicValue.ObjectValue(
                 mapOf(
                     "nested" to DynamicValue.ObjectValue(
-                        mapOf("$context" to DynamicValue.StringValue("environment")),
+                        mapOf("\$context" to DynamicValue.StringValue("environment")),
                     ),
                 ),
             ),
