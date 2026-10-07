@@ -8,9 +8,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.DynamicContainer
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.registry.dynamicRendererRegistry
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
 import com.carbroz.cbpartner.feature.splash.SplashScreen
 import com.carbroz.cbpartner.feature.splash.SplashState
@@ -46,25 +48,31 @@ private fun DynamicContent(
     runtimeMetadataProvider: RuntimeMetadataProvider,
 ) {
     val navigationState = remember(initialDestination) { DynamicNavigationState(initialDestination) }
+    val runtimeState = remember { DynamicRuntimeState() }
     val registry = remember { dynamicRendererRegistry() }
-    val dynamicStore = remember(initialDestination) {
-        DynamicStore(
-            loadDynamicScreen = koin.get(),
-            actionExecutor = koin.get<DynamicActionExecutor>(),
-            destination = initialDestination,
-            contextProvider = { runtimeMetadataProvider.current().asContext() },
-        )
-    }
 
-    DisposableEffect(dynamicStore) {
-        onDispose { dynamicStore.close() }
-    }
-
-    DynamicNavigationHost(state = navigationState) { destination ->
+    DynamicNavigationHost(state = navigationState) { entry ->
+        val metadata = runtimeMetadataProvider.current()
         DynamicContainer(
-            destination = destination,
+            entry = entry,
             navigation = navigationState,
-            store = dynamicStore,
+            runtimeState = runtimeState,
+            storeFactory = {
+                DynamicStore(
+                    loadDynamicScreen = koin.get(),
+                    actionExecutor = koin.get<DynamicActionExecutor>(),
+                    entry = entry,
+                    runtimeState = runtimeState,
+                    contextProvider = {
+                        mapOf(
+                            "platform" to DynamicValue.StringValue(metadata.platform),
+                            "appVersion" to DynamicValue.StringValue(metadata.appVersion),
+                            "buildNumber" to DynamicValue.StringValue(metadata.buildNumber),
+                            "deviceId" to DynamicValue.StringValue(metadata.deviceId),
+                        )
+                    },
+                )
+            },
             registry = registry,
         )
     }
