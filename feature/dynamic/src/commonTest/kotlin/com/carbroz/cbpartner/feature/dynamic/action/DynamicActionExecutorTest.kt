@@ -73,3 +73,111 @@ class DynamicActionExecutorTest {
         }
     }
 }
+
+
+    @Test
+    fun sequencePreservesStateWhenFinalActionCompletes() = runTest {
+        val executor = DynamicActionExecutor(
+            listOf(
+                object : DynamicActionHandler {
+                    override val type = "state"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.StateChanged(
+                        mapOf("reference" to DynamicValue.StringValue("retained")),
+                    )
+                },
+                object : DynamicActionHandler {
+                    override val type = "noop"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.Completed
+                },
+            ),
+        )
+
+        val result = executor.execute(
+            DynamicAction(
+                type = "sequence",
+                payload = mapOf(
+                    "actions" to DynamicValue.ArrayValue(
+                        listOf(
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("state")),
+                            ),
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("noop")),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            emptyMap(),
+            emptyMap(),
+            emptyMap(),
+        ).getOrThrow()
+
+        val changes = assertIs<DynamicActionResult.StateChanged>(result).changes
+        assertEquals(DynamicValue.StringValue("retained"), changes["reference"])
+    }
+
+    @Test
+    fun sequencePreservesStateWithExternalUri() = runTest {
+        val executor = DynamicActionExecutor(
+            listOf(
+                object : DynamicActionHandler {
+                    override val type = "state"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.StateChanged(
+                        mapOf("reference" to DynamicValue.StringValue("retained")),
+                    )
+                },
+                object : DynamicActionHandler {
+                    override val type = "external_uri"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.ExternalUri("https://example.com")
+                },
+            ),
+        )
+
+        val result = executor.execute(
+            DynamicAction(
+                type = "sequence",
+                payload = mapOf(
+                    "actions" to DynamicValue.ArrayValue(
+                        listOf(
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("state")),
+                            ),
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("external_uri")),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            emptyMap(),
+            emptyMap(),
+            emptyMap(),
+        ).getOrThrow()
+
+        val external = assertIs<DynamicActionResult.ExternalUri>(result)
+        assertEquals(
+            DynamicValue.StringValue("retained"),
+            external.stateChanges["reference"],
+        )
+    }
