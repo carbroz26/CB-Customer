@@ -9,7 +9,6 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
-import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,19 +21,20 @@ import kotlinx.coroutines.launch
 sealed interface DynamicIntent {
     data object Load : DynamicIntent
     data object Retry : DynamicIntent
-    data class Action(val action: DynamicAction, val navigation: DynamicNavigationState) : DynamicIntent
+    data class Action(val action: DynamicAction) : DynamicIntent
     data class ValueChanged(val key: String, val value: DynamicValue) : DynamicIntent
 }
 
 sealed interface DynamicEffect {
     data class ExternalUri(val uri: String) : DynamicEffect
+    data class Navigation(val result: DynamicActionResult.Navigate) : DynamicEffect
 }
 
 sealed interface DynamicState {
     data object Initial : DynamicState
     data object Loading : DynamicState
-    data class Success(val response: DynamicResponse) : DynamicState
-    data class Failure(val message: String) : DynamicState
+    data class Success(val screen: DynamicScreenState) : DynamicState
+    data class Failure(val message: String, val screen: DynamicScreenState) : DynamicState
 }
 
 class DynamicStore(
@@ -46,18 +46,10 @@ class DynamicStore(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) {
     private val validator = DynamicFormValidator()
-    private val screenState = DynamicScreenState()
-    private val _state = MutableStateFlow<DynamicState>(
-        screenState.response?.let(DynamicState::Success) ?: DynamicState.Initial,
-    )
+    private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
 
-    private val _context = MutableStateFlow(contextProvider())
-    val context: StateFlow<Map<String, DynamicValue>> = _context.asStateFlow()
-
-    private val _bindings = MutableStateFlow(screenState.bindings)
-    val bindings: StateFlow<Map<String, DynamicValue>> = _bindings.asStateFlow()
-
+    val context: Map<String, DynamicValue> = contextProvider()
     val runtimeValues: StateFlow<Map<String, DynamicValue>> = runtimeState.values
 
     private val _effects = MutableStateFlow<DynamicEffect?>(null)
@@ -70,51 +62,64 @@ class DynamicStore(
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
             is DynamicIntent.ValueChanged -> updateBinding(intent.key, intent.value)
-            is DynamicIntent.Action -> handleAction(intent.action, intent.navigation)
+            is DynamicIntent.Action -> handleAction(intent.action)
         }
     }
 
     private fun updateBinding(key: String, value: DynamicValue) {
-        screenState.bindings = screenState.bindings + (key to value)
-        _bindings.value = screenState.bindings
+        val current = currentScreen() ?: return
+        reduce(current.copy(bindings = current.bindings + (key to value)))
     }
 
     private fun load() {
-        if (screenState.response != null || loadJob?.isActive == true) return
+        if (currentScreen()?.response != null || loadJob?.isActive == true) return
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
-            loadDynamicScreen(entry.destination).onSuccess { response ->
-                screenState.response = response
-                _state.value = DynamicState.Success(response)
-            }.onFailure { error ->
-                _state.value = DynamicState.Failure(error.message ?: "Unable to load dynamic screen")
-            }
+            loadDynamicScreen(entry.destination)
+                .onSuccess { response ->
+                    val previous = currentScreen()
+                    _state.value = DynamicState.Success(
+                        DynamicScreenState(
+                            response = response,
+                            bindings = previous?.bindings.orEmpty(),
+                            validationMessage = null,
+                        ),
+                    )
+                }
+                .onFailure { error ->
+                    val current = currentScreen() ?: DynamicScreenState()
+                    _state.value = DynamicState.Failure(
+                        error.message ?: "Unable to load dynamic screen",
+                        current,
+                    )
+                }
         }
     }
 
-    private fun handleAction(action: DynamicAction, navigation: DynamicNavigationState) {
+    private fun handleAction(action: DynamicAction) {
+        val current = currentScreen() ?: return
         val shouldValidate = (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
-        val screen = screenState.response?.data
-        if (shouldValidate && screen != null) {
-            validator.validate(screen, screenState.bindings)?.let { message ->
-                screenState.validationMessage = message
-                _state.value = DynamicState.Failure(message)
+        if (shouldValidate && current.response?.data != null) {
+            val message = validator.validate(current.response.data, current.bindings)
+            if (message != null) {
+                reduce(current.copy(validationMessage = message))
                 return
             }
-            screenState.validationMessage = null
+            reduce(current.copy(validationMessage = null))
         }
         if (actionJob?.isActive == true) return
         actionJob = scope.launch {
             actionExecutor.execute(
-                action,
-                navigation,
-                screenState.bindings,
-                _context.value,
-                runtimeState.values.value,
+                action = action,
+                bindings = current.bindings,
+                context = context,
+                state = runtimeState.values.value,
             ).onSuccess(::applyActionResult)
                 .onFailure { error ->
+                    val screen = currentScreen() ?: current
                     _state.value = DynamicState.Failure(
                         error.message ?: "Unable to execute dynamic action",
+                        screen,
                     )
                 }
         }
@@ -123,10 +128,23 @@ class DynamicStore(
     private fun applyActionResult(result: DynamicActionResult) {
         when (result) {
             DynamicActionResult.Completed -> Unit
-            is DynamicActionResult.Navigate -> runtimeState.setAll(result.stateChanges)
-            is DynamicActionResult.ExternalUri -> _effects.value = result
             is DynamicActionResult.StateChanged -> runtimeState.setAll(result.changes)
+            is DynamicActionResult.Navigate -> {
+                runtimeState.setAll(result.stateChanges)
+                _effects.value = DynamicEffect.Navigation(result)
+            }
+            is DynamicActionResult.ExternalUri -> _effects.value = DynamicEffect.ExternalUri(result.uri)
         }
+    }
+
+    private fun currentScreen(): DynamicScreenState? = when (val value = _state.value) {
+        DynamicState.Initial, DynamicState.Loading -> null
+        is DynamicState.Success -> value.screen
+        is DynamicState.Failure -> value.screen
+    }
+
+    private fun reduce(screen: DynamicScreenState) {
+        _state.value = DynamicState.Success(screen)
     }
 
     fun clearEffect() {
