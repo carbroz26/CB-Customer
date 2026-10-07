@@ -46,7 +46,7 @@ class RequestActionHandlerTest {
                 "body" to DynamicValue.ObjectValue(
                     mapOf(
                         "name" to ref("\$binding", "name"),
-                        "session" to ref("\$context", "session.id"),
+                        "environment" to ref("\$context", "environment.id"),
                         "oldReference" to ref("\$state", "oldReference"),
                     ),
                 ),
@@ -57,8 +57,8 @@ class RequestActionHandlerTest {
             action = action,
             bindings = mapOf("name" to DynamicValue.StringValue("Ada")),
             context = mapOf(
-                "session" to DynamicValue.ObjectValue(
-                    mapOf("id" to DynamicValue.StringValue("session-42")),
+                "environment" to DynamicValue.ObjectValue(
+                    mapOf("id" to DynamicValue.StringValue("environment-42")),
                 ),
             ),
             state = mapOf("oldReference" to DynamicValue.StringValue("old")),
@@ -73,7 +73,7 @@ class RequestActionHandlerTest {
         val request = requireNotNull(capturedRequest)
         val body = assertIs<DynamicValue.ObjectValue>(request.body)
         assertEquals(DynamicValue.StringValue("Ada"), body.value["name"])
-        assertEquals(DynamicValue.StringValue("session-42"), body.value["session"])
+        assertEquals(DynamicValue.StringValue("environment-42"), body.value["environment"])
         assertEquals(DynamicValue.StringValue("old"), body.value["oldReference"])
     }
 
