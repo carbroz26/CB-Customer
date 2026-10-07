@@ -6,6 +6,7 @@ import com.carbroz.cbpartner.navigation.DynamicNavigationState
 
 class StateActionHandler : DynamicActionHandler {
     override val type = "state"
+
     override suspend fun handle(
         action: DynamicAction,
         navigation: DynamicNavigationState,
@@ -18,5 +19,5 @@ class StateActionHandler : DynamicActionHandler {
         val value = action.payload["value"]
             ?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) }
             ?: DynamicValue.NullValue
-        return DynamicActionResult.StateChanged(key, value)
+        return DynamicActionResult.StateChanged(mapOf(key to value))
     }
