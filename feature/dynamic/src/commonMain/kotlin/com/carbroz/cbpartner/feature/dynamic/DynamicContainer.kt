@@ -67,7 +67,7 @@ fun DynamicContainer(
                         registry = registry,
                         bindings = screen.bindings,
                         contextValues = store.context,
-                        stateValues = runtimeValues.value,
+                        stateValues = runtimeValues,
                         onAction = { store.accept(DynamicIntent.Action(it)) },
                         onValueChange = { key, value ->
                             store.accept(DynamicIntent.ValueChanged(key, value))
