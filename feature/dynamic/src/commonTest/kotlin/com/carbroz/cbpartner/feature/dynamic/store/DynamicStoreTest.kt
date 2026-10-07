@@ -92,6 +92,9 @@ class DynamicStoreTest {
             dispatcher,
         )
 
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+
         store.accept(
             DynamicIntent.Action(
                 DynamicAction(
