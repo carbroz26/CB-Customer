@@ -2,13 +2,15 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 
-/**
- * Pure Dynamic reference resolution.
- *
- * This class only resolves the four frozen reference namespaces:
- * $binding, $context, $state and $literal.
- */
 internal object DynamicReferenceResolver {
+    private val namespaces = setOf(
+        "\$binding",
+        "\$context",
+        "\$state",
+        "\$literal",
+        "\$response",
+    )
+
     fun resolve(
         value: DynamicValue,
         bindings: Map<String, DynamicValue>,
@@ -19,27 +21,37 @@ internal object DynamicReferenceResolver {
             check("\$response" !in value.value) {
                 "The \$response reference is no longer supported; retain response data into RuntimeState and use \$state"
             }
-            val binding = string(value.value["\$binding"])
-            val contextRef = string(value.value["\$context"])
-            val stateRef = string(value.value["\$state"])
-            val literal = value.value["\$literal"]
-            when {
-                binding != null -> bindings[binding] ?: DynamicValue.NullValue
-                contextRef != null -> resolvePath(context, contextRef)
-                stateRef != null -> resolvePath(state, stateRef)
-                literal != null -> resolve(literal, bindings, context, state)
-                else -> DynamicValue.ObjectValue(
+
+            val referenceKeys = value.value.keys.intersect(namespaces - "\$response")
+            check(referenceKeys.size <= 1) {
+                "Dynamic value contains multiple reference namespaces"
+            }
+
+            val referenceKey = referenceKeys.singleOrNull()
+            when (referenceKey) {
+                "\$binding" -> {
+                    val path = string(value.value.getValue(referenceKey))
+                    bindings[path] ?: DynamicValue.NullValue
+                }
+                "\$context" -> resolvePath(context, string(value.value.getValue(referenceKey)).orEmpty())
+                "\$state" -> resolvePath(state, string(value.value.getValue(referenceKey)).orEmpty())
+                "\$literal" -> resolve(
+                    value.value.getValue(referenceKey),
+                    bindings,
+                    context,
+                    state,
+                )
+                null -> DynamicValue.ObjectValue(
                     value.value.mapValues { (_, child) ->
                         resolve(child, bindings, context, state)
                     },
                 )
+                else -> error("Unsupported Dynamic reference namespace: $referenceKey")
             }
         }
 
         is DynamicValue.ArrayValue -> DynamicValue.ArrayValue(
-            value.value.map { child ->
-                resolve(child, bindings, context, state)
-            },
+            value.value.map { child -> resolve(child, bindings, context, state) },
         )
 
         else -> value
