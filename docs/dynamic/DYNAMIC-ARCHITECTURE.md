@@ -30,10 +30,13 @@ NavigationState — the existing `:navigation` back stack. Each stack entry is a
 
 A screen entry contains:
 - DynamicDestination identity
+- a NavEntry-scoped DynamicStore
 - loaded ScreenDocument
 - BindingState
 - ValidationState
 - loading/error state
+
+The navigation module owns only the entry identity and stack. The mutable Dynamic screen state is scoped to the corresponding Navigation 3 entry content in :feature:dynamic; it is not stored in a separate Dynamic cache.
 
 Returning to an existing entry reveals that entry. Its screen is not reloaded and its binding/validation state remains. Pushing the same screen twice creates two independent entries.
 
