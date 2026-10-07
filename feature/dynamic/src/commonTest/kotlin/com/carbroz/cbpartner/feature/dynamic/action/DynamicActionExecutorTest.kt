@@ -72,8 +72,6 @@ class DynamicActionExecutorTest {
             DynamicActionExecutor(listOf(handler, handler))
         }
     }
-}
-
 
     @Test
     fun sequencePreservesStateWhenFinalActionCompletes() = runTest {
@@ -248,3 +246,4 @@ class DynamicActionExecutorTest {
 
         assertEquals(DynamicActionResult.Completed, result.getOrThrow())
     }
+}
