@@ -16,8 +16,9 @@ class NavigateActionHandler : DynamicActionHandler {
         val operation = when (DynamicActionValueResolver.string(
                 DynamicActionValueResolver.resolve(action.payload["mode"] ?: DynamicValue.NullValue, bindings, context, state),
             )?.lowercase()) {
-            "push", "add" -> DynamicActionResult.NavigationOperation.Push
-            else -> DynamicActionResult.NavigationOperation.Replace
+            "replace" -> DynamicActionResult.NavigationOperation.Replace
+            "pop", "back" -> DynamicActionResult.NavigationOperation.Pop
+            else -> DynamicActionResult.NavigationOperation.Push
         }
         return DynamicActionResult.Navigate(destination, operation)
     }
