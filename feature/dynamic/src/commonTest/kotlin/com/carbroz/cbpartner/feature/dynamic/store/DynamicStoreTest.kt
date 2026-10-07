@@ -12,6 +12,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -161,7 +162,7 @@ class DynamicStoreTest {
         entry: DynamicNavigationEntry,
         repository: DynamicRepository,
         runtimeState: DynamicRuntimeState,
-        dispatcher: UnconfinedTestDispatcher,
+        dispatcher: CoroutineDispatcher,
     ) = DynamicStore(
         loadDynamicScreen = LoadDynamicScreenUseCase(repository),
         actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
