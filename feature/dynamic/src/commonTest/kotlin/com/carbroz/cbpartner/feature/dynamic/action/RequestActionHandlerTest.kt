@@ -6,7 +6,6 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
-import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,7 +34,6 @@ class RequestActionHandlerTest {
                 )
             }
         }
-        val current = DynamicDestination("screen_current", "tpl_current", "form_template", "/current")
         val action = DynamicAction(
             type = "request",
             payload = mapOf(
@@ -57,14 +55,17 @@ class RequestActionHandlerTest {
 
         val result = RequestActionHandler(repository).handle(
             action = action,
-            navigation = DynamicNavigationState(current),
             bindings = mapOf("name" to DynamicValue.StringValue("Ada")),
-            context = mapOf("session.id" to DynamicValue.StringValue("session-42")),
+            context = mapOf(
+                "session" to DynamicValue.ObjectValue(
+                    mapOf("id" to DynamicValue.StringValue("session-42")),
+                ),
+            ),
             state = mapOf("oldReference" to DynamicValue.StringValue("old")),
         )
 
         val navigate = assertIs<DynamicActionResult.Navigate>(result)
-        assertEquals("screen_next", navigate.destination.screenId)
+        assertEquals("screen_next", navigate.destination?.screenId)
         assertEquals(
             DynamicValue.StringValue("ref-123"),
             navigate.stateChanges["referenceId"],
@@ -77,7 +78,7 @@ class RequestActionHandlerTest {
     }
 
     @Test
-    fun nonNavigatingRequestReturnsCompletedLikeResultWithoutChangingDestination() = runTest {
+    fun nonNavigatingRequestReturnsCompletedResult() = runTest {
         var capturedResponseMode: String? = null
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
@@ -85,7 +86,6 @@ class RequestActionHandlerTest {
                 return Result.success(DynamicResponse(204, "NO_CONTENT", "Completed", null, "response-2"))
             }
         }
-        val current = DynamicDestination("current", "tpl_current", "form_template", "/current")
         val result = RequestActionHandler(repository).handle(
             DynamicAction(
                 type = "request",
@@ -94,14 +94,12 @@ class RequestActionHandlerTest {
                     "responseMode" to DynamicValue.StringValue("none"),
                 ),
             ),
-            DynamicNavigationState(current),
             emptyMap(),
             emptyMap(),
             emptyMap(),
         )
         assertEquals("none", capturedResponseMode)
-        val navigate = assertIs<DynamicActionResult.Navigate>(result)
-        assertEquals("current", navigate.destination.screenId)
+        assertIs<DynamicActionResult.Completed>(result)
     }
 
     private fun ref(type: String, value: String) =
