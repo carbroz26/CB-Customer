@@ -14,7 +14,7 @@ import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -25,7 +25,7 @@ import kotlin.test.assertIs
 class DynamicStoreTest {
     @Test
     fun typedBindingIsUsedByRequest() = runTest {
-        val dispatcher = StandardTestDispatcher(testScheduler)
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
         var body: DynamicValue? = null
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
@@ -161,7 +161,7 @@ class DynamicStoreTest {
         entry: DynamicNavigationEntry,
         repository: DynamicRepository,
         runtimeState: DynamicRuntimeState,
-        dispatcher: StandardTestDispatcher,
+        dispatcher: UnconfinedTestDispatcher,
     ) = DynamicStore(
         loadDynamicScreen = LoadDynamicScreenUseCase(repository),
         actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
