@@ -6,6 +6,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 
 data class FormTemplate(
     val id: String,
+    val type: String = "form_template",
     val orientation: String = "vertical",
     val verticalArrangement: DynamicArrangement = DynamicArrangement.Top,
     val horizontalAlignment: DynamicArrangement = DynamicArrangement.Center,
