@@ -8,7 +8,6 @@ internal object DynamicReferenceResolver {
         "\$context",
         "\$state",
         "\$literal",
-        "\$response",
     )
 
     fun resolve(
@@ -18,15 +17,12 @@ internal object DynamicReferenceResolver {
         state: Map<String, DynamicValue>,
     ): DynamicValue = when (value) {
         is DynamicValue.ObjectValue -> {
-            check("\$response" !in value.value) {
-                "The \$response reference is no longer supported; retain response data into RuntimeState and use \$state"
-            }
-
-            val referenceKeys = value.value.keys.intersect(namespaces - "\$response")
             val unknownReferenceKeys = value.value.keys.filter { it.startsWith("\$") && it !in namespaces }
             check(unknownReferenceKeys.isEmpty()) {
                 "Unsupported Dynamic reference namespace: " + unknownReferenceKeys.first()
             }
+
+            val referenceKeys = value.value.keys.intersect(namespaces)
             check(referenceKeys.size <= 1) {
                 "Dynamic value contains multiple reference namespaces"
             }
@@ -35,11 +31,9 @@ internal object DynamicReferenceResolver {
             check(referenceKey == null || value.value.size == 1) {
                 "Dynamic reference objects cannot contain additional properties"
             }
+
             when (referenceKey) {
-                "\$binding" -> {
-                    val path = string(value.value.getValue(referenceKey))
-                    bindings[path] ?: DynamicValue.NullValue
-                }
+                "\$binding" -> resolvePath(bindings, string(value.value.getValue(referenceKey)).orEmpty())
                 "\$context" -> resolvePath(context, string(value.value.getValue(referenceKey)).orEmpty())
                 "\$state" -> resolvePath(state, string(value.value.getValue(referenceKey)).orEmpty())
                 "\$literal" -> resolve(
