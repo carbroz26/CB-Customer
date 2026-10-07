@@ -17,7 +17,6 @@ class DynamicValueMapper {
             value.contentOrNull != null -> DynamicValue.StringValue(value.content)
             else -> DynamicValue.NullValue
         }
-        else -> DynamicValue.NullValue
     }
 
     fun string(value: JsonObject, key: String): String? = (value[key] as? JsonPrimitive)?.contentOrNull
