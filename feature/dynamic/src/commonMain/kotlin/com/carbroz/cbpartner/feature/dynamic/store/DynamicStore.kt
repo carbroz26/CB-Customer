@@ -158,6 +158,7 @@ class DynamicStore(
     fun close() {
         loadJob?.cancel()
         actionJob?.cancel()
+        _effects.close()
         scope.cancel()
     }
 }
