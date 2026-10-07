@@ -93,8 +93,8 @@ class DynamicStoreTest {
 
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
-                return if (request.endpoint == "/first-action") {
-                    Result.success(
+                return when (request.endpoint) {
+                    "/first-action" -> Result.success(
                         DynamicResponse(
                             200,
                             "SUCCESS",
@@ -107,9 +107,13 @@ class DynamicStoreTest {
                             destination = secondDestination,
                         ),
                     )
-                } else {
-                    secondBody = request.body
-                    Result.success(DynamicResponse(200, "SUCCESS", "Done", null, "second"))
+                    "/second" -> Result.success(
+                        DynamicResponse(200, "SUCCESS", "Destination loaded", null, "destination"),
+                    )
+                    else -> {
+                        secondBody = request.body
+                        Result.success(DynamicResponse(200, "SUCCESS", "Done", null, "second"))
+                    }
                 }
             }
         }
@@ -138,6 +142,9 @@ class DynamicStoreTest {
         assertEquals("screen_second", navigation.currentDestination.screenId)
 
         store.updateDestination(secondDestination)
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+
         store.accept(
             DynamicIntent.Action(
                 DynamicAction(
