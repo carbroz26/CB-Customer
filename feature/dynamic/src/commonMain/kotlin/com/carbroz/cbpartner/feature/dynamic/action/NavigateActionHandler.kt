@@ -13,7 +13,9 @@ class NavigateActionHandler : DynamicActionHandler {
         state: Map<String, DynamicValue>,
     ): DynamicActionResult.Navigate {
         val destination = action.destination ?: error("Dynamic navigation destination is missing")
-        val operation = when (DynamicActionValueResolver.string(action.payload["mode"])?.lowercase()) {
+        val operation = when (DynamicActionValueResolver.string(
+                DynamicActionValueResolver.resolve(action.payload["mode"] ?: DynamicValue.NullValue, bindings, context, state),
+            )?.lowercase()) {
             "push", "add" -> DynamicActionResult.NavigationOperation.Push
             else -> DynamicActionResult.NavigationOperation.Replace
         }
