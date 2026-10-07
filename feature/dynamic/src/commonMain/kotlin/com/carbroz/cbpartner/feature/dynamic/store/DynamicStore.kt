@@ -67,7 +67,7 @@ class DynamicStore(
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
             loadDynamicScreen(currentDestination).onSuccess { response ->
-                previousResponseData = response.asResponseReference(); _state.value = DynamicState.Success(response)
+                _state.value = DynamicState.Success(response)
             }.onFailure { error -> _state.value = DynamicState.Failure(error.message ?: "Unable to load dynamic screen") }
         }
     }
