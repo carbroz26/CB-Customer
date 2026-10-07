@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 
 class DynamicBackendFlowContractTest {
     private val json = Json { ignoreUnknownKeys = true }
-    private val dynamicMapper = DynamicResponseMapper()
+    private val dynamicMapper = DynamicResponseMapper(json)
 
     @Test
     fun bootstrapToDynamicScreenToNextDestinationFormsGenericFlow() {
