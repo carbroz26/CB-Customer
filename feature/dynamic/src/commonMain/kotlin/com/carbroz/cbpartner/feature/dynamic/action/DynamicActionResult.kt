@@ -12,7 +12,10 @@ sealed interface DynamicActionResult {
         val stateChanges: Map<String, DynamicValue> = emptyMap(),
     ) : DynamicActionResult
 
-    data class ExternalUri(val uri: String) : DynamicActionResult
+    data class ExternalUri(
+        val uri: String,
+        val stateChanges: Map<String, DynamicValue> = emptyMap(),
+    ) : DynamicActionResult
 
     data class StateChanged(
         val changes: Map<String, DynamicValue>,
