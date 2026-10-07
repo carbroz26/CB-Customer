@@ -10,7 +10,7 @@ class DynamicActionExecutor(
 ) {
     private val handlersByType: Map<String, DynamicActionHandler> = buildMap {
         handlers.forEach { handler ->
-            val key = handler.type.lowercase()
+            val key = handler.type.trim().lowercase()
             check(put(key, handler) == null) {
                 "Duplicate dynamic action handler: " + handler.type
             }
@@ -34,7 +34,7 @@ class DynamicActionExecutor(
         depth: Int,
     ): DynamicActionResult {
         check(depth < MAX_SEQUENCE_DEPTH) { "Dynamic action sequence depth exceeded" }
-        return if (action.type.equals("sequence", true)) {
+        return if (action.type.trim().equals("sequence", true)) {
             executeSequence(action, bindings, context, state, depth)
         } else {
             dispatch(action, bindings, context, state)
@@ -47,7 +47,7 @@ class DynamicActionExecutor(
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
     ): DynamicActionResult {
-        val normalizedType = action.type.lowercase()
+        val normalizedType = action.type.trim().lowercase()
         val handler = handlersByType[if (normalizedType == "back") "dismiss" else normalizedType]
             ?: error("Unsupported dynamic action: " + action.type)
         return handler.handle(action, bindings, context, state)
