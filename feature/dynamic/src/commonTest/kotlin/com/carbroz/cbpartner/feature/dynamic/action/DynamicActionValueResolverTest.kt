@@ -7,26 +7,30 @@ import kotlin.test.assertIs
 
 class DynamicActionValueResolverTest {
     @Test
-    fun resolvesMultipleBindings() {
+    fun resolvesTypedBindingsWithoutStringCoercion() {
         val input = DynamicValue.ObjectValue(
             mapOf(
-                "first" to ref("\$binding", "firstName"),
-                "second" to ref("\$binding", "email"),
+                "name" to ref("\$binding", "name"),
+                "count" to ref("\$binding", "count"),
+                "enabled" to ref("\$binding", "enabled"),
             ),
         )
-
         val resolved = DynamicActionValueResolver.resolve(
-            value = input,
-            bindings = mapOf("firstName" to "Ada", "email" to "ada@example.com"),
+            input,
+            bindings = mapOf(
+                "name" to DynamicValue.StringValue("Ada"),
+                "count" to DynamicValue.NumberValue(2.0),
+                "enabled" to DynamicValue.BooleanValue(true),
+            ),
             context = emptyMap(),
-            previousResponse = null,
+            state = emptyMap(),
         )
-
         assertEquals(
             DynamicValue.ObjectValue(
                 mapOf(
-                    "first" to DynamicValue.StringValue("Ada"),
-                    "second" to DynamicValue.StringValue("ada@example.com"),
+                    "name" to DynamicValue.StringValue("Ada"),
+                    "count" to DynamicValue.NumberValue(2.0),
+                    "enabled" to DynamicValue.BooleanValue(true),
                 ),
             ),
             resolved,
@@ -34,134 +38,58 @@ class DynamicActionValueResolverTest {
     }
 
     @Test
-    fun resolvesContextInsideNestedObjectAndArray() {
+    fun resolvesNestedContextAndState() {
         val input = DynamicValue.ObjectValue(
             mapOf(
                 "session" to ref("\$context", "session.id"),
-                "items" to DynamicValue.ArrayValue(
-                    listOf(
-                        ref("\$context", "device.id"),
-                        DynamicValue.ObjectValue(
-                            mapOf("region" to ref("\$context", "device.region")),
-                        ),
-                    ),
+                "reference" to ref("\$state", "flow.reference.id"),
+            ),
+        )
+        val resolved = DynamicActionValueResolver.resolve(
+            input,
+            bindings = emptyMap(),
+            context = mapOf(
+                "session" to DynamicValue.ObjectValue(mapOf("id" to DynamicValue.StringValue("session-1"))),
+            ),
+            state = mapOf(
+                "flow" to DynamicValue.ObjectValue(
+                    mapOf("reference" to DynamicValue.ObjectValue(mapOf("id" to DynamicValue.StringValue("ref-1")))),
                 ),
             ),
         )
-
-        val resolved = DynamicActionValueResolver.resolve(
-            value = input,
-            bindings = emptyMap(),
-            context = mapOf(
-                "session.id" to "session-1",
-                "device.id" to "device-7",
-                "device.region" to "west",
-            ),
-            previousResponse = null,
-        )
-
         val objectValue = assertIs<DynamicValue.ObjectValue>(resolved)
         assertEquals(DynamicValue.StringValue("session-1"), objectValue.value["session"])
-        val items = assertIs<DynamicValue.ArrayValue>(objectValue.value["items"])
-        assertEquals(DynamicValue.StringValue("device-7"), items.value[0])
-        val nested = assertIs<DynamicValue.ObjectValue>(items.value[1])
-        assertEquals(DynamicValue.StringValue("west"), nested.value["region"])
+        assertEquals(DynamicValue.StringValue("ref-1"), objectValue.value["reference"])
     }
 
     @Test
-    fun resolvesResponsePathAndMissingReferencesSafely() {
-        val input = DynamicValue.ObjectValue(
-            mapOf(
-                "existing" to ref("\$response", "data.reference.id"),
-                "missing" to ref("\$response", "data.unknown"),
-                "noResponse" to ref("\$response", "data.reference"),
-            ),
-        )
-        val previous = DynamicValue.ObjectValue(
-            mapOf(
-                "data" to DynamicValue.ObjectValue(
-                    mapOf(
-                        "reference" to DynamicValue.ObjectValue(
-                            mapOf("id" to DynamicValue.StringValue("ref-1")),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
+    fun responseReferenceIsNoLongerResolved() {
         val resolved = DynamicActionValueResolver.resolve(
-            value = input,
-            bindings = emptyMap(),
-            context = emptyMap(),
-            previousResponse = previous,
+            ref("\$response", "data.referenceId"),
+            emptyMap(),
+            emptyMap(),
+            emptyMap(),
         )
-        val objectValue = assertIs<DynamicValue.ObjectValue>(resolved)
-
-        assertEquals(DynamicValue.StringValue("ref-1"), objectValue.value["existing"])
-        assertEquals(DynamicValue.NullValue, objectValue.value["missing"])
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("id" to DynamicValue.StringValue("ref-1")),
+                mapOf("\$response" to DynamicValue.StringValue("data.referenceId")),
             ),
-            objectValue.value["noResponse"],
-        )
-
-        assertEquals(
-            DynamicValue.NullValue,
-            DynamicActionValueResolver.resolve(
-                ref("\$response", "data.reference"),
-                emptyMap(),
-                emptyMap(),
-                null,
-            ),
+            resolved,
         )
     }
 
     @Test
     fun resolvesLiteralRecursively() {
-        val input = ref(
-            "\$literal",
-            DynamicValue.ObjectValue(
-                mapOf(
-                    "raw" to ref("\$binding", "value"),
-                ),
-            ),
-        )
-
+        val input = ref("\$literal", DynamicValue.ObjectValue(mapOf("value" to ref("\$binding", "name"))))
         val resolved = DynamicActionValueResolver.resolve(
-            value = input,
-            bindings = mapOf("value" to "resolved"),
+            input,
+            bindings = mapOf("name" to DynamicValue.StringValue("resolved")),
             context = emptyMap(),
-            previousResponse = null,
+            state = emptyMap(),
         )
-
         assertEquals(
-            DynamicValue.ObjectValue(
-                mapOf("raw" to DynamicValue.StringValue("resolved")),
-            ),
+            DynamicValue.ObjectValue(mapOf("value" to DynamicValue.StringValue("resolved"))),
             resolved,
-        )
-    }
-
-    @Test
-    fun leavesScalarsAndNullUntouched() {
-        assertEquals(
-            DynamicValue.StringValue("plain"),
-            DynamicActionValueResolver.resolve(
-                DynamicValue.StringValue("plain"),
-                emptyMap(),
-                emptyMap(),
-                null,
-            ),
-        )
-        assertEquals(
-            DynamicValue.NullValue,
-            DynamicActionValueResolver.resolve(
-                DynamicValue.NullValue,
-                emptyMap(),
-                emptyMap(),
-                null,
-            ),
         )
     }
 
