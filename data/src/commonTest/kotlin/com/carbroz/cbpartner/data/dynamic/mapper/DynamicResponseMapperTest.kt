@@ -165,7 +165,7 @@ class DynamicResponseMapperTest {
             DynamicContractFixtures.GENERIC_ERROR_JSON,
         )
 
-        val response = DynamicResponseMapper().map(dto)
+        val response = DynamicResponseMapper(json).map(dto)
         assertEquals(422, response.status)
         assertEquals("VALIDATION_ERROR", response.code)
         assertEquals("Invalid input", response.message)
