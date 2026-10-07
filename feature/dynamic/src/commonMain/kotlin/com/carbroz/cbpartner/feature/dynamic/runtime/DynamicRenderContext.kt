@@ -8,7 +8,6 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.*
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
-import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionValueResolver
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 
 class DynamicRenderContext(
@@ -20,7 +19,7 @@ class DynamicRenderContext(
     val onValueChange: (String, DynamicValue) -> Unit = { _, _ -> },
 ) {
     fun resolve(value: DynamicValue): DynamicValue =
-        DynamicActionValueResolver.resolve(value, bindings, contextValues, stateValues)
+        DynamicReferenceResolver.resolve(value, bindings, contextValues, stateValues)
 
     fun string(properties: Map<String, DynamicValue>, key: String): String? =
         (resolve(properties[key] ?: return null) as? DynamicValue.StringValue)?.value
