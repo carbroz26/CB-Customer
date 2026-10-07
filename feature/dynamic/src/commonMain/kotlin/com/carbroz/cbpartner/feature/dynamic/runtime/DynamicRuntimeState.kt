@@ -22,19 +22,29 @@ class DynamicRuntimeState {
         _values.update { current -> applyChanges(current, changes) }
     }
 
-    private fun setPath(
-        root: Map<String, DynamicValue>,
-        path: String,
-        value: DynamicValue,
-    ): Map<String, DynamicValue> {
-        val segments = path.split('.').filter(String::isNotBlank)
-        if (segments.isEmpty()) return root
-        if (segments.size == 1) return root + (segments.first() to value)
+    companion object {
+        fun applyChanges(
+            root: Map<String, DynamicValue>,
+            changes: Map<String, DynamicValue>,
+        ): Map<String, DynamicValue> =
+            changes.entries.fold(root) { current, (path, value) ->
+                setPath(current, path, value)
+            }
 
-        val head = segments.first()
-        val tail = segments.drop(1).joinToString(".")
-        val existing = root[head] as? DynamicValue.ObjectValue
-        val child = setPath(existing?.value.orEmpty(), tail, value)
-        return root + (head to DynamicValue.ObjectValue(child))
+        private fun setPath(
+            root: Map<String, DynamicValue>,
+            path: String,
+            value: DynamicValue,
+        ): Map<String, DynamicValue> {
+            val segments = path.split('.').filter(String::isNotBlank)
+            if (segments.isEmpty()) return root
+            if (segments.size == 1) return root + (segments.first() to value)
+
+            val head = segments.first()
+            val tail = segments.drop(1).joinToString(".")
+            val existing = root[head] as? DynamicValue.ObjectValue
+            val child = setPath(existing?.value.orEmpty(), tail, value)
+            return root + (head to DynamicValue.ObjectValue(child))
+        }
     }
 }
