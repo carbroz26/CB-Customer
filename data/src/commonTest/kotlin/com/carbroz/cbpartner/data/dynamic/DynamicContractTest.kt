@@ -65,7 +65,7 @@ class DynamicContractTest {
         assertEquals(
             DynamicValue.ObjectValue(
                 mapOf(
-                    "$context" to DynamicValue.StringValue("appVersion"),
+                    "\$context" to DynamicValue.StringValue("appVersion"),
                 ),
             ),
             title.spans.single().text,
@@ -76,7 +76,7 @@ class DynamicContractTest {
         val body = assertIs<DynamicValue.ObjectValue>(request.payload["body"])
         assertEquals(
             DynamicValue.StringValue("fieldA"),
-            (body.value["fieldA"] as DynamicValue.ObjectValue).value["$binding"],
+            (body.value["fieldA"] as DynamicValue.ObjectValue).value["\$binding"],
         )
         assertEquals(
             DynamicValue.StringValue("fieldB"),
@@ -84,11 +84,11 @@ class DynamicContractTest {
         )
         assertEquals(
             DynamicValue.StringValue("deviceId"),
-            (body.value["environmentId"] as DynamicValue.ObjectValue).value["$context"],
+            (body.value["environmentId"] as DynamicValue.ObjectValue).value["\$context"],
         )
         assertEquals(
             DynamicValue.StringValue("referenceId"),
-            (body.value["previous"] as DynamicValue.ObjectValue).value["$state"],
+            (body.value["previous"] as DynamicValue.ObjectValue).value["\$state"],
         )
     }
 
