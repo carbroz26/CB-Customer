@@ -583,3 +583,6 @@ DynamicState remains the only persistent screen state.
 
 ### 21.17 Generic navigation defaults
 Generic navigation that creates a destination entry uses Push by default. Replace is explicit (mode = replace), and Pop is explicit (mode = pop/back). Request actions that receive a destination follow the same rule. This is required so normal back reveals the previous Navigation 3 entry with its existing screen state.
+
+### 21.18 $response rejection tests
+Tests must not use $response as a supported reference or fixture value. A focused test that supplies $response and asserts deterministic rejection is required and is allowed.
