@@ -1,59 +1,49 @@
 package com.carbroz.cbpartner.navigation
 
 import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class DynamicNavigationStateTest {
-    private val root = destination("root")
-    private val second = destination("second")
-    private val replacement = destination("replacement")
-
     @Test
-    fun setRoot_replaces_entire_back_stack() {
-        val state = DynamicNavigationState(root)
-        state.push(second)
+    fun pushCreatesIndependentEntriesEvenForSameDestination() {
+        val destination = destination("same")
+        val state = DynamicNavigationState(destination)
+        state.currentEntry.bindings = mapOf("value" to DynamicValue.StringValue("first"))
+        state.push(destination)
+        state.currentEntry.bindings = mapOf("value" to DynamicValue.StringValue("second"))
 
-        state.setRoot(replacement)
-
-        assertEquals(listOf(replacement), state.backStack.toList())
+        assertEquals(2, state.backStack.size)
+        assertEquals(
+            DynamicValue.StringValue("second"),
+            state.currentEntry.bindings["value"],
+        )
+        assertTrue(state.pop())
+        assertEquals(
+            DynamicValue.StringValue("first"),
+            state.currentEntry.bindings["value"],
+        )
     }
 
     @Test
-    fun push_preserves_complete_destination_history() {
-        val state = DynamicNavigationState(root)
-
-        state.push(second)
-
-        assertEquals(listOf(root, second), state.backStack.toList())
-    }
-
-    @Test
-    fun replace_changes_only_current_destination() {
-        val state = DynamicNavigationState(root)
-        state.push(second)
-
-        state.replace(replacement)
-
-        assertEquals(listOf(root, replacement), state.backStack.toList())
-    }
-
-    @Test
-    fun pop_restores_previous_destination() {
-        val state = DynamicNavigationState(root)
-        state.push(second)
+    fun popRestoresPreviousEntryWithoutReplacingItsState() {
+        val state = DynamicNavigationState(destination("root"))
+        state.currentEntry.response = DynamicResponseFixture.response("root")
+        state.push(destination("second"))
 
         assertTrue(state.pop())
-        assertEquals(listOf(root), state.backStack.toList())
+        assertEquals("root", state.currentEntry.response?.dataPayload?.let { "root" })
         assertFalse(state.pop())
     }
 
-    private fun destination(screenId: String) = DynamicDestination(
-        screenId = screenId,
-        templateId = "tpl_P900${screenId.take(1).uppercase()}",
-        templateType = "stack_template",
-        endpoint = "/api/v1/partner/screen/$screenId",
+    private fun destination(id: String) = DynamicDestination(id, "tpl_$id", "form_template", "/$id")
+}
+
+private object DynamicResponseFixture {
+    fun response(id: String) = com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse(
+        200, "SUCCESS", "Loaded", null, id,
     )
 }
