@@ -49,4 +49,22 @@ class DynamicRuntimeStateTest {
         assertEquals(DynamicValue.StringValue("ref-2"), state.get("flow.reference.id"))
         assertEquals(DynamicValue.StringValue("generic"), state.get("flow.reference.type"))
     }
+    @Test
+    fun storesObjectAndNullValuesWithoutStringification() {
+        val state = DynamicRuntimeState()
+        val objectValue = DynamicValue.ObjectValue(
+            mapOf("id" to DynamicValue.StringValue("object-1")),
+        )
+
+        state.setAll(
+            mapOf(
+                "object" to objectValue,
+                "missing" to DynamicValue.NullValue,
+            ),
+        )
+
+        assertEquals(objectValue, state.get("object"))
+        assertEquals(DynamicValue.NullValue, state.get("missing"))
+    }
+
 }
