@@ -42,13 +42,13 @@ class DynamicContractTest {
                 }
             }
 
-        val firstName = assertIs<InputElement>(elements.first { it.id == "first_name" })
-        assertEquals("firstName", firstName.binding?.key)
-        assertEquals(true, firstName.validation?.required)
+        val fieldA = assertIs<InputElement>(elements.first { it.id == "field_a" })
+        assertEquals("fieldA", fieldA.binding?.key)
+        assertEquals(true, fieldA.validation?.required)
 
-        val email = assertIs<InputElement>(elements.first { it.id == "email" })
-        assertEquals("email", email.binding?.key)
-        assertNotNull(email.validation?.pattern)
+        val fieldB = assertIs<InputElement>(elements.first { it.id == "field_b" })
+        assertEquals("fieldB", fieldB.binding?.key)
+        assertNotNull(fieldB.validation?.pattern)
 
         val submit = assertIs<ButtonElement>(elements.first { it.id == "submit" })
         assertIs<IconContent>(submit.trailingContent.single())
@@ -65,7 +65,7 @@ class DynamicContractTest {
         assertEquals(
             DynamicValue.ObjectValue(
                 mapOf(
-                    "\u0024context" to DynamicValue.StringValue("profile.displayName"),
+                    "$context" to DynamicValue.StringValue("appVersion"),
                 ),
             ),
             title.spans.single().text,
@@ -75,20 +75,20 @@ class DynamicContractTest {
         assertEquals("request", request.type)
         val body = assertIs<DynamicValue.ObjectValue>(request.payload["body"])
         assertEquals(
-            DynamicValue.StringValue("firstName"),
-            (body.value["firstName"] as DynamicValue.ObjectValue).value["\u0024binding"],
+            DynamicValue.StringValue("fieldA"),
+            (body.value["fieldA"] as DynamicValue.ObjectValue).value["$binding"],
         )
         assertEquals(
-            DynamicValue.StringValue("email"),
-            (body.value["email"] as DynamicValue.ObjectValue).value["\u0024binding"],
+            DynamicValue.StringValue("fieldB"),
+            (body.value["fieldB"] as DynamicValue.ObjectValue).value["$binding"],
         )
         assertEquals(
-            DynamicValue.StringValue("session.id"),
-            (body.value["session"] as DynamicValue.ObjectValue).value["\u0024context"],
+            DynamicValue.StringValue("deviceId"),
+            (body.value["environmentId"] as DynamicValue.ObjectValue).value["$context"],
         )
         assertEquals(
             DynamicValue.StringValue("referenceId"),
-            (body.value["previous"] as DynamicValue.ObjectValue).value["\u0024state"],
+            (body.value["previous"] as DynamicValue.ObjectValue).value["$state"],
         )
     }
 
@@ -136,7 +136,7 @@ class DynamicContractTest {
         assertEquals(422, response.status)
         assertEquals("VALIDATION_ERROR", response.code)
         val payload = assertIs<DynamicValue.ObjectValue>(response.dataPayload)
-        assertEquals(DynamicValue.StringValue("email"), payload.value["field"])
+        assertEquals(DynamicValue.StringValue("fieldB"), payload.value["field"])
         assertEquals(DynamicValue.StringValue("invalid"), payload.value["reason"])
     }
 }
