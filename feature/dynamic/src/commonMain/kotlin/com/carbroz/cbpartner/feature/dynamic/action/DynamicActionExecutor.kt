@@ -64,6 +64,7 @@ class DynamicActionExecutor(
             ?: error("Dynamic sequence actions are missing")
         var last: DynamicActionResult = DynamicActionResult.Completed
         val sequenceState = state.toMutableMap()
+        val sequenceChanges = linkedMapOf<String, DynamicValue>()
 
         actions.value.forEach { value ->
             val objectValue = value as? DynamicValue.ObjectValue
@@ -82,21 +83,32 @@ class DynamicActionExecutor(
             )
 
             when (val result = last) {
-                is DynamicActionResult.StateChanged -> sequenceState.applyChanges(result.changes)
-                is DynamicActionResult.Navigate -> sequenceState.applyChanges(result.stateChanges)
-                is DynamicActionResult.ExternalUri -> sequenceState.applyChanges(result.stateChanges)
+                is DynamicActionResult.StateChanged -> {
+                    sequenceState.applyChanges(result.changes)
+                    sequenceChanges.putAll(result.changes)
+                }
+
+                is DynamicActionResult.Navigate -> {
+                    sequenceState.applyChanges(result.stateChanges)
+                    sequenceChanges.putAll(result.stateChanges)
+                }
+
+                is DynamicActionResult.ExternalUri -> {
+                    sequenceState.applyChanges(result.stateChanges)
+                    sequenceChanges.putAll(result.stateChanges)
+                }
+
                 DynamicActionResult.Completed -> Unit
             }
         }
 
-        val changes = sequenceState.filterKeys { key -> state[key] != sequenceState[key] }
         return when (last) {
-            is DynamicActionResult.Navigate -> last.copy(stateChanges = changes)
-            is DynamicActionResult.ExternalUri -> last.copy(stateChanges = changes)
-            is DynamicActionResult.StateChanged -> DynamicActionResult.StateChanged(changes)
+            is DynamicActionResult.Navigate -> last.copy(stateChanges = sequenceChanges)
+            is DynamicActionResult.ExternalUri -> last.copy(stateChanges = sequenceChanges)
+            is DynamicActionResult.StateChanged -> DynamicActionResult.StateChanged(sequenceChanges)
             DynamicActionResult.Completed ->
-                if (changes.isEmpty()) DynamicActionResult.Completed
-                else DynamicActionResult.StateChanged(changes)
+                if (sequenceChanges.isEmpty()) DynamicActionResult.Completed
+                else DynamicActionResult.StateChanged(sequenceChanges)
         }
     }
 
