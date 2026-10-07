@@ -14,11 +14,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 class ImageElement : ElementRenderer {
     @Composable override fun render(element: DynamicElement, context: DynamicRenderContext) {
         val model = element as? ImageElementModel ?: return
-        val url = if (model.url.startsWith("/")) {
-            context.contextValues["baseUrl"]?.trimEnd('/')?.plus(model.url) ?: model.url
-        } else {
-            model.url
-        }
+        val url = model.url
         Row {
             context.renderContent(model.leadingContent)
             AsyncImage(
