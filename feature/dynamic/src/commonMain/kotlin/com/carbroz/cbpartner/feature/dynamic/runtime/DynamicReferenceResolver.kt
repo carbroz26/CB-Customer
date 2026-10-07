@@ -28,6 +28,9 @@ internal object DynamicReferenceResolver {
             }
 
             val referenceKey = referenceKeys.singleOrNull()
+            check(referenceKey == null || value.value.size == 1) {
+                "Dynamic reference objects cannot contain additional properties"
+            }
             when (referenceKey) {
                 "\$binding" -> {
                     val path = string(value.value.getValue(referenceKey))
