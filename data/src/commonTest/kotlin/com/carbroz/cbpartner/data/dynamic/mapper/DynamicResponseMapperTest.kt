@@ -30,7 +30,7 @@ class DynamicResponseMapperTest {
             DynamicContractFixtures.GENERIC_SCREEN_JSON,
         )
 
-        val response = DynamicResponseMapper().map(dto)
+        val response = DynamicResponseMapper(Json { ignoreUnknownKeys = true }).map(dto)
         val screen = assertNotNull(response.data)
         val template = assertIs<FormTemplate>(screen.template)
 
