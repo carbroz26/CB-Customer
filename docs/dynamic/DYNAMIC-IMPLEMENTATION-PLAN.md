@@ -580,3 +580,6 @@ No unrelated architecture may be added.
 ### 21.16 One-shot effects
 DynamicEffect is a one-shot event stream, not persistent UI state. DynamicStore must use a buffered Channel/ReceiveChannel flow (or an equivalent one-shot event mechanism already frozen by the project) so consecutive navigation/external-URI effects are not collapsed by StateFlow semantics.
 DynamicState remains the only persistent screen state.
+
+### 21.17 Generic navigation defaults
+Generic navigation that creates a destination entry uses Push by default. Replace is explicit (mode = replace), and Pop is explicit (mode = pop/back). Request actions that receive a destination follow the same rule. This is required so normal back reveals the previous Navigation 3 entry with its existing screen state.
