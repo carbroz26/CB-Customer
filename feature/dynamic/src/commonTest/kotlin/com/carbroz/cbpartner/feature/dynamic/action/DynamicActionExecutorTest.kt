@@ -2,7 +2,6 @@ package com.carbroz.cbpartner.feature.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
-import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -208,7 +207,7 @@ class DynamicActionExecutorTest {
                         state: Map<String, DynamicValue>,
                     ): DynamicActionResult {
                         return if (
-                            DynamicRuntimeState.applyChanges(state, emptyMap())["flow"] ==
+                            state["flow"] ==
                             DynamicValue.ObjectValue(
                                 mapOf(
                                     "reference" to DynamicValue.ObjectValue(
