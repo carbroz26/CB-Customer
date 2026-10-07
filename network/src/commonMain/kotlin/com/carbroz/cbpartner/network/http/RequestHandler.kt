@@ -15,6 +15,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 
 class RequestHandler(
     private val httpClient: HttpClient,
@@ -32,6 +34,11 @@ class RequestHandler(
         val authenticationMode = authentication.uppercase()
         require(authenticationMode in setOf("NONE", "BEARER")) { "Unsupported authentication mode: $authentication" }
         return try {
+            logRequest(
+                method = method,
+                urlPathSegments = urlPathSegments,
+                body = body,
+            )
             val response = performRequest(
                 method = method,
                 urlPathSegments = urlPathSegments,
@@ -40,7 +47,16 @@ class RequestHandler(
                 body = body,
                 queryParams = queryParams,
             )
-            NetworkResult.Success(response.body<R>())
+            val result = response.body<R>()
+            if (result is String) {
+                logResponse(
+                    method = method,
+                    urlPathSegments = urlPathSegments,
+                    status = response.status.value,
+                    body = result,
+                )
+            }
+            NetworkResult.Success(result)
         } catch (error: ResponseException) {
             NetworkResult.Error(null, error.toNetworkException())
         } catch (error: kotlinx.serialization.SerializationException) {
@@ -49,6 +65,44 @@ class RequestHandler(
             NetworkResult.Error(null, NetworkException.Unknown(error.message ?: "Unknown network error", error))
         }
     }
+
+    @PublishedApi
+    internal fun logRequest(
+        method: HttpMethod,
+        urlPathSegments: List<Any>,
+        body: Any?,
+    ) {
+        println("▶️ ${CYAN}FLOW${RESET}  ${method.value} /${urlPathSegments.joinToString("/")} ")
+        println("╭─ 🌐 ${CYAN}API REQUEST${RESET}  ${method.value} /${urlPathSegments.joinToString("/")}")
+        if (body is String) {
+            println("│ JSON")
+            println(formatJson(body))
+        } else if (body != null) {
+            println("│ BODY  $body")
+        }
+        println("╰────────────────────────────────────────────────────────")
+    }
+
+    @PublishedApi
+    internal fun logResponse(
+        method: HttpMethod,
+        urlPathSegments: List<Any>,
+        status: Int,
+        body: String,
+    ) {
+        val url = "${method.value} /${urlPathSegments.joinToString("/")}"
+        println("╭─ 🌐 ${GREEN}API RESPONSE${RESET}  $url")
+        println("│ ${GREEN}STATUS${RESET}  $status")
+        println("│ JSON")
+        println(formatJson(body))
+        println("╰────────────────────────────────────────────────────────")
+    }
+
+    @PublishedApi
+    internal fun formatJson(value: String): String = runCatching {
+        val element = Json.parseToJsonElement(value)
+        Json { prettyPrint = true }.encodeToString(JsonElement.serializer(), element)
+    }.getOrElse { value }
 
     @PublishedApi
     internal suspend fun performRequest(
@@ -109,5 +163,8 @@ class RequestHandler(
         const val PLATFORM_HEADER = "X-CarBroz-Platform"
         const val APP_VERSION_HEADER = "X-CarBroz-App-Version"
         const val BUILD_NUMBER_HEADER = "X-CarBroz-Build-Number"
+        const val RESET = "\u001B[0m"
+        const val GREEN = "\u001B[32m"
+        const val CYAN = "\u001B[36m"
     }
 }
