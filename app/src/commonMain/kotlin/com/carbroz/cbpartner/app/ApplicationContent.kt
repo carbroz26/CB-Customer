@@ -56,7 +56,6 @@ private fun DynamicContent(
         DynamicContainer(
             entry = entry,
             navigation = navigationState,
-            runtimeState = runtimeState,
             storeFactory = {
                 DynamicStore(
                     loadDynamicScreen = koin.get(),
