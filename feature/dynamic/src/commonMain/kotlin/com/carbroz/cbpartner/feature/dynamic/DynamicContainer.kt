@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.renderer.DynamicRenderer
-import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicEffect
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicIntent
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicState
@@ -28,7 +27,6 @@ import kotlinx.coroutines.flow.collectLatest
 fun DynamicContainer(
     entry: DynamicNavigationEntry,
     navigation: DynamicNavigationState,
-    runtimeState: DynamicRuntimeState,
     storeFactory: () -> DynamicStore,
     registry: DynamicRegistry,
     modifier: Modifier = Modifier,
