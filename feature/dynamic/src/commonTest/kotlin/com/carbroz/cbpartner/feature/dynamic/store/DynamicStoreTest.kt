@@ -8,6 +8,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
@@ -39,6 +40,8 @@ class DynamicStoreTest {
             dispatcher,
         )
 
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
         store.accept(DynamicIntent.ValueChanged("count", DynamicValue.NumberValue(2.0)))
         store.accept(
             DynamicIntent.Action(
@@ -132,6 +135,8 @@ class DynamicStoreTest {
             dispatcher,
         )
 
+        first.accept(DynamicIntent.Load)
+        second.accept(DynamicIntent.Load)
         first.accept(DynamicIntent.ValueChanged("firstValue", DynamicValue.StringValue("one")))
         second.accept(DynamicIntent.ValueChanged("secondValue", DynamicValue.StringValue("two")))
 
@@ -156,6 +161,7 @@ class DynamicStoreTest {
     ) = DynamicStore(
         loadDynamicScreen = LoadDynamicScreenUseCase(repository),
         actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+        validator = DynamicFormValidator(),
         entry = entry,
         runtimeState = runtimeState,
         scope = CoroutineScope(dispatcher),
