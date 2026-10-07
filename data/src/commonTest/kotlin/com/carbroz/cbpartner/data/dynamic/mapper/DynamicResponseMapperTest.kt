@@ -105,13 +105,13 @@ class DynamicResponseMapperTest {
             DynamicValue.ObjectValue(
                 mapOf("\$binding" to DynamicValue.StringValue("fieldA")),
             ),
-            body.value["firstName"],
+            body.value["fieldA"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
                 mapOf("\$binding" to DynamicValue.StringValue("fieldB")),
             ),
-            body.value["email"],
+            body.value["fieldB"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
@@ -121,7 +121,7 @@ class DynamicResponseMapperTest {
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$response" to DynamicValue.StringValue("referenceId")),
+                mapOf("\$state" to DynamicValue.StringValue("referenceId")),
             ),
             body.value["previous"],
         )
@@ -150,7 +150,7 @@ class DynamicResponseMapperTest {
             DynamicContractFixtures.GENERIC_RESPONSE_WITH_DESTINATION_JSON,
         )
 
-        val response = DynamicResponseMapper().map(dto)
+        val response = DynamicResponseMapper(json).map(dto)
         val destination = assertNotNull(response.destination)
         assertEquals("screen_current", assertNotNull(response.data).screenId)
         assertEquals("screen_next", destination.screenId)
