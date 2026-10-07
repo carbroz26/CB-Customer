@@ -17,7 +17,7 @@ internal object DynamicReferenceResolver {
     ): DynamicValue = when (value) {
         is DynamicValue.ObjectValue -> {
             check("$response" !in value.value) {
-                "The $response reference is no longer supported; retain response data into RuntimeState and use $state"
+                "The \$response reference is no longer supported; retain response data into RuntimeState and use \$state"
             }
             val binding = string(value.value["$binding"])
             val contextRef = string(value.value["$context"])
