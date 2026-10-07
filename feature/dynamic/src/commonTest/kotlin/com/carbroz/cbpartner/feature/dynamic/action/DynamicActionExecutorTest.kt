@@ -246,4 +246,45 @@ class DynamicActionExecutorTest {
 
         assertEquals(DynamicActionResult.Completed, result.getOrThrow())
     }
+    
+    @Test
+    fun sequenceDepthIsBounded() = runTest {
+        val nested = generateSequenceAction(33)
+        val result = DynamicActionExecutor(emptyList()).execute(
+            nested,
+            emptyMap(),
+            emptyMap(),
+            emptyMap(),
+        )
+
+        assertFailsWith<IllegalStateException> { result.getOrThrow() }
+    }
+
+    private fun generateSequenceAction(depth: Int): DynamicAction =
+        if (depth == 0) {
+            DynamicAction(
+                type = "sequence",
+                payload = mapOf(
+                    "actions" to DynamicValue.ArrayValue(emptyList()),
+                ),
+            )
+        } else {
+            DynamicAction(
+                type = "sequence",
+                payload = mapOf(
+                    "actions" to DynamicValue.ArrayValue(
+                        listOf(
+                            DynamicValue.ObjectValue(
+                                mapOf(
+                                    "type" to DynamicValue.StringValue("sequence"),
+                                    "payload" to DynamicValue.ObjectValue(
+                                        generateSequenceAction(depth - 1).payload,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        }
 }
