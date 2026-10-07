@@ -30,7 +30,11 @@ class DynamicRenderer(
     @Composable
     fun Render(response: DynamicResponse, destination: DynamicDestination) {
         val screen = response.data ?: return
-        if (screen.screenId != destination.screenId || screen.template.id != destination.templateId) return
+        if (
+            screen.screenId != destination.screenId ||
+            screen.template.id != destination.templateId ||
+            screen.template.type != destination.templateType
+        ) return
         val context = DynamicRenderContext(
             registry = registry,
             bindings = bindings,
