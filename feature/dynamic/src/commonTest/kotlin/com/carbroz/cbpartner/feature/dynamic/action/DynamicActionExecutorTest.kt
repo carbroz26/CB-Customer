@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -180,4 +181,71 @@ class DynamicActionExecutorTest {
             DynamicValue.StringValue("retained"),
             external.stateChanges["reference"],
         )
+    }
+
+
+    @Test
+    fun sequenceStateChangesSupportNestedStatePaths() = runTest {
+        val executor = DynamicActionExecutor(
+            listOf(
+                object : DynamicActionHandler {
+                    override val type = "state"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.StateChanged(
+                        mapOf("flow.reference.id" to DynamicValue.StringValue("ref-1")),
+                    )
+                },
+                object : DynamicActionHandler {
+                    override val type = "read"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ): DynamicActionResult {
+                        return if (
+                            DynamicRuntimeState.applyChanges(state, emptyMap())["flow"] ==
+                            DynamicValue.ObjectValue(
+                                mapOf(
+                                    "reference" to DynamicValue.ObjectValue(
+                                        mapOf("id" to DynamicValue.StringValue("ref-1")),
+                                    ),
+                                ),
+                            )
+                        ) {
+                            DynamicActionResult.Completed
+                        } else {
+                            error("Nested sequence state was not materialized")
+                        }
+                    }
+                },
+            ),
+        )
+
+        val result = executor.execute(
+            DynamicAction(
+                type = "sequence",
+                payload = mapOf(
+                    "actions" to DynamicValue.ArrayValue(
+                        listOf(
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("state")),
+                            ),
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("read")),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            emptyMap(),
+            emptyMap(),
+            emptyMap(),
+        )
+
+        assertEquals(DynamicActionResult.Completed, result.getOrThrow())
     }
