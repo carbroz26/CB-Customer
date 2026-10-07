@@ -19,11 +19,7 @@ class DynamicRuntimeState {
 
     fun setAll(changes: Map<String, DynamicValue>) {
         if (changes.isEmpty()) return
-        _values.update { current ->
-            changes.entries.fold(current) { root, (path, value) ->
-                setPath(root, path, value)
-            }
-        }
+        _values.update { current -> applyChanges(current, changes) }
     }
 
     private fun setPath(
