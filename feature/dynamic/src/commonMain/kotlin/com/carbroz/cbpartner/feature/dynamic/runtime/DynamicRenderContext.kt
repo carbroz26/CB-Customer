@@ -8,28 +8,19 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.*
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionValueResolver
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 
 class DynamicRenderContext(
     val registry: DynamicRegistry,
-    val bindings: Map<String, String> = emptyMap(),
-    val contextValues: Map<String, String> = emptyMap(),
+    val bindings: Map<String, DynamicValue> = emptyMap(),
+    val contextValues: Map<String, DynamicValue> = emptyMap(),
+    val stateValues: Map<String, DynamicValue> = emptyMap(),
     val onAction: (DynamicAction) -> Unit = {},
-    val onValueChange: (String, String) -> Unit = { _, _ -> },
+    val onValueChange: (String, DynamicValue) -> Unit = { _, _ -> },
 ) {
-    fun resolve(value: DynamicValue): DynamicValue = when (value) {
-        is DynamicValue.ObjectValue -> {
-            val binding = (value.value["\$binding"] as? DynamicValue.StringValue)?.value
-            val context = (value.value["\$context"] as? DynamicValue.StringValue)?.value
-            when {
-                binding != null -> DynamicValue.StringValue(bindings[binding].orEmpty())
-                context != null -> DynamicValue.StringValue(contextValues[context].orEmpty())
-                else -> DynamicValue.ObjectValue(value.value.mapValues { (_, child) -> resolve(child) })
-            }
-        }
-        is DynamicValue.ArrayValue -> DynamicValue.ArrayValue(value.value.map(::resolve))
-        else -> value
-    }
+    fun resolve(value: DynamicValue): DynamicValue =
+        DynamicActionValueResolver.resolve(value, bindings, contextValues, stateValues)
 
     fun string(properties: Map<String, DynamicValue>, key: String): String? =
         (resolve(properties[key] ?: return null) as? DynamicValue.StringValue)?.value
@@ -56,8 +47,8 @@ class DynamicRenderContext(
         contents.forEach { registry.content(contentType(it))?.render(it, this) }
 
     private fun contentType(content: ElementContent): String = when (content) {
-        is com.carbroz.cbpartner.domain.model.dynamic.content.IconContent -> "icon"
-        is com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent -> "divider"
+        is IconContent -> "icon"
+        is DividerContent -> "divider"
     }
 
     private fun elementType(element: DynamicElement): String = when (element) {
