@@ -82,9 +82,9 @@ class DynamicActionExecutor(
             )
 
             when (val result = last) {
-                is DynamicActionResult.StateChanged -> sequenceState.clear().also { sequenceState.putAll(DynamicRuntimeState.applyChanges(sequenceState, result.changes)) }
-                is DynamicActionResult.Navigate -> sequenceState.clear().also { sequenceState.putAll(DynamicRuntimeState.applyChanges(sequenceState, result.stateChanges)) }
-                is DynamicActionResult.ExternalUri -> sequenceState.clear().also { sequenceState.putAll(DynamicRuntimeState.applyChanges(sequenceState, result.stateChanges)) }
+                is DynamicActionResult.StateChanged -> sequenceState.applyChanges(result.changes)
+                is DynamicActionResult.Navigate -> sequenceState.applyChanges(result.stateChanges)
+                is DynamicActionResult.ExternalUri -> sequenceState.applyChanges(result.stateChanges)
                 DynamicActionResult.Completed -> Unit
             }
         }
@@ -98,6 +98,12 @@ class DynamicActionExecutor(
                 if (changes.isEmpty()) DynamicActionResult.Completed
                 else DynamicActionResult.StateChanged(changes)
         }
+    }
+
+    private fun MutableMap<String, DynamicValue>.applyChanges(changes: Map<String, DynamicValue>) {
+        val updated = DynamicRuntimeState.applyChanges(this, changes)
+        clear()
+        putAll(updated)
     }
 
     private fun DynamicValue.ObjectValue.toDestination(): DynamicDestination? {
