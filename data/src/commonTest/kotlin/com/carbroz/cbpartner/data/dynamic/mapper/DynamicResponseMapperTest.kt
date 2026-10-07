@@ -180,7 +180,7 @@ class DynamicResponseMapperTest {
         )
 
         assertFailsWith<IllegalStateException> {
-            DynamicResponseMapper().map(dto)
+            DynamicResponseMapper(json).map(dto)
         }
     }
 
@@ -191,7 +191,7 @@ class DynamicResponseMapperTest {
         )
 
         assertFailsWith<IllegalArgumentException> {
-            DynamicResponseMapper().map(dto)
+            DynamicResponseMapper(json).map(dto)
         }
     }
 
@@ -202,7 +202,7 @@ class DynamicResponseMapperTest {
         )
 
         assertFailsWith<IllegalStateException> {
-            DynamicResponseMapper().map(dto)
+            DynamicResponseMapper(json).map(dto)
         }
     }
 }
