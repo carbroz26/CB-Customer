@@ -48,7 +48,7 @@ class DynamicRegistry(
         }
 
         fun content(type: String, renderer: ElementContentRenderer) = apply {
-            val key = type.normalizeType(); check(key.isNotEmpty()) { "Dynamic content type is blank" }; check(contents.put(key, renderer) == null) { "Dynamic content type is blank" };
+            val key = type.normalizeType(); check(key.isNotEmpty()) { "Dynamic content type is blank" }; check(contents.put(key, renderer) == null) { "Dynamic content already registered: $type" };
         }
 
         fun build(): DynamicRegistry = DynamicRegistry(
