@@ -83,15 +83,19 @@ class DynamicActionExecutor(
             when (val result = last) {
                 is DynamicActionResult.StateChanged -> sequenceState.putAll(result.changes)
                 is DynamicActionResult.Navigate -> sequenceState.putAll(result.stateChanges)
-                else -> Unit
+                is DynamicActionResult.ExternalUri -> sequenceState.putAll(result.stateChanges)
+                DynamicActionResult.Completed -> Unit
             }
         }
 
         val changes = sequenceState.filterKeys { key -> state[key] != sequenceState[key] }
         return when (last) {
             is DynamicActionResult.Navigate -> last.copy(stateChanges = changes)
+            is DynamicActionResult.ExternalUri -> last.copy(stateChanges = changes)
             is DynamicActionResult.StateChanged -> DynamicActionResult.StateChanged(changes)
-            else -> last
+            DynamicActionResult.Completed ->
+                if (changes.isEmpty()) DynamicActionResult.Completed
+                else DynamicActionResult.StateChanged(changes)
         }
     }
 
