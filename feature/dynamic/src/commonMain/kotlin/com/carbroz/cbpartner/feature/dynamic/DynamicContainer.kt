@@ -54,9 +54,7 @@ fun DynamicContainer(
             when (effect) {
                 is DynamicEffect.ExternalUri -> uriHandler.openUri(effect.uri)
                 is DynamicEffect.Navigation -> applyNavigation(effect.result, navigation)
-                null -> Unit
             }
-            if (effect != null) store.clearEffect()
         }
     }
 
