@@ -180,7 +180,6 @@ class DynamicActionExecutorTest {
         )
     }
 
-
     @Test
     fun sequenceStateChangesSupportNestedStatePaths() = runTest {
         val executor = DynamicActionExecutor(
@@ -244,9 +243,13 @@ class DynamicActionExecutorTest {
             emptyMap(),
         )
 
-        assertEquals(DynamicActionResult.Completed, result.getOrThrow())
+        val stateChanged = assertIs<DynamicActionResult.StateChanged>(result.getOrThrow())
+        assertEquals(
+            DynamicValue.StringValue("ref-1"),
+            stateChanged.changes["flow.reference.id"],
+        )
     }
-    
+
     @Test
     fun sequenceDepthIsBounded() = runTest {
         val nested = generateSequenceAction(33)
