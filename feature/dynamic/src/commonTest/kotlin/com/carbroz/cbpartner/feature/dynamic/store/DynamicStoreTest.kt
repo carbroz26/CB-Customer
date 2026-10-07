@@ -110,18 +110,35 @@ class DynamicStoreTest {
     }
 
     @Test
-    fun previousScreenEntryStateRemainsWhenNavigationReturns() {
-        val navigation = DynamicNavigationState(destination("first"))
-        navigation.currentEntry.bindings = mapOf("phone" to DynamicValue.StringValue("123"))
-        navigation.push(destination("second"))
-        navigation.currentEntry.bindings = mapOf("otp" to DynamicValue.StringValue("111111"))
-
-        navigation.pop()
-
-        assertEquals(
-            DynamicValue.StringValue("123"),
-            navigation.currentEntry.bindings["phone"],
+    fun screenStateIsIndependentPerNavigationEntry() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.failure(IllegalStateException("not used"))
+        }
+        val firstStore = store(
+            DynamicNavigationEntry(destination("first")),
+            repository,
+            DynamicRuntimeState(),
+            dispatcher,
         )
+        val secondStore = store(
+            DynamicNavigationEntry(destination("second")),
+            repository,
+            DynamicRuntimeState(),
+            dispatcher,
+        )
+
+        firstStore.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("123")))
+        secondStore.accept(DynamicIntent.ValueChanged("otp", DynamicValue.StringValue("111111")))
+
+        assertEquals(DynamicValue.StringValue("123"), firstStore.bindings.value["phone"])
+        assertEquals(null, firstStore.bindings.value["otp"])
+        assertEquals(DynamicValue.StringValue("111111"), secondStore.bindings.value["otp"])
+        assertEquals(null, secondStore.bindings.value["phone"])
+
+        firstStore.close()
+        secondStore.close()
     }
 
     @Test
