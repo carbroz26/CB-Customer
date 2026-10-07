@@ -13,28 +13,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.renderer.DynamicRenderer
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicEffect
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicIntent
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
-import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
+import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DynamicContainer(
     entry: DynamicNavigationEntry,
     navigation: DynamicNavigationState,
+    runtimeState: DynamicRuntimeState,
+    contextValues: Map<String, DynamicValue>,
     storeFactory: () -> DynamicStore,
     registry: DynamicRegistry,
     modifier: Modifier = Modifier,
 ) {
     val store = remember(entry) { storeFactory() }
     val state by store.state.collectAsState()
-    val runtimeValues by store.runtimeValues.collectAsState()
+    val runtimeValues by runtimeState.values.collectAsState()
     val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(store) {
@@ -60,13 +64,12 @@ fun DynamicContainer(
         when (val current = state) {
             DynamicState.Initial, DynamicState.Loading -> CircularProgressIndicator()
             is DynamicState.Success -> {
-                val screen = current.screen
-                val response = screen.response
+                val response = current.screen.response
                 if (response != null) {
                     DynamicRenderer(
                         registry = registry,
-                        bindings = screen.bindings,
-                        contextValues = store.context,
+                        bindings = current.screen.bindings,
+                        contextValues = contextValues,
                         stateValues = runtimeValues,
                         onAction = { store.accept(DynamicIntent.Action(it)) },
                         onValueChange = { key, value ->
@@ -85,14 +88,11 @@ private fun applyNavigation(
     navigation: DynamicNavigationState,
 ) {
     when (result.operation) {
-        DynamicActionResult.NavigationOperation.Push -> {
+        DynamicActionResult.NavigationOperation.Push ->
             result.destination?.let(navigation::push)
-        }
-        DynamicActionResult.NavigationOperation.Replace -> {
+        DynamicActionResult.NavigationOperation.Replace ->
             result.destination?.let(navigation::replace)
-        }
-        DynamicActionResult.NavigationOperation.Pop -> {
+        DynamicActionResult.NavigationOperation.Pop ->
             navigation.pop()
-        }
     }
 }
