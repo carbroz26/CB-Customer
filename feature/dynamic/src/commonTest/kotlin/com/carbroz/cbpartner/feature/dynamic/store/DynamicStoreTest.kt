@@ -66,7 +66,7 @@ class DynamicStoreTest {
 
     @Test
     fun explicitResponseRetentionBecomesRuntimeState() = runTest {
-        val dispatcher = StandardTestDispatcher(testScheduler)
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
         val next = destination("next")
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
@@ -124,7 +124,7 @@ class DynamicStoreTest {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
                 Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
         }
-        val dispatcher = StandardTestDispatcher(testScheduler)
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
         val first = store(
             DynamicNavigationEntry(destination("first")),
             repository,
