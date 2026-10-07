@@ -124,7 +124,7 @@ class DynamicStore(
             DynamicActionResult.Completed -> Unit
             is DynamicActionResult.Navigate -> runtimeState.setAll(result.stateChanges)
             is DynamicActionResult.ExternalUri -> _effects.value = result
-            is DynamicActionResult.StateChanged -> runtimeState.set(result.key, result.value)
+            is DynamicActionResult.StateChanged -> runtimeState.setAll(result.changes)
         }
     }
 
