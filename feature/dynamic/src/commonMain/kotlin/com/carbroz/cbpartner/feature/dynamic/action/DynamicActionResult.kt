@@ -8,7 +8,7 @@ sealed interface DynamicActionResult {
 
     data class Navigate(
         val destination: DynamicDestination? = null,
-        val operation: NavigationOperation = NavigationOperation.Replace,
+        val operation: NavigationOperation = NavigationOperation.Push,
         val stateChanges: Map<String, DynamicValue> = emptyMap(),
     ) : DynamicActionResult
 
