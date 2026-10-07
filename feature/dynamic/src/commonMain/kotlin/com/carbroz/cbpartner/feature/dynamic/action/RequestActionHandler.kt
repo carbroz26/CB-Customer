@@ -36,8 +36,9 @@ class RequestActionHandler(
 
         val destination = response.destination ?: error("Dynamic request did not provide data.destination")
         val operation = when (resolveString(action.payload["mode"], bindings, context, state)?.lowercase()) {
-            "push", "add" -> DynamicActionResult.NavigationOperation.Push
-            else -> DynamicActionResult.NavigationOperation.Replace
+            "replace" -> DynamicActionResult.NavigationOperation.Replace
+            "pop", "back" -> DynamicActionResult.NavigationOperation.Pop
+            else -> DynamicActionResult.NavigationOperation.Push
         }
         return DynamicActionResult.Navigate(destination, operation, stateChanges)
     }
