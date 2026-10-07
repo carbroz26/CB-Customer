@@ -576,3 +576,7 @@ Before final build/test inspect every Dynamic commonMain file, every Dynamic tes
 ### 21.15 Implementation order
 Implement sequentially: runtime/reference/value contracts → screen state/Store → action executor/handlers → navigation integration → renderer/registry → domain/data → composition/DI → tests/fixtures → docs/status → source audit → final Gradle build/test.
 No unrelated architecture may be added.
+
+### 21.16 One-shot effects
+DynamicEffect is a one-shot event stream, not persistent UI state. DynamicStore must use a buffered Channel/ReceiveChannel flow (or an equivalent one-shot event mechanism already frozen by the project) so consecutive navigation/external-URI effects are not collapsed by StateFlow semantics.
+DynamicState remains the only persistent screen state.
