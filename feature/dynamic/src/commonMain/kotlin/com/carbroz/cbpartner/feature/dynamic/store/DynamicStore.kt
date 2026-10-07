@@ -46,15 +46,16 @@ class DynamicStore(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) {
     private val validator = DynamicFormValidator()
+    private val screenState = DynamicScreenState()
     private val _state = MutableStateFlow<DynamicState>(
-        entry.response?.let(DynamicState::Success) ?: DynamicState.Initial,
+        screenState.response?.let(DynamicState::Success) ?: DynamicState.Initial,
     )
     val state: StateFlow<DynamicState> = _state.asStateFlow()
 
     private val _context = MutableStateFlow(contextProvider())
     val context: StateFlow<Map<String, DynamicValue>> = _context.asStateFlow()
 
-    private val _bindings = MutableStateFlow(entry.bindings)
+    private val _bindings = MutableStateFlow(screenState.bindings)
     val bindings: StateFlow<Map<String, DynamicValue>> = _bindings.asStateFlow()
 
     val runtimeValues: StateFlow<Map<String, DynamicValue>> = runtimeState.values
@@ -74,16 +75,16 @@ class DynamicStore(
     }
 
     private fun updateBinding(key: String, value: DynamicValue) {
-        entry.bindings = entry.bindings + (key to value)
-        _bindings.value = entry.bindings
+        screenState.bindings = screenState.bindings + (key to value)
+        _bindings.value = screenState.bindings
     }
 
     private fun load() {
-        if (entry.response != null || loadJob?.isActive == true) return
+        if (screenState.response != null || loadJob?.isActive == true) return
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
             loadDynamicScreen(entry.destination).onSuccess { response ->
-                entry.response = response
+                screenState.response = response
                 _state.value = DynamicState.Success(response)
             }.onFailure { error ->
                 _state.value = DynamicState.Failure(error.message ?: "Unable to load dynamic screen")
@@ -93,21 +94,21 @@ class DynamicStore(
 
     private fun handleAction(action: DynamicAction, navigation: DynamicNavigationState) {
         val shouldValidate = (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
-        val screen = entry.response?.data
+        val screen = screenState.response?.data
         if (shouldValidate && screen != null) {
             validator.validate(screen, entry.bindings)?.let { message ->
-                entry.validationMessage = message
+                screenState.validationMessage = message
                 _state.value = DynamicState.Failure(message)
                 return
             }
-            entry.validationMessage = null
+            screenState.validationMessage = null
         }
         if (actionJob?.isActive == true) return
         actionJob = scope.launch {
             actionExecutor.execute(
                 action,
                 navigation,
-                entry.bindings,
+                screenState.bindings,
                 _context.value,
                 runtimeState.values.value,
             ).onSuccess(::applyActionResult)
