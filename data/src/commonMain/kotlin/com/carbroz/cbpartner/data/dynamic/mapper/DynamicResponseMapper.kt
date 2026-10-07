@@ -11,8 +11,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.theme.DynamicTheme
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
-class DynamicResponseMapper {
-    private val json = Json { ignoreUnknownKeys = true }
+class DynamicResponseMapper(private val json: Json) {
     private val values = DynamicValueMapper()
     private val elements = DynamicElementMapper(json, values)
     private val groups = GroupMapper(elements, values)
