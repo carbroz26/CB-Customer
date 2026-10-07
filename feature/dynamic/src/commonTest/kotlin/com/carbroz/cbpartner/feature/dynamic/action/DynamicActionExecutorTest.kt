@@ -1,9 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
-import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
-import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,13 +11,11 @@ import kotlin.test.assertIs
 class DynamicActionExecutorTest {
     @Test
     fun sequenceUsesSameExecutorForNestedActions() = runTest {
-        val navigation = DynamicNavigationState(destination("current"))
         val executor = DynamicActionExecutor(
             listOf(object : DynamicActionHandler {
                 override val type = "state"
                 override suspend fun handle(
                     action: DynamicAction,
-                    navigation: DynamicNavigationState,
                     bindings: Map<String, DynamicValue>,
                     context: Map<String, DynamicValue>,
                     state: Map<String, DynamicValue>,
@@ -53,7 +49,6 @@ class DynamicActionExecutorTest {
                     ),
                 ),
             ),
-            navigation = navigation,
             bindings = emptyMap(),
             context = emptyMap(),
             state = emptyMap(),
@@ -68,7 +63,6 @@ class DynamicActionExecutorTest {
             override val type = "state"
             override suspend fun handle(
                 action: DynamicAction,
-                navigation: DynamicNavigationState,
                 bindings: Map<String, DynamicValue>,
                 context: Map<String, DynamicValue>,
                 state: Map<String, DynamicValue>,
@@ -78,6 +72,4 @@ class DynamicActionExecutorTest {
             DynamicActionExecutor(listOf(handler, handler))
         }
     }
-
-    private fun destination(id: String) = DynamicDestination(id, "tpl_$id", "form_template", "/$id")
 }
