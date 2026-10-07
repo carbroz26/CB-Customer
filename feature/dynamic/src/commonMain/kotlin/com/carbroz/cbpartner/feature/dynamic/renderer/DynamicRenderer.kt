@@ -22,18 +22,25 @@ import kotlin.math.sqrt
 class DynamicRenderer(
     private val registry: DynamicRegistry,
     private val onAction: (DynamicAction) -> Unit = {},
-    private val onValueChange: (String, String) -> Unit = { _, _ -> },
-    private val bindings: Map<String, String> = emptyMap(),
-    private val contextValues: Map<String, String> = emptyMap(),
+    private val onValueChange: (String, DynamicValue) -> Unit = { _, _ -> },
+    private val bindings: Map<String, DynamicValue> = emptyMap(),
+    private val contextValues: Map<String, DynamicValue> = emptyMap(),
+    private val stateValues: Map<String, DynamicValue> = emptyMap(),
 ) {
     @Composable
     fun Render(response: DynamicResponse, destination: DynamicDestination) {
         val screen = response.data ?: return
         if (screen.screenId != destination.screenId || screen.template.id != destination.templateId) return
-        if (destination.templateType != FORM_TEMPLATE_TYPE) return
-        val context = DynamicRenderContext(registry, bindings, contextValues, onAction, onValueChange)
+        val context = DynamicRenderContext(
+            registry = registry,
+            bindings = bindings,
+            contextValues = contextValues,
+            stateValues = stateValues,
+            onAction = onAction,
+            onValueChange = onValueChange,
+        )
         Box(modifier = Modifier.fillMaxSize().screenTheme(screen.theme?.properties)) {
-            registry.template(FORM_TEMPLATE_TYPE)?.render(screen.template, context)
+            registry.template(screen.template.type)?.render(screen.template, context)
         }
     }
 
@@ -54,6 +61,4 @@ class DynamicRenderer(
             onDrawBehind { drawRect(brush = brush) }
         }
     }
-
-    private companion object { const val FORM_TEMPLATE_TYPE = "form_template" }
 }
