@@ -54,8 +54,8 @@ class DynamicStore(
     private val _context = MutableStateFlow(contextProvider())
     val context: StateFlow<Map<String, DynamicValue>> = _context.asStateFlow()
 
-    val bindings: StateFlow<Map<String, DynamicValue>> =
-        MutableStateFlow(entry.bindings).asStateFlow()
+    private val _bindings = MutableStateFlow(entry.bindings)
+    val bindings: StateFlow<Map<String, DynamicValue>> = _bindings.asStateFlow()
 
     val runtimeValues: StateFlow<Map<String, DynamicValue>> = runtimeState.values
 
@@ -75,7 +75,7 @@ class DynamicStore(
 
     private fun updateBinding(key: String, value: DynamicValue) {
         entry.bindings = entry.bindings + (key to value)
-        (bindings as MutableStateFlow).value = entry.bindings
+        _bindings.value = entry.bindings
     }
 
     private fun load() {
