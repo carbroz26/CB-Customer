@@ -37,6 +37,7 @@ internal object DynamicActionValueResolver {
     fun resolvePath(root: Map<String, DynamicValue>, path: String): DynamicValue {
         val segments = path.split('.').filter(String::isNotBlank)
         if (segments.isEmpty()) return DynamicValue.NullValue
+        root[path]?.let { return it }
         var current: DynamicValue = root[segments.first()] ?: return DynamicValue.NullValue
         for (segment in segments.drop(1)) {
             current = when (current) {
