@@ -12,9 +12,9 @@ class DynamicValueMapper {
         is JsonObject -> DynamicValue.ObjectValue(value.entries.associate { (key, item) -> key to toDynamicValue(item) })
         is JsonArray -> DynamicValue.ArrayValue(value.map(::toDynamicValue))
         is JsonPrimitive -> when {
+            value.isString -> DynamicValue.StringValue(value.content)
             value.booleanOrNull != null -> DynamicValue.BooleanValue(value.booleanOrNull!!)
             value.doubleOrNull != null -> DynamicValue.NumberValue(value.doubleOrNull!!)
-            value.contentOrNull != null -> DynamicValue.StringValue(value.content)
             else -> DynamicValue.NullValue
         }
     }
