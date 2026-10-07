@@ -64,7 +64,10 @@ The previous status claiming "IMPLEMENTED" was premature. The Dynamic runtime is
 - Generic navigation now pushes by default; replace/pop require explicit mode semantics so normal back can restore the previous entry.
 - Input rendering now reads typed StringValue bindings explicitly.
 - Dynamic image rendering no longer depends on a non-frozen baseUrl context key.
-- Generic runtime-state and sequence-effect tests were added.
+- Generic runtime-state and sequence-effect tests were added, including nested sequence-state propagation.
+- Generic navigation defaults were aligned so destination transitions push unless replace/pop is explicitly requested.
+- Store effects now use a one-shot buffered event stream.
+- Runtime nested state update semantics are shared by RuntimeState and sequence execution.
 - Generic mapper fixtures/tests were reconciled to remove stale persistent $response assumptions.
 
 ## Still pending before Item 11 completion
