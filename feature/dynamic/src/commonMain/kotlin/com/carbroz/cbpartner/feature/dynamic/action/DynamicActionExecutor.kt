@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 
 class DynamicActionExecutor(
     handlers: List<DynamicActionHandler>,
@@ -81,9 +82,9 @@ class DynamicActionExecutor(
             )
 
             when (val result = last) {
-                is DynamicActionResult.StateChanged -> sequenceState.putAll(result.changes)
-                is DynamicActionResult.Navigate -> sequenceState.putAll(result.stateChanges)
-                is DynamicActionResult.ExternalUri -> sequenceState.putAll(result.stateChanges)
+                is DynamicActionResult.StateChanged -> sequenceState.clear().also { sequenceState.putAll(DynamicRuntimeState.applyChanges(sequenceState, result.changes)) }
+                is DynamicActionResult.Navigate -> sequenceState.clear().also { sequenceState.putAll(DynamicRuntimeState.applyChanges(sequenceState, result.stateChanges)) }
+                is DynamicActionResult.ExternalUri -> sequenceState.clear().also { sequenceState.putAll(DynamicRuntimeState.applyChanges(sequenceState, result.stateChanges)) }
                 DynamicActionResult.Completed -> Unit
             }
         }
