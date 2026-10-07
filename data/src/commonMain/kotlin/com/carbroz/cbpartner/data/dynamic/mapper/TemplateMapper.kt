@@ -11,6 +11,7 @@ class TemplateMapper(
         require(dto.type == "form_template") { "Unsupported dynamic template type: " + dto.type }
         return FormTemplate(
             id = dto.id,
+            type = dto.type,
             orientation = values.string(dto.properties, "orientation") ?: "vertical",
             verticalArrangement = values.verticalArrangement(dto.properties),
             horizontalAlignment = values.horizontalAlignment(dto.properties),
