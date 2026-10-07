@@ -16,13 +16,13 @@ internal object DynamicReferenceResolver {
         state: Map<String, DynamicValue>,
     ): DynamicValue = when (value) {
         is DynamicValue.ObjectValue -> {
-            check("$response" !in value.value) {
+            check("\$response" !in value.value) {
                 "The \$response reference is no longer supported; retain response data into RuntimeState and use \$state"
             }
-            val binding = string(value.value["$binding"])
-            val contextRef = string(value.value["$context"])
-            val stateRef = string(value.value["$state"])
-            val literal = value.value["$literal"]
+            val binding = string(value.value["\$binding"])
+            val contextRef = string(value.value["\$context"])
+            val stateRef = string(value.value["\$state"])
+            val literal = value.value["\$literal"]
             when {
                 binding != null -> bindings[binding] ?: DynamicValue.NullValue
                 contextRef != null -> resolvePath(context, contextRef)
