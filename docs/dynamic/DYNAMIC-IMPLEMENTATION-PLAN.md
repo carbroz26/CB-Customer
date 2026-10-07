@@ -586,3 +586,6 @@ Generic navigation that creates a destination entry uses Push by default. Replac
 
 ### 21.18 $response rejection tests
 Tests must not use $response as a supported reference or fixture value. A focused test that supplies $response and asserts deterministic rejection is required and is allowed.
+
+### 21.19 Navigation-version boundary
+The Dynamic implementation must not silently upgrade Navigation 3 or introduce a Dynamic-specific retention/cache mechanism. Entry-scoped state retention is delegated to the existing Navigation 3 entry lifecycle. A Navigation 3 dependency/version change is a separate base-architecture decision and must not be bundled into Dynamic implementation.
