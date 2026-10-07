@@ -6,7 +6,13 @@ import com.carbroz.cbpartner.navigation.DynamicNavigationState
 
 class DismissActionHandler : DynamicActionHandler {
     override val type = "dismiss"
-    override suspend fun handle(action: DynamicAction, navigation: DynamicNavigationState, bindings: Map<String,String>, context: Map<String,String>, previousResponse: DynamicValue?): DynamicActionResult {
+    override suspend fun handle(
+        action: DynamicAction,
+        navigation: DynamicNavigationState,
+        bindings: Map<String, DynamicValue>,
+        context: Map<String, DynamicValue>,
+        state: Map<String, DynamicValue>,
+    ): DynamicActionResult {
         navigation.pop()
         return DynamicActionResult.Completed
     }
