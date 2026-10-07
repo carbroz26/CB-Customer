@@ -8,12 +8,12 @@ class DynamicRegistry(
     private val elements: Map<String, ElementRenderer> = emptyMap(),
     private val contents: Map<String, ElementContentRenderer> = emptyMap(),
 ) {
-    fun template(type: String): TemplateRenderer? = templates[type]
-    fun component(type: String): ComponentRenderer? = components[type]
-    fun section(type: String): SectionRenderer? = sections[type]
-    fun group(type: String): GroupRenderer? = groups[type]
-    fun element(type: String): ElementRenderer? = elements[type]
-    fun content(type: String): ElementContentRenderer? = contents[type]
+    fun template(type: String): TemplateRenderer? = templates[type.normalizeType()]
+    fun component(type: String): ComponentRenderer? = components[type.normalizeType()]
+    fun section(type: String): SectionRenderer? = sections[type.normalizeType()]
+    fun group(type: String): GroupRenderer? = groups[type.normalizeType()]
+    fun element(type: String): ElementRenderer? = elements[type.normalizeType()]
+    fun content(type: String): ElementContentRenderer? = contents[type.normalizeType()]
 
     companion object {
         fun builder(): Builder = Builder()
@@ -28,27 +28,27 @@ class DynamicRegistry(
         private val contents = linkedMapOf<String, ElementContentRenderer>()
 
         fun template(type: String, renderer: TemplateRenderer) = apply {
-            check(templates.put(type, renderer) == null) { "Dynamic template already registered: $type" }
+            val key = type.normalizeType(); check(key.isNotEmpty()) { "Dynamic template type is blank" }; check(templates.put(key, renderer) == null) { "Dynamic template already registered: $type" }
         }
 
         fun component(type: String, renderer: ComponentRenderer) = apply {
-            check(components.put(type, renderer) == null) { "Dynamic component already registered: $type" }
+            val key = type.normalizeType(); check(key.isNotEmpty()) { "Dynamic component type is blank" }; check(components.put(key, renderer) == null) { "Dynamic component already registered: $type" }
         }
 
         fun section(type: String, renderer: SectionRenderer) = apply {
-            check(sections.put(type, renderer) == null) { "Dynamic section already registered: $type" }
+            val key = type.normalizeType(); check(key.isNotEmpty()) { "Dynamic section type is blank" }; check(sections.put(key, renderer) == null) { "Dynamic section already registered: $type" }
         }
 
         fun group(type: String, renderer: GroupRenderer) = apply {
-            check(groups.put(type, renderer) == null) { "Dynamic group already registered: $type" }
+            val key = type.normalizeType(); check(key.isNotEmpty()) { "Dynamic group type is blank" }; check(groups.put(key, renderer) == null) { "Dynamic group already registered: $type" }
         }
 
         fun element(type: String, renderer: ElementRenderer) = apply {
-            check(elements.put(type, renderer) == null) { "Dynamic element already registered: $type" }
+            val key = type.normalizeType(); check(key.isNotEmpty()) { "Dynamic element type is blank" }; check(elements.put(key, renderer) == null) { "Dynamic element already registered: $type" }
         }
 
         fun content(type: String, renderer: ElementContentRenderer) = apply {
-            check(contents.put(type, renderer) == null) { "Dynamic content already registered: $type" }
+            val key = type.normalizeType(); check(key.isNotEmpty()) { "Dynamic content type is blank" }; check(contents.put(key, renderer) == null) { "Dynamic content type is blank" };
         }
 
         fun build(): DynamicRegistry = DynamicRegistry(
@@ -61,3 +61,5 @@ class DynamicRegistry(
         )
     }
 }
+
+private fun String.normalizeType(): String = trim().lowercase()
