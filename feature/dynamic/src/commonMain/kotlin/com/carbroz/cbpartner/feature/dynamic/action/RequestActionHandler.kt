@@ -39,7 +39,14 @@ class RequestActionHandler(private val repository: DynamicRepository) : DynamicA
         return DynamicActionResult.Navigate(destination, stateChanges)
     }
 
-    private fun resolve(\n        value: DynamicValue?,\n        bindings: Map<String, DynamicValue>,\n        context: Map<String, DynamicValue>,\n        state: Map<String, DynamicValue>,\n    ): DynamicValue = value?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) } ?: DynamicValue.NullValue\n\n    private fun extractRetainedState(
+    private fun resolve(
+        value: DynamicValue?,
+        bindings: Map<String, DynamicValue>,
+        context: Map<String, DynamicValue>,
+        state: Map<String, DynamicValue>,
+    ): DynamicValue = value?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) } ?: DynamicValue.NullValue
+
+    private fun extractRetainedState(
         retain: DynamicValue?,
         dataPayload: DynamicValue?,
     ): Map<String, DynamicValue> {
