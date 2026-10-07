@@ -4,6 +4,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class DynamicRuntimeState {
     private val _values = MutableStateFlow<Map<String, DynamicValue>>(emptyMap())
@@ -13,11 +14,16 @@ class DynamicRuntimeState {
         DynamicReferenceResolver.resolvePath(_values.value, path)
 
     fun set(path: String, value: DynamicValue) {
-        _values.value = setPath(_values.value, path, value)
+        setAll(mapOf(path to value))
     }
 
-    fun setAll(values: Map<String, DynamicValue>) {
-        values.forEach(::set)
+    fun setAll(changes: Map<String, DynamicValue>) {
+        if (changes.isEmpty()) return
+        _values.update { current ->
+            changes.entries.fold(current) { root, (path, value) ->
+                setPath(root, path, value)
+            }
+        }
     }
 
     private fun setPath(
