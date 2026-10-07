@@ -447,3 +447,41 @@ The following are implementation failures and must be removed, not renamed:
 Before final build/test, every class in the Dynamic package must be checked against this plan line-by-line at the source level. If a class still contains a forbidden responsibility, implementation is incomplete even when the application can compile.
 
 The implementation status must list the actual changed files and explicitly identify any intentionally unchanged files with the reason they already satisfied the contract.
+
+## 20. Implementation reconciliation amendments
+
+### 20.1 RuntimeState lifetime
+RuntimeState is shared for the active Dynamic flow, not application-global. The current composition root creates one `DynamicRuntimeState` with `remember` for the Dynamic flow and passes it into each entry-scoped DynamicStore. `DynamicModule` therefore does not create a global RuntimeState singleton.
+
+This preserves:
+- shared state across Dynamic navigation entries;
+- isolation from unrelated application flows;
+- no external cache;
+- no business persistence.
+
+### 20.2 Navigation execution
+DynamicStore and DynamicActionHandler never mutate `DynamicNavigationState`. They return a `DynamicActionResult.Navigate` instruction. `DynamicContainer` is the composition boundary that consumes the one-shot navigation effect and delegates to the existing `DynamicNavigationState`.
+
+### 20.3 Screen-state source of truth
+`DynamicState.Success` and `DynamicState.Failure` carry the canonical `DynamicScreenState`. BindingState is read from that state. There is no independent `store.bindings` MutableStateFlow.
+
+### 20.4 Context source of truth
+Context is a read-only `Map<String, DynamicValue>` snapshot supplied to the entry Store. The Store does not expose a mutable context flow.
+
+### 20.5 Request response lifecycle
+`RequestActionHandler` returns explicit state changes and navigation instructions. It never returns a persistent response reference. `responseMode = none` with no retained values returns `Completed`.
+
+### 20.6 Navigation operation contract
+`DynamicActionResult.Navigate` carries a generic navigation operation:
+- `Push`
+- `Replace`
+- `Pop`
+
+The destination is nullable because Pop has no destination. This keeps destination identity separate from navigation behavior.
+
+### 20.7 Nested RuntimeState
+RuntimeState supports dotted paths such as `session.reference.id`. State writes are generic and create/update DynamicValue object nodes without converting values to strings.
+
+### 20.8 Shared JSON mapper
+`DynamicResponseMapper` receives the existing injected kotlinx.serialization `Json`. It must not instantiate a private Json configuration. `DynamicDataModule` remains the DI owner of the mapper.
+
