@@ -55,8 +55,8 @@ class DynamicActionExecutorTest {
             bindings = emptyMap(),
             context = emptyMap(),
             state = emptyMap(),
-        ),
-        stateChanged = assertIs<DynamicActionResult.StateChanged>(result.getOrThrow()),
+        )
+        val stateChanged = assertIs<DynamicActionResult.StateChanged>(result.getOrThrow())
         assertEquals("step", stateChanged.key)
         assertEquals(DynamicValue.StringValue("nested"), stateChanged.value)
     }
