@@ -11,6 +11,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.DynamicContainer
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.registry.dynamicRendererRegistry
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
 import com.carbroz.cbpartner.feature.splash.SplashScreen
@@ -49,26 +50,30 @@ private fun DynamicContent(
     val navigationState = remember(initialDestination) { DynamicNavigationState(initialDestination) }
     val runtimeState = remember { DynamicRuntimeState() }
     val registry = remember { dynamicRendererRegistry() }
+    val metadata = runtimeMetadataProvider.current()
+    val contextValues = remember(metadata) {
+        mapOf(
+            "platform" to DynamicValue.StringValue(metadata.platform),
+            "appVersion" to DynamicValue.StringValue(metadata.appVersion),
+            "buildNumber" to DynamicValue.StringValue(metadata.buildNumber),
+            "deviceId" to DynamicValue.StringValue(metadata.deviceId),
+        )
+    }
 
     DynamicNavigationHost(state = navigationState) { entry ->
-        val metadata = runtimeMetadataProvider.current()
         DynamicContainer(
             entry = entry,
             navigation = navigationState,
+            runtimeState = runtimeState,
+            contextValues = contextValues,
             storeFactory = {
                 DynamicStore(
                     loadDynamicScreen = koin.get(),
                     actionExecutor = koin.get<DynamicActionExecutor>(),
+                    validator = koin.get<DynamicFormValidator>(),
                     entry = entry,
                     runtimeState = runtimeState,
-                    contextProvider = {
-                        mapOf(
-                            "platform" to DynamicValue.StringValue(metadata.platform),
-                            "appVersion" to DynamicValue.StringValue(metadata.appVersion),
-                            "buildNumber" to DynamicValue.StringValue(metadata.buildNumber),
-                            "deviceId" to DynamicValue.StringValue(metadata.deviceId),
-                        )
-                    },
+                    contextProvider = { contextValues },
                 )
             },
             registry = registry,
