@@ -1,6 +1,6 @@
 # Dynamic UI Implementation Plan
 
-Status: FROZEN — implementation contract (expanded contract is being applied before code implementation)
+Status: FROZEN — implementation contract
 Contract source: `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 Implementation rule: only the changes listed here are in scope.
 
