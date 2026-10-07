@@ -96,7 +96,7 @@ class DynamicStore(
         val shouldValidate = (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
         val screen = screenState.response?.data
         if (shouldValidate && screen != null) {
-            validator.validate(screen, entry.bindings)?.let { message ->
+            validator.validate(screen, screenState.bindings)?.let { message ->
                 screenState.validationMessage = message
                 _state.value = DynamicState.Failure(message)
                 return
