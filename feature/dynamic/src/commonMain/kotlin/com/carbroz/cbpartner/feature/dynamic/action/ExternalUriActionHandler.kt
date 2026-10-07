@@ -14,16 +14,8 @@ class ExternalUriActionHandler : DynamicActionHandler {
         state: Map<String, DynamicValue>,
     ): DynamicActionResult.ExternalUri {
         val value = action.payload["uri"] ?: error("Dynamic external URI is missing")
-        val uri = when (value) {
-            is DynamicValue.StringValue -> value.value
-            is DynamicValue.ObjectValue -> {
-                val reference = DynamicActionValueResolver.string(value.value["\$context"])
-                    ?: error("Dynamic external URI reference is invalid")
-                (DynamicActionValueResolver.resolvePath(context, reference) as? DynamicValue.StringValue)?.value
-                    ?: error("Dynamic context value is missing: $reference")
-            }
-            else -> error("Dynamic external URI value is invalid")
-        }
+        val uri = (DynamicActionValueResolver.resolve(value, bindings, context, state) as? DynamicValue.StringValue)?.value
+            ?: error("Dynamic external URI value is invalid")
         return DynamicActionResult.ExternalUri(uri)
     }
 }
