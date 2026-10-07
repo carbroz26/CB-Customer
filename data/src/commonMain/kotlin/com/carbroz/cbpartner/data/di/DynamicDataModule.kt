@@ -7,7 +7,7 @@ import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import org.koin.dsl.module
 
 val dynamicDataModule = module {
-    single { DynamicResponseMapper() }
+    single { DynamicResponseMapper(get()) }
     single { DynamicRemoteDataSource(get()) }
     single<DynamicRepository> {
         DynamicRepositoryImpl(
