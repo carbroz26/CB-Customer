@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement as InputElementModel
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
@@ -25,7 +26,7 @@ class InputElement : ElementRenderer {
     @Composable override fun render(element: DynamicElement, context: DynamicRenderContext) {
         val model = element as? InputElementModel ?: return
         val binding = model.binding?.key ?: return
-        val value = context.bindings[binding].orEmpty()
+        val value = (context.bindings[binding] as? DynamicValue.StringValue)?.value.orEmpty()
         val keyboardType = when (model.keyboardType) {
             "phone" -> KeyboardType.Phone
             "number" -> KeyboardType.Number
