@@ -7,27 +7,27 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 class DynamicNavigationState(
     initialDestination: DynamicDestination,
 ) {
-    internal val backStack: SnapshotStateList<DynamicDestination> =
-        mutableStateListOf(initialDestination)
+    internal val backStack: SnapshotStateList<DynamicNavigationEntry> =
+        mutableStateListOf(DynamicNavigationEntry(initialDestination))
+
+    val currentEntry: DynamicNavigationEntry
+        get() = backStack.last()
 
     val currentDestination: DynamicDestination
-        get() = backStack.last()
+        get() = currentEntry.destination
 
     fun setRoot(destination: DynamicDestination) {
         backStack.clear()
-        backStack.add(destination)
+        backStack.add(DynamicNavigationEntry(destination))
     }
 
     fun push(destination: DynamicDestination) {
-        backStack.add(destination)
+        backStack.add(DynamicNavigationEntry(destination))
     }
 
     fun replace(destination: DynamicDestination) {
-        if (backStack.isEmpty()) {
-            backStack.add(destination)
-        } else {
-            backStack[backStack.lastIndex] = destination
-        }
+        if (backStack.isEmpty()) backStack.add(DynamicNavigationEntry(destination))
+        else backStack[backStack.lastIndex] = DynamicNavigationEntry(destination)
     }
 
     fun pop(): Boolean {
