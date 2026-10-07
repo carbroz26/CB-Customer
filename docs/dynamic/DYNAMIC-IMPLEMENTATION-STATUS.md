@@ -51,6 +51,22 @@ The previous status claiming "IMPLEMENTED" was premature. The Dynamic runtime is
 - DynamicStoreTest updated for canonical screen state and entry isolation.
 - DynamicResponseMapperTest updated for injected Json.
 
+## Additional completed reconciliation in this pass
+
+- DynamicReferenceResolver now traverses nested binding/context/state paths and has no supported $response namespace.
+- DynamicRuntimeState applies typed change sets atomically through its StateFlow update boundary.
+- DynamicActionResult preserves state changes alongside navigation and external-URI effects.
+- DynamicActionExecutor propagates sequence state changes into subsequent actions and preserves changes at terminal effects.
+- DynamicStore receives DynamicFormValidator through DI instead of constructing it internally.
+- DynamicStore no longer exposes Context or RuntimeState as secondary public state sources.
+- DynamicEffect is now a buffered one-shot Channel/Flow rather than nullable StateFlow.
+- DynamicContainer consumes one-shot effects and renders from canonical screen state plus the shared runtime/context capabilities.
+- Generic navigation now pushes by default; replace/pop require explicit mode semantics so normal back can restore the previous entry.
+- Input rendering now reads typed StringValue bindings explicitly.
+- Dynamic image rendering no longer depends on a non-frozen baseUrl context key.
+- Generic runtime-state and sequence-effect tests were added.
+- Generic mapper fixtures/tests were reconciled to remove stale persistent $response assumptions.
+
 ## Still pending before Item 11 completion
 
 1. Full source-level audit of every Dynamic class/package against the expanded implementation plan.
