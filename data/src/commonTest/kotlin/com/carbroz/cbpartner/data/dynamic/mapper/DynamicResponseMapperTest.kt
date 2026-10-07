@@ -193,7 +193,7 @@ class DynamicResponseMapperTest {
         assertEquals("VALIDATION_ERROR", response.code)
         assertEquals("Invalid input", response.message)
         val payload = assertIs<DynamicValue.ObjectValue>(response.dataPayload)
-        assertEquals(DynamicValue.StringValue("email"), payload.value["field"])
+        assertEquals(DynamicValue.StringValue("fieldB"), payload.value["field"])
     }
 
     @Test
