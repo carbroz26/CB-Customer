@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
 class DynamicActionValueResolverTest {
@@ -63,19 +64,15 @@ class DynamicActionValueResolverTest {
     }
 
     @Test
-    fun responseReferenceIsNoLongerResolved() {
-        val resolved = DynamicActionValueResolver.resolve(
-            ref("\$response", "data.referenceId"),
-            emptyMap(),
-            emptyMap(),
-            emptyMap(),
-        )
-        assertEquals(
-            DynamicValue.ObjectValue(
-                mapOf("\$response" to DynamicValue.StringValue("data.referenceId")),
-            ),
-            resolved,
-        )
+    fun responseReferenceIsRejected() {
+        assertFailsWith<IllegalStateException> {
+            DynamicActionValueResolver.resolve(
+                ref("\$response", "data.referenceId"),
+                emptyMap(),
+                emptyMap(),
+                emptyMap(),
+            )
+        }
     }
 
     @Test
