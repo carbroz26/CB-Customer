@@ -15,12 +15,12 @@ class RequestActionHandler(private val repository: DynamicRepository) : DynamicA
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
     ): DynamicActionResult {
-        val endpoint = DynamicActionValueResolver.string(action.payload["endpoint"])
+        val endpoint = DynamicActionValueResolver.string(resolve(action.payload["endpoint"], bindings, context, state))
             ?: error("Dynamic request endpoint is missing")
-        val method = DynamicActionValueResolver.string(action.payload["method"]) ?: "POST"
-        val authentication = DynamicActionValueResolver.string(action.payload["authentication"]) ?: "NONE"
-        val validate = DynamicActionValueResolver.boolean(action.payload["validate"]) ?: false
-        val responseMode = DynamicActionValueResolver.string(action.payload["responseMode"]) ?: "destination"
+        val method = DynamicActionValueResolver.string(resolve(action.payload["method"], bindings, context, state)) ?: "POST"
+        val authentication = DynamicActionValueResolver.string(resolve(action.payload["authentication"], bindings, context, state)) ?: "NONE"
+        val validate = DynamicActionValueResolver.boolean(resolve(action.payload["validate"], bindings, context, state)) ?: false
+        val responseMode = DynamicActionValueResolver.string(resolve(action.payload["responseMode"], bindings, context, state)) ?: "destination"
         val body = action.payload["body"]?.let {
             DynamicActionValueResolver.resolve(it, bindings, context, state)
         }
@@ -32,14 +32,14 @@ class RequestActionHandler(private val repository: DynamicRepository) : DynamicA
             return DynamicActionResult.Navigate(navigation.currentDestination, stateChanges)
         }
         val destination = response.destination ?: error("Dynamic request did not provide data.destination")
-        when (DynamicActionValueResolver.string(action.payload["mode"])?.lowercase()) {
+        when (DynamicActionValueResolver.string(resolve(action.payload["mode"], bindings, context, state))?.lowercase()) {
             "push", "add" -> navigation.push(destination)
             else -> navigation.replace(destination)
         }
         return DynamicActionResult.Navigate(destination, stateChanges)
     }
 
-    private fun extractRetainedState(
+    private fun resolve(\n        value: DynamicValue?,\n        bindings: Map<String, DynamicValue>,\n        context: Map<String, DynamicValue>,\n        state: Map<String, DynamicValue>,\n    ): DynamicValue = value?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) } ?: DynamicValue.NullValue\n\n    private fun extractRetainedState(
         retain: DynamicValue?,
         dataPayload: DynamicValue?,
     ): Map<String, DynamicValue> {
