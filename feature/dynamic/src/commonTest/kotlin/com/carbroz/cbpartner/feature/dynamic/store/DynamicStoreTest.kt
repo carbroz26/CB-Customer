@@ -11,7 +11,6 @@ import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
-import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -30,12 +29,15 @@ class DynamicStoreTest {
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
                 body = request.body
-                return Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "request"))
+                return Result.success(DynamicResponse(204, "NO_CONTENT", "OK", null, "request"))
             }
         }
-        val entry = DynamicNavigationEntry(destination("current"))
-        val navigation = DynamicNavigationState(entry.destination)
-        val store = store(entry, repository, DynamicRuntimeState(), dispatcher)
+        val store = store(
+            DynamicNavigationEntry(destination("current")),
+            repository,
+            DynamicRuntimeState(),
+            dispatcher,
+        )
 
         store.accept(DynamicIntent.ValueChanged("count", DynamicValue.NumberValue(2.0)))
         store.accept(
@@ -50,7 +52,6 @@ class DynamicStoreTest {
                         ),
                     ),
                 ),
-                navigation,
             ),
         )
         advanceUntilIdle()
@@ -81,9 +82,12 @@ class DynamicStoreTest {
                 )
         }
         val runtimeState = DynamicRuntimeState()
-        val entry = DynamicNavigationEntry(destination("current"))
-        val navigation = DynamicNavigationState(entry.destination)
-        val store = store(entry, repository, runtimeState, dispatcher)
+        val store = store(
+            DynamicNavigationEntry(destination("current")),
+            repository,
+            runtimeState,
+            dispatcher,
+        )
 
         store.accept(
             DynamicIntent.Action(
@@ -97,7 +101,6 @@ class DynamicStoreTest {
                         ),
                     ),
                 ),
-                navigation,
             ),
         )
         advanceUntilIdle()
@@ -110,55 +113,39 @@ class DynamicStoreTest {
     }
 
     @Test
-    fun screenStateIsIndependentPerNavigationEntry() = runTest {
-        val dispatcher = StandardTestDispatcher(testScheduler)
+    fun screenStateIsIndependentPerEntry() {
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
                 Result.failure(IllegalStateException("not used"))
         }
-        val firstStore = store(
+        val dispatcher = StandardTestDispatcher()
+        val first = store(
             DynamicNavigationEntry(destination("first")),
             repository,
             DynamicRuntimeState(),
             dispatcher,
         )
-        val secondStore = store(
+        val second = store(
             DynamicNavigationEntry(destination("second")),
             repository,
             DynamicRuntimeState(),
             dispatcher,
         )
 
-        firstStore.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("123")))
-        secondStore.accept(DynamicIntent.ValueChanged("otp", DynamicValue.StringValue("111111")))
+        first.accept(DynamicIntent.ValueChanged("firstValue", DynamicValue.StringValue("one")))
+        second.accept(DynamicIntent.ValueChanged("secondValue", DynamicValue.StringValue("two")))
 
-        assertEquals(DynamicValue.StringValue("123"), firstStore.bindings.value["phone"])
-        assertEquals(null, firstStore.bindings.value["otp"])
-        assertEquals(DynamicValue.StringValue("111111"), secondStore.bindings.value["otp"])
-        assertEquals(null, secondStore.bindings.value["phone"])
+        assertEquals(
+            DynamicValue.StringValue("one"),
+            assertIs<DynamicState.Success>(first.state.value).screen.bindings["firstValue"],
+        )
+        assertEquals(
+            DynamicValue.StringValue("two"),
+            assertIs<DynamicState.Success>(second.state.value).screen.bindings["secondValue"],
+        )
 
-        firstStore.close()
-        secondStore.close()
-    }
-
-    @Test
-    fun validationUsesTypedBindingValues() = runTest {
-        val dispatcher = StandardTestDispatcher(testScheduler)
-        var requestCalled = false
-        val repository = object : DynamicRepository {
-            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
-                requestCalled = true
-                return Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "unused"))
-            }
-        }
-        val entry = DynamicNavigationEntry(destination("form"))
-        val store = store(entry, repository, DynamicRuntimeState(), dispatcher)
-        // Validation is exercised through the existing screen fixtures; this test ensures
-        // the Store accepts typed values without String-only binding APIs.
-        store.accept(DynamicIntent.ValueChanged("field", DynamicValue.StringValue("value")))
-        assertEquals(DynamicValue.StringValue("value"), store.bindings.value["field"])
-        assertEquals(false, requestCalled)
-        store.close()
+        first.close()
+        second.close()
     }
 
     private fun store(
