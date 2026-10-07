@@ -35,7 +35,7 @@ class InputElement : ElementRenderer {
 
         fun changed(newValue: String) {
             val limited = newValue.take(model.maxLength ?: Int.MAX_VALUE)
-            context.onValueChange(binding, limited)
+            context.onValueChange(binding, DynamicValue.StringValue(limited))
             model.actions["onValueChange"]?.let(context.onAction)
         }
 
