@@ -65,6 +65,7 @@ class DynamicActionExecutor(
         val actions = action.payload["actions"] as? DynamicValue.ArrayValue
             ?: error("Dynamic sequence actions are missing")
         var last: DynamicActionResult = DynamicActionResult.Completed
+        val sequenceState = state.toMutableMap()
         actions.value.forEach { value ->
             val objectValue = value as? DynamicValue.ObjectValue
                 ?: error("Dynamic sequence action is invalid")
@@ -77,11 +78,19 @@ class DynamicActionExecutor(
                 navigation,
                 bindings,
                 context,
-                state,
+                sequenceState,
                 depth + 1,
             )
+            when (val result = last) {
+                is DynamicActionResult.StateChanged -> sequenceState[result.key] = result.value
+                is DynamicActionResult.Navigate -> sequenceState.putAll(result.stateChanges)
+                else -> Unit
+            }
         }
-        return last
+        return when (last) {
+            is DynamicActionResult.Navigate -> last.copy(stateChanges = sequenceState - state.keys)
+            else -> last
+        }
     }
 
     private fun DynamicValue.ObjectValue.toDestination(): DynamicDestination? {
