@@ -128,6 +128,29 @@ class DynamicResponseMapperTest {
     }
 
     @Test
+    fun preservesNumericLookingJsonStringsAsStrings() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"phoneNumber":"+919309741971","otp":"111111","count":300}}""",
+        )
+
+        val response = DynamicResponseMapper(json).map(dto)
+        val payload = assertIs<DynamicValue.ObjectValue>(response.dataPayload)
+
+        assertEquals(
+            DynamicValue.StringValue("+919309741971"),
+            payload.value["phoneNumber"],
+        )
+        assertEquals(
+            DynamicValue.StringValue("111111"),
+            payload.value["otp"],
+        )
+        assertEquals(
+            DynamicValue.NumberValue(300.0),
+            payload.value["count"],
+        )
+    }
+
+    @Test
     fun mapsArbitraryResponsePayloadWithoutTreatingItAsAScreen() {
         val dto = json.decodeFromString<DynamicResponseDto>(
             DynamicContractFixtures.GENERIC_RESPONSE_PAYLOAD_JSON,
