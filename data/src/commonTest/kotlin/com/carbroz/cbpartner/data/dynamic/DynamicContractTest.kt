@@ -19,7 +19,7 @@ import kotlinx.serialization.json.jsonObject
 
 class DynamicContractTest {
     private val json = Json { ignoreUnknownKeys = true }
-    private val mapper = DynamicResponseMapper()
+    private val mapper = DynamicResponseMapper(json)
 
     @Test
     fun genericScreen_preservesHierarchyElementsContentBindingsValidationAndActions() {
@@ -87,8 +87,8 @@ class DynamicContractTest {
             (body.value["session"] as DynamicValue.ObjectValue).value["\u0024context"],
         )
         assertEquals(
-            DynamicValue.StringValue("data.referenceId"),
-            (body.value["previous"] as DynamicValue.ObjectValue).value["\u0024response"],
+            DynamicValue.StringValue("referenceId"),
+            (body.value["previous"] as DynamicValue.ObjectValue).value["\u0024state"],
         )
     }
 
