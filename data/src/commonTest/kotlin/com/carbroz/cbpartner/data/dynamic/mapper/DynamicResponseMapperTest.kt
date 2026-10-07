@@ -30,7 +30,7 @@ class DynamicResponseMapperTest {
             DynamicContractFixtures.GENERIC_SCREEN_JSON,
         )
 
-        val response = DynamicResponseMapper(Json { ignoreUnknownKeys = true }).map(dto)
+        val response = DynamicResponseMapper(json).map(dto)
         val screen = assertNotNull(response.data)
         val template = assertIs<FormTemplate>(screen.template)
 
@@ -53,7 +53,7 @@ class DynamicResponseMapperTest {
         assertEquals(1, title.spans.size)
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$context" to DynamicValue.StringValue("profile.displayName")),
+                mapOf("\$context" to DynamicValue.StringValue("appVersion")),
             ),
             title.spans.single().text,
         )
@@ -80,12 +80,12 @@ class DynamicResponseMapperTest {
         assertEquals("identity", identity.id)
         assertEquals(2, identity.elements.size)
 
-        val firstName = assertIs<InputElement>(identity.elements[0])
-        val email = assertIs<InputElement>(identity.elements[1])
-        assertEquals("firstName", firstName.binding?.key)
-        assertEquals("email", email.binding?.key)
-        assertEquals(true, firstName.validation?.required)
-        assertEquals("^[^@]+@[^@]+\\.[^@]+$", email.validation?.pattern)
+        val fieldA = assertIs<InputElement>(identity.elements[0])
+        val fieldB = assertIs<InputElement>(identity.elements[1])
+        assertEquals("fieldA", fieldA.binding?.key)
+        assertEquals("fieldB", fieldB.binding?.key)
+        assertEquals(true, fieldA.validation?.required)
+        assertEquals("^[^@]+@[^@]+\\.[^@]+$", fieldB.validation?.pattern)
 
         val actions = form.sections[1]
         assertEquals("actions", actions.id)
@@ -103,25 +103,25 @@ class DynamicResponseMapperTest {
         val body = assertIs<DynamicValue.ObjectValue>(request.payload["body"])
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$binding" to DynamicValue.StringValue("firstName")),
+                mapOf("\$binding" to DynamicValue.StringValue("fieldA")),
             ),
             body.value["firstName"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$binding" to DynamicValue.StringValue("email")),
+                mapOf("\$binding" to DynamicValue.StringValue("fieldB")),
             ),
             body.value["email"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$context" to DynamicValue.StringValue("session.id")),
+                mapOf("\$context" to DynamicValue.StringValue("deviceId")),
             ),
-            body.value["session"],
+            body.value["environmentId"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$response" to DynamicValue.StringValue("data.referenceId")),
+                mapOf("\$response" to DynamicValue.StringValue("referenceId")),
             ),
             body.value["previous"],
         )
@@ -133,7 +133,7 @@ class DynamicResponseMapperTest {
             DynamicContractFixtures.GENERIC_RESPONSE_PAYLOAD_JSON,
         )
 
-        val response = DynamicResponseMapper().map(dto)
+        val response = DynamicResponseMapper(json).map(dto)
         assertEquals(null, response.data)
 
         val payload = assertIs<DynamicValue.ObjectValue>(response.dataPayload)
