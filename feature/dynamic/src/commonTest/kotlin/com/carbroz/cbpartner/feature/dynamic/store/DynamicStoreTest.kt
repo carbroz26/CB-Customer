@@ -137,6 +137,7 @@ class DynamicStoreTest {
 
         first.accept(DynamicIntent.Load)
         second.accept(DynamicIntent.Load)
+        advanceUntilIdle()
         first.accept(DynamicIntent.ValueChanged("firstValue", DynamicValue.StringValue("one")))
         second.accept(DynamicIntent.ValueChanged("secondValue", DynamicValue.StringValue("two")))
 
