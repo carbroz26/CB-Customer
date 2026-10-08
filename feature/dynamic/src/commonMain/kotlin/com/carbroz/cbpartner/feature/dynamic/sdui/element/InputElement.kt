@@ -92,8 +92,8 @@ class InputElement : InputElementRenderer {
                 BasicTextField(
                     modifier = Modifier
                         .weight((element.weight ?: 1.0).toFloat())
-                         .then(if (width != null) Modifier.width(width.dp) else Modifier)
-                         .then(if (maxWidth != null) Modifier.widthIn(max = maxWidth.dp) else Modifier),
+                        .then(if (width != null) Modifier.width(width.dp) else Modifier)
+                        .then(if (maxWidth != null) Modifier.widthIn(max = maxWidth.dp) else Modifier),
                     value = value,
                     onValueChange = ::changed,
                     textStyle = inputTextStyle(element),
