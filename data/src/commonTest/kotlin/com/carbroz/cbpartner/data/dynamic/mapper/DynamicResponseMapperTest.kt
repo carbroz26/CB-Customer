@@ -53,7 +53,7 @@ class DynamicResponseMapperTest {
         assertEquals(1, title.spans.size)
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("${DOLLAR}context" to DynamicValue.StringValue("appVersion")),
+                mapOf("\$context" to DynamicValue.StringValue("appVersion")),
             ),
             title.spans.single().text,
         )
@@ -89,7 +89,7 @@ class DynamicResponseMapperTest {
         assertEquals("fieldA", fieldA.binding?.key)
         assertEquals("fieldB", fieldB.binding?.key)
         assertEquals(true, fieldA.validation?.required)
-        assertEquals("^[^@]+[^@]+\\.[^@]+$", fieldB.validation?.pattern)
+        assertEquals("^[^@]+@[^@]+\\.[^@]+$", fieldB.validation?.pattern)
 
         val actions = form.sections[1]
         assertEquals("actions", actions.id)
@@ -107,25 +107,25 @@ class DynamicResponseMapperTest {
         val body = assertIs<DynamicValue.ObjectValue>(request.payload["body"])
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("${DOLLAR}binding" to DynamicValue.StringValue("fieldA")),
+                mapOf("\$binding" to DynamicValue.StringValue("fieldA")),
             ),
             body.value["fieldA"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("${DOLLAR}binding" to DynamicValue.StringValue("fieldB")),
+                mapOf("\$binding" to DynamicValue.StringValue("fieldB")),
             ),
             body.value["fieldB"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("${DOLLAR}context" to DynamicValue.StringValue("deviceId")),
+                mapOf("\$context" to DynamicValue.StringValue("deviceId")),
             ),
             body.value["environmentId"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("${DOLLAR}state" to DynamicValue.StringValue("referenceId")),
+                mapOf("\$state" to DynamicValue.StringValue("referenceId")),
             ),
             body.value["previous"],
         )
