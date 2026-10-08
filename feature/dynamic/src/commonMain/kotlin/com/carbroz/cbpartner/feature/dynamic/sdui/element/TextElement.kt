@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.sdui.element
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -57,7 +58,10 @@ class TextElement : TextElementRenderer {
             }.toAnnotatedString()
         }
 
-        Row(modifier = Modifier.applyLayout(element)) {
+        Row(
+            modifier = Modifier.applyLayout(element),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             context.renderContent(element.leadingContent)
             Text(
                 text = annotated,
