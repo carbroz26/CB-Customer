@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent as DividerContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconContentModel
@@ -52,17 +51,18 @@ class DividerContent : ElementContentRenderer {
     @Composable
     override fun render(content: ElementContent, context: DynamicRenderContext) {
         val model = content as? DividerContentModel ?: return
+        val color = model.color?.toColor() ?: return
         val modifier = when (model.orientation) {
             "vertical" -> Modifier
-                .width(model.width?.dp ?: 1.dp)
-                .height(model.height?.dp ?: 36.dp)
+                .width(model.width?.dp ?: model.thickness.dp)
+                .height(model.height?.dp ?: return)
             else -> Modifier
-                .width(model.width?.dp ?: 36.dp)
+                .width(model.width?.dp ?: return)
                 .height(model.thickness.dp)
         }
         Box(
             modifier = modifier
-                .background(model.color?.toColor() ?: Color.Gray)
+                .background(color)
                 .contentClick(content, context),
         )
     }
