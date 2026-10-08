@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -162,7 +163,9 @@ class InputElement : InputElementRenderer {
                             androidx.compose.material3.Text(
                                 text = value.getOrNull(index)?.toString().orEmpty(),
                                 style = textStyle,
-                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                                style = textStyle,
+                                textAlign = textStyle.textAlign,
                             )
                         }
                     }
