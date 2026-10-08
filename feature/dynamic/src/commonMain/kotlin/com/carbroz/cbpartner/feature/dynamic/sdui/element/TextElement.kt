@@ -69,7 +69,7 @@ class TextElement : TextElementRenderer {
                     "end" -> TextAlign.End
                     "left" -> TextAlign.Left
                     "right" -> TextAlign.Right
-                    else -> TextAlign.Center
+                    else -> TextAlign.Unspecified
                 },
                 letterSpacing = element.letterSpacing?.sp ?: TextUnit.Unspecified,
                 lineHeight = element.lineHeight?.sp ?: TextUnit.Unspecified,
