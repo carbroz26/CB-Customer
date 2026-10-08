@@ -145,7 +145,7 @@ private fun Modifier.applyBackground(background: DynamicBackground?): Modifier =
 private fun Modifier.applyBorder(border: DynamicBorder?, shape: DynamicShape?): Modifier {
     if (border == null) return this
     return border(
-        BorderStroke(border.width.dp, border.color.toColor() ?: Color.Transparent),
+        BorderStroke(border.width.dp, border.color.toColor() ?: error("Invalid dynamic border color")),
         shape.toComposeShape(),
     )
 }
