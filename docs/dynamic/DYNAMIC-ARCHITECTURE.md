@@ -381,3 +381,23 @@ Tests must cover:
 - No ViewModel.
 - No reflection-based component discovery.
 - No universal registry.
+
+
+## 19. Backend-owned Dynamic asset contract
+
+Dynamic visual assets are backend-owned URL resources.
+
+For image and icon elements/content, the backend supplies:
+- `url` — required primary asset URL;
+- `fallbackUrl` — optional backend-owned fallback asset URL.
+
+The frontend must not interpret asset names, map icon names to glyphs, draw substitute icons, or contain asset URL constants.
+
+Loading behavior is:
+1. load `url`;
+2. if primary loading fails and `fallbackUrl` exists, load `fallbackUrl`;
+3. if both fail, render no asset.
+
+No frontend-bundled default asset is part of this contract.
+
+Asset presentation properties remain backend-controlled. The existing Dynamic hierarchy and renderer/registry boundaries are unchanged.
