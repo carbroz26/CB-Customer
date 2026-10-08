@@ -31,7 +31,7 @@ internal fun DynamicAssetImage(
             contentDescription = contentDescription,
             modifier = modifier.then(size?.let { Modifier.size(it.dp) } ?: Modifier),
             contentScale = contentScale,
-            colorFilter = color?.let { ColorFilter.tint(it.toColor()) },
+            colorFilter = color?.let { it.toColor()?.let(ColorFilter::tint) },
             onError = {
                 currentUrl = if (currentUrl == url) fallbackUrl else null
             },
