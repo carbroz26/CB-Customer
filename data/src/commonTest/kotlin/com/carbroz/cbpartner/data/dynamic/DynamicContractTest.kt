@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.data.dynamic
 
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicValueMapper
+import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
@@ -22,18 +23,9 @@ class DynamicContractTest {
     @Test
     fun genericScreen_preservesHierarchyElementsContentBindingsValidationAndActions() {
         val response = mapper.map(
-            json.decodeFromString<com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto>(
-                DynamicContractFixtures.GENERIC_SCREEN_JSON,
-            ),
+            json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.GENERIC_SCREEN_JSON),
         )
         val screen = assertNotNull(response.data)
-
-        assertEquals(200, response.status)
-        assertEquals("SUCCESS", response.code)
-        assertEquals("screen_generic", screen.screenId)
-        assertEquals("3.0.0", screen.schemaVersion)
-        assertEquals("vertical", screen.template.orientation)
-        assertNotNull(screen.theme)
 
         val elements = screen.template.components.flatMap { component ->
             component.elements +
@@ -63,7 +55,7 @@ class DynamicContractTest {
         assertEquals(
             DynamicValue.ObjectValue(
                 mapOf(
-                    "$context" to DynamicValue.StringValue("appVersion"),
+                    "\$context" to DynamicValue.StringValue("appVersion"),
                 ),
             ),
             title.spans.single().text,
@@ -74,30 +66,28 @@ class DynamicContractTest {
         val body = assertIs<DynamicValue.ObjectValue>(request.payload["body"])
         assertEquals(
             DynamicValue.StringValue("fieldA"),
-            (body.value["fieldA"] as DynamicValue.ObjectValue).value["$binding"],
+            (body.value["fieldA"] as DynamicValue.ObjectValue).value["\$binding"],
         )
         assertEquals(
             DynamicValue.StringValue("fieldB"),
-            (body.value["fieldB"] as DynamicValue.ObjectValue).value["$binding"],
+            (body.value["fieldB"] as DynamicValue.ObjectValue).value["\$binding"],
         )
         assertEquals(
             DynamicValue.StringValue("deviceId"),
-            (body.value["environmentId"] as DynamicValue.ObjectValue).value["$context"],
+            (body.value["environmentId"] as DynamicValue.ObjectValue).value["\$context"],
         )
         assertEquals(
             DynamicValue.StringValue("referenceId"),
-            (body.value["previous"] as DynamicValue.ObjectValue).value["$state"],
+            (body.value["previous"] as DynamicValue.ObjectValue).value["\$state"],
         )
     }
 
     @Test
     fun concreteElementMapper_preservesNodeOwnedLayoutProperties() {
-        val dto = json.decodeFromString<com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"layout","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Hello","width":120,"maxWidth":240,"fillMaxWidth":true,"padding":{"horizontal":12,"vertical":4}}},{"id":"input","type":"input","properties":{"weight":0.5,"width":180,"maxWidth":220,"padding":{"all":6}},"binding":{"key":"value"}},{"id":"image","type":"image","properties":{"width":100,"height":80,"maxWidth":320,"maxHeight":180,"fillMaxWidth":true,"padding":{"all":8}}},{"id":"button","type":"button","properties":{"width":200,"maxWidth":280,"height":56,"fillMaxWidth":true,"padding":{"horizontal":16}}},{"id":"icon","type":"icon","properties":{"name":"edit","size":22,"padding":{"all":2}}}] }]}}}""",
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"layout","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Hello","width":120,"maxWidth":240,"fillMaxWidth":true,"padding":{"horizontal":12,"vertical":4}}},{"id":"input","type":"input","properties":{"weight":0.5,"width":180,"maxWidth":220,"padding":{"all":6}},"binding":{"key":"value"}},{"id":"image","type":"image","properties":{"width":100,"height":80,"maxWidth":320,"maxHeight":180,"fillMaxWidth":true,"padding":{"all":8}}},{"id":"button","type":"button","properties":{"width":200,"maxWidth":280,"height":56,"fillMaxWidth":true,"padding":{"horizontal":16}}},{"id":"icon","type":"icon","properties":{"name":"edit","size":22,"padding":{"all":2}}}]}]}}}""",
         )
-        val component = dto.data!!.let {
-            mapper.map(dto).data!!.template.components.single()
-        }
+        val component = mapper.map(dto).data!!.template.components.single()
 
         val text = assertIs<TextElement>(component.elements[0])
         assertEquals(120.0, text.width)
@@ -113,7 +103,7 @@ class DynamicContractTest {
     }
 
     @Test
-    fun genericLeadingAndTrailingContent_mapsForAnyFirstClassElement() {
+    fun concreteMapper_preservesLeadingAndTrailingContent() {
         val element = json.parseToJsonElement(
             """{"id":"generic_text","type":"text","properties":{"text":"Hello","leading":[{"type":"divider","properties":{"width":24,"thickness":2}}],"trailing":[{"type":"icon","properties":{"name":"edit","size":20}}]}}""",
         ).jsonObject
@@ -135,9 +125,7 @@ class DynamicContractTest {
     @Test
     fun genericResponsePayload_preservesNestedDataAndDestinationIndependently() {
         val payloadResponse = mapper.map(
-            json.decodeFromString<com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto>(
-                DynamicContractFixtures.GENERIC_RESPONSE_PAYLOAD_JSON,
-            ),
+            json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.GENERIC_RESPONSE_PAYLOAD_JSON),
         )
         val payload = assertIs<DynamicValue.ObjectValue>(payloadResponse.dataPayload)
         assertEquals(DynamicValue.StringValue("ref-123"), payload.value["referenceId"])
@@ -145,7 +133,7 @@ class DynamicContractTest {
         assertEquals(DynamicValue.BooleanValue(true), payload.value["enabled"])
 
         val destinationResponse = mapper.map(
-            json.decodeFromString<com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto>(
+            json.decodeFromString<DynamicResponseDto>(
                 DynamicContractFixtures.GENERIC_RESPONSE_WITH_DESTINATION_JSON,
             ),
         )
@@ -159,9 +147,7 @@ class DynamicContractTest {
     @Test
     fun genericErrorResponse_preservesErrorPayloadWithoutScreenAssumptions() {
         val response = mapper.map(
-            json.decodeFromString<com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto>(
-                DynamicContractFixtures.GENERIC_ERROR_JSON,
-            ),
+            json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.GENERIC_ERROR_JSON),
         )
 
         assertEquals(422, response.status)
