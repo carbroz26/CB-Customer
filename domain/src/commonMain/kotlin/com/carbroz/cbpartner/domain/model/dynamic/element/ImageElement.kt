@@ -7,7 +7,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 data class ImageElement(
     val id: String,
     val semanticRole: String? = null,
-    val url: String = "",
+    val url: String,
+    val fallbackUrl: String? = null,
     val width: Double? = null,
     val height: Double? = null,
     val maxWidth: Double? = null,

@@ -7,7 +7,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 data class IconElement(
     val id: String,
     val semanticRole: String? = null,
-    val name: String,
+    val url: String,
+    val fallbackUrl: String? = null,
     val size: Double? = null,
     val color: String? = null,
     val padding: DynamicPadding? = null,

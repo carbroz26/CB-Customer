@@ -4,20 +4,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import coil3.compose.AsyncImage
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement as ImageElementModel
 import com.carbroz.cbpartner.feature.dynamic.registry.ImageElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyImageSize
+import com.carbroz.cbpartner.feature.dynamic.sdui.content.DynamicAssetImage
 
 class ImageElement : ImageElementRenderer {
     @Composable
     override fun render(element: ImageElementModel, context: DynamicRenderContext) {
         Row(modifier = Modifier.applyDynamicPadding(element.padding)) {
             context.renderContent(element.leadingContent)
-            AsyncImage(
-                model = element.url,
+            DynamicAssetImage(
+                url = element.url,
+                fallbackUrl = element.fallbackUrl,
                 contentDescription = element.semanticRole,
                 modifier = Modifier.applyImageSize(element),
                 contentScale = when (element.contentScale) {

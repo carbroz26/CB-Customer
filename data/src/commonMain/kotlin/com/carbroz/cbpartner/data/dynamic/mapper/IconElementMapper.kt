@@ -13,7 +13,9 @@ class IconElementMapper(
     fun map(dto: IconElementDto) = IconElement(
         id = dto.id,
         semanticRole = support.semanticRole(dto.properties),
-        name = values.string(dto.properties, "name").orEmpty(),
+        url = values.string(dto.properties, "url")
+            ?: error("Dynamic icon url is required for element " + dto.id),
+        fallbackUrl = values.string(dto.properties, "fallbackUrl"),
         size = values.number(dto.properties, "size"),
         color = values.string(dto.properties, "color"),
         padding = support.padding(dto.properties),

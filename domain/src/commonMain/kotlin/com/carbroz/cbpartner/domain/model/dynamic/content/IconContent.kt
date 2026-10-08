@@ -5,7 +5,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 data class IconContent(
     override val id: String? = null,
     override val semanticRole: String? = null,
-    val name: String,
+    val url: String,
+    val fallbackUrl: String? = null,
     val size: Double? = null,
     val color: String? = null,
     override val actions: Map<String, DynamicAction> = emptyMap(),

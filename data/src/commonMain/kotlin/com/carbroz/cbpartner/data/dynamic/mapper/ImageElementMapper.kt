@@ -13,7 +13,9 @@ class ImageElementMapper(
     fun map(dto: ImageElementDto) = ImageElement(
         id = dto.id,
         semanticRole = support.semanticRole(dto.properties),
-        url = values.string(dto.properties, "url").orEmpty(),
+        url = values.string(dto.properties, "url")
+            ?: error("Dynamic image url is required for element " + dto.id),
+        fallbackUrl = values.string(dto.properties, "fallbackUrl"),
         width = values.number(dto.properties, "width"),
         height = values.number(dto.properties, "height"),
         maxWidth = values.number(dto.properties, "maxWidth"),

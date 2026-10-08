@@ -31,7 +31,9 @@ class ElementContentMapper(
             "icon" -> IconContent(
                 id = values.string(element, "id"),
                 semanticRole = values.string(properties, "semanticRole"),
-                name = values.string(properties, "name").orEmpty(),
+                url = values.string(properties, "url")
+                    ?: error("Dynamic icon content url is required"),
+                fallbackUrl = values.string(properties, "fallbackUrl"),
                 size = values.number(properties, "size"),
                 color = values.string(properties, "color"),
                 actions = mapActions(actions),

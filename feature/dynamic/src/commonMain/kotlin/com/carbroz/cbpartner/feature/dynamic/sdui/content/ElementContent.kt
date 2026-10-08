@@ -33,19 +33,16 @@ class IconContent : ElementContentRenderer {
     @Composable
     override fun render(content: ElementContent, context: DynamicRenderContext) {
         val model = content as? IconContentModel ?: return
-        val glyph = when (model.name) {
-            "arrow_forward" -> "→"
-            "edit" -> "✎"
-            else -> "•"
-        }
         Row(
             modifier = Modifier.contentClick(content, context),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = glyph,
-                color = model.color?.toColor() ?: Color.Unspecified,
-                fontSize = model.size?.sp ?: 18.sp,
+            DynamicAssetImage(
+                url = model.url,
+                fallbackUrl = model.fallbackUrl,
+                contentDescription = model.semanticRole,
+                size = model.size,
+                color = model.color,
             )
         }
     }
