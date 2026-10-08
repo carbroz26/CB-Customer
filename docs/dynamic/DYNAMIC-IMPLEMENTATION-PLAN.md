@@ -589,3 +589,79 @@ Tests must not use $response as a supported reference or fixture value. A focuse
 
 ### 21.19 Navigation-version boundary
 The Dynamic implementation must not silently upgrade Navigation 3 or introduce a Dynamic-specific retention/cache mechanism. Entry-scoped state retention is delegated to the existing Navigation 3 entry lifecycle. A Navigation 3 dependency/version change is a separate base-architecture decision and must not be bundled into Dynamic implementation.
+
+## 22. UI contract reconciliation amendment — 2026-10-08
+
+This section is mandatory for the Dynamic rendering/UI implementation. It resolves the remaining UI-model, property, responsive-layout, element, and renderer-boundary ambiguity. It does not reopen the frozen runtime architecture.
+
+### 22.1 Frozen hierarchy
+The Dynamic UI hierarchy is fixed and must not be changed:
+Template → Component → Section → Group → Element
+Element content remains a separate capability: Element → Content.
+Do not flatten these levels, replace them with a universal node model, or introduce an alternative generic hierarchy.
+
+### 22.2 Template contract
+A Template owns identity/type, applicable semantic layout properties, and ordered Components. Properties must retain stable semantic meaning. If a type supports both orientations, it must expose meaningful arrangement/alignment properties for those orientations rather than silently reusing an unrelated property. A type with fixed semantic direction may derive direction from its type semantics.
+
+### 22.3 Component contract
+A Component owns identity/type, applicable semantic layout properties, and ordered Sections and/or Elements according to the frozen JSON contract. StackComponent may define orientation, arrangement/alignment, padding and applicable sizing/fill properties. Do not force every visual property onto every component type.
+
+### 22.4 Section contract
+A Section owns identity/type, applicable semantic layout properties, and ordered Groups and/or Elements. StackSection may define orientation, arrangement/alignment, padding and applicable sizing/fill properties. Horizontal arrangement must not be represented by silently reusing a vertical-arrangement property.
+
+### 22.5 Group contract
+A Group is the primary styled/container node. StackGroup may own orientation and applicable arrangement/alignment, padding, width/height constraints, fill behavior, background, border, shape, and ordered Elements. Group-owned properties are applied to the Group container before its children are rendered.
+
+### 22.6 Concrete Element contract
+There is no generic first-class DynamicElement abstraction in the target model. Each element has its own concrete domain model, mapper and renderer: TextElement, ImageElement, InputElement, ButtonElement and IconElement. Runtime casts from a generic DynamicElement into concrete element types are forbidden.
+
+### 22.7 TextElement contract
+TextElement may own text, spans, fontSize, fontWeight, letterSpacing, lineHeight, color, textAlign, applicable width/max-width/fill behavior, applicable padding, semantic role, supported content and actions. Typography remains design values; do not introduce screen-width-based font scaling. Text wraps naturally unless the contract explicitly requires otherwise.
+
+### 22.8 ImageElement contract
+ImageElement may own source, width/height, maxWidth/maxHeight, fill behavior, contentScale, applicable padding, semantic role, supported content and actions. The existing maxWidth plus fillMaxWidth pattern is an approved responsive pattern.
+
+### 22.9 InputElement contract
+InputElement may own placeholder, keyboardType, maxLength, weight, validation, binding, presentation, applicable sizing/fill properties, applicable padding, semantic role and supported content/actions. If JSON supplies weight, the renderer must honor that model value; it must not replace it with an unrelated hard-coded weight.
+
+### 22.10 ButtonElement contract
+ButtonElement may own text, height, width/fill behavior, fontSize, fontWeight, textColor, background, shape, applicable padding, semantic role, supported content and actions. Button visual styling belongs to ButtonElement and must not be duplicated or silently overridden by common layout code. Fixed design heights such as 56dp remain valid.
+
+### 22.11 IconElement contract
+IconElement may own name, size, color, applicable padding, semantic role and supported content/actions. Do not invent stretch, percentage or screen-relative sizing without a demonstrated requirement. IconContent remains separate.
+
+### 22.12 Common property rules
+Common properties are not a universal property object. A property is shared only when its semantic meaning is valid for that node. Applicable common patterns include padding, width, height, maxWidth, maxHeight, fillMaxWidth, fillMaxHeight, alignment, arrangement, background, border and shape. Not every node exposes every property. Missing JSON properties use normal Compose/default behavior.
+
+### 22.13 Property ownership and application order
+Properties belong to the node whose JSON properties object contains them. Rendering order is: map JSON into the concrete model → create the node's Compose container/content → apply that node's owned layout/visual properties → render children inside it. Parent properties must not leak into child models. Shared modifier helpers are allowed only as narrow property-application utilities.
+
+### 22.14 Width, height and fill semantics
+Width is generally more likely to be adaptive than height. Approved patterns are fixed design dimensions where semantically required, fillMaxWidth/fillMaxHeight where applicable, maxWidth/maxHeight, weight where the parent supports it, natural Compose measurement and normal Row/Column/Box behavior. Do not introduce generic screen-width or viewport percentages merely for consistency.
+
+### 22.15 Responsive UI philosophy
+Responsive behavior is provided primarily by standard Compose layout behavior: backend meaningful constraints → concrete domain model → node-owned property application → standard Compose layout → natural responsive behavior. Do not introduce ConstraintLayout, a custom responsive engine, screen-width typography scaling, or scattered width calculations. BoxWithConstraints/available-size inspection is allowed only when a real layout requires composition to change based on available size.
+
+### 22.16 OTP sizing decision
+The current OTP contract remains six segments, 44dp segment width, 8dp spacing and 52dp segment height. Do not change the JSON contract during this refactor. Test actual narrow devices first. If adaptation is proven necessary, prefer internal OTP renderer/layout adaptation over global screen-percentage properties.
+
+### 22.17 Element mapper boundary
+Target flow: JSON element type → concrete element mapper → concrete element domain model. Do not retain a centralized mapper whose primary result is a generic DynamicElement followed by renderer-side casts. Shared parsing helpers are allowed when they reduce duplication without hiding concrete mapping responsibility.
+
+### 22.18 Element renderer boundary
+Target flow: ElementRegistry → concrete element renderer → concrete element model. Renderers own only concrete-element rendering and may use narrow common-property helpers. They must not perform network calls, execute actions directly, mutate RuntimeState/navigation, implement reference traversal, or contain business-specific conditions.
+
+### 22.19 Registry/mapper/renderer relationship
+Registry normalizes keys, registers concrete renderers, rejects duplicates and performs lookup. Mapper converts transport JSON into the correct concrete model and preserves DynamicValue/reference semantics. Renderer renders the mapped model, applies node-owned properties, delegates children/content through the appropriate registry and emits generic UI events through DynamicRenderContext. No registry maps, no mapper renders, and no renderer maps raw transport JSON.
+
+### 22.20 Required UI contract tests
+Tests must cover concrete element mapping without generic DynamicElement casts, element padding, InputElement weight honoring the mapped value, width/maxWidth/fill behavior, node-owned property application, type-specific property ownership, horizontal/vertical arrangement semantics without property-name reuse, maxWidth plus fillMaxWidth behavior, fixed design dimensions, current OTP dimensions, and registry dispatch to each concrete element renderer.
+
+### 22.21 UI implementation scope
+This rendering refactor is limited to the UI contract above plus the already frozen runtime/store/action/navigation work in this plan. It must not introduce a new Dynamic architecture, second navigation system, Dynamic network/repository layer, ViewModel, universal property model, custom responsive engine, or unrelated UI cleanup.
+
+### 22.22 UI source completion rule
+Before implementation is complete, every Template, Component, Section, Group, Element, Content, mapper, registry and renderer source file must be checked against this section. A compiling implementation that still contains generic DynamicElement casts, ignored mapped properties, semantic property reuse, or renderer-level business logic is incomplete.
+
+### 22.23 Contract authority
+This amendment is part of the frozen implementation plan. Where older discussion, source comments, implementation shortcuts or stale fixtures conflict with this section, this section and the authoritative Dynamic architecture document govern. No code change is authorized merely by this amendment; implementation begins only after the user explicitly freezes this reconciled plan and authorizes implementation.
