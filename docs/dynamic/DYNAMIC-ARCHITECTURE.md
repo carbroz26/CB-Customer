@@ -1,6 +1,6 @@
 # Dynamic UI Architecture
 
-Status: FROZEN — 2026-10-07
+Status: FROZEN BASE CONTRACT + ASSET REVISION PENDING VERIFICATION — 2026-10-08
 Scope: Dynamic UI runtime, rendering, actions, references, screen lifecycle, navigation integration.
 Authority: This document is the single Dynamic architecture authority.
 
