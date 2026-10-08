@@ -192,7 +192,7 @@ private fun Modifier.applyInputBorder(
 } else {
     border(
         width = border.width.dp,
-        color = border.color.toColor() ?: Color.Transparent,
+        color = border.color.toColor() ?: error("Invalid dynamic input border color"),
         shape = shape.toComposeShape(),
     )
 }
