@@ -9,7 +9,7 @@ class TextElementMapper(
     private val json: Json,
     private val values: DynamicValueMapper,
 ) {
-    private val support = DynamicElementMapperSupport(json, values)
+    private val support = ElementMapperSupport(json, values)
 
     fun map(dto: TextElementDto): TextElement {
         val textValue = dto.properties["text"]

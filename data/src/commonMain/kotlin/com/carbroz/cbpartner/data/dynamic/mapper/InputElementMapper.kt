@@ -9,7 +9,7 @@ class InputElementMapper(
     private val json: Json,
     private val values: DynamicValueMapper,
 ) {
-    private val support = DynamicElementMapperSupport(json, values)
+    private val support = ElementMapperSupport(json, values)
 
     fun map(dto: InputElementDto) = InputElement(
         id = dto.id,

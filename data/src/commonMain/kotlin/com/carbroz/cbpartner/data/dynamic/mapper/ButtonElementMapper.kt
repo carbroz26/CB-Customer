@@ -8,7 +8,7 @@ class ButtonElementMapper(
     private val json: Json,
     private val values: DynamicValueMapper,
 ) {
-    private val support = DynamicElementMapperSupport(json, values)
+    private val support = ElementMapperSupport(json, values)
 
     fun map(dto: ButtonElementDto) = ButtonElement(
         id = dto.id,

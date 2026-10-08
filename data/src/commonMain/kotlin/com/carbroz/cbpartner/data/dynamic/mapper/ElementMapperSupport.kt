@@ -9,7 +9,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
-internal class DynamicElementMapperSupport(
+internal class ElementMapperSupport(
     json: Json,
     private val values: DynamicValueMapper,
 ) {
