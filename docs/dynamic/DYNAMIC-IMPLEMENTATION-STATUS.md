@@ -1,15 +1,13 @@
 # Dynamic UI Implementation Status
 
-**Status:** VERIFIED — READY FOR FINAL FEATURE DOCUMENTATION FREEZE
-**Date:** 2026-10-07
+**Status:** IMPLEMENTED — POST-REFACTOR JVM VERIFICATION PENDING
+**Date:** 2026-10-08
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
 
 ## 1. Current truth
 
-The Dynamic implementation on `feature/dynamic-ui` has completed the frozen source-level deep audit and the required local JVM verification.
-
-The implementation is aligned with the frozen Dynamic architecture and implementation plan for the tested scope.
+The previously verified runtime/store/action/navigation implementation has now been extended with the frozen UI contract reconciliation. The UI refactor is implemented on `feature/dynamic-ui`; the post-refactor Gradle JVM matrix still must be run on the owner Windows environment before this status can return to VERIFIED.
 
 ## 2. Implemented runtime contract
 
@@ -62,10 +60,17 @@ The implementation is aligned with the frozen Dynamic architecture and implement
 - Root rendering dispatches through `DynamicRegistry`.
 - No hardcoded form-template business branch exists in the generic root renderer.
 - Root identity validates screen ID, template ID and template type.
-- Template/component/section/group/element/content responsibilities remain separated.
+- The frozen hierarchy remains Template → Component → Section → Group → Element.
+- Concrete element models no longer inherit from a generic `DynamicElement` abstraction.
+- Concrete element mapper/renderer boundaries are separated for Text, Image, Input, Button and Icon.
 - Duplicate normalized registrations fail deterministically.
 - Rendering does not perform network, navigation, action execution or RuntimeState mutation.
 - Content remains a separate capability.
+- Template and Section horizontal/vertical arrangement contracts are explicit and no vertical property is reused for horizontal semantics.
+- Node-owned padding/size/fill properties are mapped and applied at the owning node.
+- Input weight is mapped and honored inside its Row scope.
+- Button styling remains inside the Button renderer rather than the common layout helper.
+- Responsive behavior uses normal Compose constraints such as fill/maxWidth/weight; no ConstraintLayout or custom responsive engine was introduced.
 
 ### Data and mapping
 
@@ -134,7 +139,17 @@ The generic JSON type policy also preserves phone numbers and OTP values as stri
 
 ## 6. Verification
 
-Focused regression set:
+Pre-refactor runtime verification remains valid as historical evidence. The UI contract refactor itself has not yet been verified by the owner-side Gradle run.
+
+Post-refactor required matrix:
+
+```powershell
+.\\gradlew.bat :data:jvmTest :network:jvmTest :navigation:jvmTest :feature:dynamic:jvmTest
+```
+
+Run this after pulling the latest `feature/dynamic-ui` head. If the matrix fails, fix only genuine failures within the frozen plan, then repeat the source audit.
+
+Historical focused regression set:
 
 ```text
 BUILD SUCCESSFUL
@@ -168,9 +183,7 @@ Backend local OTP delivery/provider work is also separate from the frontend Dyna
 
 ## 8. Final state
 
-The Dynamic implementation is **VERIFIED** against the frozen source contract and local JVM test matrix.
-
-The next step is documentation/feature freeze and platform verification as available. No Dynamic architecture redesign is pending.
+The Dynamic UI implementation is **IMPLEMENTED** against the frozen source contract. Final verification is blocked only on the owner-side Gradle run of the post-refactor source. Do not declare final feature freeze until that matrix is green and the final diff/source audit is rechecked. No Dynamic architecture redesign is pending.
 
 ## 9. Authoritative Dynamic documents
 
