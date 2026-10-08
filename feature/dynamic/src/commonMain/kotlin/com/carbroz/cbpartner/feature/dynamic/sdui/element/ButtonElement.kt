@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -34,7 +33,6 @@ class ButtonElement : ButtonElementRenderer {
         modifier = when {
             backgroundBrush != null -> modifier.background(backgroundBrush)
             backgroundColor != null -> modifier.background(backgroundColor)
-            else -> modifier.background(Color.Transparent)
         }
 
         Box(
@@ -47,8 +45,8 @@ class ButtonElement : ButtonElementRenderer {
                 context.renderContent(element.leadingContent)
                 androidx.compose.material3.Text(
                     text = element.text,
-                    color = element.textColor?.toColor() ?: Color.White,
-                    fontSize = element.fontSize?.sp ?: 18.sp,
+                    color = element.textColor?.toColor() ?: Color.Unspecified,
+                    fontSize = element.fontSize?.sp ?: androidx.compose.ui.unit.TextUnit.Unspecified,
                     fontWeight = element.fontWeight?.let(::FontWeight),
                 )
                 context.renderContent(element.trailingContent)
