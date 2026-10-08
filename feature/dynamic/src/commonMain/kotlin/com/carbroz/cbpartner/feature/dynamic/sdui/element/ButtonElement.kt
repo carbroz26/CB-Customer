@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement as ButtonElementModel
@@ -23,16 +23,15 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
 class ButtonElement : ButtonElementRenderer {
     @Composable
     override fun render(element: ButtonElementModel, context: DynamicRenderContext) {
-        val shape = element.shape.toComposeShape()
         val backgroundBrush = element.background.brush()
         val backgroundColor = element.background.color()
-        var modifier = Modifier
-            .applyLayout(element)
-            .clip(shape)
+        var modifier = Modifier.applyLayout(element)
+            .then(if (element.shape != null) Modifier.clip(element.shape.toComposeShape()) else Modifier)
 
         modifier = when {
             backgroundBrush != null -> modifier.background(backgroundBrush)
             backgroundColor != null -> modifier.background(backgroundColor)
+            else -> modifier
         }
 
         Box(
