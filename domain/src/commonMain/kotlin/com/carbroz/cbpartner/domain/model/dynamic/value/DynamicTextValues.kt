@@ -16,4 +16,8 @@ data class DynamicInputPresentation(
     val spacing: Double? = null,
     val segmentWidth: Double? = null,
     val segmentHeight: Double? = null,
+    val background: DynamicBackground? = null,
+    val border: DynamicBorder? = null,
+    val shape: DynamicShape? = null,
+    val focusBorder: DynamicBorder? = null,
 )
