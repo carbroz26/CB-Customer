@@ -1,8 +1,12 @@
 package com.carbroz.cbpartner.feature.dynamic.registry
 
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.IconElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.ImageElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
 import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplateRenderer
@@ -19,7 +23,11 @@ class DynamicRegistryTest {
             .component("stack_component", StackComponent())
             .section("stack_section", StackSection())
             .group("stack_group", StackGroup())
-            .element("text", TextElement())
+            .textElement("text", TextElement())
+            .imageElement("image", ImageElement())
+            .inputElement("input", InputElement())
+            .buttonElement("button", ButtonElement())
+            .iconElement("icon", IconElement())
             .content("icon", IconContent())
             .build()
 
@@ -27,11 +35,15 @@ class DynamicRegistryTest {
         assertNotNull(registry.component("stack_component"))
         assertNotNull(registry.section("stack_section"))
         assertNotNull(registry.group("stack_group"))
-        assertNotNull(registry.element("text"))
+        assertNotNull(registry.textElement("text"))
+        assertNotNull(registry.imageElement("image"))
+        assertNotNull(registry.inputElement("input"))
+        assertNotNull(registry.buttonElement("button"))
+        assertNotNull(registry.iconElement("icon"))
         assertNotNull(registry.content("icon"))
 
         assertNull(registry.template("text"))
-        assertNull(registry.element("stack_component"))
+        assertNull(registry.textElement("stack_component"))
     }
 
     @Test
@@ -39,16 +51,16 @@ class DynamicRegistryTest {
         val registry = DynamicRegistry.builder().build()
 
         assertNull(registry.template("unknown_template"))
-        assertNull(registry.element("unknown_element"))
+        assertNull(registry.textElement("unknown_element"))
         assertNull(registry.content("unknown_content"))
     }
 
     @Test
-    fun duplicateRegistrationIsRejected() {
+    fun duplicateRegistrationIsRejectedForConcreteElementCategory() {
         assertFailsWith<IllegalStateException> {
             DynamicRegistry.builder()
-                .element("text", TextElement())
-                .element("text", TextElement())
+                .textElement("text", TextElement())
+                .textElement("text", TextElement())
         }
     }
 }
