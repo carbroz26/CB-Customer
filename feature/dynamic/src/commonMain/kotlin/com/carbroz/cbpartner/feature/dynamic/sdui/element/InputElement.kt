@@ -91,7 +91,7 @@ class InputElement : InputElementRenderer {
             } else {
                 BasicTextField(
                     modifier = Modifier
-                        .weight((element.weight ?: 1.0).toFloat())
+                        .then(element.weight?.let { Modifier.weight(it.toFloat()) } ?: Modifier)
                         .then(if (width != null) Modifier.width(width.dp) else Modifier)
                         .then(if (maxWidth != null) Modifier.widthIn(max = maxWidth.dp) else Modifier),
                     value = value,
