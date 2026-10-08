@@ -27,7 +27,7 @@ class ImageElement : ImageElementRenderer {
                     "fillHeight" -> ContentScale.FillHeight
                     "fillWidth" -> ContentScale.FillWidth
                     "inside" -> ContentScale.Inside
-                    else -> ContentScale.Fit
+                    else -> null
                 },
             )
             context.renderContent(element.trailingContent)
