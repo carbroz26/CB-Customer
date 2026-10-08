@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE ROADMAP
 **Scope:** Frontend only
-**Last Updated:** 2026-10-07
+**Last Updated:** 2026-10-08
 
 ## Purpose
 
@@ -32,7 +32,7 @@ BASE-ARCH-001 → BASE-ARCH-017 are frozen. BASE-ARCH-014 and BASE-ARCH-017 are 
 
 ## Phase 2 — First Dynamic Vertical Slice
 
-**State: IMPLEMENTED / POST-UI-REFACTOR JVM VERIFICATION PENDING / FINAL PLATFORM VERIFICATION PENDING**
+**State: IMPLEMENTED / DYNAMIC FINAL FROZEN — VERIFIED / PLATFORM VERIFICATION SEPARATE**
 
 Target flow:
 
@@ -61,9 +61,9 @@ Current state:
 - Dynamic architecture and implementation plan are frozen.
 - The frozen UI contract reconciliation is implemented.
 - Generic JSON type preservation is verified from the pre-refactor matrix.
-- The post-UI-refactor Dynamic/data/network/navigation JVM matrix is pending on the owner Windows environment.
+- The post-UI-refactor Dynamic/data/network/navigation JVM matrix is verified on the owner Windows environment.
 - Login → OTP contract is reconciled with current backend source.
-- Web, Android and iOS runtime verification remain platform gates.
+- Web, Android and iOS runtime verification remain separate platform gates and do not reopen the frozen Dynamic contract.
 - Backend local OTP delivery remains a separate backend task.
 
 ## Phase 3 — Partner Product Expansion
