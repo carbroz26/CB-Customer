@@ -22,7 +22,7 @@ class ImageElementMapper(
         maxHeight = values.number(dto.properties, "maxHeight"),
         fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
         fillMaxHeight = values.boolean(dto.properties, "fillMaxHeight") ?: false,
-        contentScale = values.string(dto.properties, "contentScale") ?: "fit",
+        contentScale = values.string(dto.properties, "contentScale"),
         padding = support.padding(dto.properties),
         leadingContent = support.leading(dto.properties),
         trailingContent = support.trailing(dto.properties),
