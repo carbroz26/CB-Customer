@@ -32,7 +32,7 @@ BASE-ARCH-001 → BASE-ARCH-017 are frozen. BASE-ARCH-014 and BASE-ARCH-017 are 
 
 ## Phase 2 — First Dynamic Vertical Slice
 
-**State: IMPLEMENTED / JVM VERIFIED / FINAL PLATFORM VERIFICATION PENDING**
+**State: IMPLEMENTED / POST-UI-REFACTOR JVM VERIFICATION PENDING / FINAL PLATFORM VERIFICATION PENDING**
 
 Target flow:
 
@@ -59,9 +59,9 @@ Login → Send OTP → OTP → Verify
 Current state:
 
 - Dynamic architecture and implementation plan are frozen.
-- Source-level deep audit is complete.
-- Generic JSON type preservation is verified.
-- Dynamic/data/network/navigation JVM matrix is green.
+- The frozen UI contract reconciliation is implemented.
+- Generic JSON type preservation is verified from the pre-refactor matrix.
+- The post-UI-refactor Dynamic/data/network/navigation JVM matrix is pending on the owner Windows environment.
 - Login → OTP contract is reconciled with current backend source.
 - Web, Android and iOS runtime verification remain platform gates.
 - Backend local OTP delivery remains a separate backend task.
