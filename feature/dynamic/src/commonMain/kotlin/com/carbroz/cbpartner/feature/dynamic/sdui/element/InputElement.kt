@@ -161,7 +161,6 @@ class InputElement : InputElementRenderer {
                         ) {
                             androidx.compose.material3.Text(
                                 text = value.getOrNull(index)?.toString().orEmpty(),
-                                style = textStyle,
                                 modifier = Modifier.fillMaxWidth(),
                                 style = textStyle,
                                 textAlign = textStyle.textAlign,
