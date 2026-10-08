@@ -277,13 +277,31 @@ iOS simulator tests cannot run on Windows. Do not classify that expected disable
 
 ## 10. Current Verification State
 
-Completed:
+Completed before the UI contract refactor:
 
 - Dynamic focused JVM tests: PASS
 - Dynamic/data/network/navigation JVM matrix: PASS
 - Generic numeric-looking JSON string regression: PASS
-- Source-level Dynamic deep audit: PASS
+- Runtime/store/action/navigation source-level Dynamic deep audit: PASS
 - Backend Login → OTP contract inspection: PASS at contract/source level
+
+Implemented after the 2026-10-08 frozen UI reconciliation:
+
+- Generic `DynamicElement` abstraction removed.
+- Centralized `DynamicElementMapper` replaced by concrete element mappers.
+- Concrete element renderer contracts and registry categories separated.
+- Template/Section directional property semantics corrected.
+- Node-owned element padding/sizing/fill properties implemented.
+- Input weight honoring implemented.
+- UI contract tests updated.
+
+**Pending post-refactor verification:**
+
+- `:data:jvmTest`
+- `:network:jvmTest`
+- `:navigation:jvmTest`
+- `:feature:dynamic:jvmTest`
+- final source/diff audit after the green post-refactor matrix
 
 Still separate from the Dynamic JVM gate:
 
@@ -298,11 +316,14 @@ These are platform/backend work, not reasons to reopen the frozen Dynamic archit
 
 Ordered:
 
-1. Complete documentation consolidation/freeze.
-2. Finish owner-side Web/Android/iOS verification as platform availability permits.
-3. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
-4. Keep production SMS provider/security behavior unchanged.
-5. Start the next product work only after the current vertical slice is formally frozen.
+1. Pull `feature/dynamic-ui` and run the post-refactor JVM matrix.
+2. Fix only genuine implementation/test failures within the frozen UI contract.
+3. Re-run the final source-level audit and diff review.
+4. Update Dynamic status back to VERIFIED only after the green matrix.
+5. Finish owner-side Web/Android/iOS verification as platform availability permits.
+6. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
+7. Keep production SMS provider/security behavior unchanged.
+8. Start the next product work only after the current vertical slice is formally frozen.
 
 ## 12. Explicitly Closed / Do Not Reopen
 
