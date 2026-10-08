@@ -11,7 +11,7 @@
 - Current product slice: backend-driven Dynamic UI through Login → Send OTP → OTP → Verify
 - Frontend and backend remain separate repositories.
 - `iosApp/` is the native Xcode boundary, not a Gradle `:iosApp` module.
-- Current remote HEAD after final Dynamic UI verification: `6c89098d16386152aa1e27e0dbb3ea31d78a552f`.
+- Current remote HEAD after final Dynamic UI verification and authoritative status updates: `ed85d67348497c9fec2ca53e9f94c435a2f32329`.
 
 ## 2. Frozen Technical Foundation
 
