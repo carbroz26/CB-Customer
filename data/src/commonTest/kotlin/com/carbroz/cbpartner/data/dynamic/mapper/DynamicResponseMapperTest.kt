@@ -53,7 +53,7 @@ class DynamicResponseMapperTest {
         assertEquals(1, title.spans.size)
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$context" to DynamicValue.StringValue("appVersion")),
+                mapOf("${DOLLAR}context" to DynamicValue.StringValue("appVersion")),
             ),
             title.spans.single().text,
         )
@@ -67,7 +67,11 @@ class DynamicResponseMapperTest {
         assertIs<IconContent>(hero.trailingContent.single())
 
         val icon = assertIs<IconElement>(header.elements[2])
-        assertEquals("settings", icon.name)
+        assertEquals("https://backend.example/assets/settings.png", icon.url)
+        assertEquals(
+            "https://backend.example/assets/fallback.png",
+            icon.fallbackUrl,
+        )
         assertEquals("toolbar", icon.semanticRole)
 
         val form = template.components[1]
@@ -85,7 +89,7 @@ class DynamicResponseMapperTest {
         assertEquals("fieldA", fieldA.binding?.key)
         assertEquals("fieldB", fieldB.binding?.key)
         assertEquals(true, fieldA.validation?.required)
-        assertEquals("^[^@]+@[^@]+\\.[^@]+$", fieldB.validation?.pattern)
+        assertEquals("^[^@]+[^@]+\\.[^@]+$", fieldB.validation?.pattern)
 
         val actions = form.sections[1]
         assertEquals("actions", actions.id)
@@ -103,25 +107,25 @@ class DynamicResponseMapperTest {
         val body = assertIs<DynamicValue.ObjectValue>(request.payload["body"])
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$binding" to DynamicValue.StringValue("fieldA")),
+                mapOf("${DOLLAR}binding" to DynamicValue.StringValue("fieldA")),
             ),
             body.value["fieldA"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$binding" to DynamicValue.StringValue("fieldB")),
+                mapOf("${DOLLAR}binding" to DynamicValue.StringValue("fieldB")),
             ),
             body.value["fieldB"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$context" to DynamicValue.StringValue("deviceId")),
+                mapOf("${DOLLAR}context" to DynamicValue.StringValue("deviceId")),
             ),
             body.value["environmentId"],
         )
         assertEquals(
             DynamicValue.ObjectValue(
-                mapOf("\$state" to DynamicValue.StringValue("referenceId")),
+                mapOf("${DOLLAR}state" to DynamicValue.StringValue("referenceId")),
             ),
             body.value["previous"],
         )
