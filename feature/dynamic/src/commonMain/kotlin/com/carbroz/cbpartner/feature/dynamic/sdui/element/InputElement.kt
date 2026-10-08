@@ -43,13 +43,14 @@ class InputElement : InputElementRenderer {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             context.renderContent(element.leadingContent)
-            if (element.presentation?.type == "segmented") {
+            val presentation = element.presentation
+            if (presentation?.type == "segmented") {
                 SegmentedInput(
                     value = value,
-                    count = element.presentation.count ?: element.maxLength ?: 1,
-                    spacing = element.presentation.spacing?.dp ?: 8.dp,
-                    segmentWidth = element.presentation.segmentWidth?.dp ?: 44.dp,
-                    segmentHeight = element.presentation.segmentHeight?.dp ?: 52.dp,
+                    count = presentation.count ?: element.maxLength ?: 1,
+                    spacing = presentation.spacing?.dp ?: 8.dp,
+                    segmentWidth = presentation.segmentWidth?.dp ?: 44.dp,
+                    segmentHeight = presentation.segmentHeight?.dp ?: 52.dp,
                     onValueChange = ::changed,
                 )
             } else {

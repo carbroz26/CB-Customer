@@ -1,12 +1,16 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.model.element.*
+import com.carbroz.cbpartner.data.dynamic.model.element.ButtonElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.IconElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.ImageElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.InputElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.TextElementDto
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
-internal class ElementMappers(
-    json: Json,
-    values: DynamicValueMapper,
+class ElementMappers(
+    private val json: Json,
+    private val values: DynamicValueMapper,
 ) {
     private val text = TextElementMapper(json, values)
     private val image = ImageElementMapper(json, values)
