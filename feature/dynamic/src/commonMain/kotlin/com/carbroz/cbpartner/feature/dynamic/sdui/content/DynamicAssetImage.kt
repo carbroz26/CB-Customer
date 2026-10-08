@@ -21,7 +21,7 @@ internal fun DynamicAssetImage(
     modifier: Modifier = Modifier,
     size: Double? = null,
     color: String? = null,
-    contentScale: ContentScale = ContentScale.Fit,
+    contentScale: ContentScale? = null,
 ) {
     var currentUrl by remember(url, fallbackUrl) { mutableStateOf<String?>(url) }
 
