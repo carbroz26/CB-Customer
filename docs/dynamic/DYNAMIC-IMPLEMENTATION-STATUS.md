@@ -228,3 +228,23 @@ The audit found no genuine contract violation requiring additional implementatio
 3. this status document
 
 Superseded Dynamic discussion/frozen-plan/reconciliation documents have been removed so they cannot compete with the current authority.
+
+
+## 10. Contract revision: backend-owned assets
+
+Work item: `DYNAMIC-CONTRACT-REVISION-ICON-001`
+
+Implementation authorization was granted after the revision plan was frozen.
+
+Implemented on `feature/dynamic-ui`:
+- `IconElement` uses backend `url` + optional `fallbackUrl`; icon-name/glyph semantics were removed.
+- `IconContent` uses backend `url` + optional `fallbackUrl`.
+- `ImageElement` uses required backend `url` + optional `fallbackUrl`.
+- Icon and image rendering use a small shared asset-loading composable that retries with the backend fallback URL and renders no asset when both URLs fail.
+- Dynamic test fixtures were converted from icon names to backend-owned dummy URLs.
+- Mapper tests now assert URL/fallback propagation.
+- Backend SDUI contract tests verify that icon/image URL and fallback properties are accepted and preserved by the existing open `properties` contract.
+
+No Dynamic Store, navigation, action, hierarchy, or networking architecture was changed.
+
+Verification is pending the owner-environment Gradle/backend test run. This revision must not be marked FINAL FROZEN until those tests and the final source audit pass.
