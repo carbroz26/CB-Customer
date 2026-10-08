@@ -1,7 +1,7 @@
 # CB-Partner — Project Master State
 
 **Status:** AUTHORITATIVE / CURRENT RECOVERY SOURCE
-**Last Updated:** 2026-10-07
+**Last Updated:** 2026-10-08
 **Scope:** Frontend repository only
 
 ## 1. Repository State
@@ -11,7 +11,7 @@
 - Current product slice: backend-driven Dynamic UI through Login → Send OTP → OTP → Verify
 - Frontend and backend remain separate repositories.
 - `iosApp/` is the native Xcode boundary, not a Gradle `:iosApp` module.
-- Current remote HEAD after the latest Dynamic test fixes: `b7aab20`.
+- Current remote HEAD after final Dynamic UI verification: `6c89098d16386152aa1e27e0dbb3ea31d78a552f`.
 
 ## 2. Frozen Technical Foundation
 
@@ -141,7 +141,7 @@ Frozen Dynamic rules include:
 
 ## 6. Dynamic Implementation State — 2026-10-07
 
-Source-level final deep audit is complete.
+Source-level final deep audit is complete and the Dynamic UI implementation is **FINAL FROZEN — VERIFIED**.
 
 Verified implementation areas include:
 
@@ -160,7 +160,7 @@ Verified implementation areas include:
 - no ViewModel/global Dynamic Store/cache;
 - forbidden-pattern sweep.
 
-The latest focused and broader Dynamic JVM test matrices passed after the final fixture corrections.
+The latest focused and broader Dynamic JVM test matrices passed after the final UI contract corrections.
 
 Latest verified broad command:
 
@@ -295,13 +295,22 @@ Implemented after the 2026-10-08 frozen UI reconciliation:
 - Input weight honoring implemented.
 - UI contract tests updated.
 
-**Pending post-refactor verification:**
+**Final post-refactor verification:** PASS
 
 - `:data:jvmTest`
 - `:network:jvmTest`
 - `:navigation:jvmTest`
 - `:feature:dynamic:jvmTest`
-- final source/diff audit after the green post-refactor matrix
+- final source/diff/contract audit
+
+Broad matrix result:
+
+```text
+BUILD SUCCESSFUL
+42 actionable tasks: 18 executed, 24 up-to-date
+```
+
+Expected Windows warning: `iosSimulatorArm64Test` requires macOS and is non-blocking.
 
 Still separate from the Dynamic JVM gate:
 
@@ -316,14 +325,11 @@ These are platform/backend work, not reasons to reopen the frozen Dynamic archit
 
 Ordered:
 
-1. Pull `feature/dynamic-ui` and run the post-refactor JVM matrix.
-2. Fix only genuine implementation/test failures within the frozen UI contract.
-3. Re-run the final source-level audit and diff review.
-4. Update Dynamic status back to VERIFIED only after the green matrix.
-5. Finish owner-side Web/Android/iOS verification as platform availability permits.
+1. **Dynamic UI implementation: FINAL FROZEN — VERIFIED.**
+2. Finish owner-side Web/Android/iOS runtime verification as platform availability permits.
 6. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
-7. Keep production SMS provider/security behavior unchanged.
-8. Start the next product work only after the current vertical slice is formally frozen.
+4. Keep production SMS provider/security behavior unchanged.
+5. Start the next product work.
 
 ## 12. Explicitly Closed / Do Not Reopen
 
