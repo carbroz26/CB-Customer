@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
@@ -152,7 +153,7 @@ private fun Modifier.applyBorder(border: DynamicBorder?, shape: DynamicShape?): 
 
 internal fun DynamicShape?.toComposeShape(): Shape = when (this) {
     is DynamicShape.RoundedCorner -> RoundedCornerShape(cornerRadius.dp)
-    null -> RoundedCornerShape(0.dp)
+    null -> RectangleShape
 }
 
 internal fun String.toColor(): Color? = runCatching {
