@@ -92,8 +92,8 @@ class InputElement : InputElementRenderer {
                 BasicTextField(
                     modifier = Modifier
                         .then(element.weight?.let { Modifier.weight(it.toFloat()) } ?: Modifier)
-                        .then(if (width != null) Modifier.width(width.dp) else Modifier)
-                        .then(if (maxWidth != null) Modifier.widthIn(max = maxWidth.dp) else Modifier),
+                        .then(width?.let { Modifier.width(it.dp) } ?: Modifier)
+                        .then(maxWidth?.let { Modifier.widthIn(max = it.dp) } ?: Modifier),
                     value = value,
                     onValueChange = ::changed,
                     textStyle = inputTextStyle(element),
@@ -101,11 +101,13 @@ class InputElement : InputElementRenderer {
                     singleLine = true,
                     decorationBox = { innerTextField ->
                         Box {
-                            if (value.isEmpty() && placeholder != null) {
-                                androidx.compose.material3.Text(
-                                    text = placeholder,
-                                    style = inputTextStyle(element),
-                                )
+                            if (value.isEmpty()) {
+                                placeholder?.let {
+                                    androidx.compose.material3.Text(
+                                        text = it,
+                                        style = inputTextStyle(element),
+                                    )
+                                }
                             }
                             innerTextField()
                         }
