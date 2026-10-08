@@ -26,15 +26,27 @@ internal fun DynamicAssetImage(
     var currentUrl by remember(url, fallbackUrl) { mutableStateOf<String?>(url) }
 
     if (currentUrl != null) {
-        AsyncImage(
-            model = currentUrl,
-            contentDescription = contentDescription,
-            modifier = modifier.then(size?.let { Modifier.size(it.dp) } ?: Modifier),
-            contentScale = contentScale,
-            colorFilter = color?.let { it.toColor()?.let(ColorFilter::tint) },
-            onError = {
-                currentUrl = if (currentUrl == url) fallbackUrl else null
-            },
-        )
+        if (contentScale == null) {
+            AsyncImage(
+                model = currentUrl,
+                contentDescription = contentDescription,
+                modifier = modifier.then(size?.let { Modifier.size(it.dp) } ?: Modifier),
+                colorFilter = color?.let { it.toColor()?.let(ColorFilter::tint) },
+                onError = {
+                    currentUrl = if (currentUrl == url) fallbackUrl else null
+                },
+            )
+        } else {
+            AsyncImage(
+                model = currentUrl,
+                contentDescription = contentDescription,
+                modifier = modifier.then(size?.let { Modifier.size(it.dp) } ?: Modifier),
+                contentScale = contentScale,
+                colorFilter = color?.let { it.toColor()?.let(ColorFilter::tint) },
+                onError = {
+                    currentUrl = if (currentUrl == url) fallbackUrl else null
+                },
+            )
+        }
     }
 }
