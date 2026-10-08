@@ -98,7 +98,19 @@ class DynamicValueMapper {
     fun inputPresentation(properties: JsonObject): DynamicInputPresentation? {
         val value = properties["presentation"] as? JsonObject ?: return null
         val type = string(value, "type") ?: return null
-        return DynamicInputPresentation(type, number(value, "count")?.toInt(), number(value, "spacing"), number(value, "segmentWidth"), number(value, "segmentHeight"))
+        return DynamicInputPresentation(
+            type = type,
+            count = number(value, "count")?.toInt(),
+            spacing = number(value, "spacing"),
+            segmentWidth = number(value, "segmentWidth"),
+            segmentHeight = number(value, "segmentHeight"),
+            background = background(value),
+            border = border(value),
+            shape = shape(value),
+            focusBorder = (value["focusBorder"] as? JsonObject)?.let { focus ->
+                DynamicBorder(number(focus, "width") ?: return@let null, string(focus, "color") ?: return@let null)
+            },
+        )
     }
 
     private fun toAction(value: JsonObject): DynamicAction? {
