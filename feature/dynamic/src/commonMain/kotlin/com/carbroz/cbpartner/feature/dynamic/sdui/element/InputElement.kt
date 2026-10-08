@@ -56,6 +56,10 @@ class InputElement : InputElementRenderer {
             element.actions["onValueChange"]?.let(context.onAction)
         }
 
+        val width = element.width
+        val maxWidth = element.maxWidth
+        val placeholder = element.placeholder
+
         Row(
             modifier = Modifier.applyLayout(element),
             verticalAlignment = Alignment.CenterVertically,
@@ -88,8 +92,8 @@ class InputElement : InputElementRenderer {
                 BasicTextField(
                     modifier = Modifier
                         .weight((element.weight ?: 1.0).toFloat())
-                        .then(if (element.width != null) Modifier.width(element.width.dp) else Modifier)
-                        .then(if (element.maxWidth != null) Modifier.widthIn(max = element.maxWidth.dp) else Modifier),
+                         .then(if (width != null) Modifier.width(width.dp) else Modifier)
+                         .then(if (maxWidth != null) Modifier.widthIn(max = maxWidth.dp) else Modifier),
                     value = value,
                     onValueChange = ::changed,
                     textStyle = inputTextStyle(element),
@@ -97,9 +101,9 @@ class InputElement : InputElementRenderer {
                     singleLine = true,
                     decorationBox = { innerTextField ->
                         Box {
-                            if (value.isEmpty() && element.placeholder != null) {
+                            if (value.isEmpty() && placeholder != null) {
                                 androidx.compose.material3.Text(
-                                    text = element.placeholder,
+                                    text = placeholder,
                                     style = inputTextStyle(element),
                                 )
                             }
