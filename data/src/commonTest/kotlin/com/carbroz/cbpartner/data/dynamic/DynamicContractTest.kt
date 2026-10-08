@@ -8,6 +8,9 @@ import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -101,6 +104,32 @@ class DynamicContractTest {
         assertEquals(180.0, input.width)
         assertEquals(220.0, input.maxWidth)
         assertEquals(6.0, input.padding?.top)
+    }
+
+    @Test
+    fun segmentedInput_preservesBackendVisualContract() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"otp","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","elements":[{"id":"otp","type":"input","properties":{"keyboardType":"number","maxLength":6,"textAlign":"center","textColor":"#101522","fontSize":18,"fontWeight":600,"presentation":{"type":"segmented","count":6,"spacing":8,"segmentWidth":44,"segmentHeight":52,"background":{"color":"#FFFFFF"},"border":{"width":1,"color":"#CCE0E3"},"shape":{"type":"roundedCorner","cornerRadius":12},"focusBorder":{"width":2,"color":"#13B8B5"}}},"binding":{"key":"otp"}}]}]}}}""",
+        )
+
+        val input = assertIs<InputElement>(
+            mapper.map(dto).data!!.template.components.single().elements.single(),
+        )
+        assertEquals("center", input.textAlign)
+        assertEquals("#101522", input.textColor)
+        assertEquals(18.0, input.fontSize)
+        assertEquals(600, input.fontWeight)
+
+        val presentation = assertNotNull(input.presentation)
+        assertEquals("segmented", presentation.type)
+        assertEquals(6, presentation.count)
+        assertEquals(8.0, presentation.spacing)
+        assertEquals(44.0, presentation.segmentWidth)
+        assertEquals(52.0, presentation.segmentHeight)
+        assertEquals(DynamicBackground.Solid("#FFFFFF"), presentation.background)
+        assertEquals(DynamicBorder(1.0, "#CCE0E3"), presentation.border)
+        assertEquals(DynamicShape.RoundedCorner(12.0), presentation.shape)
+        assertEquals(DynamicBorder(2.0, "#13B8B5"), presentation.focusBorder)
     }
 
     @Test
