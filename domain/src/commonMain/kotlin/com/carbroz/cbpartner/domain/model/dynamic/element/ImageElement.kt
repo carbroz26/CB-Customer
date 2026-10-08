@@ -15,7 +15,7 @@ data class ImageElement(
     val maxHeight: Double? = null,
     val fillMaxWidth: Boolean = false,
     val fillMaxHeight: Boolean = false,
-    val contentScale: String = "fit",
+    val contentScale: String? = null,
     val padding: DynamicPadding? = null,
     val leadingContent: List<ElementContent> = emptyList(),
     val trailingContent: List<ElementContent> = emptyList(),
