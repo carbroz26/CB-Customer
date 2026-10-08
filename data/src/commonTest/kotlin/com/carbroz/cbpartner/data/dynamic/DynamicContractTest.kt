@@ -44,7 +44,8 @@ class DynamicContractTest {
 
         val submit = assertIs<ButtonElement>(elements.first { it is ButtonElement && it.text == "Submit" })
         assertIs<IconContent>(submit.trailingContent.single())
-        assertEquals("arrow_forward", assertIs<IconContent>(submit.trailingContent.single()).name)
+        assertEquals("https://backend.example/assets/arrow-forward.png", assertIs<IconContent>(submit.trailingContent.single()).url)
+        assertEquals("https://backend.example/assets/fallback.png", assertIs<IconContent>(submit.trailingContent.single()).fallbackUrl)
 
         val title = assertIs<TextElement>(
             screen.template.components.first { it.id == "header" }.elements
@@ -85,7 +86,7 @@ class DynamicContractTest {
     @Test
     fun concreteElementMapper_preservesNodeOwnedLayoutProperties() {
         val dto = json.decodeFromString<DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"layout","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Hello","width":120,"maxWidth":240,"fillMaxWidth":true,"padding":{"horizontal":12,"vertical":4}}},{"id":"input","type":"input","properties":{"weight":0.5,"width":180,"maxWidth":220,"padding":{"all":6}},"binding":{"key":"value"}},{"id":"image","type":"image","properties":{"width":100,"height":80,"maxWidth":320,"maxHeight":180,"fillMaxWidth":true,"padding":{"all":8}}},{"id":"button","type":"button","properties":{"width":200,"maxWidth":280,"height":56,"fillMaxWidth":true,"padding":{"horizontal":16}}},{"id":"icon","type":"icon","properties":{"name":"edit","size":22,"padding":{"all":2}}}]}]}}}""",
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"layout","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Hello","width":120,"maxWidth":240,"fillMaxWidth":true,"padding":{"horizontal":12,"vertical":4}}},{"id":"input","type":"input","properties":{"weight":0.5,"width":180,"maxWidth":220,"padding":{"all":6}},"binding":{"key":"value"}},{"id":"image","type":"image","properties":{"width":100,"height":80,"maxWidth":320,"maxHeight":180,"fillMaxWidth":true,"padding":{"all":8}}},{"id":"button","type":"button","properties":{"width":200,"maxWidth":280,"height":56,"fillMaxWidth":true,"padding":{"horizontal":16}}},{"id":"icon","type":"icon","properties":{"url":"https://backend.example/assets/edit.png","fallbackUrl":"https://backend.example/assets/fallback.png","size":22,"padding":{"all":2}}}]}]}}}""",
         )
         val component = mapper.map(dto).data!!.template.components.single()
 
@@ -105,7 +106,7 @@ class DynamicContractTest {
     @Test
     fun concreteMapper_preservesLeadingAndTrailingContent() {
         val element = json.parseToJsonElement(
-            """{"id":"generic_text","type":"text","properties":{"text":"Hello","leading":[{"type":"divider","properties":{"width":24,"thickness":2}}],"trailing":[{"type":"icon","properties":{"name":"edit","size":20}}]}}""",
+            """{"id":"generic_text","type":"text","properties":{"text":"Hello","leading":[{"type":"divider","properties":{"width":24,"thickness":2}}],"trailing":[{"type":"icon","properties":{"url":"https://backend.example/assets/edit.png","fallbackUrl":"https://backend.example/assets/fallback.png","size":20}}]}}""",
         ).jsonObject
 
         val text = com.carbroz.cbpartner.data.dynamic.mapper.TextElementMapper(
