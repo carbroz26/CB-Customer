@@ -2,14 +2,16 @@ package com.carbroz.cbpartner.domain.model.dynamic.element
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 
 data class IconElement(
-    override val id: String,
-    override val semanticRole: String? = null,
+    val id: String,
+    val semanticRole: String? = null,
     val name: String,
     val size: Double? = null,
     val color: String? = null,
-    override val leadingContent: List<ElementContent> = emptyList(),
-    override val trailingContent: List<ElementContent> = emptyList(),
-    override val actions: Map<String, DynamicAction> = emptyMap(),
-) : DynamicElement
+    val padding: DynamicPadding? = null,
+    val leadingContent: List<ElementContent> = emptyList(),
+    val trailingContent: List<ElementContent> = emptyList(),
+    val actions: Map<String, DynamicAction> = emptyMap(),
+)

@@ -5,32 +5,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
-import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement as ImageElementModel
-import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
+import com.carbroz.cbpartner.feature.dynamic.registry.ImageElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
-import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyImageSize
 
-class ImageElement : ElementRenderer {
-    @Composable override fun render(element: DynamicElement, context: DynamicRenderContext) {
-        val model = element as? ImageElementModel ?: return
-        val url = model.url
-        Row {
-            context.renderContent(model.leadingContent)
+class ImageElement : ImageElementRenderer {
+    @Composable
+    override fun render(element: ImageElementModel, context: DynamicRenderContext) {
+        Row(modifier = Modifier.applyDynamicPadding(element.padding)) {
+            context.renderContent(element.leadingContent)
             AsyncImage(
-            model = url,
-            contentDescription = model.semanticRole,
-            modifier = Modifier.applyLayout(model),
-            contentScale = when (model.contentScale) {
-                "crop" -> ContentScale.Crop
-                "fillBounds" -> ContentScale.FillBounds
-                "fillHeight" -> ContentScale.FillHeight
-                "fillWidth" -> ContentScale.FillWidth
-                "inside" -> ContentScale.Inside
-                else -> ContentScale.Fit
-            }
+                model = element.url,
+                contentDescription = element.semanticRole,
+                modifier = Modifier.applyImageSize(element),
+                contentScale = when (element.contentScale) {
+                    "crop" -> ContentScale.Crop
+                    "fillBounds" -> ContentScale.FillBounds
+                    "fillHeight" -> ContentScale.FillHeight
+                    "fillWidth" -> ContentScale.FillWidth
+                    "inside" -> ContentScale.Inside
+                    else -> ContentScale.Fit
+                },
             )
-            context.renderContent(model.trailingContent)
+            context.renderContent(element.trailingContent)
         }
     }
 }

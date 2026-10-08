@@ -4,7 +4,7 @@ import com.carbroz.cbpartner.data.dynamic.model.component.StackComponentDto
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 
 class ComponentMapper(
-    private val elements: DynamicElementMapper,
+    private val elements: ElementMappers,
     private val sections: SectionMapper,
     private val values: DynamicValueMapper,
 ) {

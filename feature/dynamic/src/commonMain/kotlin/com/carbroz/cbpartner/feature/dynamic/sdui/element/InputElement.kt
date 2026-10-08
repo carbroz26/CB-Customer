@@ -15,56 +15,61 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement as InputElementModel
-import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.registry.InputElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 
-class InputElement : ElementRenderer {
-    @Composable override fun render(element: DynamicElement, context: DynamicRenderContext) {
-        val model = element as? InputElementModel ?: return
-        val binding = model.binding?.key ?: return
+class InputElement : InputElementRenderer {
+    @Composable
+    override fun render(element: InputElementModel, context: DynamicRenderContext) {
+        val binding = element.binding?.key ?: return
         val value = (context.bindings[binding] as? DynamicValue.StringValue)?.value.orEmpty()
-        val keyboardType = when (model.keyboardType) {
+        val keyboardType = when (element.keyboardType) {
             "phone" -> KeyboardType.Phone
             "number" -> KeyboardType.Number
             else -> KeyboardType.Text
         }
 
         fun changed(newValue: String) {
-            val limited = newValue.take(model.maxLength ?: Int.MAX_VALUE)
+            val limited = newValue.take(element.maxLength ?: Int.MAX_VALUE)
             context.onValueChange(binding, DynamicValue.StringValue(limited))
-            model.actions["onValueChange"]?.let(context.onAction)
+            element.actions["onValueChange"]?.let(context.onAction)
         }
 
-        val presentation = model.presentation
         Row(
-            modifier = Modifier.applyLayout(model),
+            modifier = Modifier.applyLayout(element),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            context.renderContent(model.leadingContent)
-            if (presentation?.type == "segmented") {
+            context.renderContent(element.leadingContent)
+            if (element.presentation?.type == "segmented") {
                 SegmentedInput(
-                    value,
-                    presentation.count ?: model.maxLength ?: 1,
-                    presentation.spacing?.dp ?: 8.dp,
-                    presentation.segmentWidth?.dp ?: 44.dp,
-                    presentation.segmentHeight?.dp ?: 52.dp,
-                    ::changed
+                    value = value,
+                    count = element.presentation.count ?: element.maxLength ?: 1,
+                    spacing = element.presentation.spacing?.dp ?: 8.dp,
+                    segmentWidth = element.presentation.segmentWidth?.dp ?: 44.dp,
+                    segmentHeight = element.presentation.segmentHeight?.dp ?: 52.dp,
+                    onValueChange = ::changed,
                 )
             } else {
                 OutlinedTextField(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight((element.weight ?: 1.0).toFloat())
+                        .then(
+                            if (element.width != null) Modifier.width(element.width!!.dp) else Modifier
+                        )
+                        .then(
+                            if (element.maxWidth != null) Modifier.widthIn(max = element.maxWidth!!.dp) else Modifier
+                        ),
                     value = value,
                     onValueChange = ::changed,
-                    placeholder = model.placeholder?.let { { Text(it) } },
+                    placeholder = element.placeholder?.let { { Text(it) } },
                     keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-                    singleLine = true
+                    singleLine = true,
                 )
             }
-            context.renderContent(model.trailingContent)
+            context.renderContent(element.trailingContent)
         }
     }
 
@@ -75,7 +80,7 @@ class InputElement : ElementRenderer {
         spacing: androidx.compose.ui.unit.Dp,
         segmentWidth: androidx.compose.ui.unit.Dp,
         segmentHeight: androidx.compose.ui.unit.Dp,
-        onValueChange: (String) -> Unit
+        onValueChange: (String) -> Unit,
     ) {
         BasicTextField(
             value = value,
@@ -86,7 +91,7 @@ class InputElement : ElementRenderer {
             decorationBox = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     repeat(count) { index ->
                         if (index > 0) Spacer(Modifier.padding(horizontal = spacing / 2))
@@ -98,15 +103,18 @@ class InputElement : ElementRenderer {
                                 .border(
                                     width = 1.dp,
                                     color = Color(0xFFCCE0E3),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(12.dp),
                                 ),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Text(value.getOrNull(index)?.toString().orEmpty(), textAlign = TextAlign.Center)
+                            Text(
+                                value.getOrNull(index)?.toString().orEmpty(),
+                                textAlign = TextAlign.Center,
+                            )
                         }
                     }
                 }
-            }
+            },
         )
     }
 }

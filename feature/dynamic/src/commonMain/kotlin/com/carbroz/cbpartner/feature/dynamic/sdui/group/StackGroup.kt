@@ -14,16 +14,24 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class StackGroup : GroupRenderer {
-    @Composable override fun render(group: StackGroupModel, context: DynamicRenderContext) {
-        if (group.orientation == "horizontal") Row(
-            modifier = Modifier.applyLayout(group),
-            horizontalArrangement = group.horizontalArrangement.toHorizontalArrangement(),
-            verticalAlignment = group.verticalAlignment.toVerticalAlignment(),
-        ) { context.renderElements(group.elements) }
-        else Column(
-            modifier = Modifier.applyLayout(group),
-            verticalArrangement = group.verticalArrangement.toVerticalArrangement(),
-            horizontalAlignment = group.horizontalAlignment.toHorizontalAlignment(),
-        ) { context.renderElements(group.elements) }
+    @Composable
+    override fun render(group: StackGroupModel, context: DynamicRenderContext) {
+        if (group.orientation == "horizontal") {
+            Row(
+                modifier = Modifier.applyLayout(group),
+                horizontalArrangement = group.horizontalArrangement.toHorizontalArrangement(),
+                verticalAlignment = group.verticalAlignment.toVerticalAlignment(),
+            ) {
+                context.renderElements(group.elements)
+            }
+        } else {
+            Column(
+                modifier = Modifier.applyLayout(group),
+                verticalArrangement = group.verticalArrangement.toVerticalArrangement(),
+                horizontalAlignment = group.horizontalAlignment.toHorizontalAlignment(),
+            ) {
+                context.renderElements(group.elements)
+            }
+        }
     }
 }

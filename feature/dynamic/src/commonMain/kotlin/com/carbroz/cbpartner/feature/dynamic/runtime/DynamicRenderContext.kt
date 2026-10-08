@@ -6,7 +6,11 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
-import com.carbroz.cbpartner.domain.model.dynamic.element.*
+import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -32,31 +36,38 @@ class DynamicRenderContext(
     fun boolean(properties: Map<String, DynamicValue>, key: String): Boolean? =
         (resolve(properties[key] ?: return null) as? DynamicValue.BooleanValue)?.value
 
-    @Composable fun renderComponents(components: List<StackComponent>) =
+    @Composable
+    fun renderComponents(components: List<StackComponent>) =
         components.forEach { registry.component("stack_component")?.render(it, this) }
 
-    @Composable fun renderSections(sections: List<StackSection>) =
+    @Composable
+    fun renderSections(sections: List<StackSection>) =
         sections.forEach { registry.section("stack_section")?.render(it, this) }
 
-    @Composable fun renderGroups(groups: List<StackGroup>) =
+    @Composable
+    fun renderGroups(groups: List<StackGroup>) =
         groups.forEach { registry.group("stack_group")?.render(it, this) }
 
-    @Composable fun renderElements(elements: List<DynamicElement>) =
-        elements.forEach { registry.element(elementType(it))?.render(it, this) }
+    @Composable
+    fun renderElements(elements: List<Any>) {
+        elements.forEach { element ->
+            when (element) {
+                is TextElement -> registry.textElement("text")?.render(element, this)
+                is ImageElement -> registry.imageElement("image")?.render(element, this)
+                is InputElement -> registry.inputElement("input")?.render(element, this)
+                is ButtonElement -> registry.buttonElement("button")?.render(element, this)
+                is IconElement -> registry.iconElement("icon")?.render(element, this)
+                else -> error("Unsupported dynamic element model")
+            }
+        }
+    }
 
-    @Composable fun renderContent(contents: List<ElementContent>) =
+    @Composable
+    fun renderContent(contents: List<ElementContent>) =
         contents.forEach { registry.content(contentType(it))?.render(it, this) }
 
     private fun contentType(content: ElementContent): String = when (content) {
         is IconContent -> "icon"
         is DividerContent -> "divider"
-    }
-
-    private fun elementType(element: DynamicElement): String = when (element) {
-        is TextElement -> "text"
-        is ImageElement -> "image"
-        is InputElement -> "input"
-        is ButtonElement -> "button"
-        is IconElement -> "icon"
     }
 }

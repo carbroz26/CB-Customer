@@ -14,16 +14,24 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
 class FormTemplateRenderer : TemplateRenderer {
-    @Composable override fun render(template: FormTemplate, context: DynamicRenderContext) {
-        if (template.orientation == "horizontal") Row(
-            modifier = Modifier.applyLayout(template),
-            horizontalArrangement = template.verticalArrangement.toHorizontalArrangement(),
-            verticalAlignment = template.horizontalAlignment.toVerticalAlignment(),
-        ) { context.renderComponents(template.components) }
-        else Column(
-            modifier = Modifier.applyLayout(template),
-            verticalArrangement = template.verticalArrangement.toVerticalArrangement(),
-            horizontalAlignment = template.horizontalAlignment.toHorizontalAlignment(),
-        ) { context.renderComponents(template.components) }
+    @Composable
+    override fun render(template: FormTemplate, context: DynamicRenderContext) {
+        if (template.orientation == "horizontal") {
+            Row(
+                modifier = Modifier.applyLayout(template),
+                horizontalArrangement = template.horizontalArrangement.toHorizontalArrangement(),
+                verticalAlignment = template.verticalAlignment.toVerticalAlignment(),
+            ) {
+                context.renderComponents(template.components)
+            }
+        } else {
+            Column(
+                modifier = Modifier.applyLayout(template),
+                verticalArrangement = template.verticalArrangement.toVerticalArrangement(),
+                horizontalAlignment = template.horizontalAlignment.toHorizontalAlignment(),
+            ) {
+                context.renderComponents(template.components)
+            }
+        }
     }
 }

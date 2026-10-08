@@ -1,6 +1,5 @@
 package com.carbroz.cbpartner.domain.model.dynamic.group
 
-import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
@@ -20,5 +19,5 @@ data class StackGroup(
     val background: DynamicBackground? = null,
     val border: DynamicBorder? = null,
     val shape: DynamicShape? = null,
-    val elements: List<DynamicElement> = emptyList(),
+    val elements: List<Any> = emptyList(),
 )
