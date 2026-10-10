@@ -232,4 +232,18 @@ class DynamicResponseMapperTest {
             DynamicResponseMapper(json).map(dto)
         }
     }
+
+    @Test
+    fun missingAssetUrlsMapToEmptyValuesForRendererFallback() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"asset_fallback","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_assets","type":"form_template","components":[{"id":"assets","type":"stack_component","elements":[{"id":"icon","type":"icon","properties":{}},{"id":"image","type":"image","properties":{}},{"id":"label","type":"text","properties":{"text":"Label","leading":[{"type":"icon","properties":{}}]}}]}]}}}""",
+        )
+
+        val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
+        val component = assertIs<StackComponent>(assertIs<FormTemplate>(screen.template).components.single())
+        assertEquals("", assertIs<IconElement>(component.elements[0]).url)
+        assertEquals("", assertIs<ImageElement>(component.elements[1]).url)
+        val text = assertIs<TextElement>(component.elements[2])
+        assertEquals("", assertIs<IconContent>(text.leadingContent.single()).url)
+    }
 }
