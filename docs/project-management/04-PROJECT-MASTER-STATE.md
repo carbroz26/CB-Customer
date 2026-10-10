@@ -1,7 +1,7 @@
 # CB-Partner — Project Master State
 
 **Status:** AUTHORITATIVE / CURRENT RECOVERY SOURCE
-**Last Updated:** 2026-10-08
+**Last Updated:** 2026-10-10
 **Scope:** Frontend repository only
 
 ## 1. Repository State
@@ -11,7 +11,7 @@
 - Current product slice: backend-driven Dynamic UI through Login → Send OTP → OTP → Verify
 - Frontend and backend remain separate repositories.
 - `iosApp/` is the native Xcode boundary, not a Gradle `:iosApp` module.
-- Current remote HEAD after final Dynamic UI verification and authoritative status updates: `ed85d67348497c9fec2ca53e9f94c435a2f32329`.
+- Current remote HEAD: `3fda7e6def78d7ab5b1cabe9a07ec0b158e37e9e` (local asset fallback amendment; verification pending).
 
 ## 2. Frozen Technical Foundation
 
@@ -139,9 +139,9 @@ Frozen Dynamic rules include:
 - no second navigation stack/cache;
 - external URI is a first-class action capability.
 
-## 6. Dynamic Implementation State — 2026-10-07
+## 6. Dynamic Implementation State — 2026-10-10
 
-Source-level final deep audit is complete and the Dynamic UI implementation is **FINAL FROZEN — VERIFIED**.
+The original Dynamic runtime and UI implementation passed its prior verification gates. A newly authorized local asset fallback amendment is implemented on the current branch, but its Gradle verification and final source audit are pending; therefore the current branch must not yet be called FINAL FROZEN.
 
 Verified implementation areas include:
 
@@ -325,7 +325,7 @@ These are platform/backend work, not reasons to reopen the frozen Dynamic archit
 
 Ordered:
 
-1. **Dynamic UI implementation: FINAL FROZEN — VERIFIED.**
+1. **Verify local Dynamic asset fallback amendment** with the focused mapper test, full JVM test matrix, relevant compile/build tasks, and a final source/diff audit before restoring the FINAL FROZEN status.
 2. Finish owner-side Web/Android/iOS runtime verification as platform availability permits.
 6. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
 4. Keep production SMS provider/security behavior unchanged.
