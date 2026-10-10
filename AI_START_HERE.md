@@ -172,7 +172,7 @@ As of 2026-10-10:
 - Original Dynamic runtime/UI source audit and JVM matrix: previously passed.
 - Local Dynamic asset fallback amendment: implemented on `feature/dynamic-ui`; current verification is pending.
 - Current branch: `feature/dynamic-ui`.
-- Latest remote Dynamic commit: `b7aab20`.
+- Current branch includes the local asset fallback amendment; verification is pending.
 - Local Dynamic asset fallback verification: current task; do not claim final freeze until tests/build and source audit pass.
 - Backend local OTP provider: inspection/decision remains separate.
 
