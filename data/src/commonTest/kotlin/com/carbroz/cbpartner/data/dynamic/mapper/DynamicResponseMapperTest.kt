@@ -236,7 +236,7 @@ class DynamicResponseMapperTest {
     @Test
     fun missingAssetUrlsMapToEmptyValuesForRendererFallback() {
         val dto = json.decodeFromString<DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"asset_fallback","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_assets","type":"form_template","components":[{"id":"assets","type":"stack_component","elements":[{"id":"icon","type":"icon","properties":{}},{"id":"image","type":"image","properties":{}},{"id":"label","type":"text","properties":{"text":"Label","leading":[{"type":"icon","properties":{}}]}}]}]}}}""",
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"asset_fallback","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_assets","type":"form_template","components":[{"id":"assets","type":"stack_component","elements":[{"id":"icon","type":"icon","properties":{}},{"id":"image","type":"image","properties":{}},{"id":"label","type":"text","properties":{"text":"Label","textAlign":"center","fillMaxWidth":true,"contentSpacing":8,"leading":[{"type":"icon","properties":{}}]}}]}]}}}""",
         )
 
         val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
@@ -244,6 +244,9 @@ class DynamicResponseMapperTest {
         assertEquals("", assertIs<IconElement>(component.elements[0]).url)
         assertEquals("", assertIs<ImageElement>(component.elements[1]).url)
         val text = assertIs<TextElement>(component.elements[2])
+        assertEquals("center", text.textAlign)
+        assertEquals(true, text.fillMaxWidth)
+        assertEquals(8.0, text.contentSpacing)
         assertEquals("", assertIs<IconContent>(text.leadingContent.single()).url)
     }
 }
