@@ -401,3 +401,12 @@ Loading behavior is:
 The backend contract remains unchanged: backend responses should supply `url` and may supply `fallbackUrl`. The frontend mapper tolerates a missing URL by passing an empty value to the renderer, so a malformed/missing asset URL does not crash the screen. Bundled fallbacks are presentation-only and do not introduce icon-name mapping or backend asset constants.
 
 Asset presentation properties remain backend-controlled. The existing Dynamic hierarchy and renderer/registry boundaries are unchanged.
+
+
+## 20. Generic text alignment, content spacing and container padding
+
+- A text element's `textAlign` value `center` must map to Compose `TextAlign.Center`; unknown or absent values remain unspecified.
+- When `fillMaxWidth` is true, the text itself must occupy the available width in its parent row, while leaving room for any leading/trailing content. Text alignment is meaningful only when the text has available width.
+- `contentSpacing` is an optional backend-owned numeric spacing value (dp) between the direct children rendered inside a text element's row, including text and leading/trailing content. Missing values default to zero. It is generic and must not contain screen-specific behavior.
+- Group padding is internal to the group's painted background/border. The background and border enclose the configured padding; padding must not be placed outside the painted container.
+- Backend-owned spacing values are data, not frontend design defaults. A backend response may set `contentSpacing` on a text element with trailing divider content when the divider needs separation from the text.
