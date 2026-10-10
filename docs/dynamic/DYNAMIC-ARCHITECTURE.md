@@ -1,6 +1,6 @@
 # Dynamic UI Architecture
 
-Status: FROZEN BASE CONTRACT + ASSET REVISION PENDING VERIFICATION — 2026-10-08
+Status: FROZEN BASE CONTRACT + LOCAL ASSET FALLBACK REVISION PENDING VERIFICATION — 2026-10-10
 Scope: Dynamic UI runtime, rendering, actions, references, screen lifecycle, navigation integration.
 Authority: This document is the single Dynamic architecture authority.
 
@@ -394,10 +394,10 @@ For image and icon elements/content, the backend supplies:
 The frontend must not interpret asset names, map icon names to glyphs, draw substitute icons, or contain asset URL constants.
 
 Loading behavior is:
-1. load `url`;
-2. if primary loading fails and `fallbackUrl` exists, load `fallbackUrl`;
-3. if both fail, render no asset.
+1. load `url` when it is present and non-blank;
+2. if primary loading fails and `fallbackUrl` is present and non-blank, load `fallbackUrl`;
+3. if neither URL is usable or both requests fail, render the appropriate frontend-bundled fallback resource.
 
-No frontend-bundled default asset is part of this contract.
+The backend contract remains unchanged: backend responses should supply `url` and may supply `fallbackUrl`. The frontend mapper tolerates a missing URL by passing an empty value to the renderer, so a malformed/missing asset URL does not crash the screen. Bundled fallbacks are presentation-only and do not introduce icon-name mapping or backend asset constants.
 
 Asset presentation properties remain backend-controlled. The existing Dynamic hierarchy and renderer/registry boundaries are unchanged.
