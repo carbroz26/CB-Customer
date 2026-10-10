@@ -45,11 +45,12 @@ internal fun Modifier.applyLayout(section: StackSection): Modifier =
     applyDynamicPadding(section.padding).thenIf(section.fillMaxWidth) { fillMaxWidth() }
 
 internal fun Modifier.applyLayout(group: StackGroup): Modifier =
-    applyDynamicPadding(group.padding)
+    Modifier
         .thenIf(group.height != null) { height(group.height!!.dp) }
         .thenIf(group.fillMaxWidth) { fillMaxWidth() }
         .applyBackground(group.background)
         .applyBorder(group.border, group.shape)
+        .then(applyDynamicPadding(group.padding))
 
 internal fun Modifier.applyLayout(element: TextElement): Modifier =
     applyDynamicPadding(element.padding)
