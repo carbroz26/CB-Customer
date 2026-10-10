@@ -669,7 +669,7 @@ This amendment is part of the frozen implementation plan. Where older discussion
 
 ### 22.24 Local asset fallback amendment — 2026-10-10
 
-Explicitly authorized implementation amendment to the backend-owned asset contract:
+Explicitly authorized implementation amendment to the backend-owned asset contract. The user explicitly authorized implementation on 2026-10-10:
 - Keep backend `url` required by contract and `fallbackUrl` optional; do not change the backend.
 - The existing shared `DynamicAssetImage` tries a non-blank primary URL, then a non-blank backend fallback URL, then receives a caller-selected local fallback painter.
 - Bundle separate generic fallback resources for image elements and icon elements/content in `:feature:dynamic` common resources.
