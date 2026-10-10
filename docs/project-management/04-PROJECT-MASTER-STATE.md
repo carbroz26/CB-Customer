@@ -11,7 +11,7 @@
 - Current product slice: backend-driven Dynamic UI through Login → Send OTP → OTP → Verify
 - Frontend and backend remain separate repositories.
 - `iosApp/` is the native Xcode boundary, not a Gradle `:iosApp` module.
-- Current remote HEAD: `3fda7e6def78d7ab5b1cabe9a07ec0b158e37e9e` (local asset fallback amendment; verification pending).
+- Current branch includes the local Dynamic asset fallback amendment; verification is pending.
 
 ## 2. Frozen Technical Foundation
 
