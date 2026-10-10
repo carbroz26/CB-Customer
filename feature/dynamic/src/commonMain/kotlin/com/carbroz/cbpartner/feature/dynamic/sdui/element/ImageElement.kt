@@ -10,6 +10,9 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyImageSize
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DynamicAssetImage
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_image_fallback
+import org.jetbrains.compose.resources.painterResource
 
 class ImageElement : ImageElementRenderer {
     @Composable
@@ -19,6 +22,7 @@ class ImageElement : ImageElementRenderer {
             DynamicAssetImage(
                 url = element.url,
                 fallbackUrl = element.fallbackUrl,
+                fallbackPainter = painterResource(Res.drawable.dynamic_image_fallback),
                 contentDescription = element.semanticRole,
                 modifier = Modifier.applyImageSize(element),
                 contentScale = when (element.contentScale) {
