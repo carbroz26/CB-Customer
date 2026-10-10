@@ -254,3 +254,19 @@ Local fallback amendment added on 2026-10-10:
 - Backend remains unchanged.
 
 Verification is pending the owner-environment Gradle test/build run and final source audit. This revision must not be marked FINAL FROZEN until those checks pass.
+
+
+## 11. Generic text/layout correction — pending verification (2026-10-10)
+
+Implementation changes committed to `feature/dynamic-ui`:
+- Text renderer recognizes `textAlign: "center"`.
+- Text renderer gives a `fillMaxWidth` text child the remaining row width, preserving leading/trailing content.
+- TextElement model and mapper support optional backend-defined `contentSpacing` (default 0 dp).
+- StackGroup applies background and border before its internal padding.
+- Mapper regression coverage checks centering-related properties and content-spacing propagation.
+
+Still required before verification/freeze:
+- Run the focused and full JVM tests locally.
+- Compile and run the Web app to verify the browser-rendered layout.
+- Add `contentSpacing` to the backend Login `country_code` text properties (the response currently has no such property); choose the desired gap as backend-owned data.
+- Visually confirm Login border inset, country-code/divider spacing, and centered Login/OTP legal text.
