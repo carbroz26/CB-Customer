@@ -9,6 +9,9 @@ import com.carbroz.cbpartner.feature.dynamic.registry.IconElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DynamicAssetImage
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
+import org.jetbrains.compose.resources.painterResource
 
 class IconElement : IconElementRenderer {
     @Composable
@@ -21,6 +24,7 @@ class IconElement : IconElementRenderer {
             DynamicAssetImage(
                 url = element.url,
                 fallbackUrl = element.fallbackUrl,
+                fallbackPainter = painterResource(Res.drawable.dynamic_icon_fallback),
                 contentDescription = element.semanticRole,
                 size = element.size,
                 color = element.color,
