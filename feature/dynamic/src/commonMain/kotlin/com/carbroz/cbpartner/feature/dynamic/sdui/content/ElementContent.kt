@@ -18,6 +18,9 @@ import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconCon
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementContentRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
+import org.jetbrains.compose.resources.painterResource
 
 private fun Modifier.contentClick(
     content: ElementContent,
@@ -39,6 +42,7 @@ class IconContent : ElementContentRenderer {
             DynamicAssetImage(
                 url = model.url,
                 fallbackUrl = model.fallbackUrl,
+                fallbackPainter = painterResource(Res.drawable.dynamic_icon_fallback),
                 contentDescription = model.semanticRole,
                 size = model.size,
                 color = model.color,
