@@ -676,3 +676,14 @@ Explicitly authorized implementation amendment to the backend-owned asset contra
 - Missing/blank URL values are tolerated by the data mappers so the renderer can show the local fallback instead of throwing.
 - Do not add a service, repository, cache, new registry, or other asset infrastructure.
 - Add mapper regression coverage for missing URLs. Verify with the existing Gradle test matrix before marking this amendment verified.
+
+
+### 22.25 Generic text alignment, content spacing and group padding — 2026-10-10
+
+Authorized implementation amendment:
+- Map `textAlign: "center"` to Compose `TextAlign.Center`.
+- Honor text `fillMaxWidth` on the actual Text child, without displacing leading/trailing content.
+- Add optional generic `contentSpacing` to the TextElement domain model and mapper. It defines spacing in dp between the direct children of the text element's content row and defaults to zero.
+- Apply StackGroup background/border around its configured inner padding.
+- Do not add Login/OTP-specific conditions or hardcoded spacing. The Login country-code text can declare `contentSpacing: 8` (or another design-approved backend value) to space `+91` from its trailing divider.
+- Preserve existing backend `textAlign` and group padding values. Verify mapping and all affected JVM tests, then compile/run the Web target before marking verified.
