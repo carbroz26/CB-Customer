@@ -240,11 +240,17 @@ Implemented on `feature/dynamic-ui`:
 - `IconElement` uses backend `url` + optional `fallbackUrl`; icon-name/glyph semantics were removed.
 - `IconContent` uses backend `url` + optional `fallbackUrl`.
 - `ImageElement` uses required backend `url` + optional `fallbackUrl`.
-- Icon and image rendering use a small shared asset-loading composable that retries with the backend fallback URL and renders no asset when both URLs fail.
+- Icon and image rendering use a small shared asset-loading composable that tries the backend primary URL, optional backend fallback URL, then a caller-selected bundled local fallback asset.
 - Dynamic test fixtures were converted from icon names to backend-owned dummy URLs.
-- Mapper tests now assert URL/fallback propagation.
+- Mapper tests assert URL/fallback propagation and now cover missing asset URLs.
 - Backend SDUI contract tests verify that icon/image URL and fallback properties are accepted and preserved by the existing open `properties` contract.
 
 No Dynamic Store, navigation, action, hierarchy, or networking architecture was changed.
 
-Verification is pending the owner-environment Gradle/backend test run. This revision must not be marked FINAL FROZEN until those tests and the final source audit pass.
+Local fallback amendment added on 2026-10-10:
+- `feature/dynamic/src/commonMain/composeResources/drawable/dynamic_image_fallback.svg`
+- `feature/dynamic/src/commonMain/composeResources/drawable/dynamic_icon_fallback.svg`
+- Missing/blank asset URLs are passed through to the renderer as empty values so the local fallback can render.
+- Backend remains unchanged.
+
+Verification is pending the owner-environment Gradle test/build run and final source audit. This revision must not be marked FINAL FROZEN until those checks pass.
