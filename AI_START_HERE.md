@@ -1,7 +1,7 @@
 # CB-Partner — AI START HERE
 
 **Status:** AUTHORITATIVE GLOBAL ROUTER
-**Last Updated:** 2026-10-07
+**Last Updated:** 2026-10-10
 
 ## 1. First rule
 
@@ -163,17 +163,17 @@ Bootstrap Option B is frozen.
 
 ## 11. Current project state
 
-As of 2026-10-07:
+As of 2026-10-10:
 
 - BASE-ARCH-001 → BASE-ARCH-017: frozen.
 - BASE-ARCH-014: code-frozen.
 - BASE-ARCH-017: verified/review-accepted/code-frozen.
 - Dynamic architecture and implementation plan: frozen.
-- Dynamic source audit: complete.
-- Latest Dynamic JVM test matrix: passing.
+- Original Dynamic runtime/UI source audit and JVM matrix: previously passed.
+- Local Dynamic asset fallback amendment: implemented on `feature/dynamic-ui`; current verification is pending.
 - Current branch: `feature/dynamic-ui`.
 - Latest remote Dynamic commit: `b7aab20`.
-- Documentation consolidation: this task.
+- Local Dynamic asset fallback verification: current task; do not claim final freeze until tests/build and source audit pass.
 - Backend local OTP provider: inspection/decision remains separate.
 
 ## 12. Verification baseline
