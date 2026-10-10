@@ -1,6 +1,8 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.element
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.weight
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -60,10 +63,12 @@ class TextElement : TextElementRenderer {
 
         Row(
             modifier = Modifier.applyLayout(element),
+            horizontalArrangement = Arrangement.spacedBy(element.contentSpacing.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             context.renderContent(element.leadingContent)
             Text(
+                modifier = if (element.fillMaxWidth) Modifier.weight(1f) else Modifier,
                 text = annotated,
                 fontSize = element.fontSize?.sp ?: TextUnit.Unspecified,
                 fontWeight = element.fontWeight?.let(::FontWeight),
@@ -73,6 +78,7 @@ class TextElement : TextElementRenderer {
                     "end" -> TextAlign.End
                     "left" -> TextAlign.Left
                     "right" -> TextAlign.Right
+                    "center" -> TextAlign.Center
                     else -> TextAlign.Unspecified
                 },
                 letterSpacing = element.letterSpacing?.sp ?: TextUnit.Unspecified,
