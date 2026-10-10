@@ -665,3 +665,14 @@ Before implementation is complete, every Template, Component, Section, Group, El
 
 ### 22.23 Contract authority
 This amendment is part of the frozen implementation plan. Where older discussion, source comments, implementation shortcuts or stale fixtures conflict with this section, this section and the authoritative Dynamic architecture document govern. No code change is authorized merely by this amendment; implementation begins only after the user explicitly freezes this reconciled plan and authorizes implementation.
+
+
+### 22.24 Local asset fallback amendment — 2026-10-10
+
+Explicitly authorized implementation amendment to the backend-owned asset contract:
+- Keep backend `url` required by contract and `fallbackUrl` optional; do not change the backend.
+- The existing shared `DynamicAssetImage` tries a non-blank primary URL, then a non-blank backend fallback URL, then receives a caller-selected local fallback painter.
+- Bundle separate generic fallback resources for image elements and icon elements/content in `:feature:dynamic` common resources.
+- Missing/blank URL values are tolerated by the data mappers so the renderer can show the local fallback instead of throwing.
+- Do not add a service, repository, cache, new registry, or other asset infrastructure.
+- Add mapper regression coverage for missing URLs. Verify with the existing Gradle test matrix before marking this amendment verified.
