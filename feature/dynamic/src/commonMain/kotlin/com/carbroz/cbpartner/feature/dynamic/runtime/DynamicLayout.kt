@@ -50,7 +50,7 @@ internal fun Modifier.applyLayout(group: StackGroup): Modifier =
         .thenIf(group.fillMaxWidth) { fillMaxWidth() }
         .applyBackground(group.background)
         .applyBorder(group.border, group.shape)
-        .then(applyDynamicPadding(group.padding))
+        .applyDynamicPadding(group.padding)
 
 internal fun Modifier.applyLayout(element: TextElement): Modifier =
     applyDynamicPadding(element.padding)
