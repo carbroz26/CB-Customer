@@ -1,17 +1,17 @@
 # Dynamic UI Implementation Status
 
 **Status:** ASSET REVISION IMPLEMENTED — VERIFICATION PENDING
-**Date:** 2026-10-08
+**Date:** 2026-10-10
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
 
 ## 1. Current truth
 
-The frozen Dynamic UI implementation is verified and **FINAL FROZEN** on `feature/dynamic-ui`.
+The original frozen Dynamic UI implementation remains verified on `feature/dynamic-ui`. A new, explicitly authorized local asset fallback amendment is now implemented in source but is **not yet verified**.
 
-The frozen UI contract reconciliation was implemented without reopening the Dynamic runtime architecture. The required post-refactor JVM matrix passed on the owner Windows environment, followed by the final source-level, contract, and Git history/diff audit.
+The original runtime architecture remains unchanged. The asset amendment adds only shared local resources, renderer fallback handling, tolerant mapping for missing URLs, and focused mapper regression coverage.
 
-No further Dynamic implementation changes are authorized under this freeze unless a new, explicitly approved work item is opened.
+Do not mark the current branch FINAL FROZEN again until the owner-environment Gradle tests/build and the final source/diff audit pass.
 
 ## 2. Implemented runtime contract
 
