@@ -11,6 +11,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -54,8 +55,10 @@ class DynamicContractTest {
             screen.template.components.first { it.id == "header" }.elements
                 .first { it is TextElement && it.text == "Welcome" },
         )
-        assertIs<IconContent>(title.leadingContent.single())
-        assertIs<DividerContent>(title.trailingContent.single())
+        val leadingIcon = assertIs<IconContent>(title.leadingContent.single())
+        assertEquals(DynamicSpacing(1.0, 2.0, 3.0, 4.0), leadingIcon.spacing)
+        val trailingDivider = assertIs<DividerContent>(title.trailingContent.single())
+        assertEquals(DynamicSpacing(5.0, 6.0, 7.0, 8.0), trailingDivider.spacing)
         assertEquals(
             DynamicValue.ObjectValue(
                 mapOf(
