@@ -11,6 +11,6 @@ data class DividerContent(
     val height: Double? = null,
     val thickness: Double = 1.0,
     val color: String? = null,
-    override val padding: DynamicPadding? = null,
+    override val spacing: DynamicSpacing? = null,
     override val actions: Map<String, DynamicAction> = emptyMap(),
 ) : ElementContent
