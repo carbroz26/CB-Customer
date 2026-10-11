@@ -272,9 +272,9 @@ Still required before verification/freeze:
 - Visually confirm Login border inset, country-code/divider spacing, and centered Login/OTP legal text.
 
 
-## 12. Trailing-only text content spacing — implementation pending verification (2026-10-11)
+## 12. Trailing-only text content spacing — merged, verification pending (2026-10-11)
 
-A focused amendment is on branch `feature/trailing-content-spacing` in both repositories:
+The focused amendment has been merged into the existing branches: frontend `feature/dynamic-ui` and backend `development`.
 - Backend text schema and builder expose `trailingContentSpacing`; Partner login sets it to 8 for `partner_label`.
 - Frontend domain model, mapper, and TextElement renderer carry and apply the value only before trailing content; missing values default to zero.
 - Generic mapper fixture/test coverage asserts propagation.
