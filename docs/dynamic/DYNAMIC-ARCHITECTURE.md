@@ -1,6 +1,6 @@
 # Dynamic UI Architecture
 
-Status: FROZEN BASE CONTRACT; ASSET FALLBACK VERIFICATION AND ACCESSORY-PADDING IMPLEMENTATION PENDING — 2026-10-11
+Status: FROZEN BASE CONTRACT; ACCESSORY-OWNED PADDING IMPLEMENTATION IN PROGRESS — VERIFICATION PENDING — 2026-10-11
 Scope: Dynamic UI runtime, rendering, actions, references, screen lifecycle, navigation integration.
 Authority: This document is the single Dynamic architecture authority.
 
@@ -409,7 +409,7 @@ Asset presentation properties remain backend-controlled. The existing Dynamic hi
 - When fillMaxWidth is true, the text itself occupies the available width in its parent row while leaving room for leading/trailing content. Text alignment is meaningful only when the text has available width.
 - Text accessories use one shared nullable padding: DynamicPadding contract on the existing ElementContent domain contract. DynamicPadding represents the four inset values start, top, end, and bottom; preserve supplied values through DTO mapping and apply them to the accessory's existing root layout modifier.
 - Both IconContent and DividerContent use the shared content-owned padding contract. Do not create another padding abstraction, accessory renderer hierarchy, or screen-specific behavior.
-- Remove parent text-level contentSpacing and trailingContentSpacing from the frontend contract, mapper, model, renderer, fixtures and tests. They are superseded by accessory-owned padding and must not remain as competing spacing mechanisms.
+- Remove the obsolete parent text-level spacing fields from the frontend contract, mapper, model, renderer, fixtures and tests. They are superseded by accessory-owned padding and must not remain as competing spacing mechanisms.
 - Missing accessory padding means no additional accessory-owned padding; do not invent frontend spacing defaults. Parent text properties must not be used to simulate accessory padding.
 - DynamicLayout remains responsible for existing node-owned layout modifiers. Accessory content renderers apply their own content padding using the existing padding helper where compatible; do not move content-row spacing responsibility into the generic node-layout helper.
 - Group padding is internal to the group's painted background/border. The background and border enclose the configured padding; padding must not be placed outside the painted container.
