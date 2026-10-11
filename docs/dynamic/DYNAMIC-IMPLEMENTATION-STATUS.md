@@ -1,7 +1,7 @@
 # Dynamic UI Implementation Status
 
-**Status:** ASSET REVISION IMPLEMENTED — VERIFICATION PENDING
-**Date:** 2026-10-10
+**Status:** ACCESSORY-OWNED PADDING AMENDMENT ACCEPTED — IMPLEMENTATION PENDING
+**Date:** 2026-10-11
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
 
@@ -280,3 +280,28 @@ The focused amendment has been merged into the existing branches: frontend `feat
 - Generic mapper fixture/test coverage asserts propagation.
 
 Verification is not yet complete. Run the backend engine tests, the relevant frontend JVM tests and compile tasks, then launch the Web app and visually confirm that the leading gap remains unchanged while the trailing divider gains the configured gap. Do not mark this amendment final/frozen until those checks pass.
+
+
+## 13. Accessory-owned padding amendment — current work (2026-10-11)
+
+**State:** Contract decision accepted and documentation reconciled. Frontend source implementation has not started.
+
+The backend CB-Backend branch development now emits four-sided properties.padding on divider accessories. The owner reports that backend engine tests/build passed and the live Login and OTP responses now contain the intended trailing/leading divider padding. Backend commits for this contract include 73aec3a, 9e0994a, f086da2, 05250b3, 9894f7c, f67e906, 2231fb8, and 82026d8.
+
+Accepted frontend contract:
+- Reuse the existing DynamicPadding type.
+- Add one nullable shared padding property to the existing ElementContent domain contract, available to both IconContent and DividerContent.
+- Map each accessory's own properties.padding in the existing data mapper.
+- Apply the padding in the existing accessory content renderers using their existing root layout modifier and the existing padding helper where suitable.
+- Remove parent-level TextElement contentSpacing and trailingContentSpacing from the frontend model, mapper, renderer, fixtures and tests.
+- Do not add abstractions, registries, screen-specific conditions, architecture layers, or unrelated cleanup.
+
+Required before source changes:
+1. Inspect the current local working tree and branch; preserve all user changes.
+2. Read the current architecture, this implementation plan, this status, the Project Master State, Decision Log and project operating rules.
+3. Reconcile local source with this accepted contract and confirm no frozen architecture boundary is being changed.
+4. Explicitly freeze the reconciled plan and authorize implementation.
+
+After authorization, implement the minimal domain → data mapping → renderer change, run focused regression tests, the agreed broad JVM matrix and relevant compile tasks, audit the final diff and repository-wide obsolete-property search, then perform Web visual verification when available. Do not claim final freeze or verified platform behavior before those gates pass.
+
+No frontend source changes were made as part of this documentation update.
