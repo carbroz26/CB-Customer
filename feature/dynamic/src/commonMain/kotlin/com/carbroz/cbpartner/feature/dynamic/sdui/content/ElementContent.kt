@@ -66,8 +66,9 @@ class DividerContent : ElementContentRenderer {
                 .height(model.thickness.dp)
         }
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .applyDynamicPadding(model.padding)
+                .then(modifier)
                 .background(color)
                 .contentClick(content, context),
         )
