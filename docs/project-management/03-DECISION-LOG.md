@@ -375,7 +375,7 @@ No new duplicate tracker, status, frozen-plan, or discussion document should be 
 ## DYNAMIC-CONTRACT-REVISION-CONTENT-PADDING-001 — Accessory-owned padding
 
 **Date:** 2026-10-11  
-**State:** ACCEPTED / PLAN FROZEN / IMPLEMENTATION AUTHORIZED — implementation in progress; verification pending.
+**State:** ACCEPTED / PLAN FROZEN / IMPLEMENTED — JVM test matrix and targeted compilation passed; final diff/obsolete-property audit and Web visual verification remain open.
 
 ### Decision
 The frontend will represent accessory spacing through one shared nullable padding: DynamicPadding property on the existing ElementContent domain contract. Both IconContent and DividerContent use the same four-sided DynamicPadding type (start, top, end, bottom).
@@ -391,4 +391,4 @@ The frontend will represent accessory spacing through one shared nullable paddin
 No new abstraction, registry, renderer hierarchy, module, business-specific Login/OTP logic, architecture redesign, or unrelated cleanup.
 
 ### Verification and implementation gate
-The backend owner reports that the engine test/build passed and the live Login and OTP responses now contain the intended divider padding. Frontend source changes have not started. Implementation begins only after the owner explicitly freezes the reconciled Dynamic implementation plan and authorizes implementation. Required checks include focused mapping/rendering tests, the agreed JVM matrix, relevant compile tasks, final source/diff review, obsolete-property search, and separate Web visual verification.
+The backend owner reports that the engine test/build passed and the live Login and OTP responses contain the intended divider padding. The owner explicitly froze the reconciled frontend plan and authorized implementation on 2026-10-11. The shared `ElementContent.padding` contract, icon/divider mapping and rendering, obsolete parent-level spacing removal, and mapper regression coverage are implemented. The owner-environment JVM matrix passed for `:core`, `:domain`, `:data`, `:network`, `:navigation`, `:feature:splash` and `:feature:dynamic`; targeted compilation passed for `:domain`, `:data` and `:feature:dynamic`. Remaining gates: complete line-by-line diff/repository-wide obsolete-property audit and separate Web visual verification. Do not mark final freeze until those remaining gates are completed.
