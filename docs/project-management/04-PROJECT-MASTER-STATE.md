@@ -11,7 +11,7 @@
 - Current product slice: backend-driven Dynamic UI through Login → Send OTP → OTP → Verify
 - Frontend and backend remain separate repositories.
 - `iosApp/` is the native Xcode boundary, not a Gradle `:iosApp` module.
-- Current branch includes the local Dynamic asset fallback amendment; verification is pending.
+- Current branch: feature/dynamic-ui. The accepted accessory-owned padding contract has been documented; frontend implementation is not started and must not be assumed verified.
 
 ## 2. Frozen Technical Foundation
 
@@ -139,7 +139,7 @@ Frozen Dynamic rules include:
 - no second navigation stack/cache;
 - external URI is a first-class action capability.
 
-## 6. Dynamic Implementation State — 2026-10-10
+## 6. Dynamic Implementation State — 2026-10-11
 
 The original Dynamic runtime and UI implementation passed its prior verification gates. A newly authorized local asset fallback amendment is implemented on the current branch, but its Gradle verification and final source audit are pending; therefore the current branch must not yet be called FINAL FROZEN.
 
@@ -325,11 +325,12 @@ These are platform/backend work, not reasons to reopen the frozen Dynamic archit
 
 Ordered:
 
-1. **Verify local Dynamic asset fallback amendment** with the focused mapper test, full JVM test matrix, relevant compile/build tasks, and a final source/diff audit before restoring the FINAL FROZEN status.
-2. Finish owner-side Web/Android/iOS runtime verification as platform availability permits.
-6. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
-4. Keep production SMS provider/security behavior unchanged.
-5. Start the next product work.
+1. **Reconcile and implement accessory-owned padding on feature/dynamic-ui.** The accepted contract uses one nullable padding: DynamicPadding property on the existing ElementContent domain contract, shared by IconContent and DividerContent. The property maps each accessory's own four-sided backend properties.padding. Remove frontend parent-level contentSpacing and trailingContentSpacing. Documentation is updated; source changes remain pending explicit plan freeze and implementation authorization.
+2. After authorization, run focused data/renderer tests, the agreed broad JVM test matrix and relevant compile tasks; review the complete diff and search for obsolete spacing properties.
+3. Complete owner-side Web runtime/visual verification when available. Android and iOS runtime verification remain separate platform gates.
+4. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
+5. Keep production SMS provider/security behavior unchanged.
+6. Start the next product work only after the current authorized work is completed and reviewed.
 
 ## 12. Explicitly Closed / Do Not Reopen
 
