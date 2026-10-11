@@ -11,7 +11,7 @@
 - Current product slice: backend-driven Dynamic UI through Login → Send OTP → OTP → Verify
 - Frontend and backend remain separate repositories.
 - `iosApp/` is the native Xcode boundary, not a Gradle `:iosApp` module.
-- Current branch: feature/dynamic-ui. The accepted accessory-owned padding contract has been documented; frontend implementation is not started and must not be assumed verified.
+- Current branch: feature/dynamic-ui. The accessory-owned padding plan is frozen and implementation is authorized; source changes have started, but owner-environment tests and final audit remain pending.
 
 ## 2. Frozen Technical Foundation
 
@@ -325,7 +325,7 @@ These are platform/backend work, not reasons to reopen the frozen Dynamic archit
 
 Ordered:
 
-1. **Reconcile and implement accessory-owned padding on feature/dynamic-ui.** The accepted contract uses one nullable padding: DynamicPadding property on the existing ElementContent domain contract, shared by IconContent and DividerContent. The property maps each accessory's own four-sided backend properties.padding. Remove frontend parent-level contentSpacing and trailingContentSpacing. Documentation is updated; source changes remain pending explicit plan freeze and implementation authorization.
+1. **Complete and verify accessory-owned padding on feature/dynamic-ui.** The frozen contract uses one nullable DynamicPadding property on the existing ElementContent domain contract, shared by IconContent and DividerContent. Each accessory maps and renders its own four-sided backend padding. Partial source/test changes are committed remotely; finish test coverage, run the owner-environment JVM matrix and relevant compile tasks, and audit the final diff before any final freeze.
 2. After authorization, run focused data/renderer tests, the agreed broad JVM test matrix and relevant compile tasks; review the complete diff and search for obsolete spacing properties.
 3. Complete owner-side Web runtime/visual verification when available. Android and iOS runtime verification remain separate platform gates.
 4. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
