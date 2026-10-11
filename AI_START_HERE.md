@@ -243,3 +243,9 @@ Never auto-start the next separately gated work item.
 ## 16. One-line external AI instruction
 
 > Read `AI_START_HERE.md` first, recover state from Project Master State and the Decision Log, follow the relevant authoritative contract, never guess or silently redesign, and stop when a frozen boundary must change.
+
+
+
+## 17. Current cross-repository contract revision — 2026-10-11
+
+The content-owned spacing revision is plan-frozen but not implemented. Read the latest amendment in `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 21 and `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.26 before touching source. The backend counterpart is recorded in `sdui/SDUI-COMPOSE-CONTRACT-IMPLEMENTATION-PLAN.md` and `sdui/PARTNER-AUTH-SDUI-CONTRACT.md` on the matching `feature/dynamic-content-spacing-contract` branch. The current source still reflects the prior content-padding contract. Do not implement until the owner explicitly authorizes it.
