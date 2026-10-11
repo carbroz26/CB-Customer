@@ -1,7 +1,7 @@
 # CB-Partner — Project Master State
 
 **Status:** AUTHORITATIVE / CURRENT RECOVERY SOURCE
-**Last Updated:** 2026-10-10
+**Last Updated:** 2026-10-11
 **Scope:** Frontend repository only
 
 ## 1. Repository State
@@ -373,3 +373,17 @@ Historical chat is context, not authority.
 ## 14. Definition of Current Truth
 
 If this document conflicts with an older Current Status, Project Tracker, Checkpoint, or Master State file, those older files are superseded and must not be used. If it conflicts with an explicitly frozen decision or the current explicit user instruction, stop and reconcile the conflict rather than silently choosing one.
+
+
+
+## 15. Content-owned spacing contract — 2026-10-11
+
+A new cross-repository contract revision is documentation-frozen on `feature/dynamic-content-spacing-contract`; source implementation has not started.
+
+- Decision: `DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001`.
+- Frontend authority: `docs/dynamic/DYNAMIC-ARCHITECTURE.md`, section 21; implementation plan section 22.26.
+- Backend authority: `sdui/SDUI-COMPOSE-CONTRACT-IMPLEMENTATION-PLAN.md` and `sdui/PARTNER-AUTH-SDUI-CONTRACT.md` revision sections.
+- Contract: shared `ElementContent.spacing: DynamicSpacing?` with start/top/end/bottom external layout spacing for IconContent and DividerContent. Backend content uses `properties.spacing`.
+- Remove content-level padding and parent `contentSpacing` / `trailingContentSpacing` as competing mechanisms. Preserve ordinary node/container `DynamicPadding` and text `letterSpacing`.
+- Current source still implements the previous accessory-padding contract. The existing green test results do not verify this new revision.
+- No source changes are authorized yet. Next valid action: owner explicitly authorizes implementation after reviewing the frozen plan.
