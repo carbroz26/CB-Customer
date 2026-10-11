@@ -17,7 +17,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconContentModel
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementContentRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
-import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicSpacing
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
@@ -37,7 +37,7 @@ class IconContent : ElementContentRenderer {
     override fun render(content: ElementContent, context: DynamicRenderContext) {
         val model = content as? IconContentModel ?: return
         Row(
-            modifier = Modifier.contentClick(content, context).applyDynamicPadding(model.padding),
+            modifier = Modifier.contentClick(content, context).applyDynamicSpacing(model.spacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             DynamicAssetImage(
@@ -67,7 +67,7 @@ class DividerContent : ElementContentRenderer {
         }
         Box(
             modifier = Modifier
-                .applyDynamicPadding(model.padding)
+                .applyDynamicSpacing(model.spacing)
                 .then(modifier)
                 .background(color)
                 .contentClick(content, context),
