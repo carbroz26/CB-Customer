@@ -1,7 +1,7 @@
 # CB-Partner — AI START HERE
 
 **Status:** AUTHORITATIVE GLOBAL ROUTER
-**Last Updated:** 2026-10-10
+**Last Updated:** 2026-10-11
 
 ## 1. First rule
 
@@ -168,11 +168,10 @@ As of 2026-10-10:
 - BASE-ARCH-001 → BASE-ARCH-017: frozen.
 - BASE-ARCH-014: code-frozen.
 - BASE-ARCH-017: verified/review-accepted/code-frozen.
-- Dynamic architecture and implementation plan: frozen.
 - Original Dynamic runtime/UI source audit and JVM matrix: previously passed.
-- Local Dynamic asset fallback amendment: implemented on `feature/dynamic-ui`; current verification is pending.
+- Local Dynamic asset fallback amendment: separate verification item remains tracked in Dynamic status.
 - Current branch: `feature/dynamic-ui`.
-- Current branch: feature/dynamic-ui.
+- Current Dynamic accessory-padding amendment: accepted and documented; the reconciled plan has not yet been explicitly frozen and frontend source implementation has not started.
 - Current Dynamic work: accessory-owned padding contract amendment accepted and documented on 2026-10-11; frontend source implementation is pending explicit plan freeze and implementation authorization.
 - Use the latest docs/dynamic/DYNAMIC-ARCHITECTURE.md, DYNAMIC-IMPLEMENTATION-PLAN.md, DYNAMIC-IMPLEMENTATION-STATUS.md, docs/project-management/04-PROJECT-MASTER-STATE.md, and 03-DECISION-LOG.md for recovery. Do not treat historical contentSpacing / trailingContentSpacing amendments as current contract.
 - Backend local OTP provider: inspection/decision remains separate.
