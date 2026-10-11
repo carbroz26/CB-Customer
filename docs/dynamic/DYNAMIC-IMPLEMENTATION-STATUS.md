@@ -286,11 +286,11 @@ Implemented: the shared nullable `DynamicPadding` property is part of `ElementCo
 
 ## 14. Content-owned spacing contract revision — 2026-10-11
 
-**Current state:** PLAN FROZEN; IMPLEMENTATION NOT STARTED.  
+**Current state:** PLAN FROZEN; IMPLEMENTATION AUTHORIZED 2026-10-12; SOURCE CHANGES IN PROGRESS; VERIFICATION PENDING.  
 **Revision:** `DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001`.  
 **Documentation branch:** `feature/dynamic-content-spacing-contract`.
 
-The previous accessory-owned padding implementation remains in source until a separately authorized implementation replaces it. It is superseded as the intended contract for leading/trailing content; do not treat the existing green JVM tests as verification of this new spacing contract.
+The frozen implementation is underway on `feature/dynamic-content-spacing-contract`. Frontend domain models, JSON mapping and accessory rendering now use `DynamicSpacing`; backend accessory validation and Partner Login/OTP screen definitions now use `properties.spacing`. Existing green JVM results predate this revision and do not verify it.
 
 Frozen target:
 - `ElementContent.spacing: DynamicSpacing?` replaces `ElementContent.padding: DynamicPadding?` for all content implementations.
@@ -299,4 +299,4 @@ Frozen target:
 - Remove text-parent `contentSpacing` and `trailingContentSpacing` as competing mechanisms.
 - Preserve ordinary node/container `DynamicPadding`, text `letterSpacing`, and the generic renderer/registry architecture.
 
-No frontend or backend source changes have been made for this revision. The earlier seven-module JVM tests and targeted compilations apply only to the previous implementation. Required backend/frontend implementation and verification steps are frozen in section 22.26 of `DYNAMIC-IMPLEMENTATION-PLAN.md`. Final contract freeze after implementation remains a later gate.
+Implementation changes and focused tests are committed on the feature branch, but verification is not complete. Backend CI currently fails at the repository-wide ESLint step on existing `tools/fix-db.mjs` `console` no-undef errors; the workflow skips Vitest after that failure. The frontend repository reports no CI checks for this branch, so the agreed JVM test/compile matrix and Web visual verification remain pending. Do not merge or declare the revision verified until the affected tests pass and the visual gap is confirmed. Required steps remain frozen in section 22.26 of `DYNAMIC-IMPLEMENTATION-PLAN.md`.
