@@ -1,13 +1,13 @@
 # Dynamic UI Implementation Status
 
-**Status:** ACCESSORY-OWNED PADDING AMENDMENT ACCEPTED — IMPLEMENTATION PENDING
+**Status:** ACCESSORY-OWNED PADDING IMPLEMENTATION IN PROGRESS — VERIFICATION PENDING
 **Date:** 2026-10-11
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
 
 ## 1. Current truth
 
-The original frozen Dynamic UI implementation remains verified on `feature/dynamic-ui`. A new, explicitly authorized local asset fallback amendment is now implemented in source but is **not yet verified**.
+The previously frozen Dynamic UI baseline has passed its recorded JVM gates. The asset fallback amendment and current accessory-owned padding amendment require owner-environment verification. Accessory-owned padding implementation has started on `feature/dynamic-ui`; do not treat this branch as finally frozen.
 
 The original runtime architecture remains unchanged. The asset amendment adds only shared local resources, renderer fallback handling, tolerant mapping for missing URLs, and focused mapper regression coverage.
 
@@ -141,9 +141,9 @@ The frontend must not add `$response` or business-specific `authFlow.*` context 
 
 The generic JSON type policy also preserves phone numbers and OTP values as strings when the backend supplies them as JSON strings.
 
-## 6. Verification
+## 6. Baseline verification before the current amendment
 
-Final verification is complete.
+The results below record the prior baseline only; they do not verify the accessory-owned padding changes.
 
 Required post-refactor matrix:
 
@@ -202,9 +202,9 @@ These are separate platform gates and do not reopen the frozen Dynamic architect
 
 Backend local OTP delivery/provider work is also separate from the frontend Dynamic contract.
 
-## 8. Final state
+## 8. Current state
 
-The Dynamic UI implementation is **FINAL FROZEN — VERIFIED** against the frozen source contract.
+The previous baseline freeze does not cover the accessory-owned padding amendment. Current verification and final source/diff audit are pending; do not mark the branch FINAL FROZEN.
 
 Final audit coverage included:
 
@@ -256,35 +256,19 @@ Local fallback amendment added on 2026-10-10:
 Verification is pending the owner-environment Gradle test/build run and final source audit. This revision must not be marked FINAL FROZEN until those checks pass.
 
 
-## 11. Generic text/layout correction — pending verification (2026-10-10)
+## 11. Superseded text-spacing discussion
 
-Implementation changes committed to `feature/dynamic-ui`:
-- Text renderer recognizes `textAlign: "center"`.
-- Text renderer gives a `fillMaxWidth` text child the remaining row width, preserving leading/trailing content.
-- TextElement model and mapper support optional backend-defined `contentSpacing` (default 0 dp).
-- StackGroup applies background and border before its internal padding.
-- Mapper regression coverage checks centering-related properties and content-spacing propagation.
-
-Still required before verification/freeze:
-- Run the focused and full JVM tests locally.
-- Compile and run the Web app to verify the browser-rendered layout.
-- Add `contentSpacing` to the backend Login `country_code` text properties (the response currently has no such property); choose the desired gap as backend-owned data.
-- Visually confirm Login border inset, country-code/divider spacing, and centered Login/OTP legal text.
+The older parent-level text-spacing approach is superseded by the accessory-owned padding contract in section 13. Do not reintroduce parent-owned spacing fields or backend dependencies on them.
 
 
-## 12. Trailing-only text content spacing — merged, verification pending (2026-10-11)
+## 12. Superseded trailing-spacing discussion
 
-The focused amendment has been merged into the existing branches: frontend `feature/dynamic-ui` and backend `development`.
-- Backend text schema and builder expose `trailingContentSpacing`; Partner login sets it to 8 for `partner_label`.
-- Frontend domain model, mapper, and TextElement renderer carry and apply the value only before trailing content; missing values default to zero.
-- Generic mapper fixture/test coverage asserts propagation.
-
-Verification is not yet complete. Run the backend engine tests, the relevant frontend JVM tests and compile tasks, then launch the Web app and visually confirm that the leading gap remains unchanged while the trailing divider gains the configured gap. Do not mark this amendment final/frozen until those checks pass.
+The older trailing-only text-spacing approach is superseded by the accessory-owned padding contract in section 13. Backend accessory padding is the current contract.
 
 
 ## 13. Accessory-owned padding amendment — current work (2026-10-11)
 
-**State:** Contract decision accepted and documentation reconciled. Frontend source implementation has not started.
+**State:** Plan frozen and implementation authorized by the owner on 2026-10-11. Source implementation has started; tests, source audit and final freeze remain pending.
 
 The backend CB-Backend branch development now emits four-sided properties.padding on divider accessories. The owner reports that backend engine tests/build passed and the live Login and OTP responses now contain the intended trailing/leading divider padding. Backend commits for this contract include 73aec3a, 9e0994a, f086da2, 05250b3, 9894f7c, f67e906, 2231fb8, and 82026d8.
 
@@ -293,15 +277,7 @@ Accepted frontend contract:
 - Add one nullable shared padding property to the existing ElementContent domain contract, available to both IconContent and DividerContent.
 - Map each accessory's own properties.padding in the existing data mapper.
 - Apply the padding in the existing accessory content renderers using their existing root layout modifier and the existing padding helper where suitable.
-- Remove parent-level TextElement contentSpacing and trailingContentSpacing from the frontend model, mapper, renderer, fixtures and tests.
+- Remove the obsolete parent-level text-spacing fields from the frontend model, mapper, renderer, fixtures and tests.
 - Do not add abstractions, registries, screen-specific conditions, architecture layers, or unrelated cleanup.
 
-Required before source changes:
-1. Inspect the current local working tree and branch; preserve all user changes.
-2. Read the current architecture, this implementation plan, this status, the Project Master State, Decision Log and project operating rules.
-3. Reconcile local source with this accepted contract and confirm no frozen architecture boundary is being changed.
-4. Explicitly freeze the reconciled plan and authorize implementation.
-
-After authorization, implement the minimal domain → data mapping → renderer change, run focused regression tests, the agreed broad JVM matrix and relevant compile tasks, audit the final diff and repository-wide obsolete-property search, then perform Web visual verification when available. Do not claim final freeze or verified platform behavior before those gates pass.
-
-No frontend source changes were made as part of this documentation update.
+Implementation in progress: the shared domain contract, data mapping, text model/mapper/renderer cleanup and initial generic fixture/test updates have been committed remotely. The renderer padding change is also committed. These edits have not been run through the owner-environment Gradle matrix, and the source/diff audit is incomplete. Next: finish regression coverage, reconcile authoritative documents, run the focused tests and broad JVM matrix, then audit the full diff and obsolete-property search. Web visual verification remains separate. Do not claim final freeze or verified platform behavior before those gates pass.
