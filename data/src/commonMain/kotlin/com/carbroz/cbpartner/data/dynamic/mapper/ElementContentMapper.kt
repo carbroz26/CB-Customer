@@ -35,6 +35,7 @@ class ElementContentMapper(
                 fallbackUrl = values.string(properties, "fallbackUrl"),
                 size = values.number(properties, "size"),
                 color = values.string(properties, "color"),
+                padding = values.padding(properties),
                 actions = mapActions(actions),
             )
             "divider" -> DividerContent(
