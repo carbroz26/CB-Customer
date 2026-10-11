@@ -163,7 +163,7 @@ Bootstrap Option B is frozen.
 
 ## 11. Current project state
 
-As of 2026-10-10:
+As of 2026-10-11:
 
 - BASE-ARCH-001 → BASE-ARCH-017: frozen.
 - BASE-ARCH-014: code-frozen.
@@ -171,8 +171,9 @@ As of 2026-10-10:
 - Original Dynamic runtime/UI source audit and JVM matrix: previously passed.
 - Local Dynamic asset fallback amendment: separate verification item remains tracked in Dynamic status.
 - Current branch: `feature/dynamic-ui`.
-- Current Dynamic accessory-padding amendment: the reconciled plan is frozen and implementation is authorized; source changes have started, with JVM verification and final audit pending.
-- Current Dynamic work: accessory-owned padding contract amendment frozen and authorized on 2026-10-11; frontend implementation is in progress and not yet verified.
+- Current Dynamic accessory-padding amendment: the plan is frozen and the implementation is complete within scope.
+- The owner ran the seven-module JVM test matrix and targeted domain/data/Dynamic JVM compilation successfully on 2026-10-11.
+- Final line-by-line diff/obsolete-property audit and Web visual verification remain open; do not claim final freeze yet.
 - Use the latest docs/dynamic/DYNAMIC-ARCHITECTURE.md, DYNAMIC-IMPLEMENTATION-PLAN.md, DYNAMIC-IMPLEMENTATION-STATUS.md, docs/project-management/04-PROJECT-MASTER-STATE.md, and 03-DECISION-LOG.md for recovery. Do not treat historical parent-level text-spacing amendments as the current contract.
 - Backend local OTP provider: inspection/decision remains separate.
 
