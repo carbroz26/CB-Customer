@@ -1,9 +1,11 @@
 package com.carbroz.cbpartner.domain.model.dynamic.content
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 
 sealed interface ElementContent {
     val id: String?
     val semanticRole: String?
+    val padding: DynamicPadding?
     val actions: Map<String, DynamicAction>
 }
