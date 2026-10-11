@@ -420,7 +420,7 @@ Asset presentation properties remain backend-controlled. The existing Dynamic hi
 ## 21. Frozen content-owned spacing contract — 2026-10-11
 
 **Revision:** DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001  
-**State:** PLAN FROZEN; SOURCE IMPLEMENTATION NOT STARTED  
+**State:** PLAN FROZEN; IMPLEMENTATION AUTHORIZED 2026-10-12; IMPLEMENTATION IN PROGRESS  
 **Supersedes:** the accessory-owned `ElementContent.padding: DynamicPadding?` contract and the text-level `contentSpacing` / `trailingContentSpacing` approach.
 
 - The existing `ElementContent` contract exposes one nullable `spacing: DynamicSpacing?` property, shared by every current content implementation, including `IconContent` and `DividerContent`.
@@ -431,4 +431,4 @@ Asset presentation properties remain backend-controlled. The existing Dynamic hi
 - Frontend mapping preserves all four spacing values. Existing content renderers apply them as outer layout spacing around the content's rendered bounds. The divider itself draws its line without encoding gaps into text or changing line semantics.
 - Missing spacing means zero additional external gap. No arbitrary frontend defaults, text whitespace, Login/OTP special cases, new registry, renderer hierarchy, or architecture layer.
 - Preserve text `letterSpacing`, text alignment/fill behavior, existing content registration, and the generic Dynamic runtime architecture.
-- This amendment is documentation/plan only. Source changes require a separate implementation authorization after this plan freeze.
+- The owner authorized implementation on 2026-10-12. The plan remains frozen; source changes must remain within this contract.
