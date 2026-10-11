@@ -678,32 +678,17 @@ Explicitly authorized implementation amendment to the backend-owned asset contra
 - Add mapper regression coverage for missing URLs. Verify with the existing Gradle test matrix before marking this amendment verified.
 
 
-### 22.25 Generic text alignment, content spacing and group padding — 2026-10-10
+### 22.25 Generic text alignment, accessory-owned padding and group padding — 2026-10-11
 
-Authorized implementation amendment:
-- Map `textAlign: "center"` to Compose `TextAlign.Center`.
-- Honor text `fillMaxWidth` on the actual Text child, without displacing leading/trailing content.
-- Add optional generic `contentSpacing` to the TextElement domain model and mapper. It defines spacing in dp between the direct children of the text element's content row and defaults to zero.
-- Apply StackGroup background/border around its configured inner padding.
-- Do not add Login/OTP-specific conditions or hardcoded spacing. The Login country-code text can declare `contentSpacing: 8` (or another design-approved backend value) to space `+91` from its trailing divider.
-- Preserve existing backend `textAlign` and group padding values. Verify mapping and all affected JVM tests, then compile/run the Web target before marking verified.
+Accepted contract amendment; documentation is reconciled before implementation. This amendment supersedes the earlier contentSpacing and trailingContentSpacing amendments below this section in the historical implementation plan.
 
-
-### 22.26 Trailing-only text content spacing — 2026-10-11
-
-Authorized focused amendment:
-- Add optional backend-owned `trailingContentSpacing` to the backend text properties schema and builder DSL.
-- Map it through the existing TextElement DTO properties, domain model, and renderer; absent values default to zero.
-- Apply the value only between a text element and its trailing content. Do not change leading spacing or add screen-specific logic.
-- Partner login's `partner_label` declares `trailingContentSpacing: 8`; the existing vertical country-code divider continues using the symmetric `contentSpacing` contract unchanged.
-- Add mapper/backend contract regression coverage. Run the relevant backend Vitest suite and frontend Gradle JVM tests/compile plus Web browser verification before marking this amendment verified.
-
-
-### 22.26 Trailing-only text content spacing — 2026-10-11
-
-Authorized focused amendment:
-- Add optional backend-owned `trailingContentSpacing` to the backend text properties schema and builder DSL.
-- Map it through the existing TextElement DTO properties, domain model, and renderer; absent values default to zero.
-- Apply the value only between a text element and its trailing content. Do not change leading spacing or add screen-specific logic.
-- Partner login's `partner_label` declares `trailingContentSpacing: 8`; the existing vertical country-code divider continues using the symmetric `contentSpacing` contract unchanged.
-- Add mapper/backend contract regression coverage. Run the relevant backend Vitest suite and frontend Gradle JVM tests/compile plus Web browser verification before marking this amendment verified.
+- Preserve the existing generic textAlign: center mapping and ensure a fill-width text child uses available width without displacing leading/trailing content.
+- The existing ElementContent domain contract owns one nullable padding: DynamicPadding property, shared by IconContent and DividerContent. Reuse the existing four-sided DynamicPadding type (start, top, end, bottom); do not add a new abstraction.
+- Map each accessory's own properties.padding through the existing DTO/mapping boundary into the shared domain contract. Preserve each supplied inset exactly.
+- Apply accessory-owned padding in the existing content renderers on their existing root layout modifier. Reuse the existing padding application helper where suitable. Keep generic node-owned layout behavior in its existing responsibility.
+- Remove parent TextElement contentSpacing and trailingContentSpacing from DTO/domain mapping, model, renderer, fixtures, tests and documentation. Search the full repository for both names and resolve all frontend contract references.
+- Missing accessory padding adds no extra padding. Do not introduce arbitrary defaults, Login/OTP conditions, new registries, new renderers, new layout abstractions, or unrelated refactors.
+- Keep Clean Architecture boundaries intact: :data maps transport data, :domain defines the typed contract, and :feature:dynamic renders it. No Compose dependencies in domain/data.
+- Add focused generic tests for mapping all four padding edges on both leading and trailing accessories and for absent padding; ensure removed parent properties are no longer part of the frontend contract.
+- Verify with the agreed Gradle JVM test matrix and relevant compile tasks. Web runtime/visual verification remains a separate gate and must be reported accurately.
+- No source implementation is authorized solely by this documentation amendment. Begin implementation only after the project owner explicitly freezes this reconciled plan and authorizes implementation.
