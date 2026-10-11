@@ -375,7 +375,7 @@ No new duplicate tracker, status, frozen-plan, or discussion document should be 
 ## DYNAMIC-CONTRACT-REVISION-CONTENT-PADDING-001 — Accessory-owned padding
 
 **Date:** 2026-10-11  
-**State:** ACCEPTED — documentation reconciled; implementation authorization remains a separate gate.
+**State:** ACCEPTED / PLAN FROZEN / IMPLEMENTATION AUTHORIZED — implementation in progress; verification pending.
 
 ### Decision
 The frontend will represent accessory spacing through one shared nullable padding: DynamicPadding property on the existing ElementContent domain contract. Both IconContent and DividerContent use the same four-sided DynamicPadding type (start, top, end, bottom).
@@ -384,7 +384,7 @@ The frontend will represent accessory spacing through one shared nullable paddin
 - Backend accessory JSON owns the properties.padding values.
 - :data maps the accessory's padding; :domain defines the shared typed contract; :feature:dynamic applies it in the existing accessory content renderer.
 - Reuse the existing DynamicPadding type and padding helper where suitable.
-- Remove the competing parent TextElement properties contentSpacing and trailingContentSpacing from the frontend model, mapper, renderer, fixtures, tests and documentation.
+- Remove the competing parent-level text-spacing fields from the frontend model, mapper, renderer, fixtures, tests and documentation.
 - Missing padding adds no accessory-owned padding; do not invent spacing defaults.
 
 ### Explicit non-goals
