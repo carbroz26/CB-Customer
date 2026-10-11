@@ -1,6 +1,6 @@
 # Dynamic UI Implementation Status
 
-**Status:** ACCESSORY-OWNED PADDING IMPLEMENTED — JVM TESTS/COMPILATION PASSED; FINAL REVIEW OPEN
+**Status:** CONTENT-SPACING REVISION PLAN FROZEN — IMPLEMENTATION NOT STARTED
 **Date:** 2026-10-11
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
@@ -281,3 +281,22 @@ Accepted frontend contract:
 - Do not add abstractions, registries, screen-specific conditions, architecture layers, or unrelated cleanup.
 
 Implemented: the shared nullable `DynamicPadding` property is part of `ElementContent`, both `IconContent` and `DividerContent` carry it, the mapper reads each accessory's own `properties.padding`, and the existing accessory renderer applies it through `applyDynamicPadding`. The obsolete parent-level spacing fields were removed from the domain model, mapper and renderer; generic mapper regression coverage checks four-sided values and absent-padding behavior. On 2026-10-11, the owner ran the seven-module JVM test matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:network:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`) successfully, then targeted `:domain:compileKotlinJvm`, `:data:compileKotlinJvm` and `:feature:dynamic:compileKotlinJvm` successfully. Source snapshots for the domain contract, mapper, accessory renderer, text renderer, fixtures and tests were reviewed; the branch comparison from `3d1ee3d` to `aec7d37` shows the approved 16-file scope. Still open: a complete line-by-line diff/obsolete-property repository sweep and Web visual verification. Do not claim final freeze or verified platform behavior before those remaining gates pass.
+
+
+
+## 14. Content-owned spacing contract revision — 2026-10-11
+
+**Current state:** PLAN FROZEN; IMPLEMENTATION NOT STARTED.  
+**Revision:** `DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001`.  
+**Documentation branch:** `feature/dynamic-content-spacing-contract`.
+
+The previous accessory-owned padding implementation remains in source until a separately authorized implementation replaces it. It is superseded as the intended contract for leading/trailing content; do not treat the existing green JVM tests as verification of this new spacing contract.
+
+Frozen target:
+- `ElementContent.spacing: DynamicSpacing?` replaces `ElementContent.padding: DynamicPadding?` for all content implementations.
+- `DynamicSpacing` has `start`, `top`, `end`, and `bottom` external layout-space values.
+- Backend content JSON uses `properties.spacing`, not `properties.padding`.
+- Remove text-parent `contentSpacing` and `trailingContentSpacing` as competing mechanisms.
+- Preserve ordinary node/container `DynamicPadding`, text `letterSpacing`, and the generic renderer/registry architecture.
+
+No frontend or backend source changes have been made for this revision. The earlier seven-module JVM tests and targeted compilations apply only to the previous implementation. Required backend/frontend implementation and verification steps are frozen in section 22.26 of `DYNAMIC-IMPLEMENTATION-PLAN.md`. Final contract freeze after implementation remains a later gate.
