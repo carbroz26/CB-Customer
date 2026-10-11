@@ -35,7 +35,7 @@ class ElementContentMapper(
                 fallbackUrl = values.string(properties, "fallbackUrl"),
                 size = values.number(properties, "size"),
                 color = values.string(properties, "color"),
-                padding = values.padding(properties),
+                spacing = values.spacing(properties),
                 actions = mapActions(actions),
             )
             "divider" -> DividerContent(
@@ -46,7 +46,7 @@ class ElementContentMapper(
                 height = values.number(properties, "height"),
                 thickness = values.number(properties, "thickness") ?: 1.0,
                 color = values.string(properties, "color"),
-                padding = values.padding(properties),
+                spacing = values.spacing(properties),
                 actions = mapActions(actions),
             )
             else -> error("Unsupported dynamic element content type: " + type)
