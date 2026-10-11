@@ -1,6 +1,6 @@
 # Dynamic UI Implementation Plan
 
-Status: BASE PLAN FROZEN; ACCESSORY-PADDING AMENDMENT ACCEPTED — RECONCILED PLAN FREEZE PENDING
+Status: BASE PLAN AND ACCESSORY-PADDING AMENDMENT FROZEN — IMPLEMENTATION IN PROGRESS
 Contract source: `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 Implementation rule: only the changes listed here are in scope.
 
@@ -680,15 +680,15 @@ Explicitly authorized implementation amendment to the backend-owned asset contra
 
 ### 22.25 Generic text alignment, accessory-owned padding and group padding — 2026-10-11
 
-Accepted contract amendment; documentation is reconciled before implementation. This amendment supersedes the earlier contentSpacing and trailingContentSpacing amendments below this section in the historical implementation plan.
+Accepted contract amendment; documentation is reconciled before implementation. This amendment supersedes the earlier legacy parent text-spacing property and legacy parent text-spacing property amendments below this section in the historical implementation plan.
 
 - Preserve the existing generic textAlign: center mapping and ensure a fill-width text child uses available width without displacing leading/trailing content.
 - The existing ElementContent domain contract owns one nullable padding: DynamicPadding property, shared by IconContent and DividerContent. Reuse the existing four-sided DynamicPadding type (start, top, end, bottom); do not add a new abstraction.
 - Map each accessory's own properties.padding through the existing DTO/mapping boundary into the shared domain contract. Preserve each supplied inset exactly.
 - Apply accessory-owned padding in the existing content renderers on their existing root layout modifier. Reuse the existing padding application helper where suitable. Keep generic node-owned layout behavior in its existing responsibility.
-- Remove parent TextElement contentSpacing and trailingContentSpacing from DTO/domain mapping, model, renderer, fixtures, tests and documentation. Search the full repository for both names and resolve all frontend contract references.
+- Remove parent TextElement legacy parent text-spacing property and legacy parent text-spacing property from DTO/domain mapping, model, renderer, fixtures, tests and documentation. Search the full repository for both names and resolve all frontend contract references.
 - Missing accessory padding adds no extra padding. Do not introduce arbitrary defaults, Login/OTP conditions, new registries, new renderers, new layout abstractions, or unrelated refactors.
 - Keep Clean Architecture boundaries intact: :data maps transport data, :domain defines the typed contract, and :feature:dynamic renders it. No Compose dependencies in domain/data.
 - Add focused generic tests for mapping all four padding edges on both leading and trailing accessories and for absent padding; ensure removed parent properties are no longer part of the frontend contract.
 - Verify with the agreed Gradle JVM test matrix and relevant compile tasks. Web runtime/visual verification remains a separate gate and must be reported accurately.
-- No source implementation is authorized solely by this documentation amendment. Begin implementation only after the project owner explicitly freezes this reconciled plan and authorizes implementation.
+- The project owner explicitly froze this reconciled plan and authorized implementation on 2026-10-11. Verification and final freeze remain pending.
