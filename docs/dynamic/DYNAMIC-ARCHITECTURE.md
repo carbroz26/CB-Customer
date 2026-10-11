@@ -403,12 +403,14 @@ The backend contract remains unchanged: backend responses should supply `url` an
 Asset presentation properties remain backend-controlled. The existing Dynamic hierarchy and renderer/registry boundaries are unchanged.
 
 
-## 20. Generic text alignment, content spacing and container padding
+## 20. Generic text alignment, accessory-owned padding and container padding
 
-- A text element's `textAlign` value `center` must map to Compose `TextAlign.Center`; unknown or absent values remain unspecified.
-- When `fillMaxWidth` is true, the text itself must occupy the available width in its parent row, while leaving room for any leading/trailing content. Text alignment is meaningful only when the text has available width.
-- `contentSpacing` is an optional backend-owned numeric spacing value (dp) between the direct children rendered inside a text element's row, including text and leading/trailing content. Missing values default to zero. It is generic and must not contain screen-specific behavior.
-- `trailingContentSpacing` is an optional backend-owned numeric spacing value (dp) added only between the text and its trailing content. Missing values default to zero. It must not alter leading-content spacing and is generic across text elements, not screen-specific.
-- `trailingContentSpacing` is an optional backend-owned numeric spacing value (dp) added only between the text and its trailing content. Missing values default to zero. It must not alter leading-content spacing and is generic across text elements, not screen-specific.
+- A text element's textAlign value center maps to Compose TextAlign.Center; unknown or absent values remain unspecified.
+- When fillMaxWidth is true, the text itself occupies the available width in its parent row while leaving room for leading/trailing content. Text alignment is meaningful only when the text has available width.
+- Text accessories use one shared nullable padding: DynamicPadding contract on the existing ElementContent domain contract. DynamicPadding represents the four inset values start, top, end, and bottom; preserve supplied values through DTO mapping and apply them to the accessory's existing root layout modifier.
+- Both IconContent and DividerContent use the shared content-owned padding contract. Do not create another padding abstraction, accessory renderer hierarchy, or screen-specific behavior.
+- Remove parent text-level contentSpacing and trailingContentSpacing from the frontend contract, mapper, model, renderer, fixtures and tests. They are superseded by accessory-owned padding and must not remain as competing spacing mechanisms.
+- Missing accessory padding means no additional accessory-owned padding; do not invent frontend spacing defaults. Parent text properties must not be used to simulate accessory padding.
+- DynamicLayout remains responsible for existing node-owned layout modifiers. Accessory content renderers apply their own content padding using the existing padding helper where compatible; do not move content-row spacing responsibility into the generic node-layout helper.
 - Group padding is internal to the group's painted background/border. The background and border enclose the configured padding; padding must not be placed outside the painted container.
-- Backend-owned spacing values are data, not frontend design defaults. A backend response may set `contentSpacing` on a text element with trailing divider content when the divider needs separation from the text.
+- Backend-owned spacing/padding values are data, not frontend design defaults. Generic Login/OTP responses must render through the same accessory contract without authentication-specific conditions.
