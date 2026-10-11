@@ -10,6 +10,6 @@ data class IconContent(
     val fallbackUrl: String? = null,
     val size: Double? = null,
     val color: String? = null,
-    override val padding: DynamicPadding? = null,
+    override val spacing: DynamicSpacing? = null,
     override val actions: Map<String, DynamicAction> = emptyMap(),
 ) : ElementContent
