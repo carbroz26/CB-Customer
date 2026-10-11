@@ -13,6 +13,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,7 +51,6 @@ class DynamicResponseMapperTest {
 
         val title = assertIs<TextElement>(header.elements[0])
         assertEquals("Welcome", title.text)
-        assertEquals(8.0, title.trailingContentSpacing)
         assertEquals(1, title.spans.size)
         assertEquals(
             DynamicValue.ObjectValue(
@@ -58,8 +58,10 @@ class DynamicResponseMapperTest {
             ),
             title.spans.single().text,
         )
-        assertIs<IconContent>(title.leadingContent.single())
-        assertIs<DividerContent>(title.trailingContent.single())
+        val leadingIcon = assertIs<IconContent>(title.leadingContent.single())
+        assertEquals(DynamicPadding(1.0, 2.0, 3.0, 4.0), leadingIcon.padding)
+        val trailingDivider = assertIs<DividerContent>(title.trailingContent.single())
+        assertEquals(DynamicPadding(5.0, 6.0, 7.0, 8.0), trailingDivider.padding)
         assertEquals("navigate", title.actions["onClick"]?.type)
 
         val hero = assertIs<ImageElement>(header.elements[1])
@@ -237,7 +239,7 @@ class DynamicResponseMapperTest {
     @Test
     fun missingAssetUrlsMapToEmptyValuesForRendererFallback() {
         val dto = json.decodeFromString<DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"asset_fallback","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_assets","type":"form_template","components":[{"id":"assets","type":"stack_component","elements":[{"id":"icon","type":"icon","properties":{}},{"id":"image","type":"image","properties":{}},{"id":"label","type":"text","properties":{"text":"Label","textAlign":"center","fillMaxWidth":true,"contentSpacing":8,"leading":[{"type":"icon","properties":{}}]}}]}]}}}""",
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"asset_fallback","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_assets","type":"form_template","components":[{"id":"assets","type":"stack_component","elements":[{"id":"icon","type":"icon","properties":{}},{"id":"image","type":"image","properties":{}},{"id":"label","type":"text","properties":{"text":"Label","textAlign":"center","fillMaxWidth":true,"leading":[{"type":"icon","properties":{}}]}}]}]}}}""",
         )
 
         val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
@@ -247,7 +249,8 @@ class DynamicResponseMapperTest {
         val text = assertIs<TextElement>(component.elements[2])
         assertEquals("center", text.textAlign)
         assertEquals(true, text.fillMaxWidth)
-        assertEquals(8.0, text.contentSpacing)
-        assertEquals("", assertIs<IconContent>(text.leadingContent.single()).url)
+        val leadingIcon = assertIs<IconContent>(text.leadingContent.single())
+        assertEquals("", leadingIcon.url)
+        assertEquals(null, leadingIcon.padding)
     }
 }
