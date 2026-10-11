@@ -1,13 +1,13 @@
 # Dynamic UI Implementation Status
 
-**Status:** ACCESSORY-OWNED PADDING IMPLEMENTATION IN PROGRESS — VERIFICATION PENDING
+**Status:** ACCESSORY-OWNED PADDING IMPLEMENTED — JVM TESTS/COMPILATION PASSED; FINAL REVIEW OPEN
 **Date:** 2026-10-11
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
 
 ## 1. Current truth
 
-The previously frozen Dynamic UI baseline has passed its recorded JVM gates. The asset fallback amendment and current accessory-owned padding amendment require owner-environment verification. Accessory-owned padding implementation has started on `feature/dynamic-ui`; do not treat this branch as finally frozen.
+The previously frozen Dynamic UI baseline and the current accessory-owned padding implementation have passed the owner-environment JVM test matrix and targeted JVM compilation. The focused source review confirms the shared domain contract, mapping and rendering path. The complete final diff/obsolete-property audit and Web visual verification remain open; do not treat this branch as finally frozen.
 
 The original runtime architecture remains unchanged. The asset amendment adds only shared local resources, renderer fallback handling, tolerant mapping for missing URLs, and focused mapper regression coverage.
 
@@ -253,7 +253,7 @@ Local fallback amendment added on 2026-10-10:
 - Missing/blank asset URLs are passed through to the renderer as empty values so the local fallback can render.
 - Backend remains unchanged.
 
-Verification is pending the owner-environment Gradle test/build run and final source audit. This revision must not be marked FINAL FROZEN until those checks pass.
+The current owner-environment JVM test matrix and targeted compilation passed on 2026-10-11. The final repository-wide obsolete-property audit, complete final diff review and Web visual verification remain open. Do not mark FINAL FROZEN until the remaining review and visual gates are addressed.
 
 
 ## 11. Superseded text-spacing discussion
@@ -268,7 +268,7 @@ The older trailing-only text-spacing approach is superseded by the accessory-own
 
 ## 13. Accessory-owned padding amendment — current work (2026-10-11)
 
-**State:** Plan frozen and implementation authorized by the owner on 2026-10-11. Source implementation has started; tests, source audit and final freeze remain pending.
+**State:** Plan frozen and implementation authorized on 2026-10-11. Implementation is complete for the approved source scope. Owner-environment JVM tests and targeted compilation passed on 2026-10-11; final diff/obsolete-property audit and Web visual verification remain open.
 
 The backend CB-Backend branch development now emits four-sided properties.padding on divider accessories. The owner reports that backend engine tests/build passed and the live Login and OTP responses now contain the intended trailing/leading divider padding. Backend commits for this contract include 73aec3a, 9e0994a, f086da2, 05250b3, 9894f7c, f67e906, 2231fb8, and 82026d8.
 
@@ -280,4 +280,4 @@ Accepted frontend contract:
 - Remove the obsolete parent-level text-spacing fields from the frontend model, mapper, renderer, fixtures and tests.
 - Do not add abstractions, registries, screen-specific conditions, architecture layers, or unrelated cleanup.
 
-Implementation in progress: the shared domain contract, data mapping, text model/mapper/renderer cleanup and initial generic fixture/test updates have been committed remotely. The renderer padding change is also committed. These edits have not been run through the owner-environment Gradle matrix, and the source/diff audit is incomplete. Next: finish regression coverage, reconcile authoritative documents, run the focused tests and broad JVM matrix, then audit the full diff and obsolete-property search. Web visual verification remains separate. Do not claim final freeze or verified platform behavior before those gates pass.
+Implemented: the shared nullable `DynamicPadding` property is part of `ElementContent`, both `IconContent` and `DividerContent` carry it, the mapper reads each accessory's own `properties.padding`, and the existing accessory renderer applies it through `applyDynamicPadding`. The obsolete parent-level spacing fields were removed from the domain model, mapper and renderer; generic mapper regression coverage checks four-sided values and absent-padding behavior. On 2026-10-11, the owner ran the seven-module JVM test matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:network:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`) successfully, then targeted `:domain:compileKotlinJvm`, `:data:compileKotlinJvm` and `:feature:dynamic:compileKotlinJvm` successfully. Source snapshots for the domain contract, mapper, accessory renderer, text renderer, fixtures and tests were reviewed; the branch comparison from `3d1ee3d` to `aec7d37` shows the approved 16-file scope. Still open: a complete line-by-line diff/obsolete-property repository sweep and Web visual verification. Do not claim final freeze or verified platform behavior before those remaining gates pass.
