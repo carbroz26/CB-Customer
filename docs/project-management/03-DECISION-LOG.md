@@ -370,3 +370,25 @@ Future documentation must pass the single-responsibility test:
 > If a document can be removed without losing a unique authority, it should not exist.
 
 No new duplicate tracker, status, frozen-plan, or discussion document should be created for an existing authority.
+
+
+## DYNAMIC-CONTRACT-REVISION-CONTENT-PADDING-001 — Accessory-owned padding
+
+**Date:** 2026-10-11  
+**State:** ACCEPTED — documentation reconciled; implementation authorization remains a separate gate.
+
+### Decision
+The frontend will represent accessory spacing through one shared nullable padding: DynamicPadding property on the existing ElementContent domain contract. Both IconContent and DividerContent use the same four-sided DynamicPadding type (start, top, end, bottom).
+
+### Contract and ownership
+- Backend accessory JSON owns the properties.padding values.
+- :data maps the accessory's padding; :domain defines the shared typed contract; :feature:dynamic applies it in the existing accessory content renderer.
+- Reuse the existing DynamicPadding type and padding helper where suitable.
+- Remove the competing parent TextElement properties contentSpacing and trailingContentSpacing from the frontend model, mapper, renderer, fixtures, tests and documentation.
+- Missing padding adds no accessory-owned padding; do not invent spacing defaults.
+
+### Explicit non-goals
+No new abstraction, registry, renderer hierarchy, module, business-specific Login/OTP logic, architecture redesign, or unrelated cleanup.
+
+### Verification and implementation gate
+The backend owner reports that the engine test/build passed and the live Login and OTP responses now contain the intended divider padding. Frontend source changes have not started. Implementation begins only after the owner explicitly freezes the reconciled Dynamic implementation plan and authorizes implementation. Required checks include focused mapping/rendering tests, the agreed JVM matrix, relevant compile tasks, final source/diff review, obsolete-property search, and separate Web visual verification.
