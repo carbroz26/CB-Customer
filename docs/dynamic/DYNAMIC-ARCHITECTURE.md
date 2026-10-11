@@ -1,6 +1,6 @@
 # Dynamic UI Architecture
 
-Status: FROZEN BASE CONTRACT + LOCAL ASSET FALLBACK REVISION PENDING VERIFICATION — 2026-10-10
+Status: FROZEN BASE CONTRACT; ASSET FALLBACK VERIFICATION AND ACCESSORY-PADDING IMPLEMENTATION PENDING — 2026-10-11
 Scope: Dynamic UI runtime, rendering, actions, references, screen lifecycle, navigation integration.
 Authority: This document is the single Dynamic architecture authority.
 
