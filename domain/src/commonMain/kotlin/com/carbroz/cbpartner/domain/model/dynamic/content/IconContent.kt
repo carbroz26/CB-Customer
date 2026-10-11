@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.domain.model.dynamic.content
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 
 data class IconContent(
     override val id: String? = null,
