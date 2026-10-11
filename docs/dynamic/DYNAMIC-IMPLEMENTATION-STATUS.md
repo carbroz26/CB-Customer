@@ -204,7 +204,7 @@ Backend local OTP delivery/provider work is also separate from the frontend Dyna
 
 ## 8. Current state
 
-The previous baseline freeze does not cover the accessory-owned padding amendment. Current verification and final source/diff audit are pending; do not mark the branch FINAL FROZEN.
+The previous baseline freeze does not cover the accessory-owned padding amendment. The amendment is implemented and owner-environment JVM tests plus targeted compilation have passed. The complete final diff/obsolete-property repository audit and Web visual verification remain pending; do not mark the branch FINAL FROZEN.
 
 Final audit coverage included:
 
