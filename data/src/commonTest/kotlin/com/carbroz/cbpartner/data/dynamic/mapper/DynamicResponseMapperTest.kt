@@ -50,6 +50,7 @@ class DynamicResponseMapperTest {
 
         val title = assertIs<TextElement>(header.elements[0])
         assertEquals("Welcome", title.text)
+        assertEquals(8.0, title.trailingContentSpacing)
         assertEquals(1, title.spans.size)
         assertEquals(
             DynamicValue.ObjectValue(

@@ -17,6 +17,7 @@ data class TextElement(
     val color: String? = null,
     val textAlign: String? = null,
     val contentSpacing: Double = 0.0,
+    val trailingContentSpacing: Double = 0.0,
     val width: Double? = null,
     val maxWidth: Double? = null,
     val fillMaxWidth: Boolean = false,

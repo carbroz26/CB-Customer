@@ -30,6 +30,7 @@ class TextElementMapper(
             color = values.string(dto.properties, "color"),
             textAlign = values.string(dto.properties, "textAlign"),
             contentSpacing = values.number(dto.properties, "contentSpacing") ?: 0.0,
+            trailingContentSpacing = values.number(dto.properties, "trailingContentSpacing") ?: 0.0,
             width = values.number(dto.properties, "width"),
             maxWidth = values.number(dto.properties, "maxWidth"),
             fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,

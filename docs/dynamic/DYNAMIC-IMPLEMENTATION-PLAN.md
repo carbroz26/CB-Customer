@@ -687,3 +687,23 @@ Authorized implementation amendment:
 - Apply StackGroup background/border around its configured inner padding.
 - Do not add Login/OTP-specific conditions or hardcoded spacing. The Login country-code text can declare `contentSpacing: 8` (or another design-approved backend value) to space `+91` from its trailing divider.
 - Preserve existing backend `textAlign` and group padding values. Verify mapping and all affected JVM tests, then compile/run the Web target before marking verified.
+
+
+### 22.26 Trailing-only text content spacing — 2026-10-11
+
+Authorized focused amendment:
+- Add optional backend-owned `trailingContentSpacing` to the backend text properties schema and builder DSL.
+- Map it through the existing TextElement DTO properties, domain model, and renderer; absent values default to zero.
+- Apply the value only between a text element and its trailing content. Do not change leading spacing or add screen-specific logic.
+- Partner login's `partner_label` declares `trailingContentSpacing: 8`; the existing vertical country-code divider continues using the symmetric `contentSpacing` contract unchanged.
+- Add mapper/backend contract regression coverage. Run the relevant backend Vitest suite and frontend Gradle JVM tests/compile plus Web browser verification before marking this amendment verified.
+
+
+### 22.26 Trailing-only text content spacing — 2026-10-11
+
+Authorized focused amendment:
+- Add optional backend-owned `trailingContentSpacing` to the backend text properties schema and builder DSL.
+- Map it through the existing TextElement DTO properties, domain model, and renderer; absent values default to zero.
+- Apply the value only between a text element and its trailing content. Do not change leading spacing or add screen-specific logic.
+- Partner login's `partner_label` declares `trailingContentSpacing: 8`; the existing vertical country-code divider continues using the symmetric `contentSpacing` contract unchanged.
+- Add mapper/backend contract regression coverage. Run the relevant backend Vitest suite and frontend Gradle JVM tests/compile plus Web browser verification before marking this amendment verified.

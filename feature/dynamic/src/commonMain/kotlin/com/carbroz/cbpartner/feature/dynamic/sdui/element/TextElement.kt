@@ -2,6 +2,8 @@ package com.carbroz.cbpartner.feature.dynamic.sdui.element
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -83,6 +85,9 @@ class TextElement : TextElementRenderer {
                 letterSpacing = element.letterSpacing?.sp ?: TextUnit.Unspecified,
                 lineHeight = element.lineHeight?.sp ?: TextUnit.Unspecified,
             )
+            if (element.trailingContent.isNotEmpty() && element.trailingContentSpacing > 0.0) {
+                Spacer(Modifier.width(element.trailingContentSpacing.dp))
+            }
             context.renderContent(element.trailingContent)
         }
     }

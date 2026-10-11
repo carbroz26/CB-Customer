@@ -270,3 +270,13 @@ Still required before verification/freeze:
 - Compile and run the Web app to verify the browser-rendered layout.
 - Add `contentSpacing` to the backend Login `country_code` text properties (the response currently has no such property); choose the desired gap as backend-owned data.
 - Visually confirm Login border inset, country-code/divider spacing, and centered Login/OTP legal text.
+
+
+## 12. Trailing-only text content spacing — implementation pending verification (2026-10-11)
+
+A focused amendment is on branch `feature/trailing-content-spacing` in both repositories:
+- Backend text schema and builder expose `trailingContentSpacing`; Partner login sets it to 8 for `partner_label`.
+- Frontend domain model, mapper, and TextElement renderer carry and apply the value only before trailing content; missing values default to zero.
+- Generic mapper fixture/test coverage asserts propagation.
+
+Verification is not yet complete. Run the backend engine tests, the relevant frontend JVM tests and compile tasks, then launch the Web app and visually confirm that the leading gap remains unchanged while the trailing divider gains the configured gap. Do not mark this amendment final/frozen until those checks pass.
