@@ -1,6 +1,6 @@
 # Dynamic UI Implementation Plan
 
-Status: FROZEN — implementation contract
+Status: BASE PLAN FROZEN; ACCESSORY-PADDING AMENDMENT ACCEPTED — RECONCILED PLAN FREEZE PENDING
 Contract source: `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 Implementation rule: only the changes listed here are in scope.
 
