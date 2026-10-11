@@ -172,8 +172,9 @@ As of 2026-10-10:
 - Original Dynamic runtime/UI source audit and JVM matrix: previously passed.
 - Local Dynamic asset fallback amendment: implemented on `feature/dynamic-ui`; current verification is pending.
 - Current branch: `feature/dynamic-ui`.
-- Current branch includes the local asset fallback amendment; verification is pending.
-- Local Dynamic asset fallback verification: current task; do not claim final freeze until tests/build and source audit pass.
+- Current branch: feature/dynamic-ui.
+- Current Dynamic work: accessory-owned padding contract amendment accepted and documented on 2026-10-11; frontend source implementation is pending explicit plan freeze and implementation authorization.
+- Use the latest docs/dynamic/DYNAMIC-ARCHITECTURE.md, DYNAMIC-IMPLEMENTATION-PLAN.md, DYNAMIC-IMPLEMENTATION-STATUS.md, docs/project-management/04-PROJECT-MASTER-STATE.md, and 03-DECISION-LOG.md for recovery. Do not treat historical contentSpacing / trailingContentSpacing amendments as current contract.
 - Backend local OTP provider: inspection/decision remains separate.
 
 ## 12. Verification baseline
