@@ -392,3 +392,25 @@ No new abstraction, registry, renderer hierarchy, module, business-specific Logi
 
 ### Verification and implementation gate
 The backend owner reports that the engine test/build passed and the live Login and OTP responses contain the intended divider padding. The owner explicitly froze the reconciled frontend plan and authorized implementation on 2026-10-11. The shared `ElementContent.padding` contract, icon/divider mapping and rendering, obsolete parent-level spacing removal, and mapper regression coverage are implemented. The owner-environment JVM matrix passed for `:core`, `:domain`, `:data`, `:network`, `:navigation`, `:feature:splash` and `:feature:dynamic`; targeted compilation passed for `:domain`, `:data` and `:feature:dynamic`. Remaining gates: complete line-by-line diff/repository-wide obsolete-property audit and separate Web visual verification. Do not mark final freeze until those remaining gates are completed.
+
+
+
+## DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001 — Content-owned spacing
+
+**Date:** 2026-10-11  
+**State:** ACCEPTED / PLAN FROZEN / IMPLEMENTATION NOT STARTED  
+**Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`, section 21; `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`, section 22.26.
+
+### Decision
+Replace the accessory-owned `ElementContent.padding: DynamicPadding?` contract with `ElementContent.spacing: DynamicSpacing?`. The new `DynamicSpacing` value has four external layout-space edges: start, top, end, and bottom. It applies uniformly to IconContent and DividerContent and is supplied by backend `properties.spacing`.
+
+### Superseded behavior
+- Content-level `properties.padding` is superseded by `properties.spacing`.
+- Text-parent `contentSpacing` and `trailingContentSpacing` are removed as competing ways to control accessory gaps.
+- `DynamicPadding` remains valid for ordinary node/container padding and is not globally renamed.
+
+### Boundaries
+Spacing affects the accessory's outer layout bounds; it must not alter text characters/letter spacing or the divider's visible line geometry. No screen-specific logic, new registry, renderer hierarchy, architecture layer, or unrelated refactor is allowed.
+
+### Implementation gate
+The documentation and minimal backend/frontend plan are frozen. No source change is authorized by this record. Implementation requires separate explicit owner authorization; then both repositories must be tested and reviewed against the frozen contract.
