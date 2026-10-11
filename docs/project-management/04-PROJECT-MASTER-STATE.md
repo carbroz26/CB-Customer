@@ -11,7 +11,7 @@
 - Current product slice: backend-driven Dynamic UI through Login → Send OTP → OTP → Verify
 - Frontend and backend remain separate repositories.
 - `iosApp/` is the native Xcode boundary, not a Gradle `:iosApp` module.
-- Current branch: feature/dynamic-ui. The accessory-owned padding plan is frozen and implementation is authorized; source changes have started, but owner-environment tests and final audit remain pending.
+- Current branch: `feature/dynamic-ui`. The accessory-owned padding plan is frozen and implementation is complete within scope. Owner-environment JVM tests and targeted compilation passed; final diff/obsolete-property audit and Web visual verification remain open.
 
 ## 2. Frozen Technical Foundation
 
@@ -141,7 +141,7 @@ Frozen Dynamic rules include:
 
 ## 6. Dynamic Implementation State — 2026-10-11
 
-The original Dynamic runtime and UI implementation passed its prior verification gates. A newly authorized local asset fallback amendment is implemented on the current branch, but its Gradle verification and final source audit are pending; therefore the current branch must not yet be called FINAL FROZEN.
+The original Dynamic runtime/UI and local asset fallback changes are implemented. The latest accessory-owned padding amendment is also implemented within its frozen scope. The owner-environment JVM matrix and targeted compilation passed on 2026-10-11; final diff/obsolete-property review and Web visual verification remain open, so the branch is not yet FINAL FROZEN.
 
 Verified implementation areas include:
 
@@ -295,12 +295,25 @@ Implemented after the 2026-10-08 frozen UI reconciliation:
 - Input weight honoring implemented.
 - UI contract tests updated.
 
-**Final post-refactor verification:** PASS
+**Prior post-refactor verification:** PASS
 
 - `:data:jvmTest`
 - `:network:jvmTest`
 - `:navigation:jvmTest`
 - `:feature:dynamic:jvmTest`
+
+**Latest accessory-padding verification on 2026-10-11:** PASS
+
+- `:core:jvmTest`
+- `:domain:jvmTest`
+- `:data:jvmTest`
+- `:network:jvmTest`
+- `:navigation:jvmTest`
+- `:feature:splash:jvmTest`
+- `:feature:dynamic:jvmTest`
+- `:domain:compileKotlinJvm`
+- `:data:compileKotlinJvm`
+- `:feature:dynamic:compileKotlinJvm`
 - final source/diff/contract audit
 
 Broad matrix result:
@@ -325,9 +338,8 @@ These are platform/backend work, not reasons to reopen the frozen Dynamic archit
 
 Ordered:
 
-1. **Complete and verify accessory-owned padding on feature/dynamic-ui.** The frozen contract uses one nullable DynamicPadding property on the existing ElementContent domain contract, shared by IconContent and DividerContent. Each accessory maps and renders its own four-sided backend padding. Partial source/test changes are committed remotely; finish test coverage, run the owner-environment JVM matrix and relevant compile tasks, and audit the final diff before any final freeze.
-2. After authorization, run focused data/renderer tests, the agreed broad JVM test matrix and relevant compile tasks; review the complete diff and search for obsolete spacing properties.
-3. Complete owner-side Web runtime/visual verification when available. Android and iOS runtime verification remain separate platform gates.
+1. **Complete the final review for accessory-owned padding.** The frozen contract is implemented and the owner-environment seven-module JVM matrix plus targeted JVM compilation passed on 2026-10-11. Complete the line-by-line diff and repository-wide obsolete-property audit before any final freeze.
+2. Complete owner-side Web runtime/visual verification when available. Android and iOS runtime verification remain separate platform gates.
 4. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
 5. Keep production SMS provider/security behavior unchanged.
 6. Start the next product work only after the current authorized work is completed and reviewed.
