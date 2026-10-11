@@ -252,7 +252,7 @@ class DynamicResponseMapperTest {
         assertEquals(true, text.fillMaxWidth)
         val leadingIcon = assertIs<IconContent>(text.leadingContent.single())
         assertEquals("", leadingIcon.url)
-        assertEquals(null, leadingIcon.padding)
+        assertEquals(null, leadingIcon.spacing)
         assertEquals(null, assertIs<DividerContent>(text.trailingContent.single()).padding)
     }
 }
