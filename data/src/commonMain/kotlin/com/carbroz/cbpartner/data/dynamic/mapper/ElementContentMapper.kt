@@ -46,6 +46,7 @@ class ElementContentMapper(
                 height = values.number(properties, "height"),
                 thickness = values.number(properties, "thickness") ?: 1.0,
                 color = values.string(properties, "color"),
+                padding = values.padding(properties),
                 actions = mapActions(actions),
             )
             else -> error("Unsupported dynamic element content type: " + type)
