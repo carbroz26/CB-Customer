@@ -1,7 +1,7 @@
 # Dynamic UI Implementation Status
 
 **Status:** CONTENT-OWNED SPACING IMPLEMENTED — JVM/ANDROID/WEB BUILD AND TEST GATES PASSED; FINAL SOURCE/DIFF AND VISUAL REVIEW OPEN
-**Date:** 2026-10-11
+**Date:** 2026-10-12
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
 
@@ -202,9 +202,9 @@ These are separate platform gates and do not reopen the frozen Dynamic architect
 
 Backend local OTP delivery/provider work is also separate from the frontend Dynamic contract.
 
-## 8. Current state
+## 8. Historical state before content-owned spacing revision
 
-The previous baseline freeze does not cover the accessory-owned padding amendment. The amendment is implemented and owner-environment JVM tests plus targeted compilation have passed. The complete final diff/obsolete-property repository audit and Web visual verification remain pending; do not mark the branch FINAL FROZEN.
+This section records the previous accessory-padding implementation state and is superseded by section 14 for the current contract. The previous baseline freeze does not cover the accessory-owned padding amendment. The amendment is implemented and owner-environment JVM tests plus targeted compilation have passed. The complete final diff/obsolete-property repository audit and Web visual verification remain pending; do not mark the branch FINAL FROZEN.
 
 Final audit coverage included:
 
