@@ -2,7 +2,7 @@
 
 **Status:** AUTHORITATIVE
 **Scope:** Frontend repository
-**Last Updated:** 2026-10-04
+**Last Updated:** 2026-10-12
 
 ## 1. Purpose
 
@@ -176,7 +176,51 @@ Use the exact Android task required by the active feature plan. Do not invent ta
 
 `webApp` is the current web application boundary. Use the exact Web/Wasm task exposed by the current repository when the active feature requires it.
 
-## 13. Expected Windows Warnings
+## 13. Platform API base URL configuration
+
+The shared Ktor client receives an explicit `ApiBaseUrl` from the platform entry point. Do not restore a hard-coded host in `:network`.
+
+### Android Emulator
+
+The Android default is:
+
+```text
+http://10.0.2.2:3000
+```
+
+This address reaches port 3000 on the Windows host from the standard Android Emulator. No override is needed when the backend runs on the same Windows PC and listens on the expected port.
+
+### Physical Android device
+
+1. Run `ipconfig` on Windows and identify the IPv4 address of the active Wi-Fi/Ethernet adapter.
+2. Ensure the backend listens on an interface reachable from the LAN, not only `127.0.0.1`.
+3. Allow inbound TCP port 3000 through Windows Firewall for the trusted development network.
+4. Keep the phone and PC on the same reachable network.
+5. Supply the PC's actual LAN address when building/installing:
+
+```powershell
+.\gradlew.bat :androidApp:installDebug -Pcbpartner.api.baseUrl=http://192.168.1.25:3000
+```
+
+Replace `192.168.1.25` with the real PC IPv4 address. The Gradle property overrides the default for that build; do not commit a machine-specific LAN address.
+
+Android declares `INTERNET` permission. Cleartext HTTP is enabled only in the debug manifest; release builds should use HTTPS.
+
+### Web/Wasm
+
+Web derives the API hostname from `window.location.hostname` and uses port 3000. Thus a browser opened at `localhost` uses `localhost:3000`, while a browser opened through the PC's LAN address uses that hostname. If the backend is served from a different origin, configure backend CORS for the Web origin. HTTPS deployments should use an HTTPS API origin; do not mix an HTTPS page with an HTTP API.
+
+### iOS Simulator and physical iPhone
+
+The Xcode target exposes `CBPARTNER_API_BASE_URL` as an app Info.plist value. In Xcode Build Settings, set it to the Windows PC's actual LAN URL when testing against the Windows-hosted backend, for example `http://192.168.1.25:3000`. The default `localhost` is only appropriate when the backend runs on the Mac hosting the simulator.
+
+Physical iPhones must be able to reach the Windows PC over the LAN and approve the iOS Local Network prompt. On iOS 17 and later, HTTP connections to an IP address may also require a narrowly scoped App Transport Security exception for that exact IP. Do not disable ATS globally; prefer HTTPS for production.
+
+### Production
+
+Use the deployed HTTPS API origin for production on every platform. The emulator/LAN HTTP URLs are development settings only. Never commit a developer's private LAN address as a shared default.
+
+## 14. Expected Windows Warnings
 
 ### iOS simulator
 
@@ -195,7 +239,7 @@ A warning may state that `commonTest` exists but Android host tests are not enab
 
 `Cast is redundant` is a warning and does not invalidate a successful test run.
 
-## 14. Git Safety Around Gradle Changes
+## 15. Git Safety Around Gradle Changes
 
 Before modification:
 
@@ -216,7 +260,7 @@ git status
 
 Never use destructive Git commands to resolve Gradle uncertainty.
 
-## 15. Version Change Procedure
+## 16. Version Change Procedure
 
 A Gradle baseline change is a tooling decision.
 
@@ -233,7 +277,7 @@ A Gradle baseline change is a tooling decision.
 
 Never downgrade/upgrade only because a different local version is installed.
 
-## 16. Troubleshooting
+## 17. Troubleshooting
 
 ### `gradle` not recognized
 
@@ -263,7 +307,7 @@ Get-Content gradle\wrapper\gradle-wrapper.properties
 
 Expected host limitation. Do not treat it as a code failure.
 
-## 17. Related Documents
+## 18. Related Documents
 
 - `AI_START_HERE.md`
 - `docs/project-management/04-PROJECT-MASTER-STATE.md`
