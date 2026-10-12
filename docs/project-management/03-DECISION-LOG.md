@@ -421,7 +421,7 @@ The owner ran the six-module JVM test matrix, Android unit tests, Android Kotlin
 ## DYNAMIC-REGISTRY-ELEMENT-GENERIC-001 — Generic Element Renderer Registry Consolidation
 
 **Date:** 2026-10-13  
-**State:** OWNER-APPROVED DIRECTION; DOCUMENTATION RECONCILIATION IN PROGRESS; IMPLEMENTATION NOT AUTHORIZED  
+**State:** FROZEN ARCHITECTURAL DECISION; IMPLEMENTATION PLAN FROZEN; SOURCE IMPLEMENTATION NOT YET STARTED  
 **Scope:** CB-Partner frontend, `feature/dynamic-ui` only.  
 **Authority:** This decision entry, once reconciled and frozen with `docs/dynamic/DYNAMIC-ARCHITECTURE.md` and `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`.
 
@@ -439,3 +439,19 @@ The current registry repeats per-element maps, lookups, builder maps and registr
 
 ### Reconciliation and freeze rule
 The current frozen clauses in the Dynamic architecture and implementation plan remain authoritative until the revised plan is reviewed and explicitly frozen. This accepted direction does not by itself authorize source edits. The plan must define the common element collection typing and the exact checked dispatch mechanism, then identify affected source/tests and verification gates. No implementation is authorized while that reconciliation remains open.
+
+
+### Frozen dispatch detail
+
+### Frozen dispatch algorithm
+
+The element registration API is `.element(type, modelClass, renderer)`, where `modelClass` is the explicit Kotlin `KClass<T>` token for `T : DynamicElement`. This is one shared `.element(...)` registration method; the model-class token is required so the heterogeneous generic renderer can be dispatched without a class-specific `when` expression.
+
+- `ElementRenderer<T : DynamicElement>` remains strongly typed. A single internal adapter captures the supplied `KClass<T>` and renderer, checks `modelClass.isInstance(element)`, and performs the one contained unchecked cast only after that check.
+- The adapter is the only allowed type-erasure/cast boundary. No concrete renderer may cast its input. No reflection-based discovery or scanning is allowed; the class token is explicitly supplied at registration. If the configured Kotlin Multiplatform source set/toolchain does not support `KClass.isInstance` in common code, stop and report the incompatibility rather than substituting reflection, a growing `when`, or distributed casts.
+- The normalized backend type key selects the adapter. The concrete model-class token validates its input; it is not used to discover registrations.
+- Unknown keys retain the current render path's behavior. A key resolving to an adapter but receiving the wrong model class fails deterministically at the adapter boundary with a useful diagnostic.
+- Registration remains explicit for `text`, `image`, `input`, `button` and `icon`. Future elements add their model, mapper, renderer, one explicit `.element(...)` entry and tests—not new registry fields, lookup methods, or builder methods.
+- No source implementation begins until common-source API/toolchain compatibility is confirmed during implementation preflight. This is a compatibility check, not permission to alter the frozen algorithm.
+
+The generic registry consolidation supersedes earlier Dynamic registry clauses only where they require five element-specific renderer contracts, maps, lookups, builder methods, or concrete-element dispatch in `DynamicRenderContext`. All other frozen Dynamic rules remain in force. This freezes the architectural decision and planned scope; source implementation remains a separate execution step.
