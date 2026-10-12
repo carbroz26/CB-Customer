@@ -8,6 +8,7 @@ import org.gradle.kotlin.dsl.configure
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         target.pluginManager.apply("com.android.application")
+        target.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
         target.extensions.configure<ApplicationExtension> {
             namespace = "com.carbroz.cbpartner.android"
