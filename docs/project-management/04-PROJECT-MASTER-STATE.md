@@ -338,7 +338,7 @@ These are platform/backend work, not reasons to reopen the frozen Dynamic archit
 
 Ordered:
 
-1. **Complete the final review for accessory-owned padding.** The frozen contract is implemented and the owner-environment seven-module JVM matrix plus targeted JVM compilation passed on 2026-10-11. Complete the line-by-line diff and repository-wide obsolete-property audit before any final freeze.
+1. **Complete the final review for content-owned spacing.** The frozen `ElementContent.spacing: DynamicSpacing?` contract is implemented and the owner-environment JVM/Android/Web build and test gates are recorded as passing. Complete the line-by-line diff and repository-wide obsolete-property audit before any final freeze.
 2. Complete owner-side Web runtime/visual verification when available. Android and iOS runtime verification remain separate platform gates.
 4. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
 5. Keep production SMS provider/security behavior unchanged.
