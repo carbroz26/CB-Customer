@@ -416,3 +416,26 @@ Spacing affects the accessory's outer layout bounds; it must not alter text char
 The owner subsequently authorized implementation on 2026-10-12. Frontend implementation is committed on PR #6, head `c08a6729186590eb094e79176f34daa119aa8a4a`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent; the mapper reads backend `properties.spacing`; existing renderers apply four-sided external spacing; ordinary node/container `DynamicPadding` remains unchanged.
 
 The owner ran the six-module JVM test matrix, Android unit tests, Android Kotlin compilation and debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on that PR head. GitHub returned no PR-triggered workflow runs and zero commit check-runs, so no CI pass is claimed. Final line-by-line diff/obsolete-property audit and actual Web visual inspection remain open; do not mark final freeze or merge complete until those gates are addressed.
+
+
+## DYNAMIC-REGISTRY-ELEMENT-GENERIC-001 — Generic Element Renderer Registry Consolidation
+
+**Date:** 2026-10-13  
+**State:** OWNER-APPROVED DIRECTION; DOCUMENTATION RECONCILIATION IN PROGRESS; IMPLEMENTATION NOT AUTHORIZED  
+**Scope:** CB-Partner frontend, `feature/dynamic-ui` only.  
+**Authority:** This decision entry, once reconciled and frozen with `docs/dynamic/DYNAMIC-ARCHITECTURE.md` and `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`.
+
+### Problem
+The current registry repeats per-element maps, lookups, builder maps and registration methods for Text, Image, Input, Button and Icon. `DynamicRendererContracts.kt` also declares one renderer interface per concrete element, while `DynamicRenderContext` repeats class-to-key dispatch. Adding a new element therefore requires changing registry infrastructure in addition to adding the model, mapper, renderer and explicit registration.
+
+### Owner-approved direction
+- Introduce a common domain `DynamicElement` contract implemented by the existing concrete element models.
+- Replace the five concrete renderer interfaces with `ElementRenderer<T : DynamicElement>`; concrete renderer implementations remain typed to their own model.
+- Consolidate element registration into one normalized-key map, one lookup and one builder API: `.element(type, renderer)`.
+- Keep explicit registrations for each supported backend type.
+- Confine unavoidable generic type-erasure handling to one checked adapter/dispatch boundary. Do not place casts in concrete renderers or retain a growing class-dispatch `when` in `DynamicRenderContext`.
+- Keep Template, Component, Section, Group and ElementContent contracts and registries separate. Do not introduce reflection-based discovery, `Map<String, Any>`, a universal cross-category registry, a central generic mapper, or unrelated architecture changes.
+- Preserve mapper ownership, DynamicValue/reference semantics, rendering behavior, key normalization, deterministic duplicate rejection, and existing backend type keys.
+
+### Reconciliation and freeze rule
+The current frozen clauses in the Dynamic architecture and implementation plan remain authoritative until the revised plan is reviewed and explicitly frozen. This accepted direction does not by itself authorize source edits. The plan must define the common element collection typing and the exact checked dispatch mechanism, then identify affected source/tests and verification gates. No implementation is authorized while that reconciliation remains open.
