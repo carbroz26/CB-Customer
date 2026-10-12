@@ -26,6 +26,8 @@ concurrency:
 jobs:
   shared-android-web:
     name: JVM tests, Android build, and Web/Wasm checks
+    # If manually opting into iOS, run only the expensive iOS job; standard checks already run on pushes.
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.run_ios }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
