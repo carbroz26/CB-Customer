@@ -208,7 +208,7 @@ Android declares `INTERNET` permission. Cleartext HTTP is enabled only in the de
 
 ### Web/Wasm
 
-Web derives the API hostname from `window.location.hostname` and uses port 3000. Thus a browser opened at `localhost` uses `localhost:3000`, while a browser opened through the PC's LAN address uses that hostname. If the backend is served from a different origin, configure backend CORS for the Web origin. HTTPS deployments should use an HTTPS API origin; do not mix an HTTPS page with an HTTP API.
+Web uses the optional `<meta name="cbpartner-api-base-url" content="...">` value in `webApp/src/wasmJsMain/resources/index.html` when it is non-empty. Leave it empty for automatic development behavior: the browser hostname is used with port 3000, so `localhost` maps to `localhost:3000` and a LAN-hosted Web page uses that LAN hostname. Set the meta content to the deployed HTTPS API origin when Web and API do not share that host/port. If the backend is served from a different origin, configure backend CORS for the Web origin. Do not mix an HTTPS page with an HTTP API.
 
 ### iOS Simulator and physical iPhone
 
