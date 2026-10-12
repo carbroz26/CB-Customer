@@ -28,7 +28,7 @@ RequestHandler
 Ktor HttpClient
 ```
 
-UI and Store code do not perform raw HTTP.
+UI and Store code do not perform raw HTTP. The shared Ktor client receives an explicit `ApiBaseUrl` from the platform entry point; platform-specific host selection must not be placed in repositories or feature code. See `docs/build/GRADLE-SETUP-AND-WORKFLOW.md` for local Android, Web and iOS configuration.
 
 ## 3. Bootstrap
 
