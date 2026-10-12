@@ -10,9 +10,26 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         target.pluginManager.apply("com.android.application")
         target.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
+        val apiBaseUrl = target.providers.gradleProperty("cbpartner.api.baseUrl")
+            .orElse("http://10.0.2.2:3000")
+            .get()
+        val escapedApiBaseUrl = apiBaseUrl
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+
         target.extensions.configure<ApplicationExtension> {
             namespace = "com.carbroz.cbpartner.android"
             compileSdk = 37
+            buildFeatures {
+                buildConfig = true
+            }
+            defaultConfig {
+                buildConfigField(
+                    "String",
+                    "CBPARTNER_API_BASE_URL",
+                    "\"$escapedApiBaseUrl\"",
+                )
+            }
         }
     }
 }
