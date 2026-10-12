@@ -347,7 +347,7 @@ Ordered:
 
 ### Current planning task — 2026-10-13
 
-The owner approved the direction for generic, type-safe element renderer registration under `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`. The architecture decision and implementation plan are now frozen, including the single checked `KClass<T>` dispatch adapter and typed element collections. No source changes have been made for this task. Perform the common-source compatibility preflight before implementation; if the frozen adapter is unsupported, stop and report rather than redesigning silently. This work must not reopen the base architecture or content-owned spacing contract.
+The owner approved and froze the amendment under `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`. Renderer lookup is keyed by the registered model `KClass`; normalized backend type keys remain explicit registration metadata used for blank/duplicate-key validation, not runtime renderer lookup. The registry has one renderer map keyed by model class, plus only the key-validation set needed to preserve normalized-key invariants. The checked generic adapter contains the sole unchecked cast. The five concrete element models will implement `DynamicElement`, and component/section/group element collections become `List<DynamicElement>`. No source changes have been made for this task. The Kotlin common API exposes `KClass.isInstance`; project-specific Gradle/Compose compilation remains a pre-implementation check. Do not start source edits until the implementation gate is explicitly opened, and stop if the frozen design does not compile. This work must not reopen the base architecture or content-owned spacing contract.
 
 ## 12. Explicitly Closed / Do Not Reopen
 
