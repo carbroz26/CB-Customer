@@ -1,7 +1,7 @@
 # CB-Partner — Frontend API Integration Contract
 
 **Status:** AUTHORITATIVE FRONTEND INTEGRATION RECORD
-**Last Updated:** 2026-10-07
+**Last Updated:** 2026-10-12
 **Scope:** Frontend repository only
 
 ## 1. Authority
@@ -165,7 +165,7 @@ Business/API outcomes are not automatically converted into transport exceptions.
 
 ## 12. Current verification
 
-The Login → Send OTP → OTP → Verify contract has been reconciled against the current backend source and the attached Config/Login/OTP JSON examples.
+The Login → Send OTP → OTP → Verify contract has been reconciled against the current backend source and the attached Config/Login/OTP JSON examples. Platform-specific API base URL injection and URL validation tests are implemented; platform builds and live-device connectivity still require verification.
 
 The attached JSON is reference input only. If a stale example contains `$response` or a business-specific context namespace, the frontend must not change architecture to support it; the backend contract must be reconciled separately.
 
