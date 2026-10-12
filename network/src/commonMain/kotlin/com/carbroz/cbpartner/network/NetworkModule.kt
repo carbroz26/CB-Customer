@@ -3,15 +3,14 @@ package com.carbroz.cbpartner.network
 import com.carbroz.cbpartner.network.http.HttpClientBuilder
 import com.carbroz.cbpartner.network.http.RequestHandler
 import io.ktor.client.HttpClient
-import io.ktor.http.URLProtocol
 import org.koin.dsl.module
 
-val networkModule = module {
+fun networkModule(apiBaseUrl: ApiBaseUrl) = module {
     single<HttpClient> {
         HttpClientBuilder()
-            .protocol(URLProtocol.HTTP)
-            .host("localhost")
-            .port(3000)
+            .protocol(apiBaseUrl.url.protocol)
+            .host(apiBaseUrl.url.host)
+            .port(apiBaseUrl.url.port)
             .build()
     }
     single { RequestHandler(get(), runtimeMetadataProvider = get()) }
