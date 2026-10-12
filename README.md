@@ -1,602 +1,142 @@
 # CB-Partner
 
-CB-Partner is the CarBroz partner application built with Kotlin Multiplatform and Compose Multiplatform.
+CB-Partner is the CarBroz partner app built with Kotlin Multiplatform and Compose Multiplatform.
 
-This README is the first-time setup and run guide for developers/agents working with the repository.
+Use this README to sync the code and run Android/Web locally. Architecture and build policy remain in the authoritative documents linked below.
 
-> **Important:** The repository contains Android, iOS, Desktop, and Web targets. The `iosApp/` directory is the native Xcode/iOS application boundary; it is not a Gradle `:iosApp` module.
+## Project setup
 
----
+**Current working branch:** `feature/dynamic-ui`  
+**Gradle Wrapper:** 9.7.1  
+**JDK:** 17
 
-## 1. Repository
+On Windows, open PowerShell in `D:\CarBroz\CB-Partner`.
 
-Frontend repository:
-
-- GitHub: https://github.com/carbroz26/CB-Partner
-- Main development branch: `development`
-- Dynamic UI development branch: `feature/dynamic-ui`
-
-Clone the repository:
-
-```powershell
-git clone https://github.com/carbroz26/CB-Partner.git
-cd CB-Partner
-```
-
-If you need a specific development branch:
-
-```powershell
+~~~powershell
+git switch feature/dynamic-ui
 git fetch origin --prune
-git checkout development
-git pull --ff-only origin development
-```
-
-For the Dynamic UI work:
-
-```powershell
-git fetch origin --prune
-git checkout feature/dynamic-ui
 git pull --ff-only origin feature/dynamic-ui
-```
-
-Check the repository state:
-
-```powershell
-git status --short
-git branch --show-current
-git log -5 --oneline
-```
-
----
-
-## 2. Required Development Environment
-
-### Common
-
-Install/configure:
-
-- Git
-- JDK 17
-- Android Studio for Android development
-- Xcode on macOS for iOS development
-- A supported browser for Web development
-
-The project currently uses:
-
-- Gradle **9.7.1**
-- Kotlin **2.4.0**
-- JDK **17**
-
-### Windows
-
-Android and Web development can be performed on Windows.
-
-Verify Java:
-
-```powershell
 java -version
-```
-
-The output should report Java 17.
-
-The repository uses the Gradle Wrapper. **Do not install or depend on a different global Gradle version for normal project builds.**
-
-Verify the wrapper:
-
-```powershell
 .\gradlew.bat --version
-```
+~~~
 
-Expected Gradle version:
+Use the repository Gradle Wrapper (`gradlew.bat` on Windows, `./gradlew` on macOS/Linux) for normal builds and tests.
 
-```text
-Gradle 9.7.1
-```
+## Android — physical device over Wi-Fi
 
-If the wrapper is not executable from a fresh checkout, verify that `gradlew.bat`, `gradle/wrapper/`, and the wrapper files are present before changing project configuration.
+### 1. Pair and connect with Wireless debugging
 
-### macOS
+1. Connect the phone and development PC to the same reachable Wi-Fi network.
+2. On the phone, enable **Developer options → Wireless debugging**.
+3. Tap **Pair device with pairing code**. Use the IP and **pairing port** shown in that dialog:
 
-Install Xcode and its command-line tools:
+   ~~~powershell
+   adb pair PHONE_IP:PAIRING_PORT
+   ~~~
 
-```bash
-xcode-select --install
-```
+   Enter the pairing code when prompted.
+4. Return to the main Wireless debugging screen. Use its IP and **connection port** (this port can differ from the pairing port):
 
-Verify:
+   ~~~powershell
+   adb connect PHONE_IP:CONNECTION_PORT
+   adb devices -l
+   ~~~
 
-```bash
-java -version
-xcodebuild -version
-```
+The phone should show status `device`. If the same phone appears more than once, target one transport explicitly in the commands below. Pairing and connection ports are displayed by Android; do not guess them.
 
-Open Xcode once and accept the required license/setup prompts.
+### 2. Configure the backend address
 
----
+Find the development PC's LAN IPv4 address with:
 
-## 3. First-Time Project Setup
+~~~powershell
+ipconfig
+~~~
 
-After cloning:
+Use the IPv4 address of the active Wi-Fi/Ethernet adapter—not the phone's IP. Ensure the backend is running on port `3000`, listening on a LAN-reachable interface, and allowed through Windows Firewall. Keep the phone and PC on a network that can reach each other.
 
-### Step 1 — Verify Git
+The address below is an example only. Replace `192.168.1.25` with the PC's current LAN IP; do not commit a personal LAN address.
 
-```powershell
-git --version
-```
+### 3. Build, install, and launch
 
-### Step 2 — Verify Java
+~~~powershell
+.\gradlew.bat "-Pcbpartner.api.baseUrl=http://192.168.1.25:3000" :androidApp:assembleDebug
+~~~
 
-Windows:
+Set `$device` to the phone's IP and **connection port** from the Wireless debugging screen. The serial must match one entry from `adb devices -l`.
 
-```powershell
-java -version
-```
+~~~powershell
+$device = "PHONE_IP:CONNECTION_PORT"
+adb -s $device install -r .\androidApp\build\outputs\apk\debug\androidApp-debug.apk
+adb -s $device shell monkey -p com.brocarz.cbpartner.android 1
+~~~
 
-macOS/Linux:
+If installation reports “more than one device/emulator”, always include `-s $device` with ADB commands. `adb install` installs the app but does not open it; the `monkey` command launches its launcher activity.
 
-```bash
-java -version
-```
+### 4. Run/debug from Antigravity
 
-Use JDK 17.
+- Keep Wireless debugging enabled and verify the device with `adb devices -l`.
+- In Antigravity, select the connected phone in the Android device/run target selector and run/debug the Android app.
+- If the device is missing, confirm ADB shows it as `device`, then refresh/reselect the target.
 
-### Step 3 — Verify Gradle Wrapper
+## Web — browser development server
 
-Windows:
+From the repository root, run:
 
-```powershell
-.\gradlew.bat --version
-```
-
-macOS/Linux:
-
-```bash
-./gradlew --version
-```
-
-### Step 4 — Inspect Gradle Projects
-
-Windows:
-
-```powershell
-.\gradlew.bat projects
-```
-
-macOS/Linux:
-
-```bash
-./gradlew projects
-```
-
-The expected Gradle modules include:
-
-```text
-:androidApp
-:core
-:data
-:desktopApp
-:domain
-:feature:dynamic
-:feature:splash
-:navigation
-```
-
-The `iosApp/` directory is a native Xcode boundary and is intentionally not listed as a Gradle module.
-
-### Step 5 — Build/Test the Shared Modules
-
-Windows:
-
-```powershell
-.\gradlew.bat :core:jvmTest :domain:jvmTest :data:jvmTest :navigation:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
-```
-
-Or run the complete frozen Dynamic UI test matrix:
-
-```powershell
-.\gradlew.bat :data:jvmTest :network:jvmTest :navigation:jvmTest :feature:dynamic:jvmTest
-```
-
-macOS/Linux:
-
-```bash
-./gradlew :core:jvmTest :domain:jvmTest :data:jvmTest :navigation:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
-```
-
----
-
-## 4. Web — Recommended First Run
-
-Web is the easiest way to verify the application flow without an Android emulator or iOS device.
-
-From the repository root:
-
-```powershell
+~~~powershell
 .\gradlew.bat :webApp:wasmJsBrowserDevelopmentRun
-```
+~~~
 
-On macOS/Linux:
+Open the URL printed by Gradle. Keep the terminal running while testing; press `Ctrl+C` to stop the server. Use browser Developer Tools (`F12`), especially **Console** and **Network**, to inspect errors and API requests.
 
-```bash
-./gradlew :webApp:wasmJsBrowserDevelopmentRun
-```
+### Web API address
 
-The task starts the Web development server and opens/serves the Web application.
+Web does not use the Android Gradle property above. By default, the browser hostname is used with port `3000`: a page opened on `localhost` targets `localhost:3000`, while a page opened through the PC's LAN hostname targets that hostname on port `3000`.
 
-If the browser does not open automatically, use the local URL printed by Gradle.
+If the API is hosted at a different origin, set the non-empty `cbpartner-api-base-url` meta value in `webApp/src/wasmJsMain/resources/index.html` to the reachable API origin and configure backend CORS for the Web origin. Do not mix an HTTPS page with an HTTP API.
 
-### Stop the Web application
+## iOS — macOS and Xcode only
 
-Press:
+`iosApp/` is the native Xcode application boundary, not a Gradle `:iosApp` module. Native iOS builds and simulator runs require macOS and Xcode; Windows cannot run the iOS simulator.
 
-```text
-Ctrl+C
-```
+1. On macOS, open the Xcode project/workspace inside `iosApp/`.
+2. Select the `iosApp` scheme and an iPhone simulator or connected iPhone, then press **Cmd+R**.
+3. To use a backend running on the Windows development PC, set Xcode Build Settings `CBPARTNER_API_BASE_URL` to `http://PC_LAN_IP:3000`, replacing `PC_LAN_IP` with the PC's actual LAN IPv4 address. The iPhone and PC must be able to reach each other; approve the iOS Local Network prompt if shown.
+4. For production, use the deployed HTTPS API origin. Do not disable App Transport Security globally.
 
-### Web debugging
+## Useful checks
 
-The Web application executes in the browser. Browser-side logs may appear in the browser's Developer Tools console rather than the Gradle terminal.
+Run the focused JVM regression suite:
 
-Open browser Developer Tools:
+~~~powershell
+.\gradlew.bat :network:jvmTest :data:jvmTest :domain:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest
+~~~
 
-```text
-F12
-```
+Discover available tasks:
 
-Then select the **Console** and **Network** tabs when debugging API calls or runtime behavior.
-
----
-
-## 5. Android — Run from Android Studio
-
-Android development requires Android Studio, an Android SDK, and either a physical Android device or an Android emulator.
-
-### Open the project
-
-Open the repository root in Android Studio:
-
-```text
-D:\CarBroz\CB-Partner
-```
-
-Android Studio should import the Gradle project using the repository's Gradle Wrapper.
-
-### Verify Android Gradle tasks
-
-From the repository root:
-
-```powershell
-.\gradlew.bat :androidApp:tasks
-```
-
-### Build the Android application
-
-```powershell
-.\gradlew.bat :androidApp:assembleDebug
-```
-
-### Install the Debug application on a connected device/emulator
-
-With an Android device or emulator available:
-
-```powershell
-.\gradlew.bat :androidApp:installDebug
-```
-
-You can then launch the application from Android Studio or the device.
-
-### Android Studio run
-
-1. Open the project root.
-2. Wait for Gradle sync to finish.
-3. Select the Android application run configuration.
-4. Select an emulator or connected Android device.
-5. Press **Run**.
-
-If Android SDK or emulator components are missing, install them through Android Studio's SDK Manager/Device Manager rather than changing project Gradle configuration.
-
----
-
-## 6. iOS — Run from Xcode
-
-iOS development requires **macOS + Xcode**.
-
-The repository intentionally keeps `iosApp/` as the native iOS/Xcode boundary. Do not create or expect a Gradle `:iosApp` module.
-
-### Open the iOS application
-
-From the repository root on macOS:
-
-```bash
-open iosApp
-```
-
-If Xcode does not open the project/workspace automatically, open the Xcode project/workspace contained inside `iosApp/` from Finder or Xcode.
-
-### Select a simulator/device
-
-In Xcode:
-
-1. Select the `iosApp` application scheme.
-2. Select an available iPhone simulator or connected iPhone.
-3. Build and Run.
-
-Use:
-
-```text
-Cmd + R
-```
-
-### iOS shared-code verification
-
-Kotlin Multiplatform iOS compilation/tests must be executed on macOS because the iOS toolchain is provided by Xcode.
-
-For example:
-
-```bash
-./gradlew compileKotlinIosArm64
-```
-
-The exact iOS target/task can vary with the selected device/simulator architecture; use Gradle task discovery when needed:
-
-```bash
-./gradlew tasks --all
-```
-
-**Windows note:** iOS simulator tasks are disabled on Windows because the Apple toolchain is unavailable. This is expected and is not a project test failure.
-
----
-
-## 7. Desktop
-
-The repository also contains a Desktop application.
-
-Inspect available Desktop tasks:
-
-```powershell
-.\gradlew.bat :desktopApp:tasks
-```
-
-Use the corresponding generated run task shown by Gradle.
-
-For example, when available:
-
-```powershell
-.\gradlew.bat :desktopApp:run
-```
-
----
-
-## 8. Useful Gradle Commands
-
-### List all projects
-
-Windows:
-
-```powershell
+~~~powershell
 .\gradlew.bat projects
-```
-
-macOS/Linux:
-
-```bash
-./gradlew projects
-```
-
-### List all tasks
-
-```powershell
 .\gradlew.bat tasks --all
-```
+~~~
 
-### Clean
+Windows may report that iOS simulator tests are disabled because they require macOS; this is an expected host limitation.
 
-```powershell
-.\gradlew.bat clean
-```
+## Project structure
 
-### Build
+- `:app` — shared application composition
+- `:androidApp` — Android application boundary
+- `:webApp` — Web/Wasm application boundary
+- `:core`, `:network`, `:data`, `:domain`, `:navigation` — shared infrastructure and layers
+- `:feature:splash`, `:feature:dynamic` — shared features
+- `iosApp/` — native Xcode/iOS boundary
 
-```powershell
-.\gradlew.bat build
-```
+There is no `:desktopApp` Gradle module on `feature/dynamic-ui`.
 
-### Run tests
+## Authoritative project documents
 
-```powershell
-.\gradlew.bat test
-```
+- `docs/build/GRADLE-SETUP-AND-WORKFLOW.md` — Gradle version, platform API configuration, build/test guidance
+- `docs/project-management/07-DEVELOPMENT-WORKFLOW.md` — development, testing, and review gates
+- `docs/dynamic/DYNAMIC-ARCHITECTURE.md` — frozen Dynamic UI architecture
+- `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` — Dynamic UI implementation plan
+- `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md` — current Dynamic UI status
 
-### Run a specific module's JVM tests
-
-```powershell
-.\gradlew.bat :data:jvmTest
-```
-
-### Run Dynamic UI tests
-
-```powershell
-.\gradlew.bat :data:jvmTest :network:jvmTest :navigation:jvmTest :feature:dynamic:jvmTest
-```
-
-### See available tasks for a module
-
-```powershell
-.\gradlew.bat :androidApp:tasks
-.\gradlew.bat :desktopApp:tasks
-.\gradlew.bat :feature:dynamic:tasks
-```
-
----
-
-## 9. Git Workflow
-
-Before starting work:
-
-```powershell
-git status --short
-git fetch origin --prune
-git pull --ff-only origin <your-branch>
-```
-
-Check the current branch:
-
-```powershell
-git branch --show-current
-```
-
-Check recent commits:
-
-```powershell
-git log -10 --oneline
-```
-
-After making and testing a change:
-
-```powershell
-git status --short
-git diff
-git diff --check
-```
-
-Commit:
-
-```powershell
-git add <files>
-git commit -m "type(scope): description"
-```
-
-Push:
-
-```powershell
-git push origin <your-branch>
-```
-
-Refresh remote references:
-
-```powershell
-git fetch origin --prune
-```
-
-For this project, do not force-push, reset, rebase, or merge unrelated branches unless the task explicitly requires it.
-
----
-
-## 10. Clean Checkout / Recovery
-
-If you have no local work that needs to be preserved and need to synchronize a branch with the remote:
-
-```powershell
-git fetch origin --prune
-git status --short
-git pull --ff-only origin <your-branch>
-```
-
-Do not use destructive commands such as `git reset --hard` unless you have explicitly confirmed that all local changes can be discarded.
-
-If Gradle state appears stale, first try:
-
-```powershell
-.\gradlew.bat clean
-```
-
-Then rerun the required build/test command.
-
----
-
-## 11. Project Structure
-
-The main frontend structure is:
-
-```text
-CB-Partner/
-├── androidApp/       # Native Android application boundary
-├── iosApp/           # Native iOS/Xcode application boundary
-├── desktopApp/       # Desktop application
-├── webApp/           # Web application
-├── build-logic/      # Gradle convention/build logic
-├── core/             # Shared core infrastructure
-├── data/             # Data layer
-├── domain/           # Domain layer
-├── navigation/       # Navigation
-├── feature/
-│   ├── splash/       # Splash feature
-│   └── dynamic/      # Dynamic UI feature
-├── docs/              # Project architecture and implementation documentation
-├── gradle/             # Gradle configuration/wrapper support
-├── gradlew
-├── gradlew.bat
-└── settings.gradle.kts
-```
-
-Architecture and implementation rules are documented separately under `docs/`. This README is only the developer setup/run entry point; it does not replace the authoritative architecture documents.
-
----
-
-## 12. Dynamic UI Documentation
-
-For Dynamic UI work, use the authoritative documents in this order:
-
-1. `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
-2. `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
-3. `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md`
-
-Older Dynamic documentation under historical feature/reconciliation locations must not override the authoritative documents above.
-
----
-
-## 13. First-Time Verification Checklist
-
-After cloning, a developer should be able to complete this sequence:
-
-### Common
-
-```powershell
-git clone https://github.com/carbroz26/CB-Partner.git
-cd CB-Partner
-git status --short
-java -version
-.\gradlew.bat --version
-.\gradlew.bat projects
-```
-
-### Shared tests
-
-```powershell
-.\gradlew.bat :data:jvmTest :network:jvmTest :navigation:jvmTest :feature:dynamic:jvmTest
-```
-
-### Web
-
-```powershell
-.\gradlew.bat :webApp:wasmJsBrowserDevelopmentRun
-```
-
-### Android
-
-```powershell
-.\gradlew.bat :androidApp:assembleDebug
-.\gradlew.bat :androidApp:installDebug
-```
-
-### iOS
-
-On macOS:
-
-```bash
-open iosApp
-```
-
-Then run the `iosApp` scheme from Xcode.
-
----
-
-## 14. Important Notes
-
-- Prefer the repository Gradle Wrapper over a globally installed Gradle version.
-- Use JDK 17 for the project.
-- Do not add an artificial Gradle `:iosApp` module. `iosApp/` is the native Xcode boundary.
-- Windows cannot execute iOS simulator tests; run iOS builds/tests on macOS.
-- Web runtime logs are browser-side; use browser Developer Tools when terminal output is not available.
-- Do not commit local IDE/build artifacts or unrelated files.
-- Keep architecture changes governed by the project's documented discussion/research/decision/plan/implementation gates.
+Keep this README focused on setup and running the apps. Do not commit machine-specific IP addresses, local IDE/build outputs, or secrets.
