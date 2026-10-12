@@ -307,12 +307,12 @@ Implementation and focused tests are committed. Local verification completed suc
 ## 15. Proposed element registry consolidation — planning only (2026-10-13)
 
 **Decision:** `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`.  
-**Current phase:** Documentation reconciliation / plan review.  
+**Current phase:** Frozen plan; implementation has not started.  
 **Source implementation:** Not started.  
 **Verification:** Not applicable; no code has changed for this proposal.
 
 The owner approved the direction to replace five concrete element renderer contracts and their parallel registry APIs with one generic, type-safe `ElementRenderer<T : DynamicElement>` contract and a single `.element(type, renderer)` registration API. The intended design preserves concrete model types and uses one checked adapter/dispatch boundary; it does not use reflection-based discovery, `Map<String, Any>`, a universal cross-category registry, or a centralized mapper.
 
-The current source and frozen clauses remain the active implementation contract until the revised plan is explicitly reviewed and frozen. Before implementation, reconcile the exact Kotlin Multiplatform/Compose-compatible adapter, model-type-to-registration dispatch, typed element collections replacing `List<Any>`, public registry construction invariants, mapper/fixture impacts, and focused regression tests.
+The revised architecture and implementation plan are frozen. The agreed adapter uses an explicit `KClass<T>` token in `.element(type, modelClass, renderer)`, validates with `isInstance`, and contains the sole unchecked cast. Before source edits, perform the common-source compatibility preflight, audit all `List<Any>` usages and mapper/fixture impacts, and settle registry construction invariants. If the frozen adapter is unsupported by the current toolchain, stop and report instead of silently redesigning.
 
 Do not report this proposal as implemented, tested, verified or frozen. Do not alter source while the planning gate remains open.
