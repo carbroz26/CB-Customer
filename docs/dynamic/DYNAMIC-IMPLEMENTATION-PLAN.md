@@ -732,3 +732,12 @@ This revision supersedes the accessory-owned padding amendment in section 22.25 
 - Stop and report if source/schema ownership differs from this plan, if an existing contract conflicts, or if a fix requires broadening the approved scope.
 
 The owner explicitly authorized implementation on 2026-10-12. Continue within this frozen plan; do not expand scope or silently revise the contract.
+
+#### Verification record — 2026-10-12
+
+On PR #6 head `c08a6729186590eb094e79176f34daa119aa8a4a`, the owner reports successful completion of:
+- Six-module JVM test matrix: `:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`.
+- Android unit tests, Kotlin compilation, and debug assembly: `:androidApp:testDebugUnitTest`, `:androidApp:compileDebugKotlin`, `:androidApp:assembleDebug`.
+- Web/Wasm development webpack and browser tests: `:webApp:wasmJsBrowserDevelopmentWebpack`, `:webApp:wasmJsBrowserTest`.
+
+GitHub reported no PR-triggered workflow runs and zero commit check-runs for that head; no CI pass is claimed. The webpack critical-dependency warning and npm transitive `ws` version-clash notices did not fail the build. The expected Windows iOS-simulator disabled-target warning is an environment limitation and remains unsuppressed. These results verify build/test gates only, not actual visual appearance. Complete the line-by-line diff/obsolete-property audit and inspect the Web runtime before final freeze or merge.
