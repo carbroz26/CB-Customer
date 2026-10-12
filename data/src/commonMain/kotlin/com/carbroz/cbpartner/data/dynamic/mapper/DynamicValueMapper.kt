@@ -33,6 +33,16 @@ class DynamicValueMapper {
         )
     }
 
+    fun spacing(properties: JsonObject): DynamicSpacing? {
+        val value = properties["spacing"] as? JsonObject ?: return null
+        return DynamicSpacing(
+            start = number(value, "start") ?: 0.0,
+            top = number(value, "top") ?: 0.0,
+            end = number(value, "end") ?: 0.0,
+            bottom = number(value, "bottom") ?: 0.0,
+        )
+    }
+
     fun verticalArrangement(properties: JsonObject): DynamicArrangement = arrangement(properties, "verticalArrangement", true)
     fun horizontalArrangement(properties: JsonObject): DynamicArrangement = arrangement(properties, "horizontalArrangement", false)
 

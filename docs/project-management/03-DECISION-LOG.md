@@ -372,7 +372,7 @@ Future documentation must pass the single-responsibility test:
 No new duplicate tracker, status, frozen-plan, or discussion document should be created for an existing authority.
 
 
-## DYNAMIC-CONTRACT-REVISION-CONTENT-PADDING-001 — Accessory-owned padding
+## Historical/superseded: DYNAMIC-CONTRACT-REVISION-CONTENT-PADDING-001 — Accessory-owned padding
 
 **Date:** 2026-10-11  
 **State:** ACCEPTED / PLAN FROZEN / IMPLEMENTED — JVM test matrix and targeted compilation passed; final diff/obsolete-property audit and Web visual verification remain open.
@@ -392,3 +392,27 @@ No new abstraction, registry, renderer hierarchy, module, business-specific Logi
 
 ### Verification and implementation gate
 The backend owner reports that the engine test/build passed and the live Login and OTP responses contain the intended divider padding. The owner explicitly froze the reconciled frontend plan and authorized implementation on 2026-10-11. The shared `ElementContent.padding` contract, icon/divider mapping and rendering, obsolete parent-level spacing removal, and mapper regression coverage are implemented. The owner-environment JVM matrix passed for `:core`, `:domain`, `:data`, `:network`, `:navigation`, `:feature:splash` and `:feature:dynamic`; targeted compilation passed for `:domain`, `:data` and `:feature:dynamic`. Remaining gates: complete line-by-line diff/repository-wide obsolete-property audit and separate Web visual verification. Do not mark final freeze until those remaining gates are completed.
+
+
+
+## DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001 — Content-owned spacing
+
+**Date:** 2026-10-11  
+**State at initial decision:** ACCEPTED / PLAN FROZEN / IMPLEMENTATION NOT STARTED — superseded by the implementation record below  
+**Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`, section 21; `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`, section 22.26.
+
+### Decision
+Replace the accessory-owned `ElementContent.padding: DynamicPadding?` contract with `ElementContent.spacing: DynamicSpacing?`. The new `DynamicSpacing` value has four external layout-space edges: start, top, end, and bottom. It applies uniformly to IconContent and DividerContent and is supplied by backend `properties.spacing`.
+
+### Superseded behavior
+- Content-level `properties.padding` is superseded by `properties.spacing`.
+- Text-parent `contentSpacing` and `trailingContentSpacing` are removed as competing ways to control accessory gaps.
+- `DynamicPadding` remains valid for ordinary node/container padding and is not globally renamed.
+
+### Boundaries
+Spacing affects the accessory's outer layout bounds; it must not alter text characters/letter spacing or the divider's visible line geometry. No screen-specific logic, new registry, renderer hierarchy, architecture layer, or unrelated refactor is allowed.
+
+### Implementation and verification record — 2026-10-12
+The owner subsequently authorized implementation on 2026-10-12. Frontend implementation is committed on PR #6, head `c08a6729186590eb094e79176f34daa119aa8a4a`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent; the mapper reads backend `properties.spacing`; existing renderers apply four-sided external spacing; ordinary node/container `DynamicPadding` remains unchanged.
+
+The owner ran the six-module JVM test matrix, Android unit tests, Android Kotlin compilation and debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on that PR head. GitHub returned no PR-triggered workflow runs and zero commit check-runs, so no CI pass is claimed. Final line-by-line diff/obsolete-property audit and actual Web visual inspection remain open; do not mark final freeze or merge complete until those gates are addressed.

@@ -33,6 +33,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 
 internal fun Modifier.applyLayout(template: FormTemplate): Modifier =
@@ -88,6 +89,16 @@ internal fun Modifier.applyLayout(element: IconElement): Modifier =
 
 internal fun Modifier.applyDynamicPadding(padding: DynamicPadding?): Modifier =
     padding?.let {
+        androidx.compose.foundation.layout.PaddingValues(
+            it.start.dp,
+            it.top.dp,
+            it.end.dp,
+            it.bottom.dp,
+        )
+    }?.let(::padding) ?: this
+
+internal fun Modifier.applyDynamicSpacing(spacing: DynamicSpacing?): Modifier =
+    spacing?.let {
         androidx.compose.foundation.layout.PaddingValues(
             it.start.dp,
             it.top.dp,

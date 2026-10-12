@@ -14,6 +14,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -59,9 +60,9 @@ class DynamicResponseMapperTest {
             title.spans.single().text,
         )
         val leadingIcon = assertIs<IconContent>(title.leadingContent.single())
-        assertEquals(DynamicPadding(1.0, 2.0, 3.0, 4.0), leadingIcon.padding)
+        assertEquals(DynamicSpacing(1.0, 2.0, 3.0, 4.0), leadingIcon.spacing)
         val trailingDivider = assertIs<DividerContent>(title.trailingContent.single())
-        assertEquals(DynamicPadding(5.0, 6.0, 7.0, 8.0), trailingDivider.padding)
+        assertEquals(DynamicSpacing(5.0, 6.0, 7.0, 8.0), trailingDivider.spacing)
         assertEquals("navigate", title.actions["onClick"]?.type)
 
         val hero = assertIs<ImageElement>(header.elements[1])
@@ -251,7 +252,7 @@ class DynamicResponseMapperTest {
         assertEquals(true, text.fillMaxWidth)
         val leadingIcon = assertIs<IconContent>(text.leadingContent.single())
         assertEquals("", leadingIcon.url)
-        assertEquals(null, leadingIcon.padding)
-        assertEquals(null, assertIs<DividerContent>(text.trailingContent.single()).padding)
+        assertEquals(null, leadingIcon.spacing)
+        assertEquals(null, assertIs<DividerContent>(text.trailingContent.single()).spacing)
     }
 }

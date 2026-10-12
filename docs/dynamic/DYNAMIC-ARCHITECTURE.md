@@ -1,6 +1,6 @@
 # Dynamic UI Architecture
 
-Status: FROZEN BASE CONTRACT; ACCESSORY-OWNED PADDING IMPLEMENTATION IN PROGRESS — VERIFICATION PENDING — 2026-10-11
+Status: BASE CONTRACT FROZEN; CONTENT-OWNED SPACING IMPLEMENTED — JVM/ANDROID/WEB BUILD AND TEST GATES PASSED; FINAL SOURCE/DIFF AND VISUAL REVIEW OPEN — 2026-10-12
 Scope: Dynamic UI runtime, rendering, actions, references, screen lifecycle, navigation integration.
 Authority: This document is the single Dynamic architecture authority.
 
@@ -414,3 +414,21 @@ Asset presentation properties remain backend-controlled. The existing Dynamic hi
 - DynamicLayout remains responsible for existing node-owned layout modifiers. Accessory content renderers apply their own content padding using the existing padding helper where compatible; do not move content-row spacing responsibility into the generic node-layout helper.
 - Group padding is internal to the group's painted background/border. The background and border enclose the configured padding; padding must not be placed outside the painted container.
 - Backend-owned spacing/padding values are data, not frontend design defaults. Generic Login/OTP responses must render through the same accessory contract without authentication-specific conditions.
+
+
+
+## 21. Frozen content-owned spacing contract — 2026-10-11
+
+**Revision:** DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001  
+**State:** PLAN FROZEN; IMPLEMENTATION AUTHORIZED 2026-10-12; IMPLEMENTATION IN PROGRESS  
+**Supersedes:** the accessory-owned `ElementContent.padding: DynamicPadding?` contract and the text-level `contentSpacing` / `trailingContentSpacing` approach.
+
+- The existing `ElementContent` contract exposes one nullable `spacing: DynamicSpacing?` property, shared by every current content implementation, including `IconContent` and `DividerContent`.
+- `DynamicSpacing` is a four-sided value with `start`, `top`, `end`, and `bottom` values. These represent external layout space around the content item, not padding inside the drawn divider/icon and not character letter spacing.
+- Backend content JSON supplies `properties.spacing`. It must no longer supply `properties.padding` for leading/trailing content.
+- Remove text-parent `contentSpacing` and `trailingContentSpacing` as competing mechanisms. Accessory spacing belongs to the accessory whose gap it controls.
+- Keep `DynamicPadding` for ordinary node/container padding where that contract remains applicable; do not globally rename it.
+- Frontend mapping preserves all four spacing values. Existing content renderers apply them as outer layout spacing around the content's rendered bounds. The divider itself draws its line without encoding gaps into text or changing line semantics.
+- Missing spacing means zero additional external gap. No arbitrary frontend defaults, text whitespace, Login/OTP special cases, new registry, renderer hierarchy, or architecture layer.
+- Preserve text `letterSpacing`, text alignment/fill behavior, existing content registration, and the generic Dynamic runtime architecture.
+- The owner authorized implementation on 2026-10-12. The plan remains frozen; source changes must remain within this contract.

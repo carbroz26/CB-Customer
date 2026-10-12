@@ -1,7 +1,7 @@
 # CB-Partner — Project Master State
 
 **Status:** AUTHORITATIVE / CURRENT RECOVERY SOURCE
-**Last Updated:** 2026-10-10
+**Last Updated:** 2026-10-12
 **Scope:** Frontend repository only
 
 ## 1. Repository State
@@ -11,7 +11,7 @@
 - Current product slice: backend-driven Dynamic UI through Login → Send OTP → OTP → Verify
 - Frontend and backend remain separate repositories.
 - `iosApp/` is the native Xcode boundary, not a Gradle `:iosApp` module.
-- Current branch: `feature/dynamic-ui`. The accessory-owned padding plan is frozen and implementation is complete within scope. Owner-environment JVM tests and targeted compilation passed; final diff/obsolete-property audit and Web visual verification remain open.
+- Integration target: `feature/dynamic-ui`. Frontend content-owned spacing implementation is on PR #6, branch `feature/dynamic-content-spacing-contract`, head `c08a6729186590eb094e79176f34daa119aa8a4a`. The JVM, Android unit/compile/assemble, and Web/Wasm build/browser-test gates passed on that head. Final line-by-line source/diff audit and actual Web visual inspection remain open; no final freeze or merge is claimed.
 
 ## 2. Frozen Technical Foundation
 
@@ -373,3 +373,25 @@ Historical chat is context, not authority.
 ## 14. Definition of Current Truth
 
 If this document conflicts with an older Current Status, Project Tracker, Checkpoint, or Master State file, those older files are superseded and must not be used. If it conflicts with an explicitly frozen decision or the current explicit user instruction, stop and reconcile the conflict rather than silently choosing one.
+
+
+
+## 15. Content-owned spacing contract — decision record (2026-10-11)
+
+Historical decision snapshot: the contract was documentation-frozen before implementation authorization. Its initial 'not started' state below is superseded by section 16 and the current Dynamic implementation-status document.
+
+- Decision: `DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001`.
+- Frontend authority: `docs/dynamic/DYNAMIC-ARCHITECTURE.md`, section 21; implementation plan section 22.26.
+- Backend authority: `sdui/SDUI-COMPOSE-CONTRACT-IMPLEMENTATION-PLAN.md` and `sdui/PARTNER-AUTH-SDUI-CONTRACT.md` revision sections.
+- Contract: shared `ElementContent.spacing: DynamicSpacing?` with start/top/end/bottom external layout spacing for IconContent and DividerContent. Backend content uses `properties.spacing`.
+- Remove content-level padding and parent `contentSpacing` / `trailingContentSpacing` as competing mechanisms. Preserve ordinary node/container `DynamicPadding` and text `letterSpacing`.
+- At the time this decision snapshot was written, source still implemented the previous accessory-padding contract and implementation had not yet been authorized. The owner subsequently authorized implementation on 2026-10-12; see section 16.
+
+
+## 16. Content-owned spacing implementation and verification — 2026-10-12
+
+- Contract: `DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001`; architecture section 21 and implementation plan section 22.26 remain authoritative and frozen.
+- Implementation: `ElementContent.spacing: DynamicSpacing?` shared by IconContent and DividerContent; mapper reads backend `properties.spacing`; existing accessory renderers apply four-sided external spacing. Ordinary node/container `DynamicPadding` remains unchanged.
+- Verified on PR #6 head `c08a6729186590eb094e79176f34daa119aa8a4a`: six-module JVM test matrix; Android unit tests, Kotlin compilation, and debug assembly; Web/Wasm development webpack and browser tests all passed.
+- GitHub reported no PR-triggered workflow runs and zero commit check-runs for this head. No CI pass is claimed.
+- Remaining before merge/final freeze: complete line-by-line diff and obsolete-property audit, plus actual Web visual inspection. Do not update the backend repository or its PR as part of this frontend task.

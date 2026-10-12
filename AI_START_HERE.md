@@ -243,3 +243,9 @@ Never auto-start the next separately gated work item.
 ## 16. One-line external AI instruction
 
 > Read `AI_START_HERE.md` first, recover state from Project Master State and the Decision Log, follow the relevant authoritative contract, never guess or silently redesign, and stop when a frozen boundary must change.
+
+
+
+## 17. Current cross-repository contract revision — 2026-10-11
+
+The content-owned spacing revision is plan-frozen and implementation was explicitly authorized on 2026-10-12. On frontend PR #6, the JVM test matrix, Android unit/compile/assemble tasks, and Web/Wasm build/browser-test tasks passed on source head `c08a6729186590eb094e79176f34daa119aa8a4a`. The current PR head has subsequent documentation-only reconciliation commits. Final line-by-line source/diff audit and actual Web visual inspection remain open; do not declare final freeze or merge complete until those gates are addressed. Read `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 21 and `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.26 before changing source. The backend counterpart is recorded in `sdui/SDUI-COMPOSE-CONTRACT-IMPLEMENTATION-PLAN.md` and `sdui/PARTNER-AUTH-SDUI-CONTRACT.md` on the matching backend branch. Do not broaden scope or touch the backend repository during this frontend PR.

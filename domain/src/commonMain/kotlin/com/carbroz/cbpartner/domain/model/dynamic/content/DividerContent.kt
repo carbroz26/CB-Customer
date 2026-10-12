@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.domain.model.dynamic.content
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 
 data class DividerContent(
     override val id: String? = null,
@@ -11,6 +11,6 @@ data class DividerContent(
     val height: Double? = null,
     val thickness: Double = 1.0,
     val color: String? = null,
-    override val padding: DynamicPadding? = null,
+    override val spacing: DynamicSpacing? = null,
     override val actions: Map<String, DynamicAction> = emptyMap(),
 ) : ElementContent

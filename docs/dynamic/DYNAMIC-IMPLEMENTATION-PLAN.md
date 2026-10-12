@@ -1,6 +1,6 @@
 # Dynamic UI Implementation Plan
 
-Status: BASE PLAN AND ACCESSORY-PADDING AMENDMENT FROZEN — IMPLEMENTED; JVM VERIFICATION PASSED; FINAL REVIEW OPEN
+Status: CONTENT-SPACING REVISION PLAN FROZEN — IMPLEMENTATION AUTHORIZED; IN PROGRESS
 Contract source: `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 Implementation rule: only the changes listed here are in scope.
 
@@ -692,3 +692,52 @@ Accepted contract amendment; documentation is reconciled before implementation. 
 - Add focused generic tests for mapping all four padding edges on both leading and trailing accessories and for absent padding; ensure removed parent properties are no longer part of the frontend contract.
 - Verify with the agreed Gradle JVM test matrix and relevant compile tasks. Web runtime/visual verification remains a separate gate and must be reported accurately.
 - The project owner explicitly froze this reconciled plan and authorized implementation on 2026-10-11. The seven-module owner-environment JVM test matrix and targeted domain/data/Dynamic JVM compilation passed on 2026-10-11. Final line-by-line diff/repository-wide obsolete-property review and Web runtime/visual verification remain open; final freeze is not yet authorized by the completed gates.
+
+
+
+### 22.26 Content-owned spacing contract revision — 2026-10-11
+
+**State:** PLAN FROZEN; IMPLEMENTATION AUTHORIZED 2026-10-12; IN PROGRESS.  
+**Contract authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 21.  
+**Revision:** `DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001`.
+
+This revision supersedes the accessory-owned padding amendment in section 22.25 for leading/trailing content. Do not implement both contracts or preserve aliases for the old content property.
+
+#### Frozen contract
+- Replace `ElementContent.padding: DynamicPadding?` with `ElementContent.spacing: DynamicSpacing?`.
+- Add the small domain value type `DynamicSpacing` with four-sided `start`, `top`, `end`, and `bottom` values. Do not reuse `DynamicPadding` under a misleading name; retain `DynamicPadding` for ordinary node/container padding.
+- Both `IconContent` and `DividerContent` inherit the shared nullable `ElementContent.spacing` property.
+- Backend JSON for content uses `properties.spacing`; remove content-level `properties.padding` from backend definitions, composers, fixtures and contract tests.
+- Remove text-parent `contentSpacing` and `trailingContentSpacing` from the backend contract and frontend DTO/domain/mapping/rendering paths. Per-content spacing replaces both parent-level mechanisms.
+- Apply the four values as external layout space around the accessory's rendered bounds in the existing content renderer. The divider's drawn line must not be shortened or inset by an implementation that treats the values as internal line padding.
+- Missing spacing adds zero external gap. Do not inject literal spaces into text, alter `TextElement.letterSpacing`, add Login/OTP-specific behavior, introduce a registry/renderer abstraction, or change the Dynamic architecture.
+
+#### Minimal implementation sequence — backend
+1. Inspect the canonical NodeDefinition/property-schema and accessory parsing/serialization path under `sdui/ui-sdk` and `sdui/engine`; identify the actual owning files before edits.
+2. Replace accessory content `padding` with `spacing` in the canonical contract and typed builder/validation path. Keep node/container `padding` unchanged.
+3. Update Partner Login and Partner OTP leading/trailing content definitions to use four-sided `spacing`; remove text-parent `contentSpacing` / `trailingContentSpacing` from those definitions.
+4. Update positive/negative schema, builder, canonical serialization, and screen-composition tests. Prove the four edges survive and old content padding/parent-spacing properties are rejected or absent as appropriate.
+
+#### Minimal implementation sequence — frontend
+1. Add domain `DynamicSpacing` (four edges) and replace the shared `ElementContent.padding` property with `ElementContent.spacing`; leave ordinary `DynamicPadding` contracts untouched.
+2. Update the existing DTO/domain mapper to read `properties.spacing` for every content type and preserve all four values. Remove content-level padding and parent text-spacing fields from transport/domain/rendering contracts.
+3. Update the existing IconContent and DividerContent renderers to apply external spacing to the accessory's layout bounds without changing the visible divider geometry.
+4. Update generic fixtures and mapper/renderer tests for all four edges, absent spacing, leading and trailing content, and no text-parent spacing dependency.
+
+#### Verification and stop conditions
+- Backend focused gate: `pnpm vitest run sdui/ui-sdk sdui/engine tests/architecture/sdui-authority.policy.test.ts tests/architecture/sdui-mapping.contract.test.ts`; then run the repository's required SDUI contract/build checks for the changed owners.
+- Frontend focused tests: relevant `:data:jvmTest`, `:domain:jvmTest`, and `:feature:dynamic:jvmTest`; then the agreed seven-module JVM matrix and targeted compile tasks.
+- Review backend serialized Login/OTP JSON and frontend rendering to confirm that spacing is attached to each accessory and that the divider line itself is unchanged.
+- Do not claim visual verification without running the Web app and inspecting the actual result.
+- Stop and report if source/schema ownership differs from this plan, if an existing contract conflicts, or if a fix requires broadening the approved scope.
+
+The owner explicitly authorized implementation on 2026-10-12. Continue within this frozen plan; do not expand scope or silently revise the contract.
+
+#### Verification record — 2026-10-12
+
+On PR #6 head `c08a6729186590eb094e79176f34daa119aa8a4a`, the owner reports successful completion of:
+- Six-module JVM test matrix: `:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`.
+- Android unit tests, Kotlin compilation, and debug assembly: `:androidApp:testDebugUnitTest`, `:androidApp:compileDebugKotlin`, `:androidApp:assembleDebug`.
+- Web/Wasm development webpack and browser tests: `:webApp:wasmJsBrowserDevelopmentWebpack`, `:webApp:wasmJsBrowserTest`.
+
+GitHub reported no PR-triggered workflow runs and zero commit check-runs for that head; no CI pass is claimed. The webpack critical-dependency warning and npm transitive `ws` version-clash notices did not fail the build. The expected Windows iOS-simulator disabled-target warning is an environment limitation and remains unsuppressed. These results verify build/test gates only, not actual visual appearance. Complete the line-by-line diff/obsolete-property audit and inspect the Web runtime before final freeze or merge.
