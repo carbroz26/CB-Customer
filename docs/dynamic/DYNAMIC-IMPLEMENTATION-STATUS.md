@@ -302,3 +302,17 @@ Frozen target:
 - Preserve ordinary node/container `DynamicPadding`, text `letterSpacing`, and the generic renderer/registry architecture.
 
 Implementation and focused tests are committed. Local verification completed successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`: six-module JVM test matrix; `:androidApp:testDebugUnitTest`; `:androidApp:compileDebugKotlin`; `:androidApp:assembleDebug`; `:webApp:wasmJsBrowserDevelopmentWebpack`; and `:webApp:wasmJsBrowserTest`. GitHub returned no PR-triggered workflow runs and zero commit check-runs for this head, so no CI pass is claimed. The remaining gates are the complete line-by-line diff/obsolete-property audit and actual Web visual inspection; do not declare final freeze until those are completed.
+
+
+## 15. Proposed element registry consolidation — planning only (2026-10-13)
+
+**Decision:** `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`.  
+**Current phase:** Documentation reconciliation / plan review.  
+**Source implementation:** Not started.  
+**Verification:** Not applicable; no code has changed for this proposal.
+
+The owner approved the direction to replace five concrete element renderer contracts and their parallel registry APIs with one generic, type-safe `ElementRenderer<T : DynamicElement>` contract and a single `.element(type, renderer)` registration API. The intended design preserves concrete model types and uses one checked adapter/dispatch boundary; it does not use reflection-based discovery, `Map<String, Any>`, a universal cross-category registry, or a centralized mapper.
+
+The current source and frozen clauses remain the active implementation contract until the revised plan is explicitly reviewed and frozen. Before implementation, reconcile the exact Kotlin Multiplatform/Compose-compatible adapter, model-type-to-registration dispatch, typed element collections replacing `List<Any>`, public registry construction invariants, mapper/fixture impacts, and focused regression tests.
+
+Do not report this proposal as implemented, tested, verified or frozen. Do not alter source while the planning gate remains open.
