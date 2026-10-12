@@ -4,22 +4,30 @@ on:
   push:
     branches:
       - feature/dynamic-ui
-  pull_request:
-    branches:
-      - feature/dynamic-ui
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   workflow_dispatch:
+    inputs:
+      run_ios:
+        description: 'Run the macOS iOS simulator tests and framework build (uses more Actions minutes)'
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+# Keep only the latest run for this branch. This cancels stale builds after a newer push.
 concurrency:
   group: cb-partner-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  jvm-tests:
-    name: JVM unit tests
+  shared-android-web:
+    name: JVM tests, Android build, and Web/Wasm checks
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -30,22 +38,29 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle
+      - name: Set up Gradle (with dependency/build cache)
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Run JVM unit tests
-        run: >-
-          ./gradlew
-          :core:jvmTest
-          :domain:jvmTest
-          :data:jvmTest
-          :navigation:jvmTest
-          :feature:splash:jvmTest
-          :feature:dynamic:jvmTest
+      - name: Run shared JVM tests, Android build, and Web checks
+        run: |
+          ./gradlew --continue --stacktrace \
+            :core:jvmTest \
+            :domain:jvmTest \
+            :network:jvmTest \
+            :data:jvmTest \
+            :navigation:jvmTest \
+            :app:jvmTest \
+            :feature:splash:jvmTest \
+            :feature:dynamic:jvmTest \
+            :androidApp:assembleDebug \
+            :webApp:wasmJsBrowserTest \
+            :webApp:wasmJsBrowserProductionWebpack
 
-  web-wasm-build:
-    name: Web Wasm production build
-    runs-on: ubuntu-latest
+  ios-simulator:
+    name: iOS simulator tests and framework build (manual opt-in)
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_ios }}
+    runs-on: macos-15
+    timeout-minutes: 45
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -56,8 +71,23 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle
+      - name: Set up Gradle (with dependency/build cache)
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Web Wasm production bundle
-        run: ./gradlew :webApp:wasmJsBrowserProductionWebpack
+      - name: Verify Xcode toolchain
+        run: |
+          xcodebuild -version
+          xcode-select -p
+
+      - name: Run iOS simulator tests and link the app framework
+        run: |
+          ./gradlew --continue --stacktrace \
+            :core:iosSimulatorArm64Test \
+            :domain:iosSimulatorArm64Test \
+            :network:iosSimulatorArm64Test \
+            :data:iosSimulatorArm64Test \
+            :navigation:iosSimulatorArm64Test \
+            :app:iosSimulatorArm64Test \
+            :feature:splash:iosSimulatorArm64Test \
+            :feature:dynamic:iosSimulatorArm64Test \
+            :app:linkDebugFrameworkIosSimulatorArm64
