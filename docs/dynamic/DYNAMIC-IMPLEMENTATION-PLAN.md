@@ -743,70 +743,59 @@ On PR #6 head `c08a6729186590eb094e79176f34daa119aa8a4a`, the owner reports succ
 GitHub reported no PR-triggered workflow runs and zero commit check-runs for that head; no CI pass is claimed. The webpack critical-dependency warning and npm transitive `ws` version-clash notices did not fail the build. The expected Windows iOS-simulator disabled-target warning is an environment limitation and remains unsuppressed. These results verify build/test gates only, not actual visual appearance. Complete the line-by-line diff/obsolete-property audit and inspect the Web runtime before final freeze or merge.
 
 
-### 22.27 Proposed generic element renderer registry consolidation — 2026-10-13
+### 22.27 Generic element renderer registry consolidation — frozen plan (2026-10-13)
 
-**Decision reference:** `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`.  
-**State:** OWNER-APPROVED AND FROZEN PLAN; SOURCE IMPLEMENTATION NOT YET STARTED.  
+**Decision reference:** `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`  
+**State:** OWNER-APPROVED; ARCHITECTURE AMENDMENT AND PLAN FROZEN; SOURCE IMPLEMENTATION NOT STARTED  
 **Scope:** `CB-Partner`, branch `feature/dynamic-ui`, frontend only.
 
-This proposed amendment addresses duplicated element-specific registry infrastructure. It is not active over conflicting frozen clauses until the owner reviews and explicitly freezes the reconciled plan.
+This amendment removes duplicated element-specific renderer infrastructure. A new element should require its concrete model, mapper, renderer, one explicit registration, and tests—not new registry fields, lookups, or builder methods.
 
-#### Problem and goal
-The current registry separately declares five element renderer interfaces, constructor maps, lookups, builder maps, registration methods and build arguments. `DynamicRenderContext` also repeats concrete element-to-key dispatch. A new element should require its concrete model, mapper, renderer, explicit registration and tests—not new registry infrastructure for that concrete type.
+#### Frozen contract
 
-#### Intended contract
-1. Add a common domain `DynamicElement` interface implemented by the existing `TextElement`, `ImageElement`, `InputElement`, `ButtonElement` and `IconElement` models.
-2. Replace the five concrete element renderer interfaces with `ElementRenderer<T : DynamicElement>`. Each renderer implementation must remain typed to its concrete element model.
-3. Consolidate element registration in `DynamicRegistry` into one element map, one lookup and one builder method: `.element(type, renderer)`.
-4. Keep the builder's registrations explicit. Use the shared API `.element(type, modelClass, renderer)`, where `modelClass` is the explicit `KClass<T>` token. Preserve normalized backend keys: `text`, `image`, `input`, `button`, `icon`.
-5. Use the frozen checked adapter/dispatch boundary described below to bridge heterogeneous generic renderers. The adapter captures the explicit `KClass<T>`, checks `isInstance`, and contains the sole unchecked cast. It must be compatible with Kotlin Multiplatform common code and Compose. No reflection-based discovery, `Map<String, Any>`, concrete-renderer casts, or growing element-dispatch `when` in `DynamicRenderContext` are permitted.
-6. Change element collections from `List<Any>` to `List<DynamicElement>` only in the domain component/section/group models that own such collections. Keep DTO mapping into concrete model types in `:data`; do not introduce a central generic element mapper.
-7. Keep Template, Component, Section, Group and Content contracts/registrations separate. Keep `ElementContentRenderer` and the content registry unchanged.
-8. Fix duplicate registration so rejection cannot replace the original value if the exception is caught. Preserve normalization and blank-key rejection. Direct registry construction must not create a second path with weaker invariants; settle constructor visibility/validation in the plan.
-9. Preserve all current rendering, action, binding, validation, property ownership and backend contract behavior.
+1. Add a common domain `DynamicElement` interface implemented by `TextElement`, `ImageElement`, `InputElement`, `ButtonElement`, and `IconElement`. The interface has no Compose dependency and adds no backend type property.
+2. Replace the five concrete element renderer interfaces with `ElementRenderer<T : DynamicElement>`; every concrete renderer stays typed to its own model.
+3. Use one element-renderer map keyed by `KClass<out DynamicElement>`, one class-based lookup, and one generic builder registration method: `.element(type, modelClass, renderer)`.
+4. Normalize and validate `type` as the explicit backend registration key. Keep a normalized-key set for blank/duplicate rejection; do not use backend keys for runtime renderer lookup and do not add a second renderer map.
+5. The registered `KClass<T>` is the lookup identity. `DynamicRenderContext` dispatches using the concrete element model's class identity; remove the growing class-to-backend-key `when`.
+6. One internal adapter captures the explicit `KClass<T>`, defensively checks `modelClass.isInstance(element)`, and contains the sole unchecked cast. No reflection discovery, `Map<String, Any>`, or concrete-renderer casts.
+7. Change only domain component/section/group element collections from `List<Any>` to `List<DynamicElement>`. Keep `:data` mapping backend type keys to concrete models; do not introduce a central generic element mapper or backend type properties in domain models.
+8. Preserve unknown backend-key behavior in the existing `:data` mapping boundary. A domain element with no registered class renderer must produce deterministic missing-renderer behavior; adapter mismatch must produce a deterministic diagnostic.
+9. Keep Template, Component, Section, Group, Element, and Content responsibilities separate. Leave `ElementContentRenderer` and the content registry unchanged.
+10. Duplicate/blank registration rejection must not replace an existing registration if the exception is caught. Every supported construction path must preserve the same validation invariants; inspect current constructor usage before deciding the minimal enforcement change.
+11. Preserve rendering, action, binding, validation, layout/property ownership, and backend contract behavior. No unrelated refactor.
 
 #### Minimal file-by-file scope
 
 **Domain**
-- New `domain/src/commonMain/kotlin/com/carbroz/cbpartner/domain/model/dynamic/element/DynamicElement.kt`: common element marker/contract, with no Compose dependency.
-- Existing `TextElement.kt`, `ImageElement.kt`, `InputElement.kt`, `ButtonElement.kt`, `IconElement.kt`: implement the common contract; no property/schema changes.
-- `StackComponent.kt`, `StackSection.kt`, `StackGroup.kt`: type their element collections as `List<DynamicElement>` if confirmed by the dispatch design.
+- Add `domain/src/commonMain/kotlin/com/carbroz/cbpartner/domain/model/dynamic/element/DynamicElement.kt`.
+- Update the five concrete element models to implement `DynamicElement`, without changing their properties/schema.
+- Type `StackComponent.kt`, `StackSection.kt`, and `StackGroup.kt` element collections as `List<DynamicElement>`.
+
+**Data**
+- Change `ElementMappers.map`'s return type to `DynamicElement` while retaining its existing backend-type mapping `when` and concrete mapper calls.
+- Preserve the current simple DTO-to-domain collection mapping in component/section/group mappers.
+- Update only necessary fixtures and mapping assertions.
 
 **Dynamic feature**
-- `registry/DynamicRendererContracts.kt`: replace five element renderer interfaces with the generic contract and one internal typed dispatch adapter; retain non-element renderer contracts and content contract.
-- `registry/DynamicRegistry.kt`: one element map, lookup and builder method; preserve category separation, normalized-key validation and safe duplicate rejection.
-- `registry/DynamicRendererRegistration.kt`: replace the five concrete registration methods with one `.element(...)` call per supported type.
-- `runtime/DynamicRenderContext.kt`: delegate element dispatch through the approved registry/adapter boundary; preserve property resolution, callbacks and content dispatch; remove the growing concrete-element `when`.
-- Existing element renderers: update only their implemented interface signatures; keep each renderer's concrete model input and rendering logic.
-- Existing DTO/domain mappers, fixtures and tests: change only where typed element collections require it. Do not centralize or rewrite concrete mapping.
+- `registry/DynamicRendererContracts.kt`: replace five element renderer interfaces with the generic renderer contract and one internal checked adapter; retain non-element and content contracts.
+- `registry/DynamicRegistry.kt`: one model-class-keyed element renderer map and lookup; normalized backend-key validation; safe duplicate rejection; preserve separate categories.
+- `registry/DynamicRendererRegistration.kt`: one explicit `.element(type, modelClass, renderer)` call for each of text, image, input, button, and icon.
+- `runtime/DynamicRenderContext.kt`: dispatch through the class-based registry lookup; remove the concrete element-to-key `when`; preserve callbacks, property resolution, and content dispatch.
+- Concrete element renderers: update only their implemented interface signatures; do not change rendering logic.
+- Tests: update only what typed collections and the new registry API require.
 
-**Tests**
-- `DynamicRegistryTest.kt`: cover all five element registrations, category separation, normalized keys, blank key rejection, duplicate rejection without mutation, unknown lookup, and correct concrete renderer dispatch.
-- Domain/data mapping tests: prove all five concrete element models survive mapping into typed element collections without losing DynamicValue/reference semantics.
-- Dynamic rendering tests: prove correct renderer dispatch, unknown/mismatched model behavior, and no renderer-local casts.
-- Keep unrelated fixtures and assertions unchanged.
+#### Tests and verification
 
-#### Frozen dispatch algorithm and implementation preflight
-Before source edits, inspect all usages of `List<Any>` and every constructor/mapper/fixture that builds component, section and group elements. Confirm `KClass.isInstance` is available in the configured Kotlin Multiplatform common source set and that the adapter compiles with Compose. If not, stop and report; do not substitute another algorithm without a new decision. Define deterministic behavior for unknown keys and mismatched model types. Confirm whether the public `DynamicRegistry` constructor is used; enforce the same invariants on every construction path or make the builder the only supported construction path.
-
-### Frozen dispatch algorithm
-
-The element registration API is `.element(type, modelClass, renderer)`, where `modelClass` is the explicit Kotlin `KClass<T>` token for `T : DynamicElement`. This is one shared `.element(...)` registration method; the model-class token is required so the heterogeneous generic renderer can be dispatched without a class-specific `when` expression.
-
-- `ElementRenderer<T : DynamicElement>` remains strongly typed. A single internal adapter captures the supplied `KClass<T>` and renderer, checks `modelClass.isInstance(element)`, and performs the one contained unchecked cast only after that check.
-- The adapter is the only allowed type-erasure/cast boundary. No concrete renderer may cast its input. No reflection-based discovery or scanning is allowed; the class token is explicitly supplied at registration. If the configured Kotlin Multiplatform source set/toolchain does not support `KClass.isInstance` in common code, stop and report the incompatibility rather than substituting reflection, a growing `when`, or distributed casts.
-- The normalized backend type key selects the adapter. The concrete model-class token validates its input; it is not used to discover registrations.
-- Unknown keys retain the current render path's behavior. A key resolving to an adapter but receiving the wrong model class fails deterministically at the adapter boundary with a useful diagnostic.
-- Registration remains explicit for `text`, `image`, `input`, `button` and `icon`. Future elements add their model, mapper, renderer, one explicit `.element(...)` entry and tests—not new registry fields, lookup methods, or builder methods.
-- No source implementation begins until common-source API/toolchain compatibility is confirmed during implementation preflight. This is a compatibility check, not permission to alter the frozen algorithm.
-
-If these checks require a broader model redesign, a generic mapper, reflection, or unrelated changes, stop and report rather than expand scope.
-
-#### Verification after a separately frozen implementation plan
-- Run `:domain:jvmTest`, `:data:jvmTest`, and `:feature:dynamic:jvmTest`.
-- Then run the current project-required seven-module JVM matrix and relevant Kotlin compile tasks from the current build documentation.
-- Run `git diff --check` and inspect the complete diff for all approved files.
-- Verify there are no remaining concrete element-specific registry maps/lookups/builder methods, no per-renderer casts, no generic mapper, no content registry changes and no unrelated edits.
+- `DynamicRegistryTest.kt`: all five generic registrations; separate categories; normalized keys; blank/duplicate rejection without mutation; successful class-based dispatch; missing renderer; deterministic adapter mismatch.
+- Domain/data mapping tests: all five concrete models survive typed collection mapping and preserve DynamicValue/reference semantics.
+- Dynamic rendering tests: verify class-based dispatch and no concrete renderer casts.
+- Run `:domain:jvmTest`, `:data:jvmTest`, and `:feature:dynamic:jvmTest`; then run the project-required JVM matrix and relevant Kotlin compile tasks from the current build workflow.
+- Run `git diff --check` and review the complete diff. Verify no concrete element-specific registry maps/lookups/builder methods remain, no per-renderer casts, no generic central mapper, no content-registry changes, and no unrelated edits.
 - Do not claim Android/Web runtime or visual verification unless those platforms are actually exercised.
 
-**Implementation gate:** no source implementation begins until this proposal is reconciled with the current source, the exact adapter mechanism and all affected files/tests are finalized, and the owner explicitly freezes the revised plan.
+#### Pre-implementation stop condition
+
+The Kotlin common API exposes `KClass.isInstance`, but project-specific Gradle/Compose compilation has not yet been run. Compile the adapter and audit all `List<Any>` usages, mappers, registry construction paths, fixtures, and tests before source edits. If the configured source set/toolchain or actual source constraints reject this design, stop and report; do not silently substitute another algorithm.
+
+**Implementation gate:** this architecture and plan are frozen. Source implementation remains a separate step and must not begin until that gate is explicitly opened.
