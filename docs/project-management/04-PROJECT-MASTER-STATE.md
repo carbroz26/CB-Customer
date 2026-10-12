@@ -392,6 +392,6 @@ Historical decision snapshot: the contract was documentation-frozen before imple
 
 - Contract: `DYNAMIC-CONTRACT-REVISION-CONTENT-SPACING-001`; architecture section 21 and implementation plan section 22.26 remain authoritative and frozen.
 - Implementation: `ElementContent.spacing: DynamicSpacing?` shared by IconContent and DividerContent; mapper reads backend `properties.spacing`; existing accessory renderers apply four-sided external spacing. Ordinary node/container `DynamicPadding` remains unchanged.
-- Verified on PR #6 head `c08a6729186590eb094e79176f34daa119aa8a4a`: seven-module JVM test matrix; Android unit tests, Kotlin compilation, and debug assembly; Web/Wasm development webpack and browser tests all passed.
+- Verified on PR #6 head `c08a6729186590eb094e79176f34daa119aa8a4a`: six-module JVM test matrix; Android unit tests, Kotlin compilation, and debug assembly; Web/Wasm development webpack and browser tests all passed.
 - GitHub reported no PR-triggered workflow runs and zero commit check-runs for this head. No CI pass is claimed.
 - Remaining before merge/final freeze: complete line-by-line diff and obsolete-property audit, plus actual Web visual inspection. Do not update the backend repository or its PR as part of this frontend task.
