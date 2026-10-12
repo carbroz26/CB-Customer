@@ -1,7 +1,7 @@
 # CB-Partner — AI START HERE
 
 **Status:** AUTHORITATIVE GLOBAL ROUTER
-**Last Updated:** 2026-10-11
+**Last Updated:** 2026-10-13
 
 ## 1. First rule
 
@@ -171,7 +171,8 @@ As of 2026-10-11:
 - Original Dynamic runtime/UI source audit and JVM matrix: previously passed.
 - Local Dynamic asset fallback amendment: separate verification item remains tracked in Dynamic status.
 - Current branch: `feature/dynamic-ui`.
-- Current Dynamic accessory-padding amendment: the plan is frozen and the implementation is complete within scope.
+- Current Dynamic content-owned spacing amendment: implementation/build gates are recorded; final source/diff and Web visual review remain open.
+- Current active planning task: reconcile the owner-approved proposal to consolidate element renderers behind a generic typed contract. No source refactor has started; the current frozen contract remains active until the revised plan is reviewed and frozen.
 - The owner ran the seven-module JVM test matrix and targeted domain/data/Dynamic JVM compilation successfully on 2026-10-11.
 - Final line-by-line diff/obsolete-property audit and Web visual verification remain open; do not claim final freeze yet.
 - Use the latest docs/dynamic/DYNAMIC-ARCHITECTURE.md, DYNAMIC-IMPLEMENTATION-PLAN.md, DYNAMIC-IMPLEMENTATION-STATUS.md, docs/project-management/04-PROJECT-MASTER-STATE.md, and 03-DECISION-LOG.md for recovery. Do not treat historical parent-level text-spacing amendments as the current contract.
