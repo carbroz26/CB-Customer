@@ -443,15 +443,16 @@ The current frozen clauses in the Dynamic architecture and implementation plan r
 
 ### Frozen dispatch detail
 
-### Frozen dispatch algorithm
+### Frozen dispatch algorithm — amended and frozen
 
-The element registration API is `.element(type, modelClass, renderer)`, where `modelClass` is the explicit Kotlin `KClass<T>` token for `T : DynamicElement`. This is one shared `.element(...)` registration method; the model-class token is required so the heterogeneous generic renderer can be dispatched without a class-specific `when` expression.
+The owner approved this dispatch amendment on 2026-10-13 after the compatibility and impact audit. **Renderer lookup is model-class-based, not backend-key-based.**
 
-- `ElementRenderer<T : DynamicElement>` remains strongly typed. A single internal adapter captures the supplied `KClass<T>` and renderer, checks `modelClass.isInstance(element)`, and performs the one contained unchecked cast only after that check.
-- The adapter is the only allowed type-erasure/cast boundary. No concrete renderer may cast its input. No reflection-based discovery or scanning is allowed; the class token is explicitly supplied at registration. If the configured Kotlin Multiplatform source set/toolchain does not support `KClass.isInstance` in common code, stop and report the incompatibility rather than substituting reflection, a growing `when`, or distributed casts.
-- The normalized backend type key selects the adapter. The concrete model-class token validates its input; it is not used to discover registrations.
-- Unknown keys retain the current render path's behavior. A key resolving to an adapter but receiving the wrong model class fails deterministically at the adapter boundary with a useful diagnostic.
-- Registration remains explicit for `text`, `image`, `input`, `button` and `icon`. Future elements add their model, mapper, renderer, one explicit `.element(...)` entry and tests—not new registry fields, lookup methods, or builder methods.
-- No source implementation begins until common-source API/toolchain compatibility is confirmed during implementation preflight. This is a compatibility check, not permission to alter the frozen algorithm.
+- The public builder API is `.element(type, modelClass, renderer)`; `type` is normalized and retained for explicit backend-key registration/duplicate-key validation, while `modelClass: KClass<T>` is the lookup identity for `T : DynamicElement`.
+- `DynamicRegistry` uses one element-renderer map keyed by `KClass<out DynamicElement>`. The builder also tracks normalized registered keys for blank/duplicate rejection; this key-validation set is not a second renderer map.
+- `DynamicRenderContext` dispatches using the concrete element model's class identity. It must not reconstruct backend keys with a growing class `when`.
+- `ElementRenderer<T : DynamicElement>` remains strongly typed. One internal adapter captures the explicit `KClass<T>`, defensively checks `modelClass.isInstance(element)`, and contains the sole unchecked cast. Concrete renderers do not cast.
+- Explicit registrations remain `text`, `image`, `input`, `button`, and `icon`. No reflection discovery, `Map<String, Any>`, centralized generic mapper, or cross-category registry is allowed.
+- Backend type-key interpretation remains in the existing `:data` mapper. Unknown backend keys keep the mapper's existing handling; a domain element with no registered model class must fail through a deterministic missing-renderer diagnostic. A model/adapter mismatch must fail deterministically with a useful diagnostic.
+- `KClass.isInstance` is available in Kotlin common API. The project-specific Gradle/Compose compilation has not yet been run; perform that check before source edits and stop if the configured toolchain rejects the frozen design.
 
 The generic registry consolidation supersedes earlier Dynamic registry clauses only where they require five element-specific renderer contracts, maps, lookups, builder methods, or concrete-element dispatch in `DynamicRenderContext`. All other frozen Dynamic rules remain in force. This freezes the architectural decision and planned scope; source implementation remains a separate execution step.
