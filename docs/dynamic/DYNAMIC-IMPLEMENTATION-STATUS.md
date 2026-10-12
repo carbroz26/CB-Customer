@@ -7,7 +7,7 @@
 
 ## 1. Current truth
 
-The content-owned spacing revision is implemented on `feature/dynamic-content-spacing-contract`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent, the mapper reads backend `properties.spacing`, and existing renderers apply the four-sided external spacing. The owner ran the seven-module JVM matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:network:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`), Android unit tests, Android Kotlin compilation/debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`. The full line-by-line source/diff audit and actual Web visual inspection remain open; do not treat this branch as finally frozen.
+The content-owned spacing revision is implemented on `feature/dynamic-content-spacing-contract`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent, the mapper reads backend `properties.spacing`, and existing renderers apply the four-sided external spacing. The owner ran the six-module JVM matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:network:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`), Android unit tests, Android Kotlin compilation/debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`. The full line-by-line source/diff audit and actual Web visual inspection remain open; do not treat this branch as finally frozen.
 
 The original runtime architecture remains unchanged. The asset amendment adds only shared local resources, renderer fallback handling, tolerant mapping for missing URLs, and focused mapper regression coverage.
 
@@ -258,12 +258,12 @@ The current owner-environment JVM test matrix and targeted compilation passed on
 
 ## 11. Superseded text-spacing discussion
 
-The older parent-level text-spacing approach is superseded by the accessory-owned padding contract in section 13. Do not reintroduce parent-owned spacing fields or backend dependencies on them.
+The older parent-level text-spacing approach is superseded by the content-owned spacing contract in section 14. Do not reintroduce parent-owned spacing fields or backend dependencies on them.
 
 
 ## 12. Superseded trailing-spacing discussion
 
-The older trailing-only text-spacing approach is superseded by the accessory-owned padding contract in section 13. Backend accessory padding is the current contract.
+The older trailing-only text-spacing approach is superseded by the content-owned spacing contract in section 14. Backend accessory padding is the current contract.
 
 
 ## 13. Historical contract: accessory-owned padding (superseded) — 2026-10-11
