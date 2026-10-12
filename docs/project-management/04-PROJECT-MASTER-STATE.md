@@ -1,7 +1,7 @@
 # CB-Partner — Project Master State
 
 **Status:** AUTHORITATIVE / CURRENT RECOVERY SOURCE
-**Last Updated:** 2026-10-12
+**Last Updated:** 2026-10-13
 **Scope:** Frontend repository only
 
 ## 1. Repository State
@@ -342,7 +342,12 @@ Ordered:
 2. Complete owner-side Web runtime/visual verification when available. Android and iOS runtime verification remain separate platform gates.
 4. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
 5. Keep production SMS provider/security behavior unchanged.
-6. Start the next product work only after the current authorized work is completed and reviewed.
+6. Reconcile and review the proposed generic element renderer registry plan; no source implementation until the revised plan is frozen.
+7. Start the next product work only after the current authorized work is completed and reviewed.
+
+### Current planning task — 2026-10-13
+
+The owner approved the direction for generic, type-safe element renderer registration under `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`. The next step is to reconcile and review the architecture/implementation-plan amendment, including the single checked dispatch adapter and typed element collections. No source changes have been made for this task; the existing frozen registry contract remains active until the revised plan is explicitly frozen. This work must not reopen the base architecture or content-owned spacing contract.
 
 ## 12. Explicitly Closed / Do Not Reopen
 
