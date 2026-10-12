@@ -65,7 +65,7 @@ Do not mark the current branch FINAL FROZEN again until the owner-environment Gr
 - No hardcoded form-template business branch exists in the generic root renderer.
 - Root identity validates screen ID, template ID and template type.
 - The frozen hierarchy remains Template → Component → Section → Group → Element.
-- Concrete element models no longer inherit from a generic `DynamicElement` abstraction.
+- Source baseline before the frozen registry refactor: concrete element models do not yet implement the planned `DynamicElement` contract. The approved refactor will add that marker solely to type the element collections and generic renderer contract; no source changes have been made for this work.
 - Concrete element mapper/renderer boundaries are separated for Text, Image, Input, Button and Icon.
 - Duplicate normalized registrations fail deterministically.
 - Rendering does not perform network, navigation, action execution or RuntimeState mutation.
@@ -304,15 +304,17 @@ Frozen target:
 Implementation and focused tests are committed. Local verification completed successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`: six-module JVM test matrix; `:androidApp:testDebugUnitTest`; `:androidApp:compileDebugKotlin`; `:androidApp:assembleDebug`; `:webApp:wasmJsBrowserDevelopmentWebpack`; and `:webApp:wasmJsBrowserTest`. GitHub returned no PR-triggered workflow runs and zero commit check-runs for this head, so no CI pass is claimed. The remaining gates are the complete line-by-line diff/obsolete-property audit and actual Web visual inspection; do not declare final freeze until those are completed.
 
 
-## 15. Proposed element registry consolidation — planning only (2026-10-13)
+## 15. Generic element renderer registry consolidation — plan frozen (2026-10-13)
 
 **Decision:** `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`.  
-**Current phase:** Frozen plan; implementation has not started.  
-**Source implementation:** Not started.  
-**Verification:** Not applicable; no code has changed for this proposal.
+**Phase:** Architecture amendment and implementation plan frozen; implementation not started.  
+**Source changes for this work:** None.  
+**Verification:** No source tests/builds have been run for this work.
 
-The owner approved the direction to replace five concrete element renderer contracts and their parallel registry APIs with one generic, type-safe `ElementRenderer<T : DynamicElement>` contract and a single `.element(type, renderer)` registration API. The intended design preserves concrete model types and uses one checked adapter/dispatch boundary; it does not use reflection-based discovery, `Map<String, Any>`, a universal cross-category registry, or a centralized mapper.
+The owner approved the model-class-based dispatch amendment. The renderer registry uses one element map keyed by `KClass<out DynamicElement>`; `.element(type, modelClass, renderer)` keeps backend keys explicit for normalized blank/duplicate-key validation, but the key does not select the renderer. `DynamicRenderContext` dispatches by the concrete element model's class identity, without a growing class-to-key `when`. A single internal adapter checks `KClass.isInstance` and contains the only unchecked cast.
 
-The revised architecture and implementation plan are frozen. The agreed adapter uses an explicit `KClass<T>` token in `.element(type, modelClass, renderer)`, validates with `isInstance`, and contains the sole unchecked cast. Before source edits, perform the common-source compatibility preflight, audit all `List<Any>` usages and mapper/fixture impacts, and settle registry construction invariants. If the frozen adapter is unsupported by the current toolchain, stop and report instead of silently redesigning.
+The five concrete element models will implement the shared domain `DynamicElement` contract. The component, section, and group element collections will become `List<DynamicElement>`. `:data` keeps its concrete backend-type mapping responsibility; no backend type property is added to domain models solely for renderer lookup. Template/component/section/group/content registry boundaries and content rendering remain unchanged.
 
-Do not report this proposal as implemented, tested, verified or frozen. Do not alter source while the planning gate remains open.
+**Compatibility preflight:** Kotlin common API exposes `KClass.isInstance`. The configured project's actual Gradle/Compose compilation has not yet been run. Before source edits, compile the adapter in common source and audit affected model collections, mapper usages, registry construction paths, fixtures, and tests. If the frozen design does not compile or violates an existing source constraint, stop and report rather than silently redesigning.
+
+**Next valid action:** open the separate implementation gate, then implement only the frozen file-by-file scope. Until then, do not change source. After implementation, run the frozen JVM test/compile matrix, inspect the complete diff, and update implementation status only from actual results.
