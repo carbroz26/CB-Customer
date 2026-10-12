@@ -204,7 +204,7 @@ This address reaches port 3000 on the Windows host from the standard Android Emu
 
 Replace `192.168.1.25` with the real PC IPv4 address. The Gradle property overrides the default for that build; do not commit a machine-specific LAN address.
 
-Android declares `INTERNET` permission. Cleartext HTTP is enabled only in the debug manifest; release builds should use HTTPS.
+Android declares `INTERNET` permission. Cleartext HTTP is enabled only in the debug manifest; release builds should use HTTPS. The release default is the reserved `https://api.invalid` placeholder, so set `-Pcbpartner.api.baseUrl=https://<your-real-api-host>` explicitly for a release build.
 
 ### Web/Wasm
 
@@ -212,7 +212,7 @@ Web derives the API hostname from `window.location.hostname` and uses port 3000.
 
 ### iOS Simulator and physical iPhone
 
-The Xcode target exposes `CBPARTNER_API_BASE_URL` as an app Info.plist value. In Xcode Build Settings, set it to the Windows PC's actual LAN URL when testing against the Windows-hosted backend, for example `http://192.168.1.25:3000`. The default `localhost` is only appropriate when the backend runs on the Mac hosting the simulator.
+The Xcode target exposes `CBPARTNER_API_BASE_URL` as an app Info.plist value. In Xcode Build Settings, set it to the Windows PC's actual LAN URL when testing against the Windows-hosted backend, for example `http://192.168.1.25:3000`. The Debug default `localhost` is only appropriate when the backend runs on the Mac hosting the simulator; the Release default is the reserved `https://api.invalid` placeholder and must be replaced with the deployed HTTPS URL before release.
 
 Physical iPhones must be able to reach the Windows PC over the LAN and approve the iOS Local Network prompt. On iOS 17 and later, HTTP connections to an IP address may also require a narrowly scoped App Transport Security exception for that exact IP. Do not disable ATS globally; prefer HTTPS for production.
 
