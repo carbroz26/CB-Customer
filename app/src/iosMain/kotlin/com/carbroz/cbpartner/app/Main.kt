@@ -4,6 +4,8 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataDefaults
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadata
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
+import com.carbroz.cbpartner.network.ApiBaseUrl
+import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
 
 private class IosRuntimeMetadataProvider : RuntimeMetadataProvider {
@@ -16,6 +18,11 @@ private class IosRuntimeMetadataProvider : RuntimeMetadataProvider {
     )
 }
 
+private fun iosApiBaseUrl(): ApiBaseUrl {
+    val configuredUrl = NSBundle.mainBundle.objectForInfoDictionaryKey("CBPARTNER_API_BASE_URL") as? String
+    return ApiBaseUrl(configuredUrl ?: "http://localhost:3000")
+}
+
 fun MainViewController() = ComposeUIViewController {
-    App(IosRuntimeMetadataProvider())
+    App(IosRuntimeMetadataProvider(), iosApiBaseUrl())
 }
