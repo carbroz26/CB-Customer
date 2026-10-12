@@ -9,27 +9,32 @@ on:
       - 'docs/**'
   workflow_dispatch:
     inputs:
-      run_ios:
-        description: 'Run the macOS iOS simulator tests and framework build (uses more Actions minutes)'
+      verification:
+        description: 'Choose the checks to run (full uses more Actions minutes)'
         required: true
-        type: boolean
-        default: false
+        type: choice
+        default: quick
+        options:
+          - quick
+          - android
+          - web
+          - ios
+          - full
 
 permissions:
   contents: read
 
-# Keep only the latest run for this branch. This cancels stale builds after a newer push.
+# Keep only the latest run for this branch. A newer push cancels stale work.
 concurrency:
   group: cb-partner-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  shared-android-web:
-    name: JVM tests, Android build, and Web/Wasm checks
-    # If manually opting into iOS, run only the expensive iOS job; standard checks already run on pushes.
-    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.run_ios }}
+  quick-regression:
+    name: Shared JVM regression tests
+    if: ${{ github.event_name == 'push' || inputs.verification == 'quick' || inputs.verification == 'full' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 25
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -40,32 +45,27 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle (with dependency/build cache)
+      - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
       - name: Make Gradle Wrapper executable
         run: chmod +x ./gradlew
 
-      - name: Run shared JVM tests, Android build, and Web checks
+      - name: Run JVM unit tests
         run: |
-          ./gradlew --continue --stacktrace \
+          ./gradlew --stacktrace \
             :core:jvmTest \
             :domain:jvmTest \
-            :network:jvmTest \
             :data:jvmTest \
             :navigation:jvmTest \
-            :app:jvmTest \
             :feature:splash:jvmTest \
-            :feature:dynamic:jvmTest \
-            :androidApp:assembleDebug \
-            :webApp:wasmJsBrowserTest \
-            :webApp:wasmJsBrowserProductionWebpack
+            :feature:dynamic:jvmTest
 
-  ios-simulator:
-    name: iOS simulator tests and framework build (manual opt-in)
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_ios }}
-    runs-on: macos-15
-    timeout-minutes: 45
+  android:
+    name: Android unit tests and debug build
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.verification == 'android' || inputs.verification == 'full') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -76,7 +76,58 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle (with dependency/build cache)
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle Wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run Android unit tests and assemble debug app
+        run: ./gradlew --stacktrace :androidApp:testDebugUnitTest :androidApp:assembleDebug
+
+  web:
+    name: Web browser tests and production Wasm build
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.verification == 'web' || inputs.verification == 'full') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle Wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run Web browser tests and production build
+        run: |
+          ./gradlew --stacktrace \
+            :webApp:wasmJsBrowserTest \
+            :webApp:wasmJsBrowserProductionWebpack
+
+  ios:
+    name: iOS simulator tests and framework build
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.verification == 'ios' || inputs.verification == 'full') }}
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
       - name: Make Gradle Wrapper executable
@@ -87,9 +138,9 @@ jobs:
           xcodebuild -version
           xcode-select -p
 
-      - name: Run iOS simulator tests and link the app framework
+      - name: Run iOS simulator tests and link app framework
         run: |
-          ./gradlew --continue --stacktrace \
+          ./gradlew --stacktrace \
             :core:iosSimulatorArm64Test \
             :domain:iosSimulatorArm64Test \
             :network:iosSimulatorArm64Test \
