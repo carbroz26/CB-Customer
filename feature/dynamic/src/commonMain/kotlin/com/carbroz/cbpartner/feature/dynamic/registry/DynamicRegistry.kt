@@ -1,26 +1,25 @@
 package com.carbroz.cbpartner.feature.dynamic.registry
 
-class DynamicRegistry(
-    private val templates: Map<String, TemplateRenderer> = emptyMap(),
-    private val components: Map<String, ComponentRenderer> = emptyMap(),
-    private val sections: Map<String, SectionRenderer> = emptyMap(),
-    private val groups: Map<String, GroupRenderer> = emptyMap(),
-    private val textElements: Map<String, TextElementRenderer> = emptyMap(),
-    private val imageElements: Map<String, ImageElementRenderer> = emptyMap(),
-    private val inputElements: Map<String, InputElementRenderer> = emptyMap(),
-    private val buttonElements: Map<String, ButtonElementRenderer> = emptyMap(),
-    private val iconElements: Map<String, IconElementRenderer> = emptyMap(),
-    private val contents: Map<String, ElementContentRenderer> = emptyMap(),
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import kotlin.reflect.KClass
+
+class DynamicRegistry private constructor(
+    private val templates: Map<String, TemplateRenderer>,
+    private val components: Map<String, ComponentRenderer>,
+    private val sections: Map<String, SectionRenderer>,
+    private val groups: Map<String, GroupRenderer>,
+    private val elements: Map<KClass<out DynamicElement>, ElementRenderer<DynamicElement>>,
+    private val contents: Map<String, ElementContentRenderer>,
 ) {
     fun template(type: String): TemplateRenderer? = templates[type.normalizeType()]
     fun component(type: String): ComponentRenderer? = components[type.normalizeType()]
     fun section(type: String): SectionRenderer? = sections[type.normalizeType()]
     fun group(type: String): GroupRenderer? = groups[type.normalizeType()]
-    fun textElement(type: String): TextElementRenderer? = textElements[type.normalizeType()]
-    fun imageElement(type: String): ImageElementRenderer? = imageElements[type.normalizeType()]
-    fun inputElement(type: String): InputElementRenderer? = inputElements[type.normalizeType()]
-    fun buttonElement(type: String): ButtonElementRenderer? = buttonElements[type.normalizeType()]
-    fun iconElement(type: String): IconElementRenderer? = iconElements[type.normalizeType()]
+
+    fun element(element: DynamicElement): ElementRenderer<DynamicElement> =
+        elements[element::class]
+            ?: error("No Dynamic element renderer registered for model class: ${element::class}")
+
     fun content(type: String): ElementContentRenderer? = contents[type.normalizeType()]
 
     companion object {
@@ -32,11 +31,8 @@ class DynamicRegistry(
         private val components = linkedMapOf<String, ComponentRenderer>()
         private val sections = linkedMapOf<String, SectionRenderer>()
         private val groups = linkedMapOf<String, GroupRenderer>()
-        private val textElements = linkedMapOf<String, TextElementRenderer>()
-        private val imageElements = linkedMapOf<String, ImageElementRenderer>()
-        private val inputElements = linkedMapOf<String, InputElementRenderer>()
-        private val buttonElements = linkedMapOf<String, ButtonElementRenderer>()
-        private val iconElements = linkedMapOf<String, IconElementRenderer>()
+        private val elements = linkedMapOf<KClass<out DynamicElement>, ElementRenderer<DynamicElement>>()
+        private val elementTypes = linkedSetOf<String>()
         private val contents = linkedMapOf<String, ElementContentRenderer>()
 
         fun template(type: String, renderer: TemplateRenderer) = apply {
@@ -55,24 +51,22 @@ class DynamicRegistry(
             register(groups, "group", type, renderer)
         }
 
-        fun textElement(type: String, renderer: TextElementRenderer) = apply {
-            register(textElements, "text element", type, renderer)
-        }
+        fun <T : DynamicElement> element(
+            type: String,
+            modelClass: KClass<T>,
+            renderer: ElementRenderer<T>,
+        ) = apply {
+            val key = type.normalizeType()
+            check(key.isNotEmpty()) { "Dynamic element type is blank" }
+            check(key !in elementTypes) { "Dynamic element type already registered: $type" }
+            check(modelClass !in elements) {
+                "Dynamic element model class already registered: $modelClass"
+            }
 
-        fun imageElement(type: String, renderer: ImageElementRenderer) = apply {
-            register(imageElements, "image element", type, renderer)
-        }
-
-        fun inputElement(type: String, renderer: InputElementRenderer) = apply {
-            register(inputElements, "input element", type, renderer)
-        }
-
-        fun buttonElement(type: String, renderer: ButtonElementRenderer) = apply {
-            register(buttonElements, "button element", type, renderer)
-        }
-
-        fun iconElement(type: String, renderer: IconElementRenderer) = apply {
-            register(iconElements, "icon element", type, renderer)
+            val adapter: ElementRenderer<DynamicElement> =
+                CheckedElementRenderer(modelClass, renderer)
+            elementTypes += key
+            elements[modelClass] = adapter
         }
 
         fun content(type: String, renderer: ElementContentRenderer) = apply {
@@ -84,11 +78,7 @@ class DynamicRegistry(
             components = components.toMap(),
             sections = sections.toMap(),
             groups = groups.toMap(),
-            textElements = textElements.toMap(),
-            imageElements = imageElements.toMap(),
-            inputElements = inputElements.toMap(),
-            buttonElements = buttonElements.toMap(),
-            iconElements = iconElements.toMap(),
+            elements = elements.toMap(),
             contents = contents.toMap(),
         )
 
@@ -100,7 +90,8 @@ class DynamicRegistry(
         ) {
             val key = type.normalizeType()
             check(key.isNotEmpty()) { "Dynamic $category type is blank" }
-            check(target.put(key, value) == null) { "Dynamic $category already registered: $type" }
+            check(key !in target) { "Dynamic $category already registered: $type" }
+            target[key] = value
         }
     }
 }

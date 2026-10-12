@@ -28,4 +28,4 @@ data class InputElement(
     val leadingContent: List<ElementContent> = emptyList(),
     val trailingContent: List<ElementContent> = emptyList(),
     val actions: Map<String, DynamicAction> = emptyMap(),
-)
+) : DynamicElement
