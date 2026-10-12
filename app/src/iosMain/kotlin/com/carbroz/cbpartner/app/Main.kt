@@ -7,6 +7,7 @@ import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.network.ApiBaseUrl
 import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
+import platform.UIKit.UIViewController
 
 private class IosRuntimeMetadataProvider : RuntimeMetadataProvider {
     override fun current(): RuntimeMetadata = RuntimeMetadata(
@@ -23,6 +24,10 @@ private fun iosApiBaseUrl(): ApiBaseUrl {
     return ApiBaseUrl(configuredUrl ?: "http://localhost:3000")
 }
 
-fun MainViewController() = ComposeUIViewController {
-    App(IosRuntimeMetadataProvider(), iosApiBaseUrl())
+fun MainViewController(): UIViewController {
+    val runtimeMetadataProvider = IosRuntimeMetadataProvider()
+    val apiBaseUrl = iosApiBaseUrl()
+    return ComposeUIViewController {
+        App(runtimeMetadataProvider, apiBaseUrl)
+    }
 }
