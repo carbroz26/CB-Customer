@@ -84,7 +84,7 @@ First-class types currently include:
 There is no first-class DividerElement.
 
 ## 6. Registries and rendering
-Registries are separated by responsibility:
+The currently frozen implementation uses registries separated by responsibility:
 - TemplateRegistry
 - ComponentRegistry
 - SectionRegistry
@@ -432,3 +432,27 @@ Asset presentation properties remain backend-controlled. The existing Dynamic hi
 - Missing spacing means zero additional external gap. No arbitrary frontend defaults, text whitespace, Login/OTP special cases, new registry, renderer hierarchy, or architecture layer.
 - Preserve text `letterSpacing`, text alignment/fill behavior, existing content registration, and the generic Dynamic runtime architecture.
 - The owner authorized implementation on 2026-10-12. The plan remains frozen; source changes must remain within this contract.
+
+
+## 22. Proposed generic element renderer registry consolidation — pending plan freeze
+
+**Decision reference:** `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`  
+**State:** OWNER-APPROVED DIRECTION; DOCUMENTATION RECONCILIATION IN PROGRESS; NOT YET THE ACTIVE SOURCE CONTRACT.  
+**Date:** 2026-10-13
+
+The current frozen source contract continues to apply until this amendment is reconciled with the implementation plan and explicitly frozen. This section records the approved direction so the upcoming revision is not reconstructed from chat.
+
+### Intended direction
+- Keep separate registry responsibilities for Template, Component, Section, Group, Element and Content. A single `DynamicRegistry` facade may expose these; do not combine the categories into one universal registry.
+- Add a common domain `DynamicElement` contract implemented by TextElement, ImageElement, InputElement, ButtonElement and IconElement.
+- Replace the five element-specific renderer interfaces with `ElementRenderer<T : DynamicElement>`. Each concrete renderer receives its concrete model type.
+- Use one element map, lookup and builder registration method `.element(type, renderer)`. Explicit type-to-renderer registration remains mandatory.
+- Replace `List<Any>` for element collections with the common element contract only where those collections are part of the typed element model; keep existing DTO-to-concrete-model mapping responsibility in `:data`.
+- Put any necessary generic type-erasure handling in one checked adapter/dispatch boundary. Concrete renderers must not cast their inputs, and `DynamicRenderContext` must not retain a growing concrete-class-to-key `when` expression.
+- Preserve normalized keys, reject blank and duplicate registrations without mutating the original registration, preserve backend type keys and existing rendering semantics.
+- No reflection-based discovery, `Map<String, Any>`, central generic mapper, universal cross-category registry, content registry changes, or unrelated architecture changes.
+
+### Required plan decisions before implementation
+The reconciled implementation plan must define how a registered generic renderer records/validates its concrete model type and how an element instance resolves to its registration key. The dispatch boundary must be compatible with Kotlin Multiplatform and Compose, checked in one place, and must not introduce per-renderer casts. The plan must also identify mapper and fixture impacts caused by replacing `List<Any>`.
+
+Until those details and the file-by-file test plan are reviewed and the plan is frozen, the existing frozen clauses remain in force and source changes are prohibited.
