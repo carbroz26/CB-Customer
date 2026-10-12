@@ -163,7 +163,7 @@ Bootstrap Option B is frozen.
 
 ## 11. Current project state
 
-As of 2026-10-11:
+As of 2026-10-13:
 
 - BASE-ARCH-001 → BASE-ARCH-017: frozen.
 - BASE-ARCH-014: code-frozen.
