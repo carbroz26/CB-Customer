@@ -41,6 +41,9 @@ jobs:
       - name: Set up Gradle (with dependency/build cache)
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Make Gradle Wrapper executable
+        run: chmod +x ./gradlew
+
       - name: Run shared JVM tests, Android build, and Web checks
         run: |
           ./gradlew --continue --stacktrace \
@@ -73,6 +76,9 @@ jobs:
 
       - name: Set up Gradle (with dependency/build cache)
         uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle Wrapper executable
+        run: chmod +x ./gradlew
 
       - name: Verify Xcode toolchain
         run: |
