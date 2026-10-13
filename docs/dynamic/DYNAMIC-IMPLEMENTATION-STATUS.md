@@ -7,7 +7,7 @@
 
 ## 1. Current truth
 
-The Element registry has a recently committed generic model-class/adapter implementation. After reviewing the actual source, the owner rejected that implementation as the target design and approved the simpler concrete typed-renderer/string-key registry pattern. The candidate source is not treated as frozen architecture. The revised exact scope is frozen in `DYNAMIC-ARCHITECTURE.md` section 23 and `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.28. The simplification has not been implemented or verified yet.
+The earlier Element registry simplification decision (`DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`, Option A) is retained as history but is superseded for the current frozen work by `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`. The new complete plan uses typed registration-driven dispatch by concrete model-class identity for both Element and Content, ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The authoritative amendment is `DYNAMIC-ARCHITECTURE.md` section 24 and `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation reconciliation is in progress; source implementation and verification have not started.
 
 The content-owned spacing revision is implemented on `feature/dynamic-content-spacing-contract`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent, the mapper reads backend `properties.spacing`, and existing renderers apply the four-sided external spacing. The owner ran the six-module JVM matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`), Android unit tests, Android Kotlin compilation/debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`. The full line-by-line source/diff audit and actual Web visual inspection remain open; do not treat this branch as finally frozen.
 
@@ -338,3 +338,16 @@ Frozen intended changes:
 - Keep content registry/rendering, backend mapping semantics, and all unrelated Dynamic architecture unchanged.
 
 Next valid action: implement only the file-by-file scope in implementation plan section 22.28, then run its focused tests, full JVM matrix, compile tasks, and final diff review. Do not mark implementation complete or frozen before actual verification.
+
+
+## 17. Dynamic registry and action-effect amendment — plan frozen (2026-10-13)
+
+**Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`  
+**Branch:** `feature/dynamic-ui`  
+**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION IN PROGRESS; SOURCE CHANGES NOT STARTED; TESTS NOT RUN
+
+The owner explicitly froze the complete plan covering typed registration-driven Element and Content renderer lookup, sequence effect aggregation, reliable ordered effect delivery, and distinct modal presentation semantics. This amendment supersedes the older Option A registry implementation direction recorded in section 16 and architecture section 23 only where it conflicts with the new section 24 contract. Historical decision entries remain available for traceability.
+
+No source implementation or tests have been performed for this amendment. Exact implementation scope and tests are in `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. The current connector lookup could not resolve exact implementation paths for the IconElement and IconContent/DividerContent renderers. Treat path verification as a hard pre-implementation blocker; do not guess filenames or create duplicate renderer files.
+
+Next valid action: finish documentation reconciliation and exact source-path verification, then begin only the frozen implementation scope. Do not update implementation completion claims until the prescribed tests/builds and full diff audit actually pass.
