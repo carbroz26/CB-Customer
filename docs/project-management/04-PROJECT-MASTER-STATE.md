@@ -347,7 +347,7 @@ Ordered:
 
 ### Current planning task — 2026-10-13
 
-The owner has now explicitly frozen `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`, which supersedes the earlier Option A Element dispatch decision only where conflicting. The new plan uses typed registration-driven Element and Content dispatch by concrete model-class identity, ordered effect aggregation across action sequences, reliable Store/UI effect delivery, and a distinct modal `present` lifecycle. Exact scope, tests, and stop conditions are in `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30; architecture authority is section 24. Source changes and tests have not started. Exact IconElement and IconContent/DividerContent renderer paths must be verified before edits; do not guess. Do not reopen base architecture or content-owned spacing.
+The owner has now explicitly frozen `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`, which supersedes the earlier Option A Element dispatch decision only where conflicting. The new plan uses typed registration-driven Element and Content dispatch by concrete model-class identity, ordered effect aggregation across action sequences, reliable Store/UI effect delivery, and a distinct modal `present` lifecycle. Exact scope, tests, and stop conditions are in `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30; architecture authority is section 24. Documentation reconciliation is complete; source changes and tests have not started. Exact IconElement and IconContent/DividerContent renderer paths must be verified before edits; do not guess. Do not reopen base architecture or content-owned spacing.
 
 ## 12. Explicitly Closed / Do Not Reopen
 
