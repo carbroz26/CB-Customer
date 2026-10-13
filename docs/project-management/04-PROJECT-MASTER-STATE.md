@@ -347,7 +347,7 @@ Ordered:
 
 ### Current planning task — 2026-10-13
 
-The owner approved and froze the amendment under `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`. Renderer lookup is keyed by the registered model `KClass`; normalized backend type keys remain explicit registration metadata used for blank/duplicate-key validation, not runtime renderer lookup. The registry has one renderer map keyed by model class, plus only the key-validation set needed to preserve normalized-key invariants. The checked generic adapter contains the sole unchecked cast. The five concrete element models will implement `DynamicElement`, and component/section/group element collections become `List<DynamicElement>`. No source changes have been made for this task. The Kotlin common API exposes `KClass.isInstance`; project-specific Gradle/Compose compilation remains a pre-implementation check. Do not start source edits until the implementation gate is explicitly opened, and stop if the frozen design does not compile. This work must not reopen the base architecture or content-owned spacing contract.
+The initial generic registry direction under `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001` was implemented as a candidate, then rejected as the target design after source review. The owner approved Option A and froze `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`: use concrete typed renderer contracts, category-specific normalized string-keyed maps, the existing shared registration helper, and a small exhaustive concrete-model dispatch. Remove the generic adapter, `KClass` registry lookup, unchecked cast, and normalized-key side set. The exact file-by-file plan is `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.28. The simplification source changes have not started and its tests/builds have not run. Do not reopen base architecture or content-owned spacing.
 
 ## 12. Explicitly Closed / Do Not Reopen
 
@@ -400,3 +400,15 @@ Historical decision snapshot: the contract was documentation-frozen before imple
 - Verified on PR #6 head `c08a6729186590eb094e79176f34daa119aa8a4a`: six-module JVM test matrix; Android unit tests, Kotlin compilation, and debug assembly; Web/Wasm development webpack and browser tests all passed.
 - GitHub reported no PR-triggered workflow runs and zero commit check-runs for this head. No CI pass is claimed.
 - Remaining before merge/final freeze: complete line-by-line diff and obsolete-property audit, plus actual Web visual inspection. Do not update the backend repository or its PR as part of this frontend task.
+
+
+## 17. Element registry simplification — current frozen direction (2026-10-13)
+
+- Decision: `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`; Option A approved.
+- Architecture authority: `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 23.
+- Exact source/test plan: `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.28.
+- The recently implemented generic registry is a candidate to simplify, not the target design.
+- Target: five concrete typed renderer contracts, string-keyed maps/typed lookup, existing normalized registration helper, and a small exhaustive model-to-key dispatch.
+- Remove `CheckedElementRenderer`, `ElementRenderer<T>`, `KClass` registry dispatch, unchecked cast, and `elementTypes` side set.
+- Leave concrete data mappers and `ElementMapperSupport` unchanged in this registry-specific change; helper review is separate.
+- Implementation and verification of the simplification remain pending. Run the plan's focused tests, shared JVM matrix, compile tasks, and final diff audit before updating status.
