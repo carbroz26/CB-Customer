@@ -456,3 +456,34 @@ The owner approved this dispatch amendment on 2026-10-13 after the compatibility
 - `KClass.isInstance` is available in Kotlin common API. The project-specific Gradle/Compose compilation has not yet been run; perform that check before source edits and stop if the configured toolchain rejects the frozen design.
 
 The generic registry consolidation supersedes earlier Dynamic registry clauses only where they require five element-specific renderer contracts, maps, lookups, builder methods, or concrete-element dispatch in `DynamicRenderContext`. All other frozen Dynamic rules remain in force. This freezes the architectural decision and planned scope; source implementation remains a separate execution step.
+
+
+## DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001 — Concrete typed Element registry
+
+**Date:** 2026-10-13  
+**State:** OWNER-APPROVED; ARCHITECTURE AND IMPLEMENTATION PLAN FROZEN; SOURCE SIMPLIFICATION NOT STARTED  
+**Supersedes:** the active implementation direction of `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001` where it requires a generic renderer adapter, model-class-keyed registry, and normalized-key side set. The earlier entry is retained as decision history, not the current implementation target.
+
+### Problem
+
+The candidate generic implementation made Element different from the established string-keyed Template/Component/Section/Group/Content registry pattern. It introduced `ElementRenderer<T>`, `CheckedElementRenderer`, a `KClass` map, and a separate normalized-key set. The owner requires simpler, concrete typed paths rather than generic type-erasure machinery.
+
+### Frozen decision — Option A
+
+- Use five concrete renderer contracts for Text, Image, Input, Button, and Icon.
+- Use category-specific string-keyed renderer maps and typed registration/lookups, with the existing normalized-key and shared blank/duplicate validation pattern.
+- Keep backend keys `text`, `image`, `input`, `button`, and `icon` as the actual registration/lookup keys.
+- Remove `CheckedElementRenderer`, generic `ElementRenderer<T>`, `KClass` lookup/registration, the unchecked cast, and the `elementTypes` side set.
+- Use a small exhaustive concrete-model-to-backend-key dispatch in `DynamicRenderContext`. Explicit dispatch is accepted to preserve concrete renderer parameter types without generic adapters or casts.
+- Keep the common `DynamicElement` marker only for heterogeneous typed collections. Do not add backend type fields to domain models.
+- Keep `:data` mapping and all five concrete mapper classes unchanged in this registry amendment.
+- Do not change `ElementMapperSupport` in this work item. It shares mapping behavior and is not part of renderer registry dispatch. Reconsider it only through a separate focused mapper review.
+- Keep Content registry/rendering and all other Dynamic architecture unchanged.
+
+### Exact implementation and verification authority
+
+- Architecture: `docs/dynamic/DYNAMIC-ARCHITECTURE.md`, section 23.
+- File-by-file plan and tests: `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`, section 22.28.
+- Current state: `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md`, section 16.
+
+The implementation plan is frozen, but the source simplification has not started and no tests/builds have been run for this new direction. Implement only the specified files, stop on source/contract conflicts, and update status only after actual verification.
