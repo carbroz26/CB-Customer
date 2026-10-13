@@ -18,14 +18,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
-import com.carbroz.cbpartner.feature.dynamic.registry.TextElementRenderer
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
-class TextElement : TextElementRenderer {
+class TextElement : ElementRenderer {
     @Composable
-    override fun render(element: TextElementModel, context: DynamicRenderContext) {
+    override fun render(dynamicElement: DynamicElement, context: DynamicRenderContext) {
+        val element = dynamicElement as? TextElementModel ?: return
         val color = element.color?.toColor() ?: Color.Unspecified
         val annotated = if (element.spans.isEmpty()) {
             AnnotatedString(element.text)

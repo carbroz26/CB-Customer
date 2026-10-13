@@ -5,7 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement as ImageElementModel
-import com.carbroz.cbpartner.feature.dynamic.registry.ImageElementRenderer
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyImageSize
@@ -14,9 +15,10 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_image_fallback
 import org.jetbrains.compose.resources.painterResource
 
-class ImageElement : ImageElementRenderer {
+class ImageElement : ElementRenderer {
     @Composable
-    override fun render(element: ImageElementModel, context: DynamicRenderContext) {
+    override fun render(dynamicElement: DynamicElement, context: DynamicRenderContext) {
+        val element = dynamicElement as? ImageElementModel ?: return
         Row(modifier = Modifier.applyDynamicPadding(element.padding)) {
             context.renderContent(element.leadingContent)
             DynamicAssetImage(
