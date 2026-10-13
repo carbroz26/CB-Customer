@@ -866,9 +866,9 @@ Make Element follow the established registry pattern: normalized backend string 
 Stop and report if current source differs from this exact scope, a concrete typed registry cannot be expressed using the existing shared registration helper without unsafe casts, or tests expose a contract conflict. Do not silently restore the generic adapter or invent a third design. Source implementation remains a separate step after this documentation freeze.
 ### 22.29 Element mapper consolidation — one concrete element mapper (2026-10-13)
 
-**Decision reference:** `DYNAMIC-ELEMENT-MAPPER-CONSOLIDATION-001`  
-**State:** PLAN FROZEN; implementation authorized  
-**Branch:** `feature/dynamic-element-mapper`  
+**Decision reference:** `DYNAMIC-ELEMENT-MAPPER-CONSOLIDATION-001`
+**State:** PLAN FROZEN; implementation authorized
+**Branch:** `feature/dynamic-element-mapper`
 **Scope:** `:data` Dynamic DTO-to-domain mapping only.
 
 #### Frozen contract
