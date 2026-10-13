@@ -489,8 +489,8 @@ The candidate generic implementation made Element different from the established
 The implementation plan is frozen, but the source simplification has not started and no tests/builds have been run for this new direction. Implement only the specified files, stop on source/contract conflicts, and update status only after actual verification.
 ## DYNAMIC-ELEMENT-MAPPER-CONSOLIDATION-001 — One Element Mapper
 
-**State:** ACCEPTED / PLAN FROZEN / IMPLEMENTATION AUTHORIZED  
-**Owner approval:** Explicitly approved on 2026-10-13 by “ok continue” after source-level review.  
+**State:** ACCEPTED / PLAN FROZEN / IMPLEMENTATION AUTHORIZED
+**Owner approval:** Explicitly approved on 2026-10-13 by “ok continue” after source-level review.
 **Scope:** `data` module's Dynamic element DTO-to-domain mapping only.
 
 ### Decision
