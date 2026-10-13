@@ -4,7 +4,7 @@ import com.carbroz.cbpartner.data.dynamic.model.group.StackGroupDto
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 
 class GroupMapper(
-    private val elements: ElementMappers,
+    private val elements: ElementMapper,
     private val values: DynamicValueMapper,
 ) {
     fun map(dto: StackGroupDto): StackGroup {

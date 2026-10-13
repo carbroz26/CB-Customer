@@ -1,9 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionDto
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionsDto
-import com.carbroz.cbpartner.domain.model.DynamicDestination
-import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
@@ -14,6 +11,7 @@ import kotlinx.serialization.json.JsonObject
 class ElementContentMapper(
     private val json: Json,
     private val values: DynamicValueMapper,
+    private val actionMapper: DynamicActionMapper = DynamicActionMapper(values),
 ) {
     fun mapList(properties: JsonObject, key: String): List<ElementContent> =
         (properties[key] as? JsonArray).orEmpty()
@@ -36,7 +34,7 @@ class ElementContentMapper(
                 size = values.number(properties, "size"),
                 color = values.string(properties, "color"),
                 spacing = values.spacing(properties),
-                actions = mapActions(actions),
+                actions = actionMapper.map(actions),
             )
             "divider" -> DividerContent(
                 id = values.string(element, "id"),
@@ -47,25 +45,9 @@ class ElementContentMapper(
                 thickness = values.number(properties, "thickness") ?: 1.0,
                 color = values.string(properties, "color"),
                 spacing = values.spacing(properties),
-                actions = mapActions(actions),
+                actions = actionMapper.map(actions),
             )
             else -> error("Unsupported dynamic element content type: " + type)
         }
     }
-
-    private fun mapActions(dto: DynamicActionsDto?): Map<String, DynamicAction> = buildMap {
-        dto?.onClick?.let { put("onClick", it.toDomain()) }
-        dto?.onLongClick?.let { put("onLongClick", it.toDomain()) }
-        dto?.onValueChange?.let { put("onValueChange", it.toDomain()) }
-        dto?.onFocus?.let { put("onFocus", it.toDomain()) }
-        dto?.onSubmit?.let { put("onSubmit", it.toDomain()) }
-    }
-
-    private fun DynamicActionDto.toDomain() = DynamicAction(
-        type = type,
-        payload = values.toDynamicValueMap(payload),
-        destination = destination?.let {
-            DynamicDestination(it.screenId, it.templateId, it.templateType, it.endpoint)
-        },
-    )
 }

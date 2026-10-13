@@ -864,3 +864,44 @@ Make Element follow the established registry pattern: normalized backend string 
 #### Stop conditions
 
 Stop and report if current source differs from this exact scope, a concrete typed registry cannot be expressed using the existing shared registration helper without unsafe casts, or tests expose a contract conflict. Do not silently restore the generic adapter or invent a third design. Source implementation remains a separate step after this documentation freeze.
+### 22.29 Element mapper consolidation — one concrete element mapper (2026-10-13)
+
+**Decision reference:** `DYNAMIC-ELEMENT-MAPPER-CONSOLIDATION-001`
+**State:** PLAN FROZEN; implementation authorized
+**Branch:** `feature/dynamic-element-mapper`
+**Scope:** `:data` Dynamic DTO-to-domain mapping only.
+
+#### Frozen contract
+
+1. Keep one concrete element mapper class, `ElementMapper`. It explicitly dispatches backend type keys `text`, `image`, `input`, `button`, and `icon`, decodes each matching DTO using injected `Json`, and maps directly to the matching domain model.
+2. Keep mapping code in private functions within `ElementMapper`; do not retain or create per-element mapper classes.
+3. Delete `TextElementMapper`, `ImageElementMapper`, `InputElementMapper`, `ButtonElementMapper`, `IconElementMapper`, and `ElementMapperSupport`.
+4. Keep `ElementContentMapper` as the separate mapper for `IconContent` and `DividerContent`.
+5. Extract shared `DynamicActionsDto` → `Map<String, DynamicAction>` conversion into one focused `DynamicActionMapper`, used by both `ElementMapper` and `ElementContentMapper`. Do not duplicate action conversion or put action DTO/domain conversion into `DynamicValueMapper`.
+6. `ElementMapper` owns element-level property mapping: semanticRole, padding, leading/trailing content, actions, binding, validation, visual properties, and spans. These are private mapping helpers/functions, not another support class.
+7. Rename dispatcher `ElementMappers` to `ElementMapper` and update existing component/section/group mapper dependencies and `DynamicResponseMapper` composition.
+8. Preserve existing type dispatch, error messages/exception behavior for unknown element types, defaults, DTO schema, domain model schema, property ownership, action destinations/payloads, DynamicValue types and references, text-span behavior, content behavior, and mapper output.
+9. Do not modify renderers/registries, domain models, backend JSON, UI defaults, or unrelated code. Do not change `DynamicResponseMapper` constructor or its DI registration.
+10. Keep mappers for other responsibilities (template, component, section, group, content, values); this decision removes only per-concrete-element mapper classes and the element support helper.
+
+#### Exact source scope
+
+- Rename `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/ElementMappers.kt` to `ElementMapper.kt`; implement all five mappings and shared element property helpers directly in the class.
+- Create `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/DynamicActionMapper.kt`.
+- Modify `ElementContentMapper.kt` to delegate action mapping to `DynamicActionMapper`.
+- Modify `ComponentMapper.kt`, `SectionMapper.kt`, `GroupMapper.kt`, and `DynamicResponseMapper.kt` to use `ElementMapper`.
+- Delete `ElementMapperSupport.kt` and the five per-element mapper source files.
+
+#### Tests and verification
+
+- Preserve `DynamicResponseMapperTest` coverage for all five concrete elements, content, action payloads/destinations, bindings, validation, fallback assets, text spans and DynamicValue references.
+- Add focused coverage if the existing fixture does not independently prove a changed behavior; do not weaken the generic fixture or alter the email validation regex.
+- Run `./gradlew.bat :data:jvmTest` first, then the required shared JVM regression matrix from the current Dynamic status/build workflow.
+- Run applicable Kotlin compile tasks and `git diff --check`.
+- Search source and tests to confirm no references remain to deleted mapper classes or `ElementMappers`.
+- Review the complete diff to verify there is one element mapper, one shared action mapper, no duplicate action DTO conversion, no support class, no DTO/domain/API changes, and no unrelated renderer/registry changes.
+- Update Dynamic implementation status and Project Master State only after verification results are actually known. Do not claim tests passed from source inspection or remote edits alone.
+
+#### Stop conditions
+
+Stop and report if existing DTO/model APIs require a behavior change, a deleted helper has unrecorded external consumers, or mapper tests reveal a contract mismatch. Do not add fallback abstractions or broaden scope.

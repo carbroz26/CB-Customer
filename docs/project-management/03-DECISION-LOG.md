@@ -487,3 +487,20 @@ The candidate generic implementation made Element different from the established
 - Current state: `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md`, section 16.
 
 The implementation plan is frozen, but the source simplification has not started and no tests/builds have been run for this new direction. Implement only the specified files, stop on source/contract conflicts, and update status only after actual verification.
+## DYNAMIC-ELEMENT-MAPPER-CONSOLIDATION-001 — One Element Mapper
+
+**State:** ACCEPTED / PLAN FROZEN / IMPLEMENTATION AUTHORIZED
+**Owner approval:** Explicitly approved on 2026-10-13 by “ok continue” after source-level review.
+**Scope:** `data` module's Dynamic element DTO-to-domain mapping only.
+
+### Decision
+- Keep exactly one concrete element mapper class: `ElementMapper`.
+- `ElementMapper` owns backend element type dispatch (`text`, `image`, `input`, `button`, `icon`), concrete DTO decoding, and direct mapping into the corresponding domain element model.
+- Remove `TextElementMapper`, `ImageElementMapper`, `InputElementMapper`, `ButtonElementMapper`, `IconElementMapper`, and `ElementMapperSupport`.
+- Keep `ElementContentMapper` separate for content DTOs. Reuse one focused `DynamicActionMapper` for shared action DTO → domain action conversion used by elements and content. This removes duplicate action conversion without placing action mapping in an unrelated value mapper or content mapper.
+- Keep `DynamicValueMapper` responsible for JSON/DynamicValue and property-value conversion; do not move action DTO mapping into it.
+- Keep template/component/section/group mappers, DTO/domain schemas, backend type keys, error behavior, defaults, binding/validation mapping, content mapping, and DynamicValue/reference semantics unchanged except for injecting the renamed `ElementMapper` into existing container mappers.
+- Do not alter renderer registries, domain models, frontend/backend contracts, or unrelated mapper behavior.
+
+### Implementation boundary
+This is separate from `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`. The latter remains intact. Verify implementation against `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.29.

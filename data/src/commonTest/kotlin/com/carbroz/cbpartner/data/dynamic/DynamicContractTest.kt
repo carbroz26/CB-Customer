@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.data.dynamic
 
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
+import com.carbroz.cbpartner.data.dynamic.mapper.ElementMapper
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicValueMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
@@ -141,14 +142,8 @@ class DynamicContractTest {
             """{"id":"generic_text","type":"text","properties":{"text":"Hello","leading":[{"type":"divider","properties":{"width":24,"thickness":2}}],"trailing":[{"type":"icon","properties":{"url":"https://backend.example/assets/edit.png","fallbackUrl":"https://backend.example/assets/fallback.png","size":20}}]}}""",
         ).jsonObject
 
-        val text = com.carbroz.cbpartner.data.dynamic.mapper.TextElementMapper(
-            json,
-            DynamicValueMapper(),
-        ).map(
-            json.decodeFromJsonElement(
-                com.carbroz.cbpartner.data.dynamic.model.element.TextElementDto.serializer(),
-                element,
-            ),
+        val text = assertIs<TextElement>(
+            ElementMapper(json, DynamicValueMapper()).map(element),
         )
 
         assertIs<DividerContent>(text.leadingContent.single())
