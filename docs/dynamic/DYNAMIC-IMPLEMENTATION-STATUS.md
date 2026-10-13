@@ -7,7 +7,7 @@
 
 ## 1. Current truth
 
-The earlier Element registry simplification decision (`DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`, Option A) is retained as history but is superseded for the current frozen work by `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`. The new complete plan uses typed registration-driven dispatch by concrete model-class identity for both Element and Content, ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The authoritative amendment is `DYNAMIC-ARCHITECTURE.md` section 24 and `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation reconciliation is in progress; source implementation and verification have not started.
+The earlier Element registry simplification decision (`DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`, Option A) is retained as history but is superseded for the current frozen work by `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`. The new complete plan uses typed registration-driven dispatch by concrete model-class identity for both Element and Content, ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The authoritative amendment is `DYNAMIC-ARCHITECTURE.md` section 24 and `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation reconciliation is completed; source implementation and verification have not started. Exact renderer source paths remain a hard blocker.
 
 The content-owned spacing revision is implemented on `feature/dynamic-content-spacing-contract`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent, the mapper reads backend `properties.spacing`, and existing renderers apply the four-sided external spacing. The owner ran the six-module JVM matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`), Android unit tests, Android Kotlin compilation/debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`. The full line-by-line source/diff audit and actual Web visual inspection remain open; do not treat this branch as finally frozen.
 
@@ -344,7 +344,7 @@ Historical next step when this record was written: implement section 22.28. That
 
 **Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`  
 **Branch:** `feature/dynamic-ui`  
-**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION IN PROGRESS; SOURCE CHANGES NOT STARTED; TESTS NOT RUN
+**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION COMPLETED; SOURCE-PATH VERIFICATION BLOCKER; SOURCE CHANGES NOT STARTED; TESTS NOT RUN
 
 The owner explicitly froze the complete plan covering typed registration-driven Element and Content renderer lookup, sequence effect aggregation, reliable ordered effect delivery, and distinct modal presentation semantics. This amendment supersedes the older Option A registry implementation direction recorded in section 16 and architecture section 23 only where it conflicts with the new section 24 contract. Historical decision entries remain available for traceability.
 
