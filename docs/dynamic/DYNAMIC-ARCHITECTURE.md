@@ -502,7 +502,7 @@ The common generic adapter, model-class registry key, and extra key-validation s
 ## 24. Dynamic registry, action-effect, and presentation amendment — revised plan (2026-10-13)
 
 **Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`  
-**State:** OWNER-APPROVED SCOPE REVISION; DOCUMENTATION RECONCILIATION IN PROGRESS; SOURCE IMPLEMENTATION NOT STARTED  
+**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION COMPLETE; SOURCE IMPLEMENTATION NOT STARTED; SOURCE-PATH VERIFICATION REQUIRED  
 **Branch:** `feature/dynamic-ui`  
 **Supersedes:** Conflicting registry-key decisions in earlier sections and the prior version of section 24. Historical records remain for traceability. This amendment also preserves the accepted action-effect and presentation contracts below.
 
