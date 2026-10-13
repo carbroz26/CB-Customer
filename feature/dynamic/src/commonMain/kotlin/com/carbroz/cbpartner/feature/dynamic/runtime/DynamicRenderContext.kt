@@ -52,26 +52,17 @@ class DynamicRenderContext(
     @Composable
     fun renderElements(elements: List<DynamicElement>) {
         elements.forEach { element ->
-            when (element) {
-                is TextElement -> (registry.text("text")
-                    ?: error("No Dynamic element renderer registered for type: text"))
-                    .render(element, this)
-                is ImageElement -> (registry.image("image")
-                    ?: error("No Dynamic element renderer registered for type: image"))
-                    .render(element, this)
-                is InputElement -> (registry.input("input")
-                    ?: error("No Dynamic element renderer registered for type: input"))
-                    .render(element, this)
-                is ButtonElement -> (registry.button("button")
-                    ?: error("No Dynamic element renderer registered for type: button"))
-                    .render(element, this)
-                is IconElement -> (registry.icon("icon")
-                    ?: error("No Dynamic element renderer registered for type: icon"))
-                    .render(element, this)
-                else -> error(
-                    "No Dynamic element renderer registered for model class: ${element::class}",
-                )
+            val type = when (element) {
+                is TextElement -> "text"
+                is ImageElement -> "image"
+                is InputElement -> "input"
+                is ButtonElement -> "button"
+                is IconElement -> "icon"
+                else -> error("No Dynamic element renderer registered for model class: ${element::class}")
             }
+            (registry.element(type)
+                ?: error("No Dynamic element renderer registered for type: $type"))
+                .render(element, this)
         }
     }
 

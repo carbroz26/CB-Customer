@@ -32,16 +32,18 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
-import com.carbroz.cbpartner.feature.dynamic.registry.InputElementRenderer
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.brush
 import com.carbroz.cbpartner.feature.dynamic.runtime.color
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
-class InputElement : InputElementRenderer {
+class InputElement : ElementRenderer {
     @Composable
-    override fun render(element: InputElementModel, context: DynamicRenderContext) {
+    override fun render(dynamicElement: DynamicElement, context: DynamicRenderContext) {
+        val element = dynamicElement as? InputElementModel ?: return
         val binding = element.binding?.key ?: return
         val value = (context.bindings[binding] as? DynamicValue.StringValue)?.value.orEmpty()
         val keyboardType = when (element.keyboardType) {
