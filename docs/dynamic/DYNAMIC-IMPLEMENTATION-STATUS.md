@@ -1,11 +1,13 @@
 # Dynamic UI Implementation Status
 
-**Status:** CONTENT-OWNED SPACING IMPLEMENTED — JVM/ANDROID/WEB BUILD AND TEST GATES PASSED; FINAL SOURCE/DIFF AND VISUAL REVIEW OPEN
+**Status:** CONTENT-OWNED SPACING REVIEW OPEN; ELEMENT REGISTRY SIMPLIFICATION PLAN FROZEN — SOURCE SIMPLIFICATION NOT STARTED
 **Date:** 2026-10-12
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
 
 ## 1. Current truth
+
+The Element registry has a recently committed generic model-class/adapter implementation. After reviewing the actual source, the owner rejected that implementation as the target design and approved the simpler concrete typed-renderer/string-key registry pattern. The candidate source is not treated as frozen architecture. The revised exact scope is frozen in `DYNAMIC-ARCHITECTURE.md` section 23 and `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.28. The simplification has not been implemented or verified yet.
 
 The content-owned spacing revision is implemented on `feature/dynamic-content-spacing-contract`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent, the mapper reads backend `properties.spacing`, and existing renderers apply the four-sided external spacing. The owner ran the six-module JVM matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`), Android unit tests, Android Kotlin compilation/debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`. The full line-by-line source/diff audit and actual Web visual inspection remain open; do not treat this branch as finally frozen.
 
@@ -318,3 +320,21 @@ The five concrete element models will implement the shared domain `DynamicElemen
 **Compatibility preflight:** Kotlin common API exposes `KClass.isInstance`. The configured project's actual Gradle/Compose compilation has not yet been run. Before source edits, compile the adapter in common source and audit affected model collections, mapper usages, registry construction paths, fixtures, and tests. If the frozen design does not compile or violates an existing source constraint, stop and report rather than silently redesigning.
 
 **Next valid action:** open the separate implementation gate, then implement only the frozen file-by-file scope. Until then, do not change source. After implementation, run the frozen JVM test/compile matrix, inspect the complete diff, and update implementation status only from actual results.
+
+
+## 16. Element registry simplification — current work item (2026-10-13)
+
+**Decision:** `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`  
+**State:** PLAN FROZEN; SIMPLIFICATION SOURCE CHANGES NOT STARTED; VERIFICATION NOT RUN
+
+The owner approved Option A: Element must use the same straightforward string-keyed registry pattern as Template, Component, Section, Group, and Content wherever responsibilities align. The current generic `ElementRenderer<T>` / `CheckedElementRenderer` / `KClass` registry is a candidate implementation to simplify, not the accepted target design.
+
+Frozen intended changes:
+- Replace the generic renderer and checked adapter with five concrete typed renderer contracts.
+- Use normalized string-keyed maps and typed lookup/registration paths for `text`, `image`, `input`, `button`, and `icon`, reusing the existing shared blank/duplicate registration helper.
+- Remove model-class lookup, `KClass` registration, the unchecked cast, and the separate normalized-key set.
+- Dispatch the heterogeneous `DynamicElement` collection with a local exhaustive `when` that routes each concrete model to its matching typed renderer.
+- Keep the five concrete data mappers and `ElementMapperSupport` unchanged in this registry work item; mapper helper design is separate from renderer registry design.
+- Keep content registry/rendering, backend mapping semantics, and all unrelated Dynamic architecture unchanged.
+
+Next valid action: implement only the file-by-file scope in implementation plan section 22.28, then run its focused tests, full JVM matrix, compile tasks, and final diff review. Do not mark implementation complete or frozen before actual verification.
