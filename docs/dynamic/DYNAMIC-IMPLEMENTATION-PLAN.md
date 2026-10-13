@@ -907,96 +907,113 @@ Stop and report if current source differs from this exact scope, a concrete type
 Stop and report if existing DTO/model APIs require a behavior change, a deleted helper has unrecorded external consumers, or mapper tests reveal a contract mismatch. Do not add fallback abstractions or broaden scope.
 
 
-### 22.30 Dynamic Element/Content registry, action effects, and presentation — frozen complete plan (2026-10-13)
+### 22.30 All-six-registry typed rendering, action effects, and presentation — revised plan frozen (2026-10-13)
 
 **Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`  
-**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION IN PROGRESS; SOURCE CHANGES NOT STARTED  
+**State:** COMPLETE PLAN FROZEN; SOURCE IMPLEMENTATION NOT STARTED; TESTS NOT RUN  
 **Branch:** `feature/dynamic-ui`  
-**Scope:** frontend Dynamic registry/rendering dispatch, action result/effect flow, Store effect delivery, and navigation presentation. No backend edits and no branch creation.  
-**Supersedes:** section 22.28's Option A Element dispatch and architecture section 23 only where their dispatch design conflicts with this section; both remain historical records.
+**Scope:** Frontend Dynamic rendering registry/dispatch across all six categories, action result/effect flow, Store effect delivery, and navigation presentation. No backend edits and no branch creation.  
+**Supersedes:** The earlier version of this section and conflicting registry-key decisions in earlier sections. Historical decisions remain for traceability but are not the implementation target where they conflict with this section.
 
 #### 22.30.1 Frozen target
 
-1. Element and Content rendering use typed, registration-driven dispatch keyed by concrete model-class identity. `ElementRenderer<T : DynamicElement>` and `ElementContentRenderer<T : ElementContent>` keep each concrete renderer typed. Their registries remain separate from one another and from Template/Component/Section/Group.
-2. Reuse `DynamicElement` and `ElementContent`; do not add generic hierarchy interfaces for Template/Component/Section/Group. Keep mapping responsibilities in `:data` and the existing single `DynamicReferenceResolver`.
-3. An internal adapter at each Element/Content registry boundary contains the only required type check/cast for erased generic dispatch. Concrete renderers must not cast or silently return on mismatch. No reflection, `Map<String, Any>`, backend type metadata in domain models, or general-purpose registry framework.
-4. A sequence result aggregates all ordered effects and state changes. A later Completed/state-only step cannot erase earlier effects. State changes are applied before the next action. A real failure stops the sequence; a terminal effect by itself does not.
-5. Effects are typed instructions: normal Navigate, Present, Dismiss, ExternalUri. Store delivery and UI consumption must be ordered and reliable, not lossy through `trySend`-only handling or `collectLatest` cancellation.
-6. Present is a modal separate from navigation push. Keep one active presentation; preserve the underlying entry and Store; give the presentation its own entry/Store; reject a second concurrent presentation deterministically; dismiss presentation before normal back-stack pop. Navigate keeps existing Push/Replace/Pop semantics.
-7. Keep all frozen Dynamic contracts: typed DynamicValue tree, only `$binding`, `$context`, `$state`, `$literal`, no `$response`, backend-owned visual properties/assets, content-owned `DynamicSpacing`, generic business-agnostic runtime, no ViewModel, no duplicate network/navigation/cache infrastructure.
+1. Maintain six independent registries: Template, Component, Section, Group, Element, and Content. All six use concrete domain model-class identity for renderer registration and lookup.
+2. All six renderer contracts are generic and strongly typed: `TemplateRenderer<T>`, `ComponentRenderer<T>`, `SectionRenderer<T>`, `GroupRenderer<T>`, `ElementRenderer<T : DynamicElement>`, and `ElementContentRenderer<T : ElementContent>`.
+3. Reuse existing domain contracts `DynamicElement` and `ElementContent`. Do not add generic Template/Component/Section/Group hierarchy interfaces. Do not change domain model hierarchy solely to make registry generics compile.
+4. Each category owns its own registration map and typed lookup/registration API. Duplicate concrete model-class registration fails deterministically within a category. The same class in different categories remains isolated.
+5. Use a small shared internal registry helper only if it removes genuine duplication without merging category responsibilities. Keep any type erasure and unavoidable cast inside a narrow checked adapter boundary; renderers accept their concrete models and contain no unchecked casts or silent mismatch returns.
+6. Backend string type keys remain in the existing `:data` DTO-to-domain mapping boundary; they are not renderer lookup keys. Do not add backend type fields to domain models, reflection discovery, `Map<String, Any>`, a universal registry, a central generic mapper, or duplicate reference resolution.
+7. Register current concrete models explicitly: `FormTemplate`, `StackComponent`, `StackSection`, `StackGroup`, `TextElement`, `ImageElement`, `InputElement`, `ButtonElement`, `IconElement`, `IconContent`, and `DividerContent`. Do not invent unsupported concrete variants.
+8. A future concrete type must require its model, typed renderer, explicit registration, and normal data mapping if needed, but must not require changing unrelated registries or adding a concrete-type branch to `DynamicRenderContext`.
+9. Preserve existing render hierarchy, backend-owned assets/visual properties, content-owned `DynamicSpacing`, typed DynamicValue/reference semantics, and all behavior outside this approved scope.
+10. One action execution result aggregates state changes and ordered effects. Later Completed/state-only actions cannot erase prior effects; state changes are applied before the next action; nested sequences preserve order; a genuine handler/sequence failure stops later actions; a terminal effect alone does not.
+11. Effects are typed instructions for Navigate, Present, Dismiss, and ExternalUri. Store delivery and UI consumption must be ordered and reliable, not lossy through `trySend`-only handling or cancellation-prone `collectLatest`.
+12. Present is a modal distinct from navigation push. Only one presentation may be active; preserve the underlying entry/Store; give the presentation its own entry/Store; reject a second active presentation deterministically; dismiss the presentation before normal back-stack behavior. Normal Navigate keeps existing Push/Replace/Pop semantics.
 
 #### 22.30.2 Exact source scope
 
-**Registry contracts and dispatch**
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/registry/DynamicRendererContracts.kt`: generic typed Element and ElementContent renderer contracts; retain other renderer contracts.
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/registry/DynamicRegistry.kt`: separate class-keyed Element and Content maps, typed registration/lookup, duplicate model-class rejection, narrow checked adapters; leave other category registries and shared string-key validation unchanged.
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/registry/DynamicRendererRegistration.kt`: explicitly register five concrete Element renderers and IconContent/DividerContent renderers with matching model classes.
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/runtime/DynamicRenderContext.kt`: dispatch Element and Content via registry lookup on concrete model class; remove concrete-type-to-backend-key `when` dispatch for these categories; keep Template/Component/Section/Group flow unchanged.
-- Concrete Element renderer implementation files currently imported from `feature/dynamic.sdui.element` (TextElement, ImageElement, InputElement, ButtonElement, IconElement): make each renderer's input concrete and remove its generic cast/silent mismatch return. Before edits, verify the exact repository paths for IconElement and both content renderer classes; connector path lookups did not resolve those files, so do not guess or create duplicate renderer files. Their package imports are confirmed in `DynamicRendererRegistration.kt`.
-- Content renderer implementations imported from `feature/dynamic.sdui.content` (IconContent and DividerContent): preserve current rendering/spacing behavior; change only renderer contract adaptation needed for typed registration. Resolve exact file paths before implementation.
-- Domain contracts `domain/src/commonMain/kotlin/com/carbroz/cbpartner/domain/model/dynamic/element/DynamicElement.kt` and `domain/src/commonMain/kotlin/com/carbroz/cbpartner/domain/model/dynamic/content/ElementContent.kt`: reuse existing contracts; change only if actual source/type constraints require a minimal compatible adjustment, and stop for review if that would widen scope.
-- Registry tests: `feature/dynamic/src/commonTest/kotlin/com/carbroz/cbpartner/feature/dynamic/registry/DynamicRegistryTest.kt`; add/update rendering dispatch tests only in their existing verified paths.
+**Contracts, registries, and dispatch**
+
+- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/registry/DynamicRendererContracts.kt`: make all six renderer contracts generic and typed. Preserve their separate category responsibilities; do not introduce shared model interfaces for Template/Component/Section/Group.
+- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/registry/DynamicRegistry.kt`: implement separate class-keyed typed registration and lookup for all six categories. Reject duplicate concrete model classes deterministically. Any shared helper must not merge category registries or expose an unsafe universal API.
+- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/registry/DynamicRendererRegistration.kt`: explicitly register every supported concrete renderer using the matching model class.
+- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/runtime/DynamicRenderContext.kt`: delegate each node to the corresponding registry; remove concrete-model-to-backend-key dispatch for all six categories.
+- Adapt existing concrete Template, Component, Section, Group, Element, and Content renderer implementations to their corresponding generic contract. Preserve their current rendering, assets, layout, spacing, actions, and binding behavior.
+- Existing known Element models: `TextElement`, `ImageElement`, `InputElement`, `ButtonElement`, and `IconElement`. Existing known Content models: `IconContent` and `DividerContent`. Verify each concrete renderer's exact source path from the current branch before editing; do not guess filenames or create duplicates.
+- Reuse existing domain model declarations and `:data` mapping. Do not alter backend wire schema or add model properties solely for renderer dispatch.
+- Registry tests: `feature/dynamic/src/commonTest/kotlin/com/carbroz/cbpartner/feature/dynamic/registry/DynamicRegistryTest.kt`. Update existing rendering/context tests only in their verified paths.
 
 **Action execution and Store/effect delivery**
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/action/DynamicActionResult.kt`: define the aggregate result (`stateChanges` plus ordered `effects`) and the sealed `DynamicActionEffect` hierarchy in this existing file. Do not create a separate effect source file for this tightly coupled contract.
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/action/DynamicActionExecutor.kt`: aggregate effects/state across nested sequences; apply each step's state before the next; preserve effect order and failure semantics; retain depth guard.
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/action/DynamicActionHandler.kt`, `NavigateActionHandler.kt`, `PresentActionHandler.kt`, `DismissActionHandler.kt`, `ExternalUriActionHandler.kt`, `RequestActionHandler.kt`, `StateActionHandler.kt`: adapt handlers to the aggregate result/effect contract; each handler remains single-capability and does not execute effects itself.
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/store/DynamicStore.kt`: apply result state changes and emit every effect through a reliable ordered channel/flow contract; deterministic behavior on close/failure.
-- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/DynamicContainer.kt`: consume ordered effects without cancellation of earlier effects; forward Navigate/Present/Dismiss to navigation and ExternalUri to the existing URI launcher.
-- Tests: `feature/dynamic/src/commonTest/kotlin/com/carbroz/cbpartner/feature/dynamic/action/DynamicActionExecutorTest.kt` and `feature/dynamic/src/commonTest/kotlin/com/carbroz/cbpartner/feature/dynamic/store/DynamicStoreTest.kt`.
+
+- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/action/DynamicActionResult.kt`: define the aggregate result (`stateChanges` plus ordered `effects`) and sealed `DynamicActionEffect` hierarchy in this existing file; do not split this tightly coupled contract without a demonstrated need.
+- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/action/DynamicActionExecutor.kt`: aggregate ordered effects/state across nested sequences, apply each step's state before the next step, preserve effect order and failure semantics, and retain the depth guard.
+- Adapt `DynamicActionHandler.kt`, `NavigateActionHandler.kt`, `PresentActionHandler.kt`, `DismissActionHandler.kt`, `ExternalUriActionHandler.kt`, `RequestActionHandler.kt`, and `StateActionHandler.kt` to return the aggregate result/effect contract. Each handler remains single-capability and does not execute effects itself.
+- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/store/DynamicStore.kt`: apply result state changes and emit every effect through a reliable ordered delivery contract with deterministic close/failure behavior.
+- `feature/dynamic/src/commonMain/kotlin/com/carbroz/cbpartner/feature/dynamic/DynamicContainer.kt`: consume effects without cancelling/dropping earlier effects; forward Navigate/Present/Dismiss to navigation and ExternalUri to the existing launcher.
+- Tests: existing `DynamicActionExecutorTest.kt` and `DynamicStoreTest.kt` in their verified paths.
 
 **Navigation and presentation**
-- `navigation/src/commonMain/kotlin/com/carbroz/cbpartner/navigation/DynamicNavigationState.kt`: own one nullable active presentation entry in addition to the existing stack; expose present/dismiss operations with deterministic rejection of a second presentation; make back dismiss presentation first.
-- `navigation/src/commonMain/kotlin/com/carbroz/cbpartner/navigation/DynamicNavigationHost.kt`: render the active presentation in a modal host while retaining the underlying NavDisplay; modal dismissal clears only presentation state.
-- `navigation/src/commonMain/kotlin/com/carbroz/cbpartner/navigation/DynamicNavigationEntry.kt`: reuse existing entry identity; no duplicate destination cache.
-- `navigation/src/commonTest/kotlin/com/carbroz/cbpartner/navigation/DynamicNavigationStateTest.kt`: cover presentation identity, preservation of underlying entry, single-active rejection, presentation-first back/dismiss, and normal push/replace/pop regression behavior.
+
+- `navigation/src/commonMain/kotlin/com/carbroz/cbpartner/navigation/DynamicNavigationState.kt`: own one nullable active presentation entry in addition to the existing stack; expose present/dismiss operations; reject a second active presentation deterministically; dismiss presentation first on back.
+- `navigation/src/commonMain/kotlin/com/carbroz/cbpartner/navigation/DynamicNavigationHost.kt`: render active presentation in a modal host while retaining the underlying NavDisplay.
+- `navigation/src/commonMain/kotlin/com/carbroz/cbpartner/navigation/DynamicNavigationEntry.kt`: reuse existing entry identity; do not add a destination cache.
+- `navigation/src/commonTest/kotlin/com/carbroz/cbpartner/navigation/DynamicNavigationStateTest.kt`: cover presentation identity, preservation of underlying entry, single-active rejection, presentation-first back/dismiss, and normal Push/Replace/Pop regression behavior.
+- Verify actual current source declarations and call sites before edits. The path list is a plan, not permission to invent absent files or overloads.
 
 **Documentation**
-- `docs/dynamic/DYNAMIC-ARCHITECTURE.md`: section 24 records this amendment and explicitly supersedes the conflicting Element-registry clause in section 23 and relevant earlier clauses.
-- `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`: this section is the exact plan and stop-condition authority.
-- `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md`: record this plan freeze and that implementation/tests remain pending; update verification only after actual runs.
-- `docs/project-management/03-DECISION-LOG.md`: record the new decision and supersession without deleting historical entries.
-- `docs/project-management/04-PROJECT-MASTER-STATE.md` and `AI_START_HERE.md`: update current-task routing to this new decision and plan section. Do not start the separate mapper consolidation recorded in section 22.29; it is outside this work and names a different branch.
+
+- Architecture: `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 24.
+- Exact implementation plan: this section.
+- Current status: `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md`.
+- Decision record: `docs/project-management/03-DECISION-LOG.md`.
+- Current recovery state/routing: `docs/project-management/04-PROJECT-MASTER-STATE.md` and `AI_START_HERE.md`.
+- Preserve historical decisions and clearly mark conflicting registry choices as superseded. Do not execute the separate Element mapper consolidation in section 22.29; it is outside this work and names a different branch.
 
 #### 22.30.3 Required tests
 
 **Registry/rendering**
-- All five Element model classes and both Content model classes resolve to the explicitly registered typed renderer.
-- Element and Content registries are separate; same class in different categories does not collide.
-- Duplicate model-class registration is rejected without replacing the first registration.
-- Unknown model class and adapter mismatch fail deterministically with a useful diagnostic.
-- A newly registered concrete model can render without adding a dispatch branch in `DynamicRenderContext`.
-- Concrete renderers contain no unsafe casts or silent mismatched-model returns.
-- Existing mapper behavior remains unchanged: backend keys map to concrete models, `DynamicValue` object/array types and references survive, and IconContent/DividerContent mapping and spacing remain intact.
+
+- Typed registration and lookup in all six categories.
+- Correct dispatch for every currently supported concrete model.
+- Registry category isolation; the same model class in different categories does not collide.
+- Duplicate model-class registration rejected without replacing the existing registration.
+- Unknown model and adapter mismatch fail deterministically with useful diagnostics.
+- A newly registered model can render without changing central dispatch or unrelated registries.
+- No unsafe casts or silent mismatched-model returns in concrete renderers.
+- Existing mapper behavior remains unchanged: backend keys map to concrete models, DynamicValue object/array types and references survive, and IconContent/DividerContent spacing behavior remains intact.
 
 **Actions/effects**
-- Navigate followed by Completed preserves Navigate; ExternalUri followed by Completed preserves ExternalUri; multiple effects retain their original order.
-- State changes before and after effects are merged, and later actions observe earlier state changes, including nested dotted state paths.
-- Nested sequences preserve effect order and state changes.
-- Handler/sequence failure stops later actions and returns failure; effect-only terminal actions do not stop the sequence.
-- Duplicate/blank handler types, unknown action types, `back` alias, malformed sequence values and maximum depth are deterministic.
+
+- Navigate followed by Completed preserves Navigate; ExternalUri followed by Completed preserves ExternalUri; multiple effects retain original order.
+- State changes before and after effects merge correctly; later actions observe earlier state, including nested dotted paths.
+- Nested sequences preserve ordered effects and state changes.
+- Real handler/sequence failure stops later actions and returns failure; terminal-effect-only actions do not stop the sequence.
+- Duplicate/blank handler types, unknown action types, `back` alias, malformed sequence values, and maximum depth remain deterministic.
 - Request retention and `responseMode = none` behavior remain correct.
 - Store delivers multiple effects in order without dropping/cancelling earlier effects; closing the Store does not hang senders or leak work.
 
 **Presentation/navigation**
-- Present creates a distinct presentation entry/Store and leaves the underlying entry identity and state intact.
+
+- Present creates a distinct presentation entry/Store and preserves underlying entry identity/state.
 - A second active presentation is rejected and the first remains active.
 - Dismiss removes the presentation first; back dismisses presentation before popping the normal stack.
-- Normal Navigate Push/Replace/Pop behavior and navigation entry identity remain unchanged.
-- External URI is forwarded through the existing launcher and is not executed in the action handler.
+- Normal Navigate Push/Replace/Pop behavior and entry identity remain unchanged.
+- External URI is forwarded through the existing launcher and is not executed inside the action handler.
 
 #### 22.30.4 Verification and audit gates
 
-1. Resolve the exact IconElement and IconContent/DividerContent implementation paths from the actual source tree before any source edits. This is currently an explicit path-verification blocker, not permission to guess.
+1. Verify exact source paths for all concrete renderers, especially IconElement and IconContent/DividerContent, against the actual `feature/dynamic-ui` source tree before editing.
 2. Run focused `:domain:jvmTest`, `:data:jvmTest`, `:navigation:jvmTest`, and `:feature:dynamic:jvmTest`.
-3. Run the complete shared JVM regression matrix: `.gradlew.bat :core:jvmTest :domain:jvmTest :data:jvmTest :navigation:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest`.
-4. Run relevant `compileKotlinJvm` tasks, `git diff --check`, inspect `git diff --stat` and the complete diff.
-5. Audit for forbidden generic hierarchy contracts, a universal registry, duplicate reference resolution, `$response`, business-specific models, duplicate network/navigation/cache infrastructure, dropped effects, obsolete content spacing, and unrelated mapper changes.
-6. Only claim Android/Web/iOS runtime/build/visual results if actually executed. Windows iOS simulator warning is expected; do not upgrade tooling or suppress it.
-7. Update status/master state from actual evidence; no implementation-complete or final-freeze claim before review.
+3. Run the shared JVM regression matrix: `.\gradlew.bat :core:jvmTest :domain:jvmTest :data:jvmTest :navigation:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest`.
+4. Run relevant `compileKotlinJvm` tasks, `git diff --check`, inspect `git diff --stat`, and review the complete source diff.
+5. Audit for universal registries, unnecessary hierarchy interfaces, duplicate reference resolution, `$response`, business-specific models, duplicate network/navigation/cache infrastructure, dropped effects, obsolete content spacing, and unrelated mapper changes.
+6. Claim Android/Web/iOS runtime/build/visual results only if actually executed. The Windows iOS simulator warning is expected; do not upgrade tooling or suppress it.
+7. Update implementation status and Project Master State only from actual verification evidence. Do not claim implementation complete or final freeze before tests and review pass.
 
 #### 22.30.5 Stop conditions
 
-Stop and report before source edits if: exact renderer paths remain unresolved; actual source differs materially from this plan; Kotlin common-source generic/Compose API compatibility requires unsafe or distributed casts; the existing renderer registry cannot provide type-safe registration without a broader framework; content mapping/backend contract conflicts with class-keyed dispatch; reliable effect ordering requires a new owner decision; modal hosting cannot preserve the underlying entry/Store; mapper changes require inventing backend fields; tests fail outside the planned scope; user changes or a source baseline mismatch appear; or any change would touch the separate mapper work item/branch, backend repository, networking infrastructure, or unrelated architecture.
+Stop and report before source edits if actual source differs materially from this plan; a concrete renderer path cannot be verified; typed generic registration requires unsafe or distributed casts; the six registries cannot retain category isolation; current model/API constraints require new hierarchy abstractions; content mapping/backend contracts conflict with the plan; reliable effect ordering requires a new owner decision; modal hosting cannot preserve the underlying entry/Store; tests fail outside the planned scope; or the change would touch the separate mapper work item, another branch, the backend repository, networking infrastructure, or unrelated architecture.
 
-Required response to any stop condition: **STOP → REPORT → DISCUSS/RESEARCH → DECIDE → FREEZE → UPDATE PLAN → IMPLEMENT**. This section freezes the complete plan only; source edits and test execution remain pending a separate implementation start.
+Required response to any stop condition: **STOP → REPORT → DISCUSS/RESEARCH → DECIDE → FREEZE → UPDATE PLAN → IMPLEMENT**.
+
+The plan is frozen; source edits and test execution have not started. The next action is exact source-path and current-source reconciliation, followed by the first manually applied source-file change only when that check passes.
