@@ -402,7 +402,7 @@ Historical decision snapshot: the contract was documentation-frozen before imple
 - Remaining before merge/final freeze: complete line-by-line diff and obsolete-property audit, plus actual Web visual inspection. Do not update the backend repository or its PR as part of this frontend task.
 
 
-## 17. Element registry simplification — current frozen direction (2026-10-13)
+## 17. Historical Element registry simplification — superseded for current work (2026-10-13)
 
 - Decision: `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`; Option A approved.
 - Architecture authority: `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 23.
