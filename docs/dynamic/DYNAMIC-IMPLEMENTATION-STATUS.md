@@ -322,7 +322,7 @@ The five concrete element models will implement the shared domain `DynamicElemen
 **Next valid action:** open the separate implementation gate, then implement only the frozen file-by-file scope. Until then, do not change source. After implementation, run the frozen JVM test/compile matrix, inspect the complete diff, and update implementation status only from actual results.
 
 
-## 16. Element registry simplification — current work item (2026-10-13)
+## 16. Historical Element registry simplification — superseded for current work (2026-10-13)
 
 **Decision:** `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`  
 **State:** PLAN FROZEN; SIMPLIFICATION SOURCE CHANGES NOT STARTED; VERIFICATION NOT RUN
@@ -337,7 +337,7 @@ Frozen intended changes:
 - Keep the five concrete data mappers and `ElementMapperSupport` unchanged in this registry work item; mapper helper design is separate from renderer registry design.
 - Keep content registry/rendering, backend mapping semantics, and all unrelated Dynamic architecture unchanged.
 
-Next valid action: implement only the file-by-file scope in implementation plan section 22.28, then run its focused tests, full JVM matrix, compile tasks, and final diff review. Do not mark implementation complete or frozen before actual verification.
+Historical next step when this record was written: implement section 22.28. That step is superseded for the current task by section 17 and implementation plan section 22.30; do not execute section 22.28 as the current target. Do not mark implementation complete or frozen before actual verification.
 
 
 ## 17. Dynamic registry and action-effect amendment — plan frozen (2026-10-13)
