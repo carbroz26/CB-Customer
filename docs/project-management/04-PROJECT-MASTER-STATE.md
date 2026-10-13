@@ -416,14 +416,14 @@ Historical decision snapshot: the contract was documentation-frozen before imple
 
 ## 18. Frozen registry/action amendment — current planning task (2026-10-13)
 
-- **Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`.
+- **Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`, revised by explicit owner approval to cover all six registry categories.
 - **Architecture:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 24.
 - **Implementation plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30.
-- **Status:** plan frozen; documentation reconciliation in progress; source implementation and tests not started.
-- **Registry:** typed registration-driven dispatch for Element and Content by concrete model-class identity; separate registries and checked adapters only at their type-erasure boundaries.
-- **Actions:** aggregate ordered effects and state changes; state propagates between actions; real failures stop the sequence; earlier effects are never erased by later Completed/state-only results.
-- **Presentation:** one active modal presentation; underlying entry/Store preserved; presentation has its own entry/Store; dismiss presentation before normal back-stack behavior.
-- **Supersession:** the earlier Option A decision remains history but is superseded for the conflicting Element/Content dispatch contract. All unrelated frozen architecture remains active.
-- **Blocker:** exact source paths for IconElement and IconContent/DividerContent renderer implementations have not been verified through current file lookup. Verify them from the source tree before edits; never guess or duplicate files.
-- Do not start the separate Element mapper consolidation plan in section 22.29 or touch its branch. Work only on `feature/dynamic-ui`; no new branches and no backend edits.
-- No implementation/test/build completion may be claimed until the frozen verification matrix, full diff audit, and review are actually completed.
+- **Status:** complete plan frozen; source implementation and tests not started.
+- **Registry:** Template, Component, Section, Group, Element, and Content all use concrete model-class identity for typed registration/lookup. All six renderer contracts are generic. Registries remain separate; no universal registry or unnecessary model hierarchy.
+- **Actions:** aggregate ordered effects and state changes; state propagates between actions; real failures stop the sequence; earlier effects are not erased by later Completed/state-only results.
+- **Presentation:** one active modal presentation; underlying entry/Store preserved; presentation has its own entry/Store; second active presentation rejected; dismiss presentation before normal back-stack behavior.
+- **Supersession:** prior registry decisions remain historical but are superseded where they conflict with the all-six-registry class-keyed contract. Other frozen architecture remains active.
+- **Pre-implementation gate:** verify exact current source paths and declarations for all concrete renderers, especially IconElement and IconContent/DividerContent. Do not guess or create duplicate files.
+- Work only on `feature/dynamic-ui`; no new branches, no backend edits, and no separate Element mapper consolidation.
+- No implementation/test/build completion may be claimed until the frozen verification matrix and full diff audit actually pass.
