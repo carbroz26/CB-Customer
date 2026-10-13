@@ -7,7 +7,7 @@
 
 ## 1. Current truth
 
-The owner-approved revision now applies typed, concrete-model-class registration and lookup to all six independent renderer registries: Template, Component, Section, Group, Element, and Content. All six renderer contracts are generic and typed; each registry remains category-specific, with type erasure/casts confined to a narrow checked adapter where necessary. The same plan retains ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The authoritative contract is `DYNAMIC-ARCHITECTURE.md` section 24 and the file-by-file plan is `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation reconciliation is being completed; source implementation and verification have not started. Exact source paths and current declarations for concrete renderers must be verified before edits.
+The owner-approved revision now applies typed, concrete-model-class registration and lookup to all six independent renderer registries: Template, Component, Section, Group, Element, and Content. All six renderer contracts are generic and typed; each registry remains category-specific, with type erasure/casts confined to a narrow checked adapter where necessary. The same plan retains ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The authoritative contract is `DYNAMIC-ARCHITECTURE.md` section 24 and the file-by-file plan is `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation reconciliation is complete; the revised plan is frozen. Source implementation and verification have not started. Exact source paths and current declarations for concrete renderers must be verified before edits.
 
 The content-owned spacing revision is implemented on `feature/dynamic-content-spacing-contract`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent, the mapper reads backend `properties.spacing`, and existing renderers apply the four-sided external spacing. The owner ran the six-module JVM matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`), Android unit tests, Android Kotlin compilation/debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`. The full line-by-line source/diff audit and actual Web visual inspection remain open; do not treat this branch as finally frozen.
 
@@ -344,7 +344,7 @@ Historical next step when this record was written: implement section 22.28. That
 
 **Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`  
 **Branch:** `feature/dynamic-ui`  
-**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION IN PROGRESS; SOURCE IMPLEMENTATION NOT STARTED; TESTS NOT RUN
+**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION COMPLETE; SOURCE-PATH VERIFICATION REQUIRED; SOURCE IMPLEMENTATION NOT STARTED; TESTS NOT RUN
 
 ### Owner-approved registry contract
 
