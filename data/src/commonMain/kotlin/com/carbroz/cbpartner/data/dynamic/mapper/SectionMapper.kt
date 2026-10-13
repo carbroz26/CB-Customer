@@ -4,7 +4,7 @@ import com.carbroz.cbpartner.data.dynamic.model.section.StackSectionDto
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 
 class SectionMapper(
-    private val elements: ElementMappers,
+    private val elements: ElementMapper,
     private val groups: GroupMapper,
     private val values: DynamicValueMapper,
 ) {
