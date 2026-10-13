@@ -504,3 +504,28 @@ The implementation plan is frozen, but the source simplification has not started
 
 ### Implementation boundary
 This is separate from `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`. The latter remains intact. Verify implementation against `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.29.
+
+
+## DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001 — Typed Element/Content dispatch and ordered action effects
+
+**Date:** 2026-10-13  
+**State:** OWNER-APPROVED; COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION IN PROGRESS; SOURCE CHANGES NOT STARTED  
+**Branch:** `feature/dynamic-ui`  
+**Supersedes:** `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001` / architecture section 23 only for the conflicting Element dispatch decision. Other architecture constraints and historical records remain active.
+
+### Owner-approved contract
+
+- Element and Content use typed registration-driven dispatch by concrete model-class identity, with separate category maps and narrow checked adapters at their generic type-erasure boundary. `DynamicElement` and `ElementContent` are reused; no generic Template/Component/Section/Group hierarchy is added.
+- Concrete renderers accept their concrete model types and do not cast or silently ignore mismatched models. `DynamicRenderContext` does not maintain concrete Element/Content-to-backend-key `when` dispatch.
+- Action sequence results aggregate ordered effects and state changes. Effects remain in order when later actions complete or only change state; state changes propagate before the next action; real failures stop the sequence.
+- Store effect delivery and UI consumption must preserve order without lossy send paths or cancellation of earlier effects.
+- `present` is a distinct modal presentation, not a navigation push. One active presentation is allowed; its entry-scoped Store is independent while the underlying entry and state remain intact. Dismissal and back behavior prioritize the active presentation.
+- Normal Navigate push/replace/pop, request repository boundaries, external URI launching boundary, DynamicValue/reference semantics, backend-owned visual properties, content-owned spacing, and the no-ViewModel/no-duplicate-infrastructure rules remain unchanged.
+
+### Documentation and implementation authority
+
+- Architecture: `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 24.
+- Exact file-by-file plan, tests, and stop conditions: `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30.
+- Current status: `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md` section 17.
+- This decision supersedes the earlier Option A dispatch decision only where it conflicts with the typed model-class Element/Content dispatch above. The older entry is retained as historical decision record.
+- Source implementation and verification remain pending. Exact source paths for IconElement and the IconContent/DividerContent renderers must be verified before edits; do not infer filenames. No backend work or separate mapper-consolidation branch is in scope.
