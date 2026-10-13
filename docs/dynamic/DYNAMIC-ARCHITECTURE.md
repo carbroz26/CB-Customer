@@ -437,7 +437,7 @@ Asset presentation properties remain backend-controlled. The existing Dynamic hi
 ## 22. Generic element renderer registry consolidation — frozen amendment
 
 **Decision reference:** `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`  
-**State:** ARCHITECTURE AMENDMENT AND IMPLEMENTATION PLAN FROZEN; SOURCE IMPLEMENTATION NOT STARTED  
+**Historical state:** this model-class/generic-adapter design was frozen as a candidate on 2026-10-13, then superseded by section 23 after source review and owner approval of the simpler concrete-renderer design.  
 **Date:** 2026-10-13
 
 This narrow amendment supersedes earlier clauses requiring five element-specific renderer interfaces, maps/lookups/builder methods, or concrete element class-to-key dispatch in `DynamicRenderContext`. All other frozen Dynamic architecture remains active.
@@ -460,3 +460,40 @@ This narrow amendment supersedes earlier clauses requiring five element-specific
 Kotlin common API exposes `KClass.isInstance`; the project-specific Gradle/Compose compilation has not yet been run. Before source edits, compile the adapter in the configured common source set and audit every affected collection, mapper, registry construction path, fixture, and test. If the toolchain or actual source constraints reject this design, stop and report; do not substitute a different dispatch algorithm without a new owner decision.
 
 This amendment freezes the model-class dispatch rule and planned scope, not implementation completion. Source code remains unchanged until the implementation gate is explicitly opened.
+
+
+## 23. Element registry simplification — frozen amendment (2026-10-13)
+
+**Decision:** `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`  
+**State:** OPTION A APPROVED; REVISED PLAN FROZEN; SIMPLIFICATION IMPLEMENTATION NOT STARTED  
+**Supersedes:** the active implementation direction in section 22, including generic `ElementRenderer<T>`, model-class-keyed registry, normalized-key side set, and `CheckedElementRenderer`.
+
+### Decision
+
+The Element registry must follow the existing straightforward, string-keyed registration and lookup pattern used by Template, Component, Section, Group, and Content. Do not defend or extend the recently implemented generic registry merely because it exists.
+
+### Frozen implementation contract
+
+- Keep the five concrete element domain models and their existing backend-type mapping in `:data`.
+- Keep `DynamicElement` only as the common marker needed for typed heterogeneous element collections; it must not drive generic renderer adaptation or contain backend type metadata.
+- Replace generic `ElementRenderer<T : DynamicElement>` with five concrete renderer contracts, one for each model: Text, Image, Input, Button, and Icon. Each renderer accepts its own concrete domain model.
+- Remove `CheckedElementRenderer`, `KClass`-based element registration/lookup, the unchecked cast, and the separate `elementTypes` validation set.
+- Give each concrete renderer category its own string-keyed map and typed lookup/registration method, following the same pattern as the other registry categories. Registration keys use the existing `trim().lowercase()` rule and shared blank/duplicate rejection helper; the normalized key is the lookup key, not bookkeeping-only metadata.
+- Register each element explicitly using its backend key and matching concrete renderer. Do not use a generic `.element(type, modelClass, renderer)` API.
+- `DynamicRenderContext` uses a small exhaustive dispatch from the concrete domain model to its known backend key and corresponding typed registry lookup. This is accepted for Element because it preserves concrete renderer types without adapters, casts, reflection, or `Map<String, Any>`.
+- Keep Template, Component, Section, Group, Element, and Content responsibilities separate. Do not introduce a universal registry or generic registry framework.
+- Preserve rendering, actions, binding, validation, layout/property ownership, content rendering, and unknown-backend-key behavior in `:data`.
+- Do not change `ElementMapperSupport` as part of this registry amendment. It is data-mapping code, not registry infrastructure; any decision to remove or reshape it requires a separate focused mapper review and must avoid duplicating shared action/content/value mapping.
+- Do not add unrelated cleanup or change the backend contract.
+
+### Why this direction
+
+The common generic adapter, model-class registry key, and extra key-validation set were additional machinery not shared by the established registry categories. Concrete typed renderer paths make the runtime type contract explicit and remove the unchecked-cast boundary. A small concrete-model-to-backend-key dispatch is preferred over generic type-erasure infrastructure.
+
+### Completion criteria
+
+- No `CheckedElementRenderer`, `KClass` element registry key, unchecked element renderer cast, or `elementTypes` side set remains.
+- Each of the five element types has a concrete renderer contract, normalized string-keyed registration/lookup, and one explicit registration.
+- The only element model dispatch is a local exhaustive mapping from the five domain model classes to the existing backend keys; concrete renderer inputs remain typed and require no casts.
+- The content registry and `ElementContentRenderer` are unchanged.
+- Focused registry and mapper/rendering regression tests pass; the complete diff contains no unrelated changes.
