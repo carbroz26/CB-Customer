@@ -743,10 +743,10 @@ On PR #6 head `c08a6729186590eb094e79176f34daa119aa8a4a`, the owner reports succ
 GitHub reported no PR-triggered workflow runs and zero commit check-runs for that head; no CI pass is claimed. The webpack critical-dependency warning and npm transitive `ws` version-clash notices did not fail the build. The expected Windows iOS-simulator disabled-target warning is an environment limitation and remains unsuppressed. These results verify build/test gates only, not actual visual appearance. Complete the line-by-line diff/obsolete-property audit and inspect the Web runtime before final freeze or merge.
 
 
-### 22.27 Generic element renderer registry consolidation — frozen plan (2026-10-13)
+### 22.27 Historical candidate plan — generic element renderer registry (superseded 2026-10-13)
 
 **Decision reference:** `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001`  
-**State:** OWNER-APPROVED; ARCHITECTURE AMENDMENT AND PLAN FROZEN; SOURCE IMPLEMENTATION NOT STARTED  
+**Historical state:** this model-class/generic-adapter plan was superseded before review; see section 22.28 for the current frozen plan.  
 **Scope:** `CB-Partner`, branch `feature/dynamic-ui`, frontend only.
 
 This amendment removes duplicated element-specific renderer infrastructure. A new element should require its concrete model, mapper, renderer, one explicit registration, and tests—not new registry fields, lookups, or builder methods.
@@ -799,3 +799,68 @@ This amendment removes duplicated element-specific renderer infrastructure. A ne
 The Kotlin common API exposes `KClass.isInstance`, but project-specific Gradle/Compose compilation has not yet been run. Compile the adapter and audit all `List<Any>` usages, mappers, registry construction paths, fixtures, and tests before source edits. If the configured source set/toolchain or actual source constraints reject this design, stop and report; do not silently substitute another algorithm.
 
 **Implementation gate:** this architecture and plan are frozen. Source implementation remains a separate step and must not begin until that gate is explicitly opened.
+
+
+### 22.28 Element registry simplification — revised frozen plan (2026-10-13)
+
+**Decision:** `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`  
+**State:** OPTION A APPROVED; PLAN FROZEN; SIMPLIFICATION IMPLEMENTATION NOT STARTED  
+**Branch:** `feature/dynamic-ui`  
+**Scope:** frontend registry simplification only. The recently committed generic registry is a candidate implementation to simplify, not the design authority.
+
+#### Target behavior
+
+Make Element follow the established registry pattern: normalized backend string key, typed concrete renderer, category-specific map, explicit registration, and the same blank/duplicate registration helper used by the other registry categories. Do not use model-class identity as the registry key.
+
+#### Exact intended source changes
+
+**Domain**
+- Keep the existing `DynamicElement` marker solely because component/section/group collections need one common type for heterogeneous element lists.
+- Keep the five concrete models and all model properties unchanged.
+- Do not add backend type keys to domain models.
+
+**Data mapper**
+- Keep `ElementMappers` as the backend-type-to-concrete-domain-model dispatch boundary and retain the five concrete mapper classes.
+- Do not change mapper output, DynamicValue/reference semantics, DTO schemas, or backend-key handling as part of this renderer-registry change.
+- Leave `ElementMapperSupport` unchanged in this work item. It currently shares semantic-role, padding, accessory-content, action, and binding mapping; deleting it here would be an unrelated mapper redesign and could duplicate mapping behavior. If it remains a concern, make a separate focused decision after this registry change.
+
+**Renderer contracts — `feature/dynamic/.../registry/DynamicRendererContracts.kt`**
+- Remove generic `ElementRenderer<T : DynamicElement>` and `CheckedElementRenderer`.
+- Add five concrete renderer contracts whose render parameters are respectively `TextElement`, `ImageElement`, `InputElement`, `ButtonElement`, and `IconElement`.
+- Keep TemplateRenderer, ComponentRenderer, SectionRenderer, GroupRenderer, and ElementContentRenderer unchanged.
+
+**Registry — `feature/dynamic/.../registry/DynamicRegistry.kt`**
+- Remove the `KClass` import and model-class-keyed element map.
+- Remove the `elementTypes` side set, `modelClass` registration parameter, adapter construction, and class-based lookup.
+- Add one string-keyed map per concrete element renderer category, using the same `linkedMapOf<String, RendererType>()` and existing shared `register(target, category, type, renderer)` helper pattern used by Template/Component/Section/Group/Content.
+- Expose typed lookup and builder registration for each concrete element category. Use the existing backend keys: `text`, `image`, `input`, `button`, `icon`.
+- Preserve `trim().lowercase()` normalization, blank rejection, duplicate rejection before mutation, and deterministic diagnostics.
+- Do not add a second validation map, generic adapter, reflection, casts, or `Map<String, Any>`.
+
+**Explicit registration — `feature/dynamic/.../registry/DynamicRendererRegistration.kt`**
+- Register the five concrete renderers against their matching backend keys using the typed category registration methods.
+- Leave Template/Component/Section/Group/Content registration and ordering unchanged.
+
+**Dispatch — `feature/dynamic/.../runtime/DynamicRenderContext.kt`**
+- Replace model-class registry dispatch with a local exhaustive `when` over the five concrete `DynamicElement` implementations.
+- Each branch calls the matching typed registry lookup with its fixed backend key and renders the same concrete model; no casts or generic adapter.
+- Keep component/section/group dispatch and content-type dispatch unchanged.
+- Adding a new element later requires its concrete renderer contract, registry path, registration, and dispatch branch; do not introduce generic infrastructure to avoid these explicit changes.
+
+**Tests**
+- Update `DynamicRegistryTest.kt` to assert string-key normalization, blank/duplicate rejection without replacing existing entries, typed lookup for each element renderer, and category separation.
+- Update rendering/contract tests only as needed for typed dispatch and adapter removal. Verify all five models dispatch to the correct concrete renderer and content rendering remains unchanged.
+- Preserve `:data` mapper tests proving backend keys map to expected concrete models and existing DynamicValue/reference behavior remains intact.
+- Remove tests that exist only to test `CheckedElementRenderer` or its class-mismatch behavior; replace them with meaningful typed-registry/dispatch coverage.
+
+#### Verification and review gates
+
+1. Run focused `:domain:jvmTest`, `:data:jvmTest`, and `:feature:dynamic:jvmTest`.
+2. Run the current required shared JVM regression matrix and relevant `compileKotlinJvm` tasks.
+3. Run `git diff --check` and review the full source diff.
+4. Confirm there is no `CheckedElementRenderer`, no `KClass` element registry lookup, no unchecked renderer cast, no `elementTypes` side set, no changes to `ElementContentRenderer`/content registry, and no unrelated mapper or rendering edits.
+5. Do not claim Android/Web/iOS or visual verification unless those checks actually run.
+
+#### Stop conditions
+
+Stop and report if current source differs from this exact scope, a concrete typed registry cannot be expressed using the existing shared registration helper without unsafe casts, or tests expose a contract conflict. Do not silently restore the generic adapter or invent a third design. Source implementation remains a separate step after this documentation freeze.
