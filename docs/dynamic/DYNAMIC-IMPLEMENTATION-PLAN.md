@@ -801,7 +801,7 @@ The Kotlin common API exposes `KClass.isInstance`, but project-specific Gradle/C
 **Implementation gate:** this architecture and plan are frozen. Source implementation remains a separate step and must not begin until that gate is explicitly opened.
 
 
-### 22.28 Element registry simplification — revised frozen plan (2026-10-13)
+### 22.28 Historical Option A Element registry plan — superseded for current work by section 22.30 (2026-10-13)
 
 **Decision:** `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`  
 **State:** OPTION A APPROVED; PLAN FROZEN; SIMPLIFICATION IMPLEMENTATION NOT STARTED  
@@ -912,7 +912,8 @@ Stop and report if existing DTO/model APIs require a behavior change, a deleted 
 **Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`  
 **State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION IN PROGRESS; SOURCE CHANGES NOT STARTED  
 **Branch:** `feature/dynamic-ui`  
-**Scope:** frontend Dynamic registry/rendering dispatch, action result/effect flow, Store effect delivery, and navigation presentation. No backend edits and no branch creation.
+**Scope:** frontend Dynamic registry/rendering dispatch, action result/effect flow, Store effect delivery, and navigation presentation. No backend edits and no branch creation.  
+**Supersedes:** section 22.28's Option A Element dispatch and architecture section 23 only where their dispatch design conflicts with this section; both remain historical records.
 
 #### 22.30.1 Frozen target
 
