@@ -1,11 +1,5 @@
 package com.carbroz.cbpartner.feature.dynamic.registry
 
-import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement as ButtonElementModel
-import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement as IconElementModel
-import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement as ImageElementModel
-import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement as InputElementModel
-import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
@@ -21,21 +15,20 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 class DynamicRegistryTest {
     @Test
-    fun registrationsRemainSeparatedByCategoryAndElementsResolveByModelClass() {
+    fun registrationsRemainSeparatedByCategoryAndUseTypedElementRenderers() {
         val registry = DynamicRegistry.builder()
             .template("form_template", FormTemplateRenderer())
             .component("stack_component", StackComponent())
             .section("stack_section", StackSection())
             .group("stack_group", StackGroup())
-            .element("text", TextElementModel::class, TextElement())
-            .element("image", ImageElementModel::class, ImageElement())
-            .element("input", InputElementModel::class, InputElement())
-            .element("button", ButtonElementModel::class, ButtonElement())
-            .element("icon", IconElementModel::class, IconElement())
+            .text("text", TextElement())
+            .image("image", ImageElement())
+            .input("input", InputElement())
+            .button("button", ButtonElement())
+            .icon("icon", IconElement())
             .content("icon", IconContent())
             .build()
 
@@ -43,72 +36,50 @@ class DynamicRegistryTest {
         assertNotNull(registry.component("stack_component"))
         assertNotNull(registry.section("stack_section"))
         assertNotNull(registry.group("stack_group"))
-        assertNotNull(registry.element(TextElementModel("text")))
-        assertNotNull(registry.element(ImageElementModel("image", url = "image.png")))
-        assertNotNull(registry.element(InputElementModel("input")))
-        assertNotNull(registry.element(ButtonElementModel("button")))
-        assertNotNull(registry.element(IconElementModel("icon", url = "icon.png")))
+        assertNotNull(registry.text("text"))
+        assertNotNull(registry.image("image"))
+        assertNotNull(registry.input("input"))
+        assertNotNull(registry.button("button"))
+        assertNotNull(registry.icon("icon"))
         assertNotNull(registry.content("icon"))
 
         assertNull(registry.template("text"))
+        assertNull(registry.text("unknown_text"))
+        assertNull(registry.image("unknown_image"))
+        assertNull(registry.input("unknown_input"))
+        assertNull(registry.button("unknown_button"))
+        assertNull(registry.icon("unknown_icon"))
         assertNull(registry.content("unknown_content"))
     }
 
     @Test
-    fun unknownElementModelsFailWithDeterministicMissingRendererDiagnostic() {
-        val registry = DynamicRegistry.builder().build()
+    fun elementRegistrationKeysAreNormalizedForRegistrationAndLookup() {
+        val original = TextElementRenderer { _, _ -> }
+        val registry = DynamicRegistry.builder()
+            .text(" TEXT ", original)
+            .build()
 
-        val error = assertFailsWith<IllegalStateException> {
-            registry.element(UnknownElement)
-        }
-        assertTrue(error.message.orEmpty().contains("No Dynamic element renderer registered"))
+        assertSame(original, registry.text("text"))
+        assertSame(original, registry.text(" TEXT "))
     }
 
     @Test
     fun duplicateNormalizedElementKeyIsRejectedWithoutReplacingTheFirstRegistration() {
+        val original = TextElementRenderer { _, _ -> }
         val builder = DynamicRegistry.builder()
-            .element("text", TextElementModel::class, TextElement())
+            .text("text", original)
 
         assertFailsWith<IllegalStateException> {
-            builder.element(" TEXT ", ImageElementModel::class, ImageElement())
+            builder.text(" TEXT ", TextElementRenderer { _, _ -> })
         }
 
-        val registry = builder.build()
-        val originalRenderer = registry.element(TextElementModel("still-registered"))
-        assertSame(originalRenderer, registry.element(TextElementModel("same-model")))
-        assertFailsWith<IllegalStateException> {
-            registry.element(ImageElementModel("not-registered", url = "image.png"))
-        }
-    }
-
-    @Test
-    fun duplicateElementModelClassIsRejectedEvenWhenKeyDiffers() {
-        val builder = DynamicRegistry.builder()
-            .element("text", TextElementModel::class, TextElement())
-
-        assertFailsWith<IllegalStateException> {
-            builder.element("alternate_text", TextElementModel::class, TextElement())
-        }
-
-        assertNotNull(builder.build().element(TextElementModel("still-registered")))
+        assertSame(original, builder.build().text("text"))
     }
 
     @Test
     fun blankElementKeyIsRejected() {
         assertFailsWith<IllegalStateException> {
-            DynamicRegistry.builder().element("  ", TextElementModel::class, TextElement())
-        }
-    }
-
-    @Test
-    fun checkedAdapterRejectsAModelClassMismatch() {
-        val adapter = CheckedElementRenderer(
-            TextElementModel::class,
-            ElementRenderer<TextElementModel> { _, _ -> },
-        )
-
-        assertFailsWith<IllegalStateException> {
-            adapter.checkedElement(ButtonElementModel("wrong-model"))
+            DynamicRegistry.builder().text("  ", TextElementRenderer { _, _ -> })
         }
     }
 
@@ -124,6 +95,4 @@ class DynamicRegistryTest {
 
         assertSame(original, builder.build().template("form_template"))
     }
-
-    private object UnknownElement : DynamicElement
 }

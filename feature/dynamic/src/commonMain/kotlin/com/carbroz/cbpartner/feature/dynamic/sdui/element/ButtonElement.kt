@@ -12,7 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement as ButtonElementModel
-import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
+import com.carbroz.cbpartner.feature.dynamic.registry.ButtonElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.brush
@@ -20,7 +20,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.color
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
 
-class ButtonElement : ElementRenderer<ButtonElementModel> {
+class ButtonElement : ButtonElementRenderer {
     @Composable
     override fun render(element: ButtonElementModel, context: DynamicRenderContext) {
         val backgroundBrush = element.background.brush()

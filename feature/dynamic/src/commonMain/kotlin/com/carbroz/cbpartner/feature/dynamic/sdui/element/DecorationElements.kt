@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement as IconElementModel
-import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
+import com.carbroz.cbpartner.feature.dynamic.registry.IconElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DynamicAssetImage
@@ -13,7 +13,7 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
 import org.jetbrains.compose.resources.painterResource
 
-class IconElement : ElementRenderer<IconElementModel> {
+class IconElement : IconElementRenderer {
     @Composable
     override fun render(element: IconElementModel, context: DynamicRenderContext) {
         Row(
