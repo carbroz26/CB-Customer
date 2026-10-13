@@ -529,3 +529,16 @@ This is separate from `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`. The latter 
 - Current status: `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md` section 17.
 - This decision supersedes the earlier Option A dispatch decision only where it conflicts with the typed model-class Element/Content dispatch above. The older entry is retained as historical decision record.
 - Source implementation and verification remain pending. Exact source paths for IconElement and the IconContent/DividerContent renderers must be verified before edits; do not infer filenames. No backend work or separate mapper-consolidation branch is in scope.
+
+
+## DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001 — revised registry scope (2026-10-13)
+
+**State:** OWNER-APPROVED; COMPLETE PLAN FROZEN; SOURCE IMPLEMENTATION NOT STARTED  
+**Branch:** `feature/dynamic-ui`  
+**Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 24 and `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30.
+
+The owner revised the registry portion of this decision to apply the same typed, concrete-model-class registration and lookup pattern to all six category registries: Template, Component, Section, Group, Element, and Content. All six renderer contracts are generic and typed. Category registries remain separate, with no universal registry and no new Template/Component/Section/Group model interfaces solely to support generic rendering. Any necessary type erasure/casts remain inside a narrow checked registry adapter. Backend string keys remain in the data mapping boundary; `DynamicRenderContext` does not grow concrete-type dispatch branches.
+
+The approved plan continues to include ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The previous decision text limiting class-keyed dispatch to Element and Content is superseded by this revision; older records are retained as history.
+
+Source implementation and tests have not started. Confirm actual renderer paths and source declarations before any edits. Work only on `feature/dynamic-ui`; no backend changes, no new branches, and no separate mapper-consolidation work. Update implementation status only from actual verification evidence.
