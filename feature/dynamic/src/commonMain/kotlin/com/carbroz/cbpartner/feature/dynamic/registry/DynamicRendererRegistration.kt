@@ -1,5 +1,17 @@
+
 package com.carbroz.cbpartner.feature.dynamic.registry
 
+import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent as StackComponentModel
+import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent as DividerContentModel
+import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconContentModel
+import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement as ButtonElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement as IconElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement as ImageElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement as InputElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup as StackGroupModel
+import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection as StackSectionModel
+import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormTemplateModel
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
@@ -10,18 +22,18 @@ import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
-import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplateRenderer
+import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplate
 
 fun dynamicRendererRegistry(): DynamicRegistry = DynamicRegistry.builder()
-    .template("form_template", FormTemplateRenderer())
-    .component("stack_component", StackComponent())
-    .section("stack_section", StackSection())
-    .group("stack_group", StackGroup())
-    .element("text", TextElement())
-    .element("image", ImageElement())
-    .element("input", InputElement())
-    .element("button", ButtonElement())
-    .element("icon", IconElement())
-    .content("divider", DividerContent())
-    .content("icon", IconContent())
+    .template(FormTemplateModel::class, FormTemplate())
+    .component(StackComponentModel::class, StackComponent())
+    .section(StackSectionModel::class, StackSection())
+    .group(StackGroupModel::class, StackGroup())
+    .element(TextElementModel::class, TextElement())
+    .element(ImageElementModel::class, ImageElement())
+    .element(InputElementModel::class, InputElement())
+    .element(ButtonElementModel::class, ButtonElement())
+    .element(IconElementModel::class, IconElement())
+    .content(DividerContentModel::class, DividerContent())
+    .content(IconContentModel::class, IconContent())
     .build()

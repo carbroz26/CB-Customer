@@ -15,5 +15,5 @@ data class StackSection(
     val padding: DynamicPadding? = null,
     val fillMaxWidth: Boolean = false,
     val elements: List<DynamicElement> = emptyList(),
-    val groups: List<StackGroup> = emptyList(),
-)
+    override val groups: List<DynamicGroup> = emptyList(),
+) : DynamicSection

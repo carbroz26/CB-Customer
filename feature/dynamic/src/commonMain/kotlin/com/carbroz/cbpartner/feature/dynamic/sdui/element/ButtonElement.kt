@@ -21,10 +21,9 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.color
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
 
-class ButtonElement : ElementRenderer {
+class ButtonElement : ElementRenderer<ButtonElementModel> {
     @Composable
-    override fun render(dynamicElement: DynamicElement, context: DynamicRenderContext) {
-        val element = dynamicElement as? ButtonElementModel ?: return
+    override fun render(element: ButtonElementModel, context: DynamicRenderContext) {
         val backgroundBrush = element.background.brush()
         val backgroundColor = element.background.color()
         var modifier = Modifier.applyLayout(element)

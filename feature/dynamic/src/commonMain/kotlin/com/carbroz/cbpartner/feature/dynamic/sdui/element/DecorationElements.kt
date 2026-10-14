@@ -14,10 +14,9 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
 import org.jetbrains.compose.resources.painterResource
 
-class IconElement : ElementRenderer {
+class IconElement : ElementRenderer<IconElementModel> {
     @Composable
-    override fun render(dynamicElement: DynamicElement, context: DynamicRenderContext) {
-        val element = dynamicElement as? IconElementModel ?: return
+    override fun render(element: IconElementModel, context: DynamicRenderContext) {
         Row(
             modifier = Modifier.applyLayout(element),
             verticalAlignment = Alignment.CenterVertically,

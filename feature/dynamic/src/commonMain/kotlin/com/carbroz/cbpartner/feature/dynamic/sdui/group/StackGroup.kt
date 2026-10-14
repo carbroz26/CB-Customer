@@ -13,7 +13,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalArrangement
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
-class StackGroup : GroupRenderer {
+class StackGroup : GroupRenderer<StackGroupModel> {
     @Composable
     override fun render(group: StackGroupModel, context: DynamicRenderContext) {
         if (group.orientation == "horizontal") {

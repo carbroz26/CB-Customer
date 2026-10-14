@@ -13,7 +13,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalArrangement
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
-class StackSection : SectionRenderer {
+class StackSection : SectionRenderer<StackSectionModel> {
     @Composable
     override fun render(section: StackSectionModel, context: DynamicRenderContext) {
         if (section.orientation == "horizontal") {

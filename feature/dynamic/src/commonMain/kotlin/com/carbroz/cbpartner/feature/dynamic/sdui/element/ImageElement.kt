@@ -15,10 +15,9 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_image_fallback
 import org.jetbrains.compose.resources.painterResource
 
-class ImageElement : ElementRenderer {
+class ImageElement : ElementRenderer<ImageElementModel> {
     @Composable
-    override fun render(dynamicElement: DynamicElement, context: DynamicRenderContext) {
-        val element = dynamicElement as? ImageElementModel ?: return
+    override fun render(element: ImageElementModel, context: DynamicRenderContext) {
         Row(modifier = Modifier.applyDynamicPadding(element.padding)) {
             context.renderContent(element.leadingContent)
             DynamicAssetImage(

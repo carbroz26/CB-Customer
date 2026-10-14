@@ -40,10 +40,9 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.brush
 import com.carbroz.cbpartner.feature.dynamic.runtime.color
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
-class InputElement : ElementRenderer {
+class InputElement : ElementRenderer<InputElementModel> {
     @Composable
-    override fun render(dynamicElement: DynamicElement, context: DynamicRenderContext) {
-        val element = dynamicElement as? InputElementModel ?: return
+    override fun render(element: InputElementModel, context: DynamicRenderContext) {
         val binding = element.binding?.key ?: return
         val value = (context.bindings[binding] as? DynamicValue.StringValue)?.value.orEmpty()
         val keyboardType = when (element.keyboardType) {

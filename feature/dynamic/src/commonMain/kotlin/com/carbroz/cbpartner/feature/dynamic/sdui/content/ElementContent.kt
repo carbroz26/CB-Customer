@@ -1,3 +1,4 @@
+
 package com.carbroz.cbpartner.feature.dynamic.sdui.content
 
 import androidx.compose.foundation.background
@@ -10,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent as DividerContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
@@ -32,42 +32,51 @@ private fun Modifier.contentClick(
     this
 }
 
-class IconContent : ElementContentRenderer {
+class IconContent : ElementContentRenderer<IconContentModel> {
     @Composable
-    override fun render(content: ElementContent, context: DynamicRenderContext) {
-        val model = content as? IconContentModel ?: return
+    override fun render(
+        content: IconContentModel,
+        context: DynamicRenderContext,
+    ) {
         Row(
-            modifier = Modifier.contentClick(content, context).applyDynamicSpacing(model.spacing),
+            modifier = Modifier
+                .contentClick(content, context)
+                .applyDynamicSpacing(content.spacing),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             DynamicAssetImage(
-                url = model.url,
-                fallbackUrl = model.fallbackUrl,
+                url = content.url,
+                fallbackUrl = content.fallbackUrl,
                 fallbackPainter = painterResource(Res.drawable.dynamic_icon_fallback),
-                contentDescription = model.semanticRole,
-                size = model.size,
-                color = model.color,
+                contentDescription = content.semanticRole,
+                size = content.size,
+                color = content.color,
             )
         }
     }
 }
 
-class DividerContent : ElementContentRenderer {
+class DividerContent : ElementContentRenderer<DividerContentModel> {
     @Composable
-    override fun render(content: ElementContent, context: DynamicRenderContext) {
-        val model = content as? DividerContentModel ?: return
-        val color = model.color?.toColor() ?: return
-        val modifier = when (model.orientation) {
+    override fun render(
+        content: DividerContentModel,
+        context: DynamicRenderContext,
+    ) {
+        val color = content.color?.toColor() ?: return
+
+        val modifier = when (content.orientation) {
             "vertical" -> Modifier
-                .width(model.width?.dp ?: model.thickness.dp)
-                .height(model.height?.dp ?: return)
+                .width(content.width?.dp ?: content.thickness.dp)
+                .height(content.height?.dp ?: return)
+
             else -> Modifier
-                .width(model.width?.dp ?: return)
-                .height(model.thickness.dp)
+                .width(content.width?.dp ?: return)
+                .height(content.thickness.dp)
         }
+
         Box(
             modifier = Modifier
-                .applyDynamicSpacing(model.spacing)
+                .applyDynamicSpacing(content.spacing)
                 .then(modifier)
                 .background(color)
                 .contentClick(content, context),

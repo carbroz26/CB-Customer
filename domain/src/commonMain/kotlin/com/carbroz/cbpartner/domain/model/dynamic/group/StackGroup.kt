@@ -21,4 +21,4 @@ data class StackGroup(
     val border: DynamicBorder? = null,
     val shape: DynamicShape? = null,
     val elements: List<DynamicElement> = emptyList(),
-)
+) : DynamicGroup

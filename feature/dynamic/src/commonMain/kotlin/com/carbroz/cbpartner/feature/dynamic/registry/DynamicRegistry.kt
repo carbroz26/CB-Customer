@@ -1,53 +1,91 @@
+
 package com.carbroz.cbpartner.feature.dynamic.registry
 
+import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
+import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
+import com.carbroz.cbpartner.domain.model.dynamic.template.DynamicTemplate
+import kotlin.reflect.KClass
+
 class DynamicRegistry private constructor(
-    private val templates: Map<String, TemplateRenderer>,
-    private val components: Map<String, ComponentRenderer>,
-    private val sections: Map<String, SectionRenderer>,
-    private val groups: Map<String, GroupRenderer>,
-    private val elements: Map<String, ElementRenderer>,
-    private val contents: Map<String, ElementContentRenderer>,
+    private val templates: Map<KClass<*>, TemplateRenderer<*>>,
+    private val components: Map<KClass<*>, ComponentRenderer<*>>,
+    private val sections: Map<KClass<*>, SectionRenderer<*>>,
+    private val groups: Map<KClass<*>, GroupRenderer<*>>,
+    private val elements: Map<KClass<*>, ElementRenderer<*>>,
+    private val contents: Map<KClass<*>, ElementContentRenderer<*>>,
 ) {
-    fun template(type: String): TemplateRenderer? = templates[type.normalizeType()]
-    fun component(type: String): ComponentRenderer? = components[type.normalizeType()]
-    fun section(type: String): SectionRenderer? = sections[type.normalizeType()]
-    fun group(type: String): GroupRenderer? = groups[type.normalizeType()]
-    fun element(type: String): ElementRenderer? = elements[type.normalizeType()]
-    fun content(type: String): ElementContentRenderer? = contents[type.normalizeType()]
+    fun <T : DynamicTemplate> template(model: T): TemplateRenderer<T>? =
+        templates.lookup(model::class)
+
+    fun <T : DynamicComponent> component(model: T): ComponentRenderer<T>? =
+        components.lookup(model::class)
+
+    fun <T : DynamicSection> section(model: T): SectionRenderer<T>? =
+        sections.lookup(model::class)
+
+    fun <T : DynamicGroup> group(model: T): GroupRenderer<T>? =
+        groups.lookup(model::class)
+
+    fun <T : DynamicElement> element(model: T): ElementRenderer<T>? =
+        elements.lookup(model::class)
+
+    fun <T : ElementContent> content(model: T): ElementContentRenderer<T>? =
+        contents.lookup(model::class)
 
     companion object {
         fun builder(): Builder = Builder()
     }
 
     class Builder {
-        private val templates = linkedMapOf<String, TemplateRenderer>()
-        private val components = linkedMapOf<String, ComponentRenderer>()
-        private val sections = linkedMapOf<String, SectionRenderer>()
-        private val groups = linkedMapOf<String, GroupRenderer>()
-        private val elements = linkedMapOf<String, ElementRenderer>()
-        private val contents = linkedMapOf<String, ElementContentRenderer>()
+        private val templates = linkedMapOf<KClass<*>, TemplateRenderer<*>>()
+        private val components = linkedMapOf<KClass<*>, ComponentRenderer<*>>()
+        private val sections = linkedMapOf<KClass<*>, SectionRenderer<*>>()
+        private val groups = linkedMapOf<KClass<*>, GroupRenderer<*>>()
+        private val elements = linkedMapOf<KClass<*>, ElementRenderer<*>>()
+        private val contents = linkedMapOf<KClass<*>, ElementContentRenderer<*>>()
 
-        fun template(type: String, renderer: TemplateRenderer) = apply {
+        fun <T : DynamicTemplate> template(
+            type: KClass<T>,
+            renderer: TemplateRenderer<T>,
+        ) = apply {
             register(templates, "template", type, renderer)
         }
 
-        fun component(type: String, renderer: ComponentRenderer) = apply {
+        fun <T : DynamicComponent> component(
+            type: KClass<T>,
+            renderer: ComponentRenderer<T>,
+        ) = apply {
             register(components, "component", type, renderer)
         }
 
-        fun section(type: String, renderer: SectionRenderer) = apply {
+        fun <T : DynamicSection> section(
+            type: KClass<T>,
+            renderer: SectionRenderer<T>,
+        ) = apply {
             register(sections, "section", type, renderer)
         }
 
-        fun group(type: String, renderer: GroupRenderer) = apply {
+        fun <T : DynamicGroup> group(
+            type: KClass<T>,
+            renderer: GroupRenderer<T>,
+        ) = apply {
             register(groups, "group", type, renderer)
         }
 
-        fun element(type: String, renderer: ElementRenderer) = apply {
+        fun <T : DynamicElement> element(
+            type: KClass<T>,
+            renderer: ElementRenderer<T>,
+        ) = apply {
             register(elements, "element", type, renderer)
         }
 
-        fun content(type: String, renderer: ElementContentRenderer) = apply {
+        fun <T : ElementContent> content(
+            type: KClass<T>,
+            renderer: ElementContentRenderer<T>,
+        ) = apply {
             register(contents, "content", type, renderer)
         }
 
@@ -60,18 +98,50 @@ class DynamicRegistry private constructor(
             contents = contents.toMap(),
         )
 
-        private fun <T> register(
-            target: MutableMap<String, T>,
+        private fun <T : Any, R : Any> register(
+            target: MutableMap<KClass<*>, R>,
             category: String,
-            type: String,
-            value: T,
+            type: KClass<T>,
+            renderer: R,
         ) {
-            val key = type.normalizeType()
-            check(key.isNotEmpty()) { "Dynamic $category type is blank" }
-            check(key !in target) { "Dynamic $category already registered: $type" }
-            target[key] = value
+            check(type !in target) {
+                "Dynamic $category already registered: ${type.qualifiedName}"
+            }
+            target[type] = renderer
         }
     }
 }
 
-private fun String.normalizeType(): String = trim().lowercase()
+private fun <T : Any, R : Any> Map<KClass<*>, R>.lookup(
+    type: KClass<out T>,
+): R? = this[type]
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> Map<KClass<*>, TemplateRenderer<*>>.lookup(
+    type: KClass<out T>,
+): TemplateRenderer<T>? = this[type] as? TemplateRenderer<T>
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> Map<KClass<*>, ComponentRenderer<*>>.lookup(
+    type: KClass<out T>,
+): ComponentRenderer<T>? = this[type] as? ComponentRenderer<T>
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> Map<KClass<*>, SectionRenderer<*>>.lookup(
+    type: KClass<out T>,
+): SectionRenderer<T>? = this[type] as? SectionRenderer<T>
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> Map<KClass<*>, GroupRenderer<*>>.lookup(
+    type: KClass<out T>,
+): GroupRenderer<T>? = this[type] as? GroupRenderer<T>
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> Map<KClass<*>, ElementRenderer<*>>.lookup(
+    type: KClass<out T>,
+): ElementRenderer<T>? = this[type] as? ElementRenderer<T>
+
+@Suppress("UNCHECKED_CAST")
+private fun <T : Any> Map<KClass<*>, ElementContentRenderer<*>>.lookup(
+    type: KClass<out T>,
+): ElementContentRenderer<T>? = this[type] as? ElementContentRenderer<T>

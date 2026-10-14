@@ -1,19 +1,13 @@
+
 package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import androidx.compose.runtime.Composable
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
-import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
+import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
-import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
-import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement
-import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement
-import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
-import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
-import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
-import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 
@@ -38,40 +32,57 @@ class DynamicRenderContext(
         (resolve(properties[key] ?: return null) as? DynamicValue.BooleanValue)?.value
 
     @Composable
-    fun renderComponents(components: List<StackComponent>) =
-        components.forEach { registry.component("stack_component")?.render(it, this) }
-
-    @Composable
-    fun renderSections(sections: List<StackSection>) =
-        sections.forEach { registry.section("stack_section")?.render(it, this) }
-
-    @Composable
-    fun renderGroups(groups: List<StackGroup>) =
-        groups.forEach { registry.group("stack_group")?.render(it, this) }
-
-    @Composable
-    fun renderElements(elements: List<DynamicElement>) {
-        elements.forEach { element ->
-            val type = when (element) {
-                is TextElement -> "text"
-                is ImageElement -> "image"
-                is InputElement -> "input"
-                is ButtonElement -> "button"
-                is IconElement -> "icon"
-                else -> error("No Dynamic element renderer registered for model class: ${element::class}")
-            }
-            (registry.element(type)
-                ?: error("No Dynamic element renderer registered for type: $type"))
-                .render(element, this)
+    fun renderComponents(components: List<DynamicComponent>) {
+        components.forEach { component ->
+            val renderer = registry.component(component)
+                ?: error(
+                    "No Dynamic component renderer registered for model class: ${component::class}"
+                )
+            renderer.render(component, this)
         }
     }
 
     @Composable
-    fun renderContent(contents: List<ElementContent>) =
-        contents.forEach { registry.content(contentType(it))?.render(it, this) }
+    fun renderSections(sections: List<DynamicSection>) {
+        sections.forEach { section ->
+            val renderer = registry.section(section)
+                ?: error(
+                    "No Dynamic section renderer registered for model class: ${section::class}"
+                )
+            renderer.render(section, this)
+        }
+    }
 
-    private fun contentType(content: ElementContent): String = when (content) {
-        is IconContent -> "icon"
-        is DividerContent -> "divider"
+    @Composable
+    fun renderGroups(groups: List<DynamicGroup>) {
+        groups.forEach { group ->
+            val renderer = registry.group(group)
+                ?: error(
+                    "No Dynamic group renderer registered for model class: ${group::class}"
+                )
+            renderer.render(group, this)
+        }
+    }
+
+    @Composable
+    fun renderElements(elements: List<DynamicElement>) {
+        elements.forEach { element ->
+            val renderer = registry.element(element)
+                ?: error(
+                    "No Dynamic element renderer registered for model class: ${element::class}"
+                )
+            renderer.render(element, this)
+        }
+    }
+
+    @Composable
+    fun renderContent(contents: List<ElementContent>) {
+        contents.forEach { content ->
+            val renderer = registry.content(content)
+                ?: error(
+                    "No Dynamic content renderer registered for model class: ${content::class}"
+                )
+            renderer.render(content, this)
+        }
     }
 }

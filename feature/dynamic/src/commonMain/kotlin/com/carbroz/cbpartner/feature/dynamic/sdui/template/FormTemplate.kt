@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
+import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormTemplateModel
 import com.carbroz.cbpartner.feature.dynamic.registry.TemplateRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
@@ -13,9 +13,9 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalArrangement
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
-class FormTemplateRenderer : TemplateRenderer {
+class FormTemplate : TemplateRenderer<FormTemplateModel> {
     @Composable
-    override fun render(template: FormTemplate, context: DynamicRenderContext) {
+    override fun render(template: FormTemplateModel, context: DynamicRenderContext) {
         if (template.orientation == "horizontal") {
             Row(
                 modifier = Modifier.applyLayout(template),

@@ -24,10 +24,9 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
-class TextElement : ElementRenderer {
+class TextElement : ElementRenderer<TextElementModel> {
     @Composable
-    override fun render(dynamicElement: DynamicElement, context: DynamicRenderContext) {
-        val element = dynamicElement as? TextElementModel ?: return
+    override fun render(element: TextElementModel, context: DynamicRenderContext) {
         val color = element.color?.toColor() ?: Color.Unspecified
         val annotated = if (element.spans.isEmpty()) {
             AnnotatedString(element.text)

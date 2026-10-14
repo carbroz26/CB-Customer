@@ -13,7 +13,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalArrangement
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 
-class StackComponent : ComponentRenderer {
+class StackComponent : ComponentRenderer<StackComponentModel> {
     @Composable
     override fun render(component: StackComponentModel, context: DynamicRenderContext) {
         if (component.orientation == "horizontal") {
