@@ -112,31 +112,31 @@ class DynamicRegistry private constructor(
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> Map<KClass<*>, TemplateRenderer<*>>.lookup(
+private fun <T : DynamicTemplate> Map<KClass<*>, TemplateRenderer<*>>.lookup(
     type: KClass<out T>,
-): TemplateRenderer<T>? = this[type] as? TemplateRenderer<T>
+): TemplateRenderer<T>? = this[type]?.let { it as TemplateRenderer<T> }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> Map<KClass<*>, ComponentRenderer<*>>.lookup(
+private fun <T : DynamicComponent> Map<KClass<*>, ComponentRenderer<*>>.lookup(
     type: KClass<out T>,
-): ComponentRenderer<T>? = this[type] as? ComponentRenderer<T>
+): ComponentRenderer<T>? = this[type]?.let { it as ComponentRenderer<T> }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> Map<KClass<*>, SectionRenderer<*>>.lookup(
+private fun <T : DynamicSection> Map<KClass<*>, SectionRenderer<*>>.lookup(
     type: KClass<out T>,
-): SectionRenderer<T>? = this[type] as? SectionRenderer<T>
+): SectionRenderer<T>? = this[type]?.let { it as SectionRenderer<T> }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> Map<KClass<*>, GroupRenderer<*>>.lookup(
+private fun <T : DynamicGroup> Map<KClass<*>, GroupRenderer<*>>.lookup(
     type: KClass<out T>,
-): GroupRenderer<T>? = this[type] as? GroupRenderer<T>
+): GroupRenderer<T>? = this[type]?.let { it as GroupRenderer<T> }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : DynamicElement> Map<KClass<*>, ElementRenderer<*>>.lookup(
     type: KClass<out T>,
-): ElementRenderer<T>? = this[type] as? ElementRenderer<T>
+): ElementRenderer<T>? = this[type]?.let { it as ElementRenderer<T> }
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : ElementContent> Map<KClass<*>, ElementContentRenderer<*>>.lookup(
     type: KClass<out T>,
-): ElementContentRenderer<T>? = this[type] as? ElementContentRenderer<T>
+): ElementContentRenderer<T>? = this[type]?.let { it as ElementContentRenderer<T> }
