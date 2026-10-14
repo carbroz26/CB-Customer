@@ -554,3 +554,32 @@ Source implementation and tests have not started. Confirm actual renderer paths 
 - Do not add logging/reporting infrastructure, a new effect-consumer service, or move navigation responsibilities out of :navigation.
 - This does not change action-sequence handler-failure semantics or the typed effect/navigation/presentation contracts.
 - Detailed implementation scope and verification requirements: docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md section 22.30.6.
+
+
+## DYNAMIC-DTO-CATEGORY-GENERALIZATION-001 — Generic category DTOs for Dynamic mapping
+
+**State:** PROPOSED — awaiting explicit owner freeze.  
+**Branch:** `feature/dynamic-ui`  
+**Scope:** `:data` Dynamic DTOs and DTO-to-domain mapping only.  
+**Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.31.
+
+### Evidence
+
+Current transport DTOs bind parent categories to concrete current implementations (`FormTemplateDto`, `StackComponentDto`, `StackSectionDto`, `StackGroupDto`). Component/section/group elements are raw `JsonObject` lists, while each of five concrete element DTOs repeats the same envelope fields. Content mapping also parses raw JSON without a category DTO.
+
+### Proposed decision
+
+Introduce one DTO per category: `DynamicTemplateDto`, `DynamicComponentDto`, `DynamicSectionDto`, `DynamicGroupDto`, `DynamicElementDto`, and `DynamicContentDto`. Parent DTOs use generic category DTOs and retain backend `type` discriminators. Existing mapper boundaries continue dispatching only currently supported types to the existing concrete domain models; unsupported types retain deterministic mapping failures.
+
+This changes the internal transport DTO shape only, not the backend JSON contract, domain model hierarchy, renderers/registries, runtime, or DI composition. A generic DTO permits decoding a new category type without changing parent DTO declarations; it does not by itself add support for a new concrete domain/render type.
+
+Preserve DynamicValue/reference semantics, element validation/binding/actions, content spacing/assets, existing defaults and errors, and current tolerant content parsing. Do not introduce reflection, polymorphic serializer registration, universal mappers/registries, generic domain hierarchy interfaces, or unrelated infrastructure.
+
+### Required process
+
+- Reconcile exact source references and preserve all existing mapper behavior.
+- Freeze the exact file-by-file plan before any source changes.
+- Implement only after explicit owner freeze.
+- Perform a deep source/reference/diff audit before running tests; run tests last.
+- Work only on `feature/dynamic-ui`; no new branches or backend changes.
+- Keep implementation status/final freeze unchanged until verification passes.
