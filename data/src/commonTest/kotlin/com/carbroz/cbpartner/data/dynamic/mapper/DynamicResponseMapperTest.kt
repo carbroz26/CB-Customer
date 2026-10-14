@@ -44,8 +44,7 @@ class DynamicResponseMapperTest {
         assertEquals(true, template.fillMaxSize)
         assertEquals(2, template.components.size)
 
-        val header = template.components[0]
-        assertIs<StackComponent>(header)
+        val header = assertIs<StackComponent>(template.components[0])
         assertEquals("header", header.id)
         assertEquals(3, header.elements.size)
         assertEquals(0, header.sections.size)
@@ -78,7 +77,7 @@ class DynamicResponseMapperTest {
         )
         assertEquals("toolbar", icon.semanticRole)
 
-        val form = template.components[1]
+        val form = assertIs<StackComponent>(template.components[1])
         assertEquals("form", form.id)
         assertEquals(0, form.elements.size)
         assertEquals(2, form.sections.size)
@@ -95,7 +94,7 @@ class DynamicResponseMapperTest {
         assertEquals(true, fieldA.validation?.required)
         assertEquals("^[^@]+@[^@]+\\.[^@]+$", fieldB.validation?.pattern)
 
-        val actions = form.sections[1]
+        val actions = assertIs<StackSection>(form.sections[1])
         assertEquals("actions", actions.id)
         assertEquals(0, actions.elements.size)
         assertEquals(1, actions.groups.size)
