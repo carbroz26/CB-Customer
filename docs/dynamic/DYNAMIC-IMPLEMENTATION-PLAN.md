@@ -1017,3 +1017,16 @@ Stop and report before source edits if actual source differs materially from thi
 Required response to any stop condition: **STOP → REPORT → DISCUSS/RESEARCH → DECIDE → FREEZE → UPDATE PLAN → IMPLEMENT**.
 
 The plan is frozen; source edits and test execution have not started. The next action is exact source-path and current-source reconciliation, followed by the first manually applied source-file change only when that check passes.
+
+### 22.30.6 Owner-approved effect-handler failure policy — 2026-10-14
+
+**Approval:** Explicitly approved by the project owner before implementation.  
+**Scope:** Only the UI-side handling of an individual DynamicActionEffect delivery failure.
+
+- DynamicContainer must isolate failures per effect. An exception while handling one effect must not terminate the effects collector or prevent later effects from being processed in order.
+- Rethrow coroutine cancellation so disposal/lifecycle cancellation remains effective. For other handler exceptions, report the failure through the existing DynamicState.Failure UI path using the entry's existing DynamicScreenState; do not create a new logger/reporting abstraction or dependency.
+- Add an explicit Store intent for reporting an effect-handler failure. The Store transitions to DynamicState.Failure with the supplied useful message and preserves the current screen state.
+- Continue collecting later effects after reporting the individual failure. Do not retry the failed effect automatically.
+- Keep effect handling in the existing DynamicContainer; do not add a separate effect-consumer service or move navigation ownership out of :navigation.
+- Add focused Store regression coverage for effect-failure reporting and inspect the container's per-effect exception boundary. Preserve the existing ordered Store-delivery test.
+- This amendment does not change action-sequence failure semantics, effect order, navigation/presentation semantics, or the six-registry contract. Do not update implementation status or declare final freeze until the full required verification and source/diff review pass.
