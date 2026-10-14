@@ -62,9 +62,9 @@ class DynamicActionExecutor(
     ): DynamicActionResult {
         val actions = action.payload["actions"] as? DynamicValue.ArrayValue
             ?: error("Dynamic sequence actions are missing")
-        var last: DynamicActionResult = DynamicActionResult.Completed
         val sequenceState = state.toMutableMap()
         val sequenceChanges = linkedMapOf<String, DynamicValue>()
+        val effects = mutableListOf<DynamicActionEffect>()
 
         actions.value.forEach { value ->
             val objectValue = value as? DynamicValue.ObjectValue
@@ -74,7 +74,7 @@ class DynamicActionExecutor(
             val payload = (objectValue.value["payload"] as? DynamicValue.ObjectValue)?.value ?: emptyMap()
             val destination = (objectValue.value["destination"] as? DynamicValue.ObjectValue)?.toDestination()
 
-            last = executeInternal(
+            val result = executeInternal(
                 DynamicAction(type, payload, destination),
                 bindings,
                 context,
@@ -82,34 +82,38 @@ class DynamicActionExecutor(
                 depth + 1,
             )
 
-            when (val result = last) {
-                is DynamicActionResult.StateChanged -> {
-                    sequenceState.applyChanges(result.changes)
-                    sequenceChanges.putAll(result.changes)
-                }
-
-                is DynamicActionResult.Navigate -> {
-                    sequenceState.applyChanges(result.stateChanges)
-                    sequenceChanges.putAll(result.stateChanges)
-                }
-
-                is DynamicActionResult.ExternalUri -> {
-                    sequenceState.applyChanges(result.stateChanges)
-                    sequenceChanges.putAll(result.stateChanges)
-                }
-
-                DynamicActionResult.Completed -> Unit
+            val changes = result.stateChanges()
+            if (changes.isNotEmpty()) {
+                sequenceState.applyChanges(changes)
+                sequenceChanges.putAll(changes)
             }
+            effects += result.effects()
         }
 
-        return when (last) {
-            is DynamicActionResult.Navigate -> last.copy(stateChanges = sequenceChanges)
-            is DynamicActionResult.ExternalUri -> last.copy(stateChanges = sequenceChanges)
-            is DynamicActionResult.StateChanged -> DynamicActionResult.StateChanged(sequenceChanges)
-            DynamicActionResult.Completed ->
-                if (sequenceChanges.isEmpty()) DynamicActionResult.Completed
-                else DynamicActionResult.StateChanged(sequenceChanges)
+        return when {
+            effects.isNotEmpty() -> DynamicActionResult.Sequence(sequenceChanges, effects)
+            sequenceChanges.isNotEmpty() -> DynamicActionResult.StateChanged(sequenceChanges)
+            else -> DynamicActionResult.Completed
         }
+    }
+
+    private fun DynamicActionResult.stateChanges(): Map<String, DynamicValue> = when (this) {
+        DynamicActionResult.Completed -> emptyMap()
+        is DynamicActionResult.Navigate -> stateChanges
+        is DynamicActionResult.Present -> stateChanges
+        is DynamicActionResult.Dismiss -> stateChanges
+        is DynamicActionResult.ExternalUri -> stateChanges
+        is DynamicActionResult.StateChanged -> changes
+        is DynamicActionResult.Sequence -> stateChanges
+    }
+
+    private fun DynamicActionResult.effects(): List<DynamicActionEffect> = when (this) {
+        DynamicActionResult.Completed, is DynamicActionResult.StateChanged -> emptyList()
+        is DynamicActionResult.Navigate -> listOf(DynamicActionEffect.Navigate(destination, operation))
+        is DynamicActionResult.Present -> listOf(DynamicActionEffect.Present(destination))
+        is DynamicActionResult.Dismiss -> listOf(DynamicActionEffect.Dismiss)
+        is DynamicActionResult.ExternalUri -> listOf(DynamicActionEffect.ExternalUri(uri))
+        is DynamicActionResult.Sequence -> effects
     }
 
     private fun MutableMap<String, DynamicValue>.applyChanges(changes: Map<String, DynamicValue>) {
@@ -120,11 +124,12 @@ class DynamicActionExecutor(
 
     private fun DynamicValue.ObjectValue.toDestination(): DynamicDestination? {
         fun string(key: String) = (value[key] as? DynamicValue.StringValue)?.value
+        val id = string("id")
         val screenId = string("screenId") ?: return null
         val templateId = string("templateId") ?: return null
         val templateType = string("templateType") ?: return null
         val endpoint = string("endpoint") ?: return null
-        return DynamicDestination(screenId, templateId, templateType, endpoint)
+        return DynamicDestination(id, screenId, templateId, templateType, endpoint)
     }
 
     private companion object {
