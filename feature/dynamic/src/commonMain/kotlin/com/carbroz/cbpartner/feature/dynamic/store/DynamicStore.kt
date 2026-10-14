@@ -131,7 +131,9 @@ class DynamicStore(
 
     private suspend fun applyActionResult(result: DynamicActionResult) {
         runtimeState.setAll(result.stateChanges)
-        result.effects.forEach(::emitEffect)
+        for (effect in result.effects) {
+            emitEffect(effect)
+        }
     }
 
     private suspend fun emitEffect(effect: DynamicActionEffect) {
