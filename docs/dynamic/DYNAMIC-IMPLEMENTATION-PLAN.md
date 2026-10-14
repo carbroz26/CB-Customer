@@ -1030,3 +1030,100 @@ The plan is frozen; source edits and test execution have not started. The next a
 - Keep effect handling in the existing DynamicContainer; do not add a separate effect-consumer service or move navigation ownership out of :navigation.
 - Add focused Store regression coverage for effect-failure reporting and inspect the container's per-effect exception boundary. Preserve the existing ordered Store-delivery test.
 - This amendment does not change action-sequence failure semantics, effect order, navigation/presentation semantics, or the six-registry contract. Do not update implementation status or declare final freeze until the full required verification and source/diff review pass.
+
+
+### 22.31 Generic category DTOs for extensible Dynamic mapping — PROPOSED, NOT FROZEN (2026-10-14)
+
+**Decision reference:** `DYNAMIC-DTO-CATEGORY-GENERALIZATION-001`  
+**Branch:** `feature/dynamic-ui`  
+**Scope:** `:data` Dynamic transport DTOs and DTO-to-domain mapping only. This section is a proposal for owner review. No source edits are authorized until the owner explicitly freezes this plan.
+
+#### 22.31.1 Problem confirmed in current source
+
+The transport layer currently binds category DTOs to the only supported concrete implementation:
+- `DynamicScreenDto.template: FormTemplateDto`
+- `FormTemplateDto.components: List<StackComponentDto>`
+- `StackComponentDto.sections: List<StackSectionDto>`
+- `StackComponentDto.elements`, `StackSectionDto.elements`, and `StackGroupDto.elements` are raw `JsonObject` lists
+- five element DTOs repeat the same common envelope (`id`, `type`, `properties`, `validation`, `binding`, `actions`)
+- content mapping has no shared content DTO and reads raw JSON directly.
+
+This mixes category structure with today's concrete type choices and makes the parent DTO declarations change whenever a new concrete category type is introduced.
+
+#### 22.31.2 Proposed contract
+
+Create one category-level DTO for each Dynamic hierarchy category:
+- `DynamicTemplateDto`
+- `DynamicComponentDto`
+- `DynamicSectionDto`
+- `DynamicGroupDto`
+- `DynamicElementDto`
+- `DynamicContentDto`
+
+Each DTO carries the backend `type` discriminator. Parent DTOs reference the category-level child DTO, never today's concrete `FormTemplateDto`/`StackComponentDto`/`StackSectionDto`/`StackGroupDto` classes. Element DTOs retain the shared typed envelope fields needed by the current element mapping: `id`, `type`, `properties`, `validation`, `binding`, and `actions`. Content DTO parsing must preserve the current tolerant handling of non-object content list entries, missing/invalid optional `properties`, and non-object `actions`; do not unintentionally tighten malformed-input behavior while adding the DTO.
+
+The DTO generalization changes only the internal transport representation. It does not change backend JSON, supported type strings, domain models, rendering registries, action contracts, asset/spacing ownership, or runtime behavior. The existing mappers continue to map currently supported values to the concrete domain models:
+- `form_template` → `FormTemplate`
+- `stack_component` → `StackComponent`
+- `stack_section` → `StackSection`
+- `stack_group` → `StackGroup`
+- `text`, `image`, `input`, `button`, `icon` → their existing concrete element models
+- `icon`, `divider` → `IconContent`, `DividerContent`
+
+An unknown concrete type must keep failing at the existing mapping boundary with a deterministic unsupported-type diagnostic. Generic DTOs alone do not claim support for new domain/render types; adding a concrete type later still requires its domain model, mapping case, renderer, explicit registration, and tests. The benefit is that its parent/category DTO schemas do not need to be rewritten.
+
+Do not generalize `DynamicScreen.template` in the domain. `DynamicScreenDto` may hold `DynamicTemplateDto`, while `TemplateMapper` remains explicitly limited to the supported `form_template` type and maps to `FormTemplate`. Do not introduce generic domain Template/Component/Section/Group interfaces, reflection, polymorphic serializer registration, a universal mapper, or a second dispatch layer.
+
+#### 22.31.3 Exact proposed file scope
+
+**Create**
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/template/DynamicTemplateDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/component/DynamicComponentDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/section/DynamicSectionDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/group/DynamicGroupDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/element/DynamicElementDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/content/DynamicContentDto.kt`
+
+**Modify**
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/screen/DynamicScreenDto.kt`: use `DynamicTemplateDto`.
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/TemplateMapper.kt`: accept `DynamicTemplateDto`; preserve `form_template` validation and all property/default mapping.
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/ComponentMapper.kt`: accept `DynamicComponentDto`; preserve `stack_component` validation and mapping.
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/SectionMapper.kt`: accept `DynamicSectionDto`; preserve `stack_section` validation and mapping.
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/GroupMapper.kt`: accept `DynamicGroupDto`; preserve `stack_group` validation and mapping.
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/ElementMapper.kt`: accept `DynamicElementDto`; dispatch on `type` without decoding one of five structurally duplicate element DTO classes; preserve all concrete mapping functions and shared action/content/value mapping.
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/ElementContentMapper.kt`: decode/use `DynamicContentDto` at the content mapping boundary while preserving current tolerance and diagnostics.
+- `data/src/commonTest/kotlin/com/carbroz/cbpartner/data/dynamic/DynamicContractFixtures.kt`: keep the backend-shaped generic fixture; adjust only if required by the typed DTO shape.
+- `data/src/commonTest/kotlin/com/carbroz/cbpartner/data/dynamic/mapper/DynamicResponseMapperTest.kt`: retain and extend regression assertions for current model outputs and generic DTO decoding.
+
+**Delete after all references are migrated**
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/template/FormTemplateDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/component/StackComponentDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/section/StackSectionDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/group/StackGroupDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/element/TextElementDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/element/ImageElementDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/element/InputElementDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/element/ButtonElementDto.kt`
+- `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/element/IconElementDto.kt`
+
+No changes are planned to `:core`, `:network`, `:domain`, `:navigation`, `:feature:splash`, `:feature:dynamic`, application composition, DI registration, repositories, remote data sources, backend files, or the Dynamic runtime/renderer registries. Confirm call sites and references before deleting DTO files; if any unexpected consumer exists, stop and report rather than broadening the change.
+
+#### 22.31.4 Required tests and pre-test audit
+
+- Existing `DynamicResponseMapperTest` fixture still maps every supported template/component/section/group/element/content to the same concrete domain model and preserves properties/defaults.
+- Nested `DynamicElementDto` decoding preserves all five supported type strings and typed validation/binding/action fields.
+- Generic category DTOs decode the hierarchy without concrete Stack/Form DTO declarations in parent fields.
+- DynamicValue object/array/reference and text-span behavior remains unchanged.
+- Destination/action payloads, missing asset URLs/fallbacks, content spacing, and all current mapper diagnostics remain unchanged.
+- Unknown template/component/section/group/element/content type diagnostics remain deterministic.
+- Add a focused regression proving a new type discriminator can be decoded into the generic category DTO without adding a new category DTO class; do not claim that it renders until its concrete mapper/model/renderer exists.
+- Verify content malformed-input tolerance does not regress.
+- Before tests, inspect every changed file and full diff; search for all deleted DTO class names and direct concrete DTO references; audit imports and all source/test consumers; check for duplicated type dispatch or duplicated mapping helpers. Do not edit unrelated mapper consolidation or runtime code.
+- After implementation and the full source audit, run focused `:data:jvmTest`, then the required six-module JVM matrix, applicable compile tasks, and `git diff --check`. The user requested all tests be last, after implementation and deep source audit; no test command is part of the implementation sequence before that audit.
+- Do not update implementation status or declare final freeze until the test matrix and diff review actually pass.
+
+#### 22.31.5 Stop conditions
+
+Stop before implementation if the current source has unlisted consumers; typed DTO decoding would change existing tolerant behavior or backend field handling; generic DTOs would require domain hierarchy changes; the existing mapper composition/DI contract would need changing; current backend payload shape differs from the fixtures; or the work overlaps an unrelated frozen task. Report the exact conflict and resolve it through the project freeze process before proceeding.
+
+**Current state:** source reconnaissance confirms the proposed parent DTO coupling and duplicated element envelopes. This proposal is not frozen and authorizes no source edits. Next gate: explicit owner freeze of section 22.31.
