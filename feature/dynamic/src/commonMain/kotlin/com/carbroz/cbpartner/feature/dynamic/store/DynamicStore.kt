@@ -165,7 +165,7 @@ class DynamicStore(
                             emitEffect(DynamicEffect.Navigation(effect.destination, effect.operation))
                         is DynamicActionEffect.Present ->
                             emitEffect(DynamicEffect.Presentation(effect.destination))
-                        DynamicActionEffect.Dismiss -> _effects.send(DynamicEffect.Dismiss)
+                        DynamicActionEffect.Dismiss -> emitEffect(DynamicEffect.Dismiss)
                         is DynamicActionEffect.ExternalUri ->
                             emitEffect(DynamicEffect.ExternalUri(effect.uri))
                     }
