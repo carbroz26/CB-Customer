@@ -7,6 +7,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
+import com.carbroz.cbpartner.feature.dynamic.action.ExternalUriActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
@@ -16,10 +17,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertContentEquals
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -116,6 +121,70 @@ class DynamicStoreTest {
             DynamicValue.StringValue("ref-1"),
             runtimeState.values.value["referenceId"],
         )
+        store.close()
+    }
+
+    @Test
+    fun sequenceEffectsAreDeliveredInOrder() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(ExternalUriActionHandler())),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("current")),
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+        )
+        val delivered = mutableListOf<DynamicEffect>()
+        val collector = launch(dispatcher) {
+            store.effects.take(2).toList(delivered)
+        }
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    type = "sequence",
+                    payload = mapOf(
+                        "actions" to DynamicValue.ArrayValue(
+                            listOf(
+                                DynamicValue.ObjectValue(
+                                    mapOf(
+                                        "type" to DynamicValue.StringValue("external_uri"),
+                                        "payload" to DynamicValue.ObjectValue(
+                                            mapOf("uri" to DynamicValue.StringValue("https://one.example")),
+                                        ),
+                                    ),
+                                ),
+                                DynamicValue.ObjectValue(
+                                    mapOf(
+                                        "type" to DynamicValue.StringValue("external_uri"),
+                                        "payload" to DynamicValue.ObjectValue(
+                                            mapOf("uri" to DynamicValue.StringValue("https://two.example")),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        assertContentEquals(
+            listOf(
+                DynamicEffect.ExternalUri("https://one.example"),
+                DynamicEffect.ExternalUri("https://two.example"),
+            ),
+            delivered,
+        )
+        collector.cancel()
         store.close()
     }
 
