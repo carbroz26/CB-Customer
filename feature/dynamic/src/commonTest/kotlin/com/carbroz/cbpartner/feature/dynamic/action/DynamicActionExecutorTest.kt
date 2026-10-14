@@ -149,6 +149,17 @@ class DynamicActionExecutorTest {
                         state: Map<String, DynamicValue>,
                     ) = DynamicActionResult.ExternalUri("https://example.com")
                 },
+                object : DynamicActionHandler {
+                    override val type = "after"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.StateChanged(
+                        mapOf("afterEffect" to DynamicValue.BooleanValue(true)),
+                    )
+                },
             ),
         )
 
@@ -164,6 +175,9 @@ class DynamicActionExecutorTest {
                             DynamicValue.ObjectValue(
                                 mapOf("type" to DynamicValue.StringValue("external_uri")),
                             ),
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("after")),
+                            ),
                         ),
                     ),
                 ),
@@ -178,6 +192,7 @@ class DynamicActionExecutorTest {
             DynamicValue.StringValue("retained"),
             sequence.stateChanges["reference"],
         )
+        assertEquals(DynamicValue.BooleanValue(true), sequence.stateChanges["afterEffect"])
         assertEquals(
             listOf(DynamicActionEffect.ExternalUri("https://example.com")),
             sequence.effects,
