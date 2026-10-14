@@ -11,6 +11,5 @@ class DismissActionHandler : DynamicActionHandler {
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
-    ): DynamicActionResult.Navigate =
-        DynamicActionResult.Navigate(operation = DynamicActionResult.NavigationOperation.Pop)
+    ): DynamicActionResult = DynamicActionResult.Dismiss()
 }
