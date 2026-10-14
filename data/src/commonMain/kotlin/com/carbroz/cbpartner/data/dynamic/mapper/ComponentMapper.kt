@@ -1,6 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.model.component.DynamicComponentDto
+import com.carbroz.cbpartner.data.dynamic.model.component.StackComponentDto
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 
 class ComponentMapper(
@@ -8,7 +8,7 @@ class ComponentMapper(
     private val sections: SectionMapper,
     private val values: DynamicValueMapper,
 ) {
-    fun map(dto: DynamicComponentDto): StackComponent {
+    fun map(dto: StackComponentDto): StackComponent {
         require(dto.type == "stack_component") { "Unsupported dynamic component type: " + dto.type }
         return StackComponent(
             id = dto.id,

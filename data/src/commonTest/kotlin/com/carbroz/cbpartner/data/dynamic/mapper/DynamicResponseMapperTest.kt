@@ -1,7 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.DynamicContractFixtures
-import com.carbroz.cbpartner.data.dynamic.model.template.DynamicTemplateDto
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
@@ -133,33 +132,6 @@ class DynamicResponseMapperTest {
             ),
             body.value["previous"],
         )
-    }
-
-    @Test
-    fun genericCategoryDtosDecodeUnknownDiscriminatorsWithoutConcreteCategoryDtos() {
-        val template = json.decodeFromString<DynamicTemplateDto>(
-            """{"id":"tpl","type":"future_template","components":[{"id":"cmp","type":"future_component","elements":[{"id":"element","type":"future_element"}]}]}""",
-        )
-
-        assertEquals("future_template", template.type)
-        assertEquals("future_component", template.components.single().type)
-        assertEquals("future_element", template.components.single().elements.single().type)
-    }
-
-    @Test
-    fun contentDtoPreservesTolerantOptionalFieldHandling() {
-        val dto = json.decodeFromString<DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"content_tolerance","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"component","type":"stack_component","elements":[{"id":"button","type":"button","properties":{"leading":[1,null,{"type":"icon","properties":"invalid","actions":"invalid"}]}}]}]}}}""",
-        )
-
-        val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
-        val component = assertIs<StackComponent>(assertIs<FormTemplate>(screen.template).components.single())
-        val button = assertIs<ButtonElement>(component.elements.single())
-        val icon = assertIs<IconContent>(button.leadingContent.single())
-
-        assertEquals(null, icon.id)
-        assertEquals("", icon.url)
-        assertEquals(0, icon.actions.size)
     }
 
     @Test

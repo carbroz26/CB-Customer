@@ -1,13 +1,13 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.model.template.DynamicTemplateDto
+import com.carbroz.cbpartner.data.dynamic.model.template.FormTemplateDto
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 
 class TemplateMapper(
     private val components: ComponentMapper,
     private val values: DynamicValueMapper,
 ) {
-    fun map(dto: DynamicTemplateDto): FormTemplate {
+    fun map(dto: FormTemplateDto): FormTemplate {
         require(dto.type == "form_template") { "Unsupported dynamic template type: " + dto.type }
         return FormTemplate(
             id = dto.id,

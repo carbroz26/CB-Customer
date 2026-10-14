@@ -1,6 +1,10 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.model.element.DynamicElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.ButtonElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.IconElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.ImageElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.InputElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.TextElementDto
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
@@ -20,16 +24,16 @@ class ElementMapper(
     private val actionMapper = DynamicActionMapper(values)
     private val contentMapper = ElementContentMapper(json, values, actionMapper)
 
-    fun map(element: DynamicElementDto): DynamicElement = when (element.type) {
-        "text" -> mapText(element)
-        "image" -> mapImage(element)
-        "input" -> mapInput(element)
-        "button" -> mapButton(element)
-        "icon" -> mapIcon(element)
-        else -> error("Unsupported dynamic element type: " + element.type)
+    fun map(element: JsonObject): DynamicElement = when (values.string(element, "type")) {
+        "text" -> mapText(json.decodeFromJsonElement(TextElementDto.serializer(), element))
+        "image" -> mapImage(json.decodeFromJsonElement(ImageElementDto.serializer(), element))
+        "input" -> mapInput(json.decodeFromJsonElement(InputElementDto.serializer(), element))
+        "button" -> mapButton(json.decodeFromJsonElement(ButtonElementDto.serializer(), element))
+        "icon" -> mapIcon(json.decodeFromJsonElement(IconElementDto.serializer(), element))
+        else -> error("Unsupported dynamic element type: " + values.string(element, "type"))
     }
 
-    private fun mapText(dto: DynamicElementDto): TextElement {
+    private fun mapText(dto: TextElementDto): TextElement {
         val textValue = dto.properties["text"]
         val spans = values.spans(dto.properties).let { mapped ->
             if (textValue is JsonObject) {
@@ -57,7 +61,7 @@ class ElementMapper(
         )
     }
 
-    private fun mapImage(dto: DynamicElementDto) = ImageElement(
+    private fun mapImage(dto: ImageElementDto) = ImageElement(
         id = dto.id,
         semanticRole = semanticRole(dto.properties),
         url = values.string(dto.properties, "url").orEmpty(),
@@ -75,7 +79,7 @@ class ElementMapper(
         actions = actionMapper.map(dto.actions),
     )
 
-    private fun mapInput(dto: DynamicElementDto) = InputElement(
+    private fun mapInput(dto: InputElementDto) = InputElement(
         id = dto.id,
         semanticRole = semanticRole(dto.properties),
         placeholder = values.string(dto.properties, "placeholder"),
@@ -98,7 +102,7 @@ class ElementMapper(
         actions = actionMapper.map(dto.actions),
     )
 
-    private fun mapButton(dto: DynamicElementDto) = ButtonElement(
+    private fun mapButton(dto: ButtonElementDto) = ButtonElement(
         id = dto.id,
         semanticRole = semanticRole(dto.properties),
         text = values.string(dto.properties, "text").orEmpty(),
@@ -117,7 +121,7 @@ class ElementMapper(
         actions = actionMapper.map(dto.actions),
     )
 
-    private fun mapIcon(dto: DynamicElementDto) = IconElement(
+    private fun mapIcon(dto: IconElementDto) = IconElement(
         id = dto.id,
         semanticRole = semanticRole(dto.properties),
         url = values.string(dto.properties, "url").orEmpty(),
