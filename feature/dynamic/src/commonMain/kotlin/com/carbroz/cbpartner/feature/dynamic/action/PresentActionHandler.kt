@@ -11,11 +11,8 @@ class PresentActionHandler : DynamicActionHandler {
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
-    ): DynamicActionResult.Navigate {
+    ): DynamicActionResult.Present {
         val destination = action.destination ?: error("Dynamic present destination is missing")
-        return DynamicActionResult.Navigate(
-            destination = destination,
-            operation = DynamicActionResult.NavigationOperation.Push,
-        )
+        return DynamicActionResult.Present(destination)
     }
 }
