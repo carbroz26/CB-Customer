@@ -181,7 +181,7 @@ class DynamicStoreTest {
         assertContentEquals(
             listOf(
                 DynamicActionEffect.ExternalUri("https://one.example"),
-                DynamicEffect.ExternalUri("https://two.example"),
+                DynamicActionEffect.ExternalUri("https://two.example"),
             ),
             delivered,
         )
