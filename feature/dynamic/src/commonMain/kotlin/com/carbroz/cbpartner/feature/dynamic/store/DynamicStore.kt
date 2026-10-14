@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -142,34 +143,42 @@ class DynamicStore(
             is DynamicActionResult.StateChanged -> runtimeState.setAll(result.changes)
             is DynamicActionResult.Navigate -> {
                 runtimeState.setAll(result.stateChanges)
-                _effects.send(DynamicEffect.Navigation(result.destination, result.operation))
+                emitEffect(DynamicEffect.Navigation(result.destination, result.operation))
             }
             is DynamicActionResult.Present -> {
                 runtimeState.setAll(result.stateChanges)
-                _effects.send(DynamicEffect.Presentation(result.destination))
+                emitEffect(DynamicEffect.Presentation(result.destination))
             }
             is DynamicActionResult.Dismiss -> {
                 runtimeState.setAll(result.stateChanges)
-                _effects.send(DynamicEffect.Dismiss)
+                emitEffect(DynamicEffect.Dismiss)
             }
             is DynamicActionResult.ExternalUri -> {
                 runtimeState.setAll(result.stateChanges)
-                _effects.send(DynamicEffect.ExternalUri(result.uri))
+                emitEffect(DynamicEffect.ExternalUri(result.uri))
             }
             is DynamicActionResult.Sequence -> {
                 runtimeState.setAll(result.stateChanges)
                 result.effects.forEach { effect ->
                     when (effect) {
                         is DynamicActionEffect.Navigate ->
-                            _effects.send(DynamicEffect.Navigation(effect.destination, effect.operation))
+                            emitEffect(DynamicEffect.Navigation(effect.destination, effect.operation))
                         is DynamicActionEffect.Present ->
-                            _effects.send(DynamicEffect.Presentation(effect.destination))
+                            emitEffect(DynamicEffect.Presentation(effect.destination))
                         DynamicActionEffect.Dismiss -> _effects.send(DynamicEffect.Dismiss)
                         is DynamicActionEffect.ExternalUri ->
-                            _effects.send(DynamicEffect.ExternalUri(effect.uri))
+                            emitEffect(DynamicEffect.ExternalUri(effect.uri))
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun emitEffect(effect: DynamicEffect) {
+        try {
+            _effects.send(effect)
+        } catch (_: ClosedSendChannelException) {
+            // Disposal closes the channel to release any suspended senders.
         }
     }
 
