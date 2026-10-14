@@ -9,7 +9,5 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
  * a common contract for rendering and parent-child composition.
  */
 interface DynamicTemplate {
-    val id: String
-    val type: String
     val components: List<DynamicComponent>
 }

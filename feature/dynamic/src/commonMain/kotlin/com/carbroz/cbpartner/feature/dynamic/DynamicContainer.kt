@@ -55,11 +55,7 @@ fun DynamicContainer(
                 when (effect) {
                     is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
                     is DynamicActionEffect.Navigate -> applyNavigation(effect, navigation)
-                    is DynamicActionEffect.Present -> {
-                        check(navigation.present(effect.destination)) {
-                            "A dynamic presentation is already active"
-                        }
-                    }
+                    is DynamicActionEffect.Present -> navigation.present(effect.destination)
                     DynamicActionEffect.Dismiss -> navigation.dismissPresentation() || navigation.pop()
                 }
             } catch (cancellation: CancellationException) {

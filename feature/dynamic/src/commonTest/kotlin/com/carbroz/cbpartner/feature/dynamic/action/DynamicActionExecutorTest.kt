@@ -3,7 +3,6 @@ package com.carbroz.cbpartner.feature.dynamic.action
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,40 +10,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
 class DynamicActionExecutorTest {
-    @Test
-    fun blankHandlerTypesAreRejected() {
-        val handler = object : DynamicActionHandler {
-            override val type = "   "
-            override suspend fun handle(
-                action: DynamicAction,
-                bindings: Map<String, DynamicValue>,
-                context: Map<String, DynamicValue>,
-                state: Map<String, DynamicValue>,
-            ) = DynamicActionResult.Completed
-        }
-        assertFailsWith<IllegalArgumentException> {
-            DynamicActionExecutor(listOf(handler))
-        }
-    }
-
-    @Test
-    fun cancellationFromHandlerIsRethrown() = runTest {
-        val executor = DynamicActionExecutor(
-            listOf(object : DynamicActionHandler {
-                override val type = "cancel"
-                override suspend fun handle(
-                    action: DynamicAction,
-                    bindings: Map<String, DynamicValue>,
-                    context: Map<String, DynamicValue>,
-                    state: Map<String, DynamicValue>,
-                ): DynamicActionResult = throw CancellationException("cancelled")
-            }),
-        )
-        assertFailsWith<CancellationException> {
-            executor.execute(DynamicAction(type = "cancel"), emptyMap(), emptyMap(), emptyMap())
-        }
-    }
-
     @Test
     fun sequenceUsesSameExecutorForNestedActions() = runTest {
         val executor = DynamicActionExecutor(

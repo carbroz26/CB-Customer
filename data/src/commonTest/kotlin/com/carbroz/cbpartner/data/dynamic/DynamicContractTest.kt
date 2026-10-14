@@ -4,7 +4,6 @@ import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.mapper.ElementMapper
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicValueMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
-import com.carbroz.cbpartner.data.dynamic.model.element.DynamicElementDto
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
@@ -142,9 +141,9 @@ class DynamicContractTest {
 
     @Test
     fun concreteMapper_preservesLeadingAndTrailingContent() {
-        val element = json.decodeFromString<DynamicElementDto>(
+        val element = json.parseToJsonElement(
             """{"id":"generic_text","type":"text","properties":{"text":"Hello","leading":[{"type":"divider","properties":{"width":24,"thickness":2}}],"trailing":[{"type":"icon","properties":{"url":"https://backend.example/assets/edit.png","fallbackUrl":"https://backend.example/assets/fallback.png","size":20}}]}}""",
-        )
+        ).jsonObject
 
         val text = assertIs<TextElement>(
             ElementMapper(json, DynamicValueMapper()).map(element),
