@@ -159,7 +159,7 @@ class DynamicResponseMapperTest {
 
         assertEquals(null, icon.id)
         assertEquals("", icon.url)
-        assertEquals(emptyMap(), icon.actions)
+        assertEquals(0, icon.actions.size)
     }
 
     @Test

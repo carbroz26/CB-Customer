@@ -1050,7 +1050,7 @@ The transport layer currently binds category DTOs to the only supported concrete
 
 This mixes category structure with today's concrete type choices and makes the parent DTO declarations change whenever a new concrete category type is introduced.
 
-#### 22.31.2 Proposed contract
+#### 22.31.2 Frozen contract
 
 Create one category-level DTO for each Dynamic hierarchy category:
 - `DynamicTemplateDto`
@@ -1074,7 +1074,7 @@ An unknown concrete type must keep failing at the existing mapping boundary with
 
 Do not generalize `DynamicScreen.template` in the domain. `DynamicScreenDto` may hold `DynamicTemplateDto`, while `TemplateMapper` remains explicitly limited to the supported `form_template` type and maps to `FormTemplate`. Do not introduce generic domain Template/Component/Section/Group interfaces, reflection, polymorphic serializer registration, a universal mapper, or a second dispatch layer.
 
-#### 22.31.3 Exact proposed file scope
+#### 22.31.3 Exact approved file scope
 
 **Create**
 - `data/src/commonMain/kotlin/com/carbroz/cbpartner/data/dynamic/model/template/DynamicTemplateDto.kt`
@@ -1124,6 +1124,6 @@ No changes are planned to `:core`, `:network`, `:domain`, `:navigation`, `:featu
 
 #### 22.31.5 Stop conditions
 
-Stop before implementation if the current source has unlisted consumers; typed DTO decoding would change existing tolerant behavior or backend field handling; generic DTOs would require domain hierarchy changes; the existing mapper composition/DI contract would need changing; current backend payload shape differs from the fixtures; or the work overlaps an unrelated frozen task. Report the exact conflict and resolve it through the project freeze process before proceeding.
+Stop implementation and report if source reconciliation reveals unlisted consumers; typed DTO decoding changes existing tolerant behavior or backend field handling; generic DTOs require domain hierarchy changes; the existing mapper composition/DI contract must change; current backend payload shape differs from the fixtures; or the work overlaps an unrelated frozen task. Resolve any conflict before expanding scope.
 
 **Frozen state:** the project owner explicitly froze section 22.31 and authorized implementation on 2026-10-14. Implement only the listed files; deep-audit all source changes before running tests. Status/final freeze remains gated on actual verification.
