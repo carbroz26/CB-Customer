@@ -65,6 +65,32 @@ class DynamicRegistryTest {
         assertNotNull(registry.section(StackSectionModel(id = "section")))
         assertNotNull(registry.group(StackGroupModel(id = "group")))
         assertNotNull(registry.element(textElement))
+        assertNotNull(
+            registry.element(
+                com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement(
+                    id = "image",
+                    url = "https://example.com/image.png",
+                ),
+            ),
+        )
+        assertNotNull(
+            registry.element(
+                com.carbroz.cbpartner.domain.model.dynamic.element.InputElement(id = "input"),
+            ),
+        )
+        assertNotNull(
+            registry.element(
+                com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement(id = "button"),
+            ),
+        )
+        assertNotNull(
+            registry.element(
+                com.carbroz.cbpartner.domain.model.dynamic.element.IconElement(
+                    id = "icon",
+                    url = "https://example.com/icon.png",
+                ),
+            ),
+        )
         assertNotNull(registry.content(iconContent))
         assertNotNull(registry.content(dividerContent))
 
