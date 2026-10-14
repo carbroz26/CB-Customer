@@ -14,10 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.renderer.DynamicRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
-import com.carbroz.cbpartner.feature.dynamic.store.DynamicEffect
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicIntent
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
@@ -51,10 +51,10 @@ fun DynamicContainer(
     LaunchedEffect(store) {
         store.effects.collect { effect ->
             when (effect) {
-                is DynamicEffect.ExternalUri -> uriHandler.openUri(effect.uri)
-                is DynamicEffect.Navigation -> applyNavigation(effect, navigation)
-                is DynamicEffect.Presentation -> navigation.present(effect.destination)
-                DynamicEffect.Dismiss -> navigation.dismissPresentation() || navigation.pop()
+                is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
+                is DynamicActionEffect.Navigate -> applyNavigation(effect, navigation)
+                is DynamicActionEffect.Present -> navigation.present(effect.destination)
+                DynamicActionEffect.Dismiss -> navigation.dismissPresentation() || navigation.pop()
             }
         }
     }
@@ -83,7 +83,7 @@ fun DynamicContainer(
 }
 
 private fun applyNavigation(
-    effect: DynamicEffect.Navigation,
+    effect: DynamicActionEffect.Navigate,
     navigation: DynamicNavigationState,
 ) {
     when (effect.operation) {
