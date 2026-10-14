@@ -62,8 +62,8 @@ class DynamicActionExecutor(
     ): DynamicActionResult {
         val actions = action.payload["actions"] as? DynamicValue.ArrayValue
             ?: error("Dynamic sequence actions are missing")
+        val initialState = state.toMap()
         val sequenceState = state.toMutableMap()
-        val sequenceChanges = linkedMapOf<String, DynamicValue>()
         val effects = mutableListOf<DynamicActionEffect>()
 
         actions.value.forEach { value ->
@@ -85,14 +85,18 @@ class DynamicActionExecutor(
             val changes = result.stateChanges
             if (changes.isNotEmpty()) {
                 sequenceState.applyChanges(changes)
-                sequenceChanges.putAll(changes)
             }
             effects += result.effects
         }
 
+        // Emit the final root-level delta, not a path map merged by first insertion order.
+        // Overlapping paths (for example a.b, then a, then a.b) cannot be faithfully
+        // replayed from a normal Map<String, DynamicValue> of the original path changes.
+        val stateChanges = sequenceState.filter { (key, value) -> initialState[key] != value }
+
         return when {
-            effects.isNotEmpty() -> DynamicActionResult.Sequence(sequenceChanges, effects)
-            sequenceChanges.isNotEmpty() -> DynamicActionResult.StateChanged(sequenceChanges)
+            effects.isNotEmpty() -> DynamicActionResult.Sequence(stateChanges, effects)
+            stateChanges.isNotEmpty() -> DynamicActionResult.StateChanged(stateChanges)
             else -> DynamicActionResult.Completed
         }
     }
