@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 sealed interface DynamicIntent {
     data object Load : DynamicIntent
     data object Retry : DynamicIntent
+    data class EffectFailed(val message: String) : DynamicIntent
     data class Action(val action: DynamicAction) : DynamicIntent
     data class ValueChanged(val key: String, val value: DynamicValue) : DynamicIntent
 }
@@ -56,6 +57,7 @@ class DynamicStore(
     fun accept(intent: DynamicIntent) {
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
+            is DynamicIntent.EffectFailed -> reportEffectFailure(intent.message)
             is DynamicIntent.ValueChanged -> updateBinding(intent.key, intent.value)
             is DynamicIntent.Action -> handleAction(intent.action)
         }
@@ -142,6 +144,11 @@ class DynamicStore(
         } catch (_: ClosedSendChannelException) {
             // Disposal closes the channel to release any suspended senders.
         }
+    }
+
+    private fun reportEffectFailure(message: String) {
+        val screen = currentScreen() ?: return
+        _state.value = DynamicState.Failure(message, screen)
     }
 
     private fun currentScreen(): DynamicScreenState? = when (val value = _state.value) {
