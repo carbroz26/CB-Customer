@@ -1,9 +1,10 @@
-package com.carbroz.cbpartner.data.dynamic.mapper.content
+package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.mapper.DynamicActionMapper
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionsDto
 import com.carbroz.cbpartner.data.dynamic.model.content.DynamicContentDto
+import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
+import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -14,14 +15,9 @@ import kotlinx.serialization.json.decodeFromJsonElement
 
 class ElementContentMapper(
     private val json: Json,
-    private val actionMapper: DynamicActionMapper,
-    mappers: List<ContentTypeMapper>,
+    private val values: DynamicValueMapper,
+    private val actionMapper: DynamicActionMapper = DynamicActionMapper(values),
 ) {
-    private val byType = mappers.associateBy { it.type }.also {
-        require(it.size == mappers.size) { "Duplicate dynamic content mapper type registration" }
-        require(mappers.none { mapper -> mapper.type.isBlank() }) { "Blank dynamic content mapper type" }
-    }
-
     fun mapList(properties: JsonObject, key: String): List<ElementContent> =
         (properties[key] as? JsonArray).orEmpty()
             .mapNotNull { it as? JsonObject }
@@ -39,13 +35,34 @@ class ElementContentMapper(
     fun map(dto: DynamicContentDto): ElementContent {
         val type = string(dto.type)
             ?: error("Dynamic element content type is required")
-        val mapper = byType[type]
-            ?: error("Unsupported dynamic element content type: " + type)
         val properties = dto.properties as? JsonObject ?: JsonObject(emptyMap())
         val actions = (dto.actions as? JsonObject)?.let {
             json.decodeFromJsonElement(DynamicActionsDto.serializer(), it)
         }
-        return mapper.map(string(dto.id), properties, actionMapper.map(actions))
+        return when (type) {
+            "icon" -> IconContent(
+                id = string(dto.id),
+                semanticRole = values.string(properties, "semanticRole"),
+                url = values.string(properties, "url").orEmpty(),
+                fallbackUrl = values.string(properties, "fallbackUrl"),
+                size = values.number(properties, "size"),
+                color = values.string(properties, "color"),
+                spacing = values.spacing(properties),
+                actions = actionMapper.map(actions),
+            )
+            "divider" -> DividerContent(
+                id = string(dto.id),
+                semanticRole = values.string(properties, "semanticRole"),
+                orientation = values.string(properties, "orientation") ?: "horizontal",
+                width = values.number(properties, "width"),
+                height = values.number(properties, "height"),
+                thickness = values.number(properties, "thickness") ?: 1.0,
+                color = values.string(properties, "color"),
+                spacing = values.spacing(properties),
+                actions = actionMapper.map(actions),
+            )
+            else -> error("Unsupported dynamic element content type: " + type)
+        }
     }
 
     private fun string(value: JsonElement?): String? =

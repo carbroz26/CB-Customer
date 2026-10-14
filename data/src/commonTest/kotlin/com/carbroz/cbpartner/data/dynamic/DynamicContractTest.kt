@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.data.dynamic
 
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
-import com.carbroz.cbpartner.data.dynamic.mapper.DynamicMapperFactory
+import com.carbroz.cbpartner.data.dynamic.mapper.ElementMapper
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicValueMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.data.dynamic.model.element.DynamicElementDto
@@ -147,7 +147,7 @@ class DynamicContractTest {
         )
 
         val text = assertIs<TextElement>(
-            DynamicMapperFactory.elements(json, DynamicValueMapper()).map(element),
+            ElementMapper(json, DynamicValueMapper()).map(element),
         )
 
         assertIs<DividerContent>(text.leadingContent.single())

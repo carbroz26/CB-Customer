@@ -11,20 +11,17 @@ class FormTemplateMapper(
 ) : TemplateTypeMapper {
     override val type: String = "form_template"
 
-    override fun map(dto: DynamicTemplateDto): FormTemplate {
-        val layout = values.templateLayout(dto.properties)
-        return FormTemplate(
-            id = dto.id,
-            type = dto.type,
-            orientation = layout.orientation,
-            verticalArrangement = layout.verticalArrangement,
-            horizontalArrangement = layout.horizontalArrangement,
-            horizontalAlignment = layout.horizontalAlignment,
-            verticalAlignment = layout.verticalAlignment,
-            padding = layout.padding,
-            fillMaxSize = layout.fillMaxSize,
-            semanticRole = values.string(dto.properties, "semanticRole"),
-            components = dto.components.map(components::map),
-        )
-    }
+    override fun map(dto: DynamicTemplateDto) = FormTemplate(
+        id = dto.id,
+        type = dto.type,
+        orientation = values.string(dto.properties, "orientation") ?: "vertical",
+        verticalArrangement = values.verticalArrangement(dto.properties),
+        horizontalArrangement = values.horizontalArrangement(dto.properties),
+        horizontalAlignment = values.horizontalAlignment(dto.properties),
+        verticalAlignment = values.verticalAlignment(dto.properties),
+        padding = values.padding(dto.properties),
+        fillMaxSize = values.boolean(dto.properties, "fillMaxSize") ?: false,
+        semanticRole = values.string(dto.properties, "semanticRole"),
+        components = dto.components.map(components::map),
+    )
 }
