@@ -558,7 +558,8 @@ Source implementation and tests have not started. Confirm actual renderer paths 
 
 ## DYNAMIC-DTO-CATEGORY-GENERALIZATION-001 — Generic category DTOs for Dynamic mapping
 
-**State:** PROPOSED — awaiting explicit owner freeze.  
+**State:** ACCEPTED / PLAN FROZEN / IMPLEMENTATION AUTHORIZED — source verification pending.  
+**Owner approval:** Explicitly frozen and authorized by the project owner on 2026-10-14.  
 **Branch:** `feature/dynamic-ui`  
 **Scope:** `:data` Dynamic DTOs and DTO-to-domain mapping only.  
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.31.
@@ -567,7 +568,7 @@ Source implementation and tests have not started. Confirm actual renderer paths 
 
 Current transport DTOs bind parent categories to concrete current implementations (`FormTemplateDto`, `StackComponentDto`, `StackSectionDto`, `StackGroupDto`). Component/section/group elements are raw `JsonObject` lists, while each of five concrete element DTOs repeats the same envelope fields. Content mapping also parses raw JSON without a category DTO.
 
-### Proposed decision
+### Frozen decision
 
 Introduce one DTO per category: `DynamicTemplateDto`, `DynamicComponentDto`, `DynamicSectionDto`, `DynamicGroupDto`, `DynamicElementDto`, and `DynamicContentDto`. Parent DTOs use generic category DTOs and retain backend `type` discriminators. Existing mapper boundaries continue dispatching only currently supported types to the existing concrete domain models; unsupported types retain deterministic mapping failures.
 
@@ -578,8 +579,8 @@ Preserve DynamicValue/reference semantics, element validation/binding/actions, c
 ### Required process
 
 - Reconcile exact source references and preserve all existing mapper behavior.
-- Freeze the exact file-by-file plan before any source changes.
-- Implement only after explicit owner freeze.
+- The exact file-by-file plan was frozen by the owner before source changes.
+- Implement only the approved scope.
 - Perform a deep source/reference/diff audit before running tests; run tests last.
 - Work only on `feature/dynamic-ui`; no new branches or backend changes.
 - Keep implementation status/final freeze unchanged until verification passes.

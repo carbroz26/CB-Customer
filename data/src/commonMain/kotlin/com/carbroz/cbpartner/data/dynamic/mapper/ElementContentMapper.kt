@@ -1,12 +1,17 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionsDto
+import com.carbroz.cbpartner.data.dynamic.model.content.DynamicContentDto
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.decodeFromJsonElement
 
 class ElementContentMapper(
     private val json: Json,
@@ -16,18 +21,27 @@ class ElementContentMapper(
     fun mapList(properties: JsonObject, key: String): List<ElementContent> =
         (properties[key] as? JsonArray).orEmpty()
             .mapNotNull { it as? JsonObject }
-            .map { map(it) }
+            .map { element ->
+                map(
+                    DynamicContentDto(
+                        type = element["type"],
+                        id = element["id"],
+                        properties = element["properties"],
+                        actions = element["actions"],
+                    ),
+                )
+            }
 
-    fun map(element: JsonObject): ElementContent {
-        val type = values.string(element, "type")
+    fun map(dto: DynamicContentDto): ElementContent {
+        val type = string(dto.type)
             ?: error("Dynamic element content type is required")
-        val properties = element["properties"] as? JsonObject ?: JsonObject(emptyMap())
-        val actions = (element["actions"] as? JsonObject)?.let {
+        val properties = dto.properties as? JsonObject ?: JsonObject(emptyMap())
+        val actions = (dto.actions as? JsonObject)?.let {
             json.decodeFromJsonElement(DynamicActionsDto.serializer(), it)
         }
         return when (type) {
             "icon" -> IconContent(
-                id = values.string(element, "id"),
+                id = string(dto.id),
                 semanticRole = values.string(properties, "semanticRole"),
                 url = values.string(properties, "url").orEmpty(),
                 fallbackUrl = values.string(properties, "fallbackUrl"),
@@ -37,7 +51,7 @@ class ElementContentMapper(
                 actions = actionMapper.map(actions),
             )
             "divider" -> DividerContent(
-                id = values.string(element, "id"),
+                id = string(dto.id),
                 semanticRole = values.string(properties, "semanticRole"),
                 orientation = values.string(properties, "orientation") ?: "horizontal",
                 width = values.number(properties, "width"),
@@ -50,4 +64,7 @@ class ElementContentMapper(
             else -> error("Unsupported dynamic element content type: " + type)
         }
     }
+
+    private fun string(value: JsonElement?): String? =
+        (value as? JsonPrimitive)?.contentOrNull
 }

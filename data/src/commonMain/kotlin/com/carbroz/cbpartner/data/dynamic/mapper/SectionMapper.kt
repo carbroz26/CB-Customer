@@ -1,6 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
-import com.carbroz.cbpartner.data.dynamic.model.section.StackSectionDto
+import com.carbroz.cbpartner.data.dynamic.model.section.DynamicSectionDto
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 
 class SectionMapper(
@@ -8,7 +8,7 @@ class SectionMapper(
     private val groups: GroupMapper,
     private val values: DynamicValueMapper,
 ) {
-    fun map(dto: StackSectionDto): StackSection {
+    fun map(dto: DynamicSectionDto): StackSection {
         require(dto.type == "stack_section") { "Unsupported dynamic section type: " + dto.type }
         return StackSection(
             id = dto.id,

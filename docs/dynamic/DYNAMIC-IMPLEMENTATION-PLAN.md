@@ -1032,11 +1032,11 @@ The plan is frozen; source edits and test execution have not started. The next a
 - This amendment does not change action-sequence failure semantics, effect order, navigation/presentation semantics, or the six-registry contract. Do not update implementation status or declare final freeze until the full required verification and source/diff review pass.
 
 
-### 22.31 Generic category DTOs for extensible Dynamic mapping — PROPOSED, NOT FROZEN (2026-10-14)
+### 22.31 Generic category DTOs for extensible Dynamic mapping — PLAN FROZEN / IMPLEMENTATION AUTHORIZED (2026-10-14)
 
 **Decision reference:** `DYNAMIC-DTO-CATEGORY-GENERALIZATION-001`  
 **Branch:** `feature/dynamic-ui`  
-**Scope:** `:data` Dynamic transport DTOs and DTO-to-domain mapping only. This section is a proposal for owner review. No source edits are authorized until the owner explicitly freezes this plan.
+**Scope:** `:data` Dynamic transport DTOs and DTO-to-domain mapping only. The project owner explicitly froze this plan and authorized implementation on 2026-10-14.
 
 #### 22.31.1 Problem confirmed in current source
 
@@ -1126,4 +1126,4 @@ No changes are planned to `:core`, `:network`, `:domain`, `:navigation`, `:featu
 
 Stop before implementation if the current source has unlisted consumers; typed DTO decoding would change existing tolerant behavior or backend field handling; generic DTOs would require domain hierarchy changes; the existing mapper composition/DI contract would need changing; current backend payload shape differs from the fixtures; or the work overlaps an unrelated frozen task. Report the exact conflict and resolve it through the project freeze process before proceeding.
 
-**Current state:** source reconnaissance confirms the proposed parent DTO coupling and duplicated element envelopes. This proposal is not frozen and authorizes no source edits. Next gate: explicit owner freeze of section 22.31.
+**Frozen state:** the project owner explicitly froze section 22.31 and authorized implementation on 2026-10-14. Implement only the listed files; deep-audit all source changes before running tests. Status/final freeze remains gated on actual verification.
