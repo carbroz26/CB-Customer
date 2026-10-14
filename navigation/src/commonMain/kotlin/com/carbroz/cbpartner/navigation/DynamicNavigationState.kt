@@ -37,11 +37,10 @@ class DynamicNavigationState(
         else backStack[backStack.lastIndex] = DynamicNavigationEntry(destination)
     }
 
-    fun present(destination: DynamicDestination) {
-        check(presentationEntry == null) {
-            "A Dynamic presentation is already active"
-        }
+    fun present(destination: DynamicDestination): Boolean {
+        if (presentationEntry != null) return false
         presentationEntry = DynamicNavigationEntry(destination)
+        return true
     }
 
     fun dismissPresentation(): Boolean {
