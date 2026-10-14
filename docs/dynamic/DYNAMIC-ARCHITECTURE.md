@@ -497,3 +497,52 @@ The common generic adapter, model-class registry key, and extra key-validation s
 - The only element model dispatch is a local exhaustive mapping from the five domain model classes to the existing backend keys; concrete renderer inputs remain typed and require no casts.
 - The content registry and `ElementContentRenderer` are unchanged.
 - Focused registry and mapper/rendering regression tests pass; the complete diff contains no unrelated changes.
+
+
+## 24. Dynamic registry, action-effect, and presentation amendment — revised plan (2026-10-13)
+
+**Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`  
+**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION COMPLETE; SOURCE IMPLEMENTATION NOT STARTED; SOURCE-PATH VERIFICATION REQUIRED  
+**Branch:** `feature/dynamic-ui`  
+**Supersedes:** Conflicting registry-key decisions in earlier sections and the prior version of section 24. Historical records remain for traceability. This amendment also preserves the accepted action-effect and presentation contracts below.
+
+### 24.1 Typed registration-driven dispatch across all six registries
+
+- Keep six independent registry responsibilities: Template, Component, Section, Group, Element, and Content. They may share a small internal implementation helper when it removes genuine duplication, but must remain separate category registries.
+- All six registries use concrete domain model-class identity for renderer registration and lookup. Backend string type keys are interpreted by the existing `:data` mapping boundary and are not renderer lookup keys.
+- All six renderer contracts are generic and typed: `TemplateRenderer<T>`, `ComponentRenderer<T>`, `SectionRenderer<T>`, `GroupRenderer<T>`, `ElementRenderer<T : DynamicElement>`, and `ElementContentRenderer<T : ElementContent>`.
+- Template, Component, Section, and Group do not gain new domain base interfaces solely to support generic rendering. Preserve the existing domain model hierarchy and its responsibilities.
+- Each registry owns its own class-keyed registration map and typed registration/lookup API. Duplicate registration of the same concrete model class is rejected deterministically within that category. The same class in different categories does not collide.
+- Where heterogeneous collections or erased generic storage require it, contain unavoidable type erasure and casts at a narrow internal adapter boundary. Validate compatibility before invoking a renderer and provide deterministic diagnostics. Concrete renderers must not cast, silently ignore mismatched models, or dispatch other model types.
+- Explicitly register the currently supported concrete models: `FormTemplate`, `StackComponent`, `StackSection`, `StackGroup`, `TextElement`, `ImageElement`, `InputElement`, `ButtonElement`, `IconElement`, `IconContent`, and `DividerContent`. Verify actual declarations and source paths before implementation; do not invent variants or duplicate renderer files.
+- A future concrete type is added through its domain model, typed renderer, explicit registration, and ordinary backend-to-domain mapping where applicable. It must not require editing an unrelated registry or adding a concrete-type branch to `DynamicRenderContext`.
+- `DynamicRenderContext` delegates each node to its category registry. It contains no growing concrete-model-to-backend-key `when` dispatch for any of the six categories.
+- Keep `ElementContentMapper` responsible for mapping backend content keys to concrete content models and keep `DynamicReferenceResolver` as the single reference traversal boundary. Do not add duplicate mapper/resolver infrastructure, a universal registry, reflection-based discovery, `Map<String, Any>`, backend type fields on domain models, or unnecessary shared hierarchy interfaces.
+- Preserve existing blank/duplicate registration rules where applicable, unknown-type diagnostics, backend-owned asset and visual-property behavior, content-owned `DynamicSpacing`, and current rendering semantics.
+
+### 24.2 Action sequence result and ordered effects
+
+- One execution result can carry both accumulated `stateChanges: Map<String, DynamicValue>` and ordered `effects: List<DynamicActionEffect>`.
+- Represent navigation, presentation, dismissal, and external URI as explicit effect types. Completed/state-only actions produce no effect but do not erase effects emitted earlier in the sequence.
+- Nested sequences preserve effect order and merge state changes deterministically. State changes from each step are applied before resolving/executing the next step. A genuine handler failure or invalid sequence structure fails the sequence and stops later actions; a terminal effect alone is not a failure or a reason to stop.
+- Preserve the finite sequence-depth guard, normalized handler names, duplicate-handler rejection, `back` alias to `dismiss`, unknown-action failure, existing repository request boundary, typed DynamicValue behavior, and explicit response retention.
+- The Store applies accumulated state changes and forwards all effects in order. Effect delivery must not use a lossy send path, and the UI consumer must not use cancellation semantics that drop earlier effects when a later effect arrives. Keep the queue bounded where practical and use a suspending/reliable delivery contract with deterministic close/failure behavior.
+- Handlers return instructions only; they do not mutate navigation state, launch external URIs, or directly present UI.
+
+### 24.3 Distinct modal presentation semantics
+
+- `present` means modal presentation, not a normal navigation push.
+- Keep one active presentation at a time. A second presentation request while one is active is rejected deterministically and does not replace or leak the existing presentation.
+- The underlying navigation entry and its entry-scoped Store/bindings/validation remain alive and unchanged while the modal is visible.
+- The presented destination receives a new `DynamicNavigationEntry` and the normal entry-scoped Store lifecycle. Reuse existing entry identity and Dynamic Container composition; do not add a destination cache or a second navigation stack.
+- Dismissing a presentation removes only the active presentation. Back handling dismisses the active presentation first; when no presentation is active, back uses the existing navigation-stack behavior.
+- Normal `navigate` continues to use the existing Push/Replace/Pop semantics and never silently becomes a presentation.
+- The navigation module owns presentation state and stack behavior. The Dynamic feature forwards typed effects to the navigation boundary; action handlers and DynamicStore do not mutate navigation state.
+
+### 24.4 Audit and verification contract
+
+Audit source and contract alignment across all six registries and renderers; DTO-to-domain mapping and backend type keys; action handlers/executor/results; state propagation and reference resolution; Store effect transport and UI consumption; navigation stack, entry identity and presentation lifecycle; architecture boundaries and duplicate infrastructure; fixtures/tests; and documentation consistency.
+
+Preserve the four supported reference namespaces, no `$response`, no ViewModel, no Dynamic-specific HTTP client/navigation cache, no business-specific Login/OTP models, backend-owned assets/visual properties, content-owned `DynamicSpacing`, and existing behavior outside the explicitly approved scope.
+
+The exact file-by-file execution plan, tests, and stop conditions are frozen in `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation must be reconciled and the plan explicitly frozen before source implementation. If source paths or contracts differ, stop and reconcile before changing source.

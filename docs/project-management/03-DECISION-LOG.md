@@ -504,3 +504,41 @@ The implementation plan is frozen, but the source simplification has not started
 
 ### Implementation boundary
 This is separate from `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`. The latter remains intact. Verify implementation against `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.29.
+
+
+## DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001 — Typed Element/Content dispatch and ordered action effects
+
+**Date:** 2026-10-13  
+**State:** OWNER-APPROVED; COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION IN PROGRESS; SOURCE CHANGES NOT STARTED  
+**Branch:** `feature/dynamic-ui`  
+**Supersedes:** `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001` / architecture section 23 only for the conflicting Element dispatch decision. Other architecture constraints and historical records remain active.
+
+### Owner-approved contract
+
+- Element and Content use typed registration-driven dispatch by concrete model-class identity, with separate category maps and narrow checked adapters at their generic type-erasure boundary. `DynamicElement` and `ElementContent` are reused; no generic Template/Component/Section/Group hierarchy is added.
+- Concrete renderers accept their concrete model types and do not cast or silently ignore mismatched models. `DynamicRenderContext` does not maintain concrete Element/Content-to-backend-key `when` dispatch.
+- Action sequence results aggregate ordered effects and state changes. Effects remain in order when later actions complete or only change state; state changes propagate before the next action; real failures stop the sequence.
+- Store effect delivery and UI consumption must preserve order without lossy send paths or cancellation of earlier effects.
+- `present` is a distinct modal presentation, not a navigation push. One active presentation is allowed; its entry-scoped Store is independent while the underlying entry and state remain intact. Dismissal and back behavior prioritize the active presentation.
+- Normal Navigate push/replace/pop, request repository boundaries, external URI launching boundary, DynamicValue/reference semantics, backend-owned visual properties, content-owned spacing, and the no-ViewModel/no-duplicate-infrastructure rules remain unchanged.
+
+### Documentation and implementation authority
+
+- Architecture: `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 24.
+- Exact file-by-file plan, tests, and stop conditions: `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30.
+- Current status: `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md` section 17.
+- This decision supersedes the earlier Option A dispatch decision only where it conflicts with the typed model-class Element/Content dispatch above. The older entry is retained as historical decision record.
+- Source implementation and verification remain pending. Exact source paths for IconElement and the IconContent/DividerContent renderers must be verified before edits; do not infer filenames. No backend work or separate mapper-consolidation branch is in scope.
+
+
+## DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001 — revised registry scope (2026-10-13)
+
+**State:** OWNER-APPROVED; COMPLETE PLAN FROZEN; SOURCE IMPLEMENTATION NOT STARTED  
+**Branch:** `feature/dynamic-ui`  
+**Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 24 and `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30.
+
+The owner revised the registry portion of this decision to apply the same typed, concrete-model-class registration and lookup pattern to all six category registries: Template, Component, Section, Group, Element, and Content. All six renderer contracts are generic and typed. Category registries remain separate, with no universal registry and no new Template/Component/Section/Group model interfaces solely to support generic rendering. Any necessary type erasure/casts remain inside a narrow checked registry adapter. Backend string keys remain in the data mapping boundary; `DynamicRenderContext` does not grow concrete-type dispatch branches.
+
+The approved plan continues to include ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The previous decision text limiting class-keyed dispatch to Element and Content is superseded by this revision; older records are retained as history.
+
+Source implementation and tests have not started. Confirm actual renderer paths and source declarations before any edits. Work only on `feature/dynamic-ui`; no backend changes, no new branches, and no separate mapper-consolidation work. Update implementation status only from actual verification evidence.

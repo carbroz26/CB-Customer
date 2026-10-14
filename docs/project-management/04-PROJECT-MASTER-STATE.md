@@ -342,12 +342,12 @@ Ordered:
 2. Complete owner-side Web runtime/visual verification when available. Android and iOS runtime verification remain separate platform gates.
 4. Finish backend local OTP provider inspection and, only if explicitly authorized, add a development-only random OTP provider that logs the generated OTP without exposing it through the API.
 5. Keep production SMS provider/security behavior unchanged.
-6. Implement the frozen generic element registry plan only after the common-source `KClass.isInstance` compatibility preflight; stop if incompatible.
+6. Execute the frozen registry/action-effect/presentation plan in section 22.30 only after exact source paths are verified; stop on any source/contract mismatch.
 7. Start the next product work only after the current authorized work is completed and reviewed.
 
 ### Current planning task — 2026-10-13
 
-The initial generic registry direction under `DYNAMIC-REGISTRY-ELEMENT-GENERIC-001` was implemented as a candidate, then rejected as the target design after source review. The owner approved Option A and froze `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`: use concrete typed renderer contracts, category-specific normalized string-keyed maps, the existing shared registration helper, and a small exhaustive concrete-model dispatch. Remove the generic adapter, `KClass` registry lookup, unchecked cast, and normalized-key side set. The exact file-by-file plan is `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.28. The simplification source changes have not started and its tests/builds have not run. Do not reopen base architecture or content-owned spacing.
+The owner has now explicitly frozen `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`, which supersedes the earlier Option A Element dispatch decision only where conflicting. The new plan uses typed registration-driven Element and Content dispatch by concrete model-class identity, ordered effect aggregation across action sequences, reliable Store/UI effect delivery, and a distinct modal `present` lifecycle. Exact scope, tests, and stop conditions are in `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30; architecture authority is section 24. Documentation reconciliation is complete; source changes and tests have not started. Exact IconElement and IconContent/DividerContent renderer paths must be verified before edits; do not guess. Do not reopen base architecture or content-owned spacing.
 
 ## 12. Explicitly Closed / Do Not Reopen
 
@@ -402,7 +402,7 @@ Historical decision snapshot: the contract was documentation-frozen before imple
 - Remaining before merge/final freeze: complete line-by-line diff and obsolete-property audit, plus actual Web visual inspection. Do not update the backend repository or its PR as part of this frontend task.
 
 
-## 17. Element registry simplification — current frozen direction (2026-10-13)
+## 17. Historical Element registry simplification — superseded for current work (2026-10-13)
 
 - Decision: `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`; Option A approved.
 - Architecture authority: `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 23.
@@ -412,3 +412,18 @@ Historical decision snapshot: the contract was documentation-frozen before imple
 - Remove `CheckedElementRenderer`, `ElementRenderer<T>`, `KClass` registry dispatch, unchecked cast, and `elementTypes` side set.
 - Leave concrete data mappers and `ElementMapperSupport` unchanged in this registry-specific change; helper review is separate.
 - Implementation and verification of the simplification remain pending. Run the plan's focused tests, shared JVM matrix, compile tasks, and final diff audit before updating status.
+
+
+## 18. Frozen registry/action amendment — current planning task (2026-10-13)
+
+- **Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`, revised by explicit owner approval to cover all six registry categories.
+- **Architecture:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 24.
+- **Implementation plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30.
+- **Status:** complete plan frozen; source implementation and tests not started.
+- **Registry:** Template, Component, Section, Group, Element, and Content all use concrete model-class identity for typed registration/lookup. All six renderer contracts are generic. Registries remain separate; no universal registry or unnecessary model hierarchy.
+- **Actions:** aggregate ordered effects and state changes; state propagates between actions; real failures stop the sequence; earlier effects are not erased by later Completed/state-only results.
+- **Presentation:** one active modal presentation; underlying entry/Store preserved; presentation has its own entry/Store; second active presentation rejected; dismiss presentation before normal back-stack behavior.
+- **Supersession:** prior registry decisions remain historical but are superseded where they conflict with the all-six-registry class-keyed contract. Other frozen architecture remains active.
+- **Pre-implementation gate:** verify exact current source paths and declarations for all concrete renderers, especially IconElement and IconContent/DividerContent. Do not guess or create duplicate files.
+- Work only on `feature/dynamic-ui`; no new branches, no backend edits, and no separate Element mapper consolidation.
+- No implementation/test/build completion may be claimed until the frozen verification matrix and full diff audit actually pass.

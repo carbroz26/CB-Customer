@@ -1,13 +1,13 @@
 # Dynamic UI Implementation Status
 
-**Status:** CONTENT-OWNED SPACING REVIEW OPEN; ELEMENT REGISTRY SIMPLIFICATION PLAN FROZEN — SOURCE SIMPLIFICATION NOT STARTED
+**Status:** CONTENT-OWNED SPACING REVIEW OPEN; SIX-REGISTRY TYPED DISPATCH PLAN FROZEN — SOURCE IMPLEMENTATION NOT STARTED
 **Date:** 2026-10-12
 **Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md`
 **Plan:** `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md`
 
 ## 1. Current truth
 
-The Element registry has a recently committed generic model-class/adapter implementation. After reviewing the actual source, the owner rejected that implementation as the target design and approved the simpler concrete typed-renderer/string-key registry pattern. The candidate source is not treated as frozen architecture. The revised exact scope is frozen in `DYNAMIC-ARCHITECTURE.md` section 23 and `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.28. The simplification has not been implemented or verified yet.
+The owner-approved revision now applies typed, concrete-model-class registration and lookup to all six independent renderer registries: Template, Component, Section, Group, Element, and Content. All six renderer contracts are generic and typed; each registry remains category-specific, with type erasure/casts confined to a narrow checked adapter where necessary. The same plan retains ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The authoritative contract is `DYNAMIC-ARCHITECTURE.md` section 24 and the file-by-file plan is `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation reconciliation is complete; the revised plan is frozen. Source implementation and verification have not started. Exact source paths and current declarations for concrete renderers must be verified before edits.
 
 The content-owned spacing revision is implemented on `feature/dynamic-content-spacing-contract`: `ElementContent.spacing: DynamicSpacing?` is shared by IconContent and DividerContent, the mapper reads backend `properties.spacing`, and existing renderers apply the four-sided external spacing. The owner ran the six-module JVM matrix (`:core:jvmTest`, `:domain:jvmTest`, `:data:jvmTest`, `:navigation:jvmTest`, `:feature:splash:jvmTest`, `:feature:dynamic:jvmTest`), Android unit tests, Android Kotlin compilation/debug assembly, Web/Wasm development webpack, and Web/Wasm browser tests successfully on PR head `c08a6729186590eb094e79176f34daa119aa8a4a`. The full line-by-line source/diff audit and actual Web visual inspection remain open; do not treat this branch as finally frozen.
 
@@ -322,7 +322,7 @@ The five concrete element models will implement the shared domain `DynamicElemen
 **Next valid action:** open the separate implementation gate, then implement only the frozen file-by-file scope. Until then, do not change source. After implementation, run the frozen JVM test/compile matrix, inspect the complete diff, and update implementation status only from actual results.
 
 
-## 16. Element registry simplification — current work item (2026-10-13)
+## 16. Historical Element registry simplification — superseded for current work (2026-10-13)
 
 **Decision:** `DYNAMIC-REGISTRY-ELEMENT-SIMPLIFICATION-001`  
 **State:** PLAN FROZEN; SIMPLIFICATION SOURCE CHANGES NOT STARTED; VERIFICATION NOT RUN
@@ -337,4 +337,35 @@ Frozen intended changes:
 - Keep the five concrete data mappers and `ElementMapperSupport` unchanged in this registry work item; mapper helper design is separate from renderer registry design.
 - Keep content registry/rendering, backend mapping semantics, and all unrelated Dynamic architecture unchanged.
 
-Next valid action: implement only the file-by-file scope in implementation plan section 22.28, then run its focused tests, full JVM matrix, compile tasks, and final diff review. Do not mark implementation complete or frozen before actual verification.
+Historical next step when this record was written: implement section 22.28. That step is superseded for the current task by section 17 and implementation plan section 22.30; do not execute section 22.28 as the current target. Do not mark implementation complete or frozen before actual verification.
+
+
+## 17. Dynamic registry, action-effect, and presentation amendment — revised plan frozen (2026-10-13)
+
+**Decision:** `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001`  
+**Branch:** `feature/dynamic-ui`  
+**State:** COMPLETE PLAN FROZEN; DOCUMENTATION RECONCILIATION COMPLETE; SOURCE-PATH VERIFICATION REQUIRED; SOURCE IMPLEMENTATION NOT STARTED; TESTS NOT RUN
+
+### Owner-approved registry contract
+
+- All six registries—Template, Component, Section, Group, Element, and Content—use concrete model-class identity for registration and lookup.
+- All six renderer contracts are generic and typed: `TemplateRenderer<T>`, `ComponentRenderer<T>`, `SectionRenderer<T>`, `GroupRenderer<T>`, `ElementRenderer<T : DynamicElement>`, and `ElementContentRenderer<T : ElementContent>`.
+- The six category registries remain separate. No universal registry or new Template/Component/Section/Group domain hierarchy is introduced solely for generic rendering.
+- Typed adapters confine unavoidable type erasure/casts at the registry boundary. Concrete renderers receive their concrete model type.
+- Existing supported models are explicitly registered; backend string type mapping remains in `:data`. No central concrete-type dispatch is added to `DynamicRenderContext`.
+
+### Action and presentation contract
+
+- Action sequences aggregate ordered effects and state changes. State changes flow step-to-step; a later Completed/state-only result does not erase earlier effects; real failures stop the sequence.
+- Store effect delivery and UI consumption preserve order without lossy send paths or cancellation of earlier effects.
+- `present` is a modal distinct from navigation push. One active presentation is allowed; the underlying entry/Store remains intact; the presentation has its own entry/Store; a second active presentation is rejected deterministically; dismiss/back prioritizes the active presentation.
+- Existing navigation Push/Replace/Pop, request repository boundary, external URI launcher, DynamicValue/reference semantics, backend-owned visual properties, content-owned spacing, no-ViewModel rule, and no-duplicate-infrastructure rule remain unchanged.
+
+### Documentation authority and supersession
+
+- Architecture: `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 24.
+- Exact file-by-file implementation plan, tests, and stop conditions: `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30.
+- This revised decision supersedes conflicting registry-key requirements in earlier records. Historical decisions remain for traceability.
+- Source implementation and tests have not started. Verify actual renderer paths and current declarations before source edits; do not guess filenames or create duplicate renderer files.
+- Work only on `feature/dynamic-ui`; no new branches, no backend edits, and no work on the separate Element mapper consolidation.
+- Do not claim implementation, tests, builds, visual review, or final freeze until they are actually completed and audited.
