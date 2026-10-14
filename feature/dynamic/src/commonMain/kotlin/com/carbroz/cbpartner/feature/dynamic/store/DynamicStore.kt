@@ -29,13 +29,6 @@ sealed interface DynamicIntent {
     data class ValueChanged(val key: String, val value: DynamicValue) : DynamicIntent
 }
 
-sealed interface DynamicEffect {
-    data class ExternalUri(val uri: String) : DynamicEffect
-    data class Navigation(val destination: DynamicDestination?, val operation: DynamicActionResult.NavigationOperation) : DynamicEffect
-    data class Presentation(val destination: DynamicDestination) : DynamicEffect
-    data object Dismiss : DynamicEffect
-}
-
 sealed interface DynamicState {
     data object Initial : DynamicState
     data object Loading : DynamicState
@@ -55,7 +48,7 @@ class DynamicStore(
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
 
-    private val _effects = Channel<DynamicEffect>(Channel.BUFFERED)
+    private val _effects = Channel<DynamicActionEffect>(Channel.BUFFERED)
     val effects = _effects.receiveAsFlow()
 
     private var loadJob: Job? = null
@@ -139,20 +132,10 @@ class DynamicStore(
 
     private suspend fun applyActionResult(result: DynamicActionResult) {
         runtimeState.setAll(result.stateChanges)
-        result.effects.forEach { effect ->
-            when (effect) {
-                is DynamicActionEffect.Navigate ->
-                    emitEffect(DynamicEffect.Navigation(effect.destination, effect.operation))
-                is DynamicActionEffect.Present ->
-                    emitEffect(DynamicEffect.Presentation(effect.destination))
-                DynamicActionEffect.Dismiss -> emitEffect(DynamicEffect.Dismiss)
-                is DynamicActionEffect.ExternalUri ->
-                    emitEffect(DynamicEffect.ExternalUri(effect.uri))
-            }
-        }
+        result.effects.forEach(::emitEffect)
     }
 
-    private suspend fun emitEffect(effect: DynamicEffect) {
+    private suspend fun emitEffect(effect: DynamicActionEffect) {
         try {
             _effects.send(effect)
         } catch (_: ClosedSendChannelException) {
