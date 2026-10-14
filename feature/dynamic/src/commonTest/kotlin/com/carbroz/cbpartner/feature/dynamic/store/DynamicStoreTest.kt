@@ -6,6 +6,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.ExternalUriActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
@@ -139,7 +140,7 @@ class DynamicStoreTest {
             runtimeState = DynamicRuntimeState(),
             scope = CoroutineScope(dispatcher),
         )
-        val delivered = mutableListOf<DynamicEffect>()
+        val delivered = mutableListOf<DynamicActionEffect>()
         val collector = launch(dispatcher) {
             store.effects.take(2).toList(delivered)
         }
@@ -179,7 +180,7 @@ class DynamicStoreTest {
 
         assertContentEquals(
             listOf(
-                DynamicEffect.ExternalUri("https://one.example"),
+                DynamicActionEffect.ExternalUri("https://one.example"),
                 DynamicEffect.ExternalUri("https://two.example"),
             ),
             delivered,
