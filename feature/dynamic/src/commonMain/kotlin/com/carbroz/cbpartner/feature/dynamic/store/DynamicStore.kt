@@ -1,7 +1,9 @@
 package com.carbroz.cbpartner.feature.dynamic.store
 
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
@@ -28,7 +30,9 @@ sealed interface DynamicIntent {
 
 sealed interface DynamicEffect {
     data class ExternalUri(val uri: String) : DynamicEffect
-    data class Navigation(val result: DynamicActionResult.Navigate) : DynamicEffect
+    data class Navigation(val destination: DynamicDestination?, val operation: DynamicActionResult.NavigationOperation) : DynamicEffect
+    data class Presentation(val destination: DynamicDestination) : DynamicEffect
+    data object Dismiss : DynamicEffect
 }
 
 sealed interface DynamicState {
@@ -110,36 +114,61 @@ class DynamicStore(
 
         if (actionJob?.isActive == true) return
         actionJob = scope.launch {
-            actionExecutor.execute(
+            val result = actionExecutor.execute(
                 action = action,
                 bindings = current.bindings,
                 context = contextProvider(),
                 state = runtimeState.values.value,
-            ).onSuccess(::applyActionResult)
-                .onFailure { error ->
-                    val screen = currentScreen() ?: current
-                    _state.value = DynamicState.Failure(
-                        error.message ?: "Unable to execute dynamic action",
-                        screen,
-                    )
-                }
+            )
+            if (result.isSuccess) {
+                applyActionResult(result.getOrThrow())
+            } else {
+                val error = result.exceptionOrNull()
+                val screen = currentScreen() ?: current
+                _state.value = DynamicState.Failure(
+                    error?.message ?: "Unable to execute dynamic action",
+                    screen,
+                )
+            }
         }
     }
 
     private fun requiresValidation(action: DynamicAction): Boolean =
         (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
 
-    private fun applyActionResult(result: DynamicActionResult) {
+    private suspend fun applyActionResult(result: DynamicActionResult) {
         when (result) {
             DynamicActionResult.Completed -> Unit
             is DynamicActionResult.StateChanged -> runtimeState.setAll(result.changes)
             is DynamicActionResult.Navigate -> {
                 runtimeState.setAll(result.stateChanges)
-                _effects.trySend(DynamicEffect.Navigation(result))
+                _effects.send(DynamicEffect.Navigation(result.destination, result.operation))
+            }
+            is DynamicActionResult.Present -> {
+                runtimeState.setAll(result.stateChanges)
+                _effects.send(DynamicEffect.Presentation(result.destination))
+            }
+            is DynamicActionResult.Dismiss -> {
+                runtimeState.setAll(result.stateChanges)
+                _effects.send(DynamicEffect.Dismiss)
             }
             is DynamicActionResult.ExternalUri -> {
                 runtimeState.setAll(result.stateChanges)
-                _effects.trySend(DynamicEffect.ExternalUri(result.uri))
+                _effects.send(DynamicEffect.ExternalUri(result.uri))
+            }
+            is DynamicActionResult.Sequence -> {
+                runtimeState.setAll(result.stateChanges)
+                result.effects.forEach { effect ->
+                    when (effect) {
+                        is DynamicActionEffect.Navigate ->
+                            _effects.send(DynamicEffect.Navigation(effect.destination, effect.operation))
+                        is DynamicActionEffect.Present ->
+                            _effects.send(DynamicEffect.Presentation(effect.destination))
+                        DynamicActionEffect.Dismiss -> _effects.send(DynamicEffect.Dismiss)
+                        is DynamicActionEffect.ExternalUri ->
+                            _effects.send(DynamicEffect.ExternalUri(effect.uri))
+                    }
+                }
             }
         }
     }
@@ -153,7 +182,6 @@ class DynamicStore(
     private fun reduce(screen: DynamicScreenState) {
         _state.value = DynamicState.Success(screen)
     }
-
 
     fun close() {
         loadJob?.cancel()
