@@ -11,16 +11,19 @@ class StackTemplateMapper(
 ) : TemplateTypeMapper {
     override val type: String = "stack_template"
 
-    override fun map(dto: DynamicTemplateDto) = StackTemplate(
+    override fun map(dto: DynamicTemplateDto): StackTemplate {
+        val layout = values.templateLayout(dto.properties)
+        return StackTemplate(
         id = dto.id,
         type = dto.type,
-        orientation = values.string(dto.properties, "orientation") ?: "vertical",
-        verticalArrangement = values.verticalArrangement(dto.properties),
-        horizontalArrangement = values.horizontalArrangement(dto.properties),
-        horizontalAlignment = values.horizontalAlignment(dto.properties),
-        verticalAlignment = values.verticalAlignment(dto.properties),
-        padding = values.padding(dto.properties),
-        fillMaxSize = values.boolean(dto.properties, "fillMaxSize") ?: false,
+        orientation = layout.orientation,
+        verticalArrangement = layout.verticalArrangement,
+        horizontalArrangement = layout.horizontalArrangement,
+        horizontalAlignment = layout.horizontalAlignment,
+        verticalAlignment = layout.verticalAlignment,
+        padding = layout.padding,
+        fillMaxSize = layout.fillMaxSize,
         components = dto.components.map(components::map),
     )
+    }
 }
