@@ -4,6 +4,7 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
+import kotlinx.coroutines.CancellationException
 
 class DynamicActionExecutor(
     handlers: List<DynamicActionHandler>,
@@ -11,6 +12,7 @@ class DynamicActionExecutor(
     private val handlersByType: Map<String, DynamicActionHandler> = buildMap {
         handlers.forEach { handler ->
             val key = handler.type.trim().lowercase()
+            require(key.isNotEmpty()) { "Dynamic action handler type must not be blank" }
             check(put(key, handler) == null) {
                 "Duplicate dynamic action handler: " + handler.type
             }
@@ -22,8 +24,12 @@ class DynamicActionExecutor(
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
-    ): Result<DynamicActionResult> = runCatching {
-        executeInternal(action, bindings, context, state, depth = 0)
+    ): Result<DynamicActionResult> = try {
+        Result.success(executeInternal(action, bindings, context, state, depth = 0))
+    } catch (cancellation: CancellationException) {
+        throw cancellation
+    } catch (failure: Exception) {
+        Result.failure(failure)
     }
 
     private suspend fun executeInternal(
