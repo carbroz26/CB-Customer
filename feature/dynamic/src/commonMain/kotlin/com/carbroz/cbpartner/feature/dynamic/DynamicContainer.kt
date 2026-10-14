@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
-import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.renderer.DynamicRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
@@ -24,7 +23,7 @@ import com.carbroz.cbpartner.feature.dynamic.store.DynamicState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collect
 
 @Composable
 fun DynamicContainer(
@@ -50,10 +49,12 @@ fun DynamicContainer(
     }
 
     LaunchedEffect(store) {
-        store.effects.collectLatest { effect ->
+        store.effects.collect { effect ->
             when (effect) {
                 is DynamicEffect.ExternalUri -> uriHandler.openUri(effect.uri)
-                is DynamicEffect.Navigation -> applyNavigation(effect.result, navigation)
+                is DynamicEffect.Navigation -> applyNavigation(effect, navigation)
+                is DynamicEffect.Presentation -> navigation.present(effect.destination)
+                DynamicEffect.Dismiss -> navigation.dismissPresentation() || navigation.pop()
             }
         }
     }
@@ -82,15 +83,15 @@ fun DynamicContainer(
 }
 
 private fun applyNavigation(
-    result: DynamicActionResult.Navigate,
+    effect: DynamicEffect.Navigation,
     navigation: DynamicNavigationState,
 ) {
-    when (result.operation) {
-        DynamicActionResult.NavigationOperation.Push ->
-            result.destination?.let(navigation::push)
-        DynamicActionResult.NavigationOperation.Replace ->
-            result.destination?.let(navigation::replace)
-        DynamicActionResult.NavigationOperation.Pop ->
-            navigation.pop()
+    when (effect.operation) {
+        com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult.NavigationOperation.Push ->
+            effect.destination?.let(navigation::push)
+        com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult.NavigationOperation.Replace ->
+            effect.destination?.let(navigation::replace)
+        com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult.NavigationOperation.Pop ->
+            navigation.dismissPresentation() || navigation.pop()
     }
 }
