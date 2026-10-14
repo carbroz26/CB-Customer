@@ -138,38 +138,16 @@ class DynamicStore(
         (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
 
     private suspend fun applyActionResult(result: DynamicActionResult) {
-        when (result) {
-            DynamicActionResult.Completed -> Unit
-            is DynamicActionResult.StateChanged -> runtimeState.setAll(result.changes)
-            is DynamicActionResult.Navigate -> {
-                runtimeState.setAll(result.stateChanges)
-                emitEffect(DynamicEffect.Navigation(result.destination, result.operation))
-            }
-            is DynamicActionResult.Present -> {
-                runtimeState.setAll(result.stateChanges)
-                emitEffect(DynamicEffect.Presentation(result.destination))
-            }
-            is DynamicActionResult.Dismiss -> {
-                runtimeState.setAll(result.stateChanges)
-                emitEffect(DynamicEffect.Dismiss)
-            }
-            is DynamicActionResult.ExternalUri -> {
-                runtimeState.setAll(result.stateChanges)
-                emitEffect(DynamicEffect.ExternalUri(result.uri))
-            }
-            is DynamicActionResult.Sequence -> {
-                runtimeState.setAll(result.stateChanges)
-                result.effects.forEach { effect ->
-                    when (effect) {
-                        is DynamicActionEffect.Navigate ->
-                            emitEffect(DynamicEffect.Navigation(effect.destination, effect.operation))
-                        is DynamicActionEffect.Present ->
-                            emitEffect(DynamicEffect.Presentation(effect.destination))
-                        DynamicActionEffect.Dismiss -> emitEffect(DynamicEffect.Dismiss)
-                        is DynamicActionEffect.ExternalUri ->
-                            emitEffect(DynamicEffect.ExternalUri(effect.uri))
-                    }
-                }
+        runtimeState.setAll(result.stateChanges)
+        result.effects.forEach { effect ->
+            when (effect) {
+                is DynamicActionEffect.Navigate ->
+                    emitEffect(DynamicEffect.Navigation(effect.destination, effect.operation))
+                is DynamicActionEffect.Present ->
+                    emitEffect(DynamicEffect.Presentation(effect.destination))
+                DynamicActionEffect.Dismiss -> emitEffect(DynamicEffect.Dismiss)
+                is DynamicActionEffect.ExternalUri ->
+                    emitEffect(DynamicEffect.ExternalUri(effect.uri))
             }
         }
     }
