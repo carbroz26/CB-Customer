@@ -4,7 +4,6 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -68,9 +67,7 @@ class DynamicNavigationStateTest {
         val state = DynamicNavigationState(destination("root"))
         state.present(destination("firstModal"))
 
-        assertFailsWith<IllegalStateException> {
-            state.present(destination("secondModal"))
-        }
+        assertFalse(state.present(destination("secondModal")))
         assertEquals("firstModal", state.presentationEntry?.destination?.screenId)
     }
 
