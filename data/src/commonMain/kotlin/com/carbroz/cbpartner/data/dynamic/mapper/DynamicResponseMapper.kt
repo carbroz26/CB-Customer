@@ -1,5 +1,9 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
+import com.carbroz.cbpartner.data.dynamic.mapper.template.DefaultTemplateMapper
+import com.carbroz.cbpartner.data.dynamic.mapper.template.FormTemplateMapper
+import com.carbroz.cbpartner.data.dynamic.mapper.template.StackTemplateMapper
+import com.carbroz.cbpartner.data.dynamic.mapper.template.TemplateMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicDestinationDto
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.data.dynamic.model.screen.DynamicScreenDto
@@ -17,7 +21,13 @@ class DynamicResponseMapper(private val json: Json) {
     private val groups = GroupMapper(elementMapper, values)
     private val sections = SectionMapper(elementMapper, groups, values)
     private val components = ComponentMapper(elementMapper, sections, values)
-    private val templateMapper = TemplateMapper(components, values)
+    private val templateMapper = TemplateMapper(
+        listOf(
+            FormTemplateMapper(components, values),
+            StackTemplateMapper(components, values),
+            DefaultTemplateMapper(components, values),
+        ),
+    )
 
     fun map(dto: DynamicResponseDto): DynamicResponse {
         val data = dto.data
