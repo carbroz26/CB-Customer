@@ -206,6 +206,17 @@ class DynamicActionExecutorTest {
         val executor = DynamicActionExecutor(
             listOf(
                 object : DynamicActionHandler {
+                    override val type = "state"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.StateChanged(
+                        mapOf("nestedState" to DynamicValue.StringValue("retained")),
+                    )
+                },
+                object : DynamicActionHandler {
                     override val type = "navigate"
                     override suspend fun handle(
                         action: DynamicAction,
@@ -246,6 +257,9 @@ class DynamicActionExecutorTest {
                         "actions" to DynamicValue.ArrayValue(
                             listOf(
                                 DynamicValue.ObjectValue(
+                                    mapOf("type" to DynamicValue.StringValue("state")),
+                                ),
+                                DynamicValue.ObjectValue(
                                     mapOf("type" to DynamicValue.StringValue("external_uri")),
                                 ),
                                 DynamicValue.ObjectValue(
@@ -280,6 +294,10 @@ class DynamicActionExecutorTest {
         ).getOrThrow()
 
         val sequence = assertIs<DynamicActionResult.Sequence>(result)
+        assertEquals(
+            DynamicValue.StringValue("retained"),
+            sequence.stateChanges["nestedState"],
+        )
         assertEquals(
             listOf(
                 DynamicActionEffect.Navigate(
