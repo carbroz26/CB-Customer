@@ -2,12 +2,14 @@
 package com.carbroz.cbpartner.feature.dynamic.registry
 
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent as StackComponentModel
+import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent as DividerContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup as StackGroupModel
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection as StackSectionModel
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormTemplateModel
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
+import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.IconElement
@@ -30,6 +32,7 @@ class DynamicRegistryTest {
         val template = FormTemplateModel(id = "template")
         val textElement = TextElementModel(id = "text")
         val iconContent = IconContentModel(url = "https://example.com/icon.png")
+        val dividerContent = DividerContentModel()
 
         val registry = DynamicRegistry.builder()
             .template(FormTemplateModel::class, FormTemplate())
@@ -54,6 +57,7 @@ class DynamicRegistryTest {
                 IconElement(),
             )
             .content(IconContentModel::class, IconContent())
+            .content(DividerContentModel::class, DividerContent())
             .build()
 
         assertNotNull(registry.template(template))
@@ -62,6 +66,7 @@ class DynamicRegistryTest {
         assertNotNull(registry.group(StackGroupModel(id = "group")))
         assertNotNull(registry.element(textElement))
         assertNotNull(registry.content(iconContent))
+        assertNotNull(registry.content(dividerContent))
 
         val templateOnlyRegistry = DynamicRegistry.builder()
             .template(FormTemplateModel::class, FormTemplate())
@@ -70,6 +75,7 @@ class DynamicRegistryTest {
         assertNotNull(templateOnlyRegistry.template(template))
         assertNull(templateOnlyRegistry.element(textElement))
         assertNull(templateOnlyRegistry.content(iconContent))
+        assertNull(templateOnlyRegistry.content(dividerContent))
     }
 
     @Test
