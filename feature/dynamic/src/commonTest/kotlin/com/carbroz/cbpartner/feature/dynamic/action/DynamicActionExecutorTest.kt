@@ -75,6 +75,65 @@ class DynamicActionExecutorTest {
     }
 
     @Test
+    fun sequenceAggregatesOverlappingDottedPathsToItsFinalState() = runTest {
+        val executor = DynamicActionExecutor(
+            listOf(object : DynamicActionHandler {
+                override val type = "set"
+                override suspend fun handle(
+                    action: DynamicAction,
+                    bindings: Map<String, DynamicValue>,
+                    context: Map<String, DynamicValue>,
+                    state: Map<String, DynamicValue>,
+                ): DynamicActionResult = DynamicActionResult.StateChanged(
+                    mapOf(
+                        (action.payload["path"] as DynamicValue.StringValue).value to
+                            (action.payload["value"] ?: DynamicValue.NullValue),
+                    ),
+                )
+            }),
+        )
+
+        fun set(path: String, value: DynamicValue) = DynamicValue.ObjectValue(
+            mapOf(
+                "type" to DynamicValue.StringValue("set"),
+                "payload" to DynamicValue.ObjectValue(
+                    mapOf(
+                        "path" to DynamicValue.StringValue(path),
+                        "value" to value,
+                    ),
+                ),
+            ),
+        )
+
+        val result = executor.execute(
+            action = DynamicAction(
+                type = "sequence",
+                payload = mapOf(
+                    "actions" to DynamicValue.ArrayValue(
+                        listOf(
+                            set("profile.name", DynamicValue.StringValue("first")),
+                            set("profile", DynamicValue.StringValue("replacement")),
+                            set("profile.name", DynamicValue.StringValue("final")),
+                        ),
+                    ),
+                ),
+            ),
+            bindings = emptyMap(),
+            context = emptyMap(),
+            state = emptyMap(),
+        ).getOrThrow()
+
+        val finalState = com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState.applyChanges(
+            emptyMap(),
+            result.stateChanges,
+        )
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("name" to DynamicValue.StringValue("final"))),
+            finalState["profile"],
+        )
+    }
+
+    @Test
     fun sequencePreservesStateWhenFinalActionCompletes() = runTest {
         val executor = DynamicActionExecutor(
             listOf(
