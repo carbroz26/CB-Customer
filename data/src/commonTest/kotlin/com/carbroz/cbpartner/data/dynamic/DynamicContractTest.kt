@@ -52,8 +52,11 @@ class DynamicContractTest {
         assertEquals("https://backend.example/assets/arrow-forward.png", assertIs<IconContent>(submit.trailingContent.single()).url)
         assertEquals("https://backend.example/assets/fallback.png", assertIs<IconContent>(submit.trailingContent.single()).fallbackUrl)
 
+        val header = assertIs<com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent>(
+            screen.template.components.first { it is com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent && it.id == "header" },
+        )
         val title = assertIs<TextElement>(
-            screen.template.components.first { it.id == "header" }.elements
+            header.elements
                 .first { it is TextElement && it.text == "Welcome" },
         )
         val leadingIcon = assertIs<IconContent>(title.leadingContent.single())
