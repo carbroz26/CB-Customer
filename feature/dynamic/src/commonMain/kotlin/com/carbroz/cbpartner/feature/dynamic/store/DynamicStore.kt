@@ -1,6 +1,5 @@
 package com.carbroz.cbpartner.feature.dynamic.store
 
-import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
