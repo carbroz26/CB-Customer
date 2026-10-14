@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
+import com.carbroz.cbpartner.data.dynamic.mapper.content.ElementContentMapper
 import com.carbroz.cbpartner.data.dynamic.model.element.DynamicElementDto
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
@@ -10,15 +11,13 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicTextSpan
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
 class ElementMapper(
-    private val json: Json,
     private val values: DynamicValueMapper,
+    private val actionMapper: DynamicActionMapper,
+    private val contentMapper: ElementContentMapper,
 ) {
-    private val actionMapper = DynamicActionMapper(values)
-    private val contentMapper = ElementContentMapper(json, values, actionMapper)
 
     fun map(element: DynamicElementDto): DynamicElement = when (element.type) {
         "text" -> mapText(element)
