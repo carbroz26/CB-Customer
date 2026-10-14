@@ -4,39 +4,60 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 
 sealed interface DynamicActionResult {
-    data object Completed : DynamicActionResult
+    val stateChanges: Map<String, DynamicValue>
+    val effects: List<DynamicActionEffect>
+
+    data object Completed : DynamicActionResult {
+        override val stateChanges: Map<String, DynamicValue> = emptyMap()
+        override val effects: List<DynamicActionEffect> = emptyList()
+    }
 
     data class Navigate(
         val destination: DynamicDestination? = null,
         val operation: NavigationOperation = NavigationOperation.Push,
-        val stateChanges: Map<String, DynamicValue> = emptyMap(),
-    ) : DynamicActionResult
+        override val stateChanges: Map<String, DynamicValue> = emptyMap(),
+    ) : DynamicActionResult {
+        override val effects: List<DynamicActionEffect>
+            get() = listOf(DynamicActionEffect.Navigate(destination, operation))
+    }
 
     data class Present(
         val destination: DynamicDestination,
-        val stateChanges: Map<String, DynamicValue> = emptyMap(),
-    ) : DynamicActionResult
+        override val stateChanges: Map<String, DynamicValue> = emptyMap(),
+    ) : DynamicActionResult {
+        override val effects: List<DynamicActionEffect>
+            get() = listOf(DynamicActionEffect.Present(destination))
+    }
 
     data class Dismiss(
-        val stateChanges: Map<String, DynamicValue> = emptyMap(),
-    ) : DynamicActionResult
+        override val stateChanges: Map<String, DynamicValue> = emptyMap(),
+    ) : DynamicActionResult {
+        override val effects: List<DynamicActionEffect> = listOf(DynamicActionEffect.Dismiss)
+    }
 
     data class ExternalUri(
         val uri: String,
-        val stateChanges: Map<String, DynamicValue> = emptyMap(),
-    ) : DynamicActionResult
+        override val stateChanges: Map<String, DynamicValue> = emptyMap(),
+    ) : DynamicActionResult {
+        override val effects: List<DynamicActionEffect>
+            get() = listOf(DynamicActionEffect.ExternalUri(uri))
+    }
 
     data class StateChanged(
         val changes: Map<String, DynamicValue>,
-    ) : DynamicActionResult
+    ) : DynamicActionResult {
+        override val stateChanges: Map<String, DynamicValue>
+            get() = changes
+        override val effects: List<DynamicActionEffect> = emptyList()
+    }
 
     /**
      * Result of a sequence. State changes are reduced once, while effects retain
      * execution order and are delivered independently by the Store.
      */
     data class Sequence(
-        val stateChanges: Map<String, DynamicValue>,
-        val effects: List<DynamicActionEffect>,
+        override val stateChanges: Map<String, DynamicValue>,
+        override val effects: List<DynamicActionEffect>,
     ) : DynamicActionResult
 
     enum class NavigationOperation {
