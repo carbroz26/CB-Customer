@@ -584,3 +584,12 @@ Preserve DynamicValue/reference semantics, element validation/binding/actions, c
 - Perform a deep source/reference/diff audit before running tests; run tests last.
 - Work only on `feature/dynamic-ui`; no new branches or backend changes.
 - Keep implementation status/final freeze unchanged until verification passes.
+
+
+## DYNAMIC-TEMPLATE-MAPPER-EXTENSIBILITY-001 — Generalized template contract and category-specific concrete mappers
+
+**State:** OWNER-APPROVED; PLAN FROZEN; IMPLEMENTATION AUTHORIZED — verification pending.  
+**Owner decision:** Option B — generalize `DynamicScreen.template` to `DynamicTemplate` and support backend-defined concrete templates `form_template`, `stack_template`, and `default_template`.  
+**Authority:** `docs/dynamic/DYNAMIC-ARCHITECTURE.md` section 25 and `docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.32.
+
+The owner requires mapper packages per category (template, component, section, group, element, content), with one concrete mapper per type. Category dispatchers receive explicit type-mapper registrations and must not accumulate per-type branches. A single composition factory performs explicit mapper registration; no reflection or automatic classpath discovery is allowed. This amendment supersedes only the FormTemplate-only restriction in the earlier DTO plan. The six renderer registries remain separate. Source implementation and tests are pending until the approved source changes are complete and deeply audited.

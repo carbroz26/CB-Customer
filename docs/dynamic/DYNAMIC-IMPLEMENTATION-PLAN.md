@@ -1127,3 +1127,63 @@ No changes are planned to `:core`, `:network`, `:domain`, `:navigation`, `:featu
 Stop implementation and report if source reconciliation reveals unlisted consumers; typed DTO decoding changes existing tolerant behavior or backend field handling; generic DTOs require domain hierarchy changes; the existing mapper composition/DI contract must change; current backend payload shape differs from the fixtures; or the work overlaps an unrelated frozen task. Resolve any conflict before expanding scope.
 
 **Frozen state:** the project owner explicitly froze section 22.31 and authorized implementation on 2026-10-14. Implement only the listed files; deep-audit all source changes before running tests. Status/final freeze remains gated on actual verification.
+
+
+### 22.32 Extensible concrete mapper categories and template polymorphism — PLAN FROZEN / IMPLEMENTATION AUTHORIZED (2026-10-14)
+
+**Decision:** `DYNAMIC-TEMPLATE-MAPPER-EXTENSIBILITY-001`  
+**Owner decision:** Option B explicitly selected: generalize `DynamicScreen.template` to the existing `DynamicTemplate` contract and support multiple concrete template types.  
+**Branch:** `feature/dynamic-ui`  
+**Status:** Plan frozen for this scope; source implementation and verification pending.
+
+#### 22.32.1 Current-source findings
+
+The DTO migration in section 22.31 is present on the branch. However, the mapping layer remains centralized in root-level `TemplateMapper`, `ComponentMapper`, `SectionMapper`, `GroupMapper`, `ElementMapper`, and `ElementContentMapper`; `ElementMapper` still owns the concrete mapping functions for five element types. The domain already has a `DynamicTemplate` interface, but `DynamicScreen.template` and `TemplateMapper.map` are restricted to `FormTemplate`. The backend SDUI engine on `development` defines `form_template`, `stack_template`, and `default_template`.
+
+#### 22.32.2 Frozen contract
+
+- Generalize `DynamicScreen.template` from `FormTemplate` to `DynamicTemplate`. The interface must expose `id`, `type`, and ordered `components` so screen/destination identity validation remains type-independent.
+- Add distinct domain models and concrete renderer implementations for the backend-defined `StackTemplate` and `DefaultTemplate`; preserve the current `FormTemplate`. Share template layout rendering where practical instead of copying three renderer bodies.
+- Add separate concrete mapper classes: `FormTemplateMapper`, `StackTemplateMapper`, `DefaultTemplateMapper`; `StackComponentMapper`; `StackSectionMapper`; `StackGroupMapper`; one mapper each for Text, Image, Input, Button, and Icon; one mapper each for IconContent and DividerContent.
+- Organize mapper code into `mapper/template`, `mapper/component`, `mapper/section`, `mapper/group`, `mapper/element`, and `mapper/content`. Keep `DynamicResponseMapper`, `DynamicValueMapper`, and shared action mapping in the root mapper package.
+- Each category dispatcher receives a collection of its category-specific mapper contract, validates duplicate type registrations deterministically, and dispatches by the backend type. Adding a concrete mapper must not require editing that dispatcher's branches or any unrelated concrete mapper.
+- Register concrete mappers explicitly in one mapper composition factory. No reflection, classpath scanning, universal cross-category mapper, or automatic discovery claims. Adding a new concrete type requires adding its mapper and one explicit composition registration, its domain model and renderer where applicable, one renderer registration, and tests.
+- Preserve current mapping defaults, errors for unsupported types, typed DynamicValue/reference semantics, tolerant malformed content handling, actions, bindings, validation, assets, content spacing, destination behavior, and backend JSON.
+- Keep shared domain models under `domain/model/dynamic` and its category subpackages. Do not move root response/screen/request contracts into concrete-type packages. Do not add a second generic domain hierarchy.
+
+#### 22.32.3 Approved file scope
+
+**Domain**
+- Modify `domain/model/dynamic/template/DynamicTemplate.kt` and `FormTemplate.kt`.
+- Create `domain/model/dynamic/template/StackTemplate.kt` and `DefaultTemplate.kt`.
+- Modify `domain/model/dynamic/DynamicScreen.kt` to accept `DynamicTemplate`.
+
+**Data mapper organization**
+- Move category dispatchers into the matching `mapper/<category>` packages.
+- Create per-type mapper files for all currently supported template/component/section/group/element/content types listed in 22.32.2.
+- Create one explicit `DynamicMapperFactory` to wire the category mapper lists without embedding concrete type branches in category dispatchers.
+- Keep the current generic DTOs from 22.31; do not add concrete DTO classes.
+- Update `DynamicResponseMapper` to use the generalized template dispatcher while retaining a simple constructor usable by existing callers/tests.
+- Update all imports and tests to the new package paths. Remove old root category mapper files after reference reconciliation.
+
+**Rendering/registration**
+- Modify `DynamicLayout.kt` to apply common template layout from the `DynamicTemplate` contract.
+- Add one shared template layout composable used by Form, Stack, and Default template renderers.
+- Create `sdui/template/StackTemplate.kt` and `DefaultTemplate.kt`; preserve the existing Form renderer.
+- Update `DynamicRendererRegistration.kt` with explicit registrations for the three supported template models/renderers.
+- Keep the six independent registries and their existing typed registration/lookup contracts.
+
+**Tests**
+- Update data mapper tests for all three template types, existing supported category mappings, duplicate type-mapper registration, unknown type diagnostics, and generic DTO decoding.
+- Update renderer registry tests to register and look up all three template models independently.
+- Preserve all existing generic hierarchy, element/content, action, binding, validation, asset, spacing, and destination assertions.
+
+#### 22.32.4 Pre-test source audit and verification gates
+
+Before running tests, inspect the complete source diff and all current call sites. Verify no stale imports, no remaining root-level category mapper classes, no duplicated per-type dispatch branches, no reflection or universal mapper, no lost properties/defaults, and no changes to backend/network/navigation/action contracts. Confirm `DynamicRenderer` compares the generic template's `id` and `type` against the destination. Tests must be run only after implementation and the deep source audit are complete, as explicitly requested by the owner.
+
+After audit, run the focused data tests, then `:core:jvmTest :domain:jvmTest :data:jvmTest :navigation:jvmTest :feature:splash:jvmTest :feature:dynamic:jvmTest`, applicable JVM compilation tasks, and `git diff --check`. Do not update implementation status or claim final freeze until actual results pass.
+
+#### 22.32.5 Stop conditions
+
+Stop and report if backend-defined template properties cannot be represented without a new contract decision, if a source consumer requires incompatible concrete template assumptions, if the existing renderer registry cannot register the three types under the frozen contract, or if preserving current mapping behavior requires changing backend JSON. Do not broaden into unrelated architecture or backend work.

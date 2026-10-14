@@ -547,3 +547,19 @@ Audit source and contract alignment across all six registries and renderers; DTO
 Preserve the four supported reference namespaces, no `$response`, no ViewModel, no Dynamic-specific HTTP client/navigation cache, no business-specific Login/OTP models, backend-owned assets/visual properties, content-owned `DynamicSpacing`, and existing behavior outside the explicitly approved scope.
 
 The exact file-by-file execution plan, tests, and stop conditions are frozen in `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation must be reconciled and the plan explicitly frozen before source implementation. If source paths or contracts differ, stop and reconcile before changing source.
+
+
+## 25. Extensible concrete template and mapper categories — owner-approved amendment (2026-10-14)
+
+**Decision:** `DYNAMIC-TEMPLATE-MAPPER-EXTENSIBILITY-001`  
+**State:** OWNER-APPROVED; implementation authorized; source verification and tests pending  
+**Supersedes:** Only the clauses in sections 24 and 22.31 that restrict `DynamicScreen.template` to `FormTemplate` or limit mapping to one concrete type per category. The six renderer registries remain independent and explicitly registered.
+
+- `DynamicScreen.template` uses the existing `DynamicTemplate` domain contract. The contract exposes stable `id`, backend `type`, and ordered `components`; concrete template models retain their own properties.
+- Support backend-defined `form_template`, `stack_template`, and `default_template` as distinct concrete domain models, mappers, and renderers. These types are confirmed by the backend SDUI engine definitions; do not invent additional template types.
+- Organize `:data` mappers into category packages: `mapper/template`, `mapper/component`, `mapper/section`, `mapper/group`, `mapper/element`, and `mapper/content`. Keep each concrete mapper in its own file; category mapper dispatchers accept explicitly supplied type-mapper collections and must not grow a `when` branch per concrete type.
+- Compose concrete mapper registrations in the existing Dynamic mapper composition boundary. No reflection or classpath scanning. Adding a concrete type requires a new model/mapper/renderer and explicit composition/renderer registration, but does not require editing the category dispatcher or unrelated concrete mappers.
+- Keep common `DynamicActionMapper`, `DynamicValueMapper`, and `DynamicResponseMapper` responsibilities separate. Do not duplicate action/value/reference logic across concrete mappers.
+- Keep domain contracts and concrete domain models under `domain/model/dynamic` by category. Keep `DynamicScreen`, `DynamicRequest`, and `DynamicResponse` at the Dynamic model root. Do not add a second generic model hierarchy or change backend wire contracts.
+- This amendment is limited to the template polymorphism and category-mapper organization. Preserve the six independent renderer registries, current element/content behavior, destination identity validation, and existing DTO compatibility. No test/build result is implied by this decision record.
+- Exact file scope and required verification are in `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.32.
