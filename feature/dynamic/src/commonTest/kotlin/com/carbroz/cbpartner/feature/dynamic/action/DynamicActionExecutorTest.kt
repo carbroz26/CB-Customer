@@ -173,10 +173,14 @@ class DynamicActionExecutorTest {
             emptyMap(),
         ).getOrThrow()
 
-        val external = assertIs<DynamicActionResult.ExternalUri>(result)
+        val sequence = assertIs<DynamicActionResult.Sequence>(result)
         assertEquals(
             DynamicValue.StringValue("retained"),
-            external.stateChanges["reference"],
+            sequence.stateChanges["reference"],
+        )
+        assertEquals(
+            listOf(DynamicActionEffect.ExternalUri("https://example.com")),
+            sequence.effects,
         )
     }
 
