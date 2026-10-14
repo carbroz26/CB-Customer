@@ -126,6 +126,32 @@ class DynamicStoreTest {
     }
 
     @Test
+    fun effectHandlerFailureUsesFailureStateAndPreservesCurrentScreen() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
+        }
+        val store = store(
+            DynamicNavigationEntry(destination("current")),
+            repository,
+            DynamicRuntimeState(),
+            dispatcher,
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        val currentScreen = assertIs<DynamicState.Success>(store.state.value).screen
+
+        store.accept(DynamicIntent.EffectFailed("Unable to open external URI"))
+
+        val failure = assertIs<DynamicState.Failure>(store.state.value)
+        assertEquals("Unable to open external URI", failure.message)
+        assertEquals(currentScreen, failure.screen)
+        store.close()
+    }
+
+    @Test
     fun sequenceEffectsAreDeliveredInOrder() = runTest {
         val dispatcher = UnconfinedTestDispatcher(testScheduler)
         val repository = object : DynamicRepository {
