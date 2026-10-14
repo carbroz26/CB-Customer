@@ -89,16 +89,68 @@ class DynamicActionExecutor(
             effects += result.effects
         }
 
-        // Emit the final root-level delta, not a path map merged by first insertion order.
-        // Overlapping paths (for example a.b, then a, then a.b) cannot be faithfully
-        // replayed from a normal Map<String, DynamicValue> of the original path changes.
-        val stateChanges = sequenceState.filter { (key, value) -> initialState[key] != value }
+        // Derive a canonical path delta from the actual final state. This preserves dotted
+        // paths for nested updates while avoiding replay-order bugs for overlapping paths.
+        val stateChanges = stateDelta(initialState, sequenceState)
 
         return when {
             effects.isNotEmpty() -> DynamicActionResult.Sequence(stateChanges, effects)
             stateChanges.isNotEmpty() -> DynamicActionResult.StateChanged(stateChanges)
             else -> DynamicActionResult.Completed
         }
+    }
+
+    private fun stateDelta(
+        initialState: Map<String, DynamicValue>,
+        finalState: Map<String, DynamicValue>,
+    ): Map<String, DynamicValue> {
+        val changes = linkedMapOf<String, DynamicValue>()
+        finalState.forEach { (key, value) ->
+            collectStateDelta(
+                path = key,
+                before = initialState[key],
+                after = value,
+                beforeExists = initialState.containsKey(key),
+                changes = changes,
+            )
+        }
+        return changes
+    }
+
+    private fun collectStateDelta(
+        path: String,
+        before: DynamicValue?,
+        after: DynamicValue,
+        beforeExists: Boolean,
+        changes: MutableMap<String, DynamicValue>,
+    ) {
+        if (beforeExists && before == after) return
+
+        val beforeObject = before as? DynamicValue.ObjectValue
+        val afterObject = after as? DynamicValue.ObjectValue
+        if (afterObject != null && (!beforeExists || beforeObject != null)) {
+            // A changed key set must be replaced as one value: path deltas cannot express
+            // deleting an object member, while replaying child paths alone would retain it.
+            if (
+                afterObject.value.isEmpty() ||
+                (beforeObject != null && beforeObject.value.keys != afterObject.value.keys)
+            ) {
+                changes[path] = after
+                return
+            }
+            afterObject.value.forEach { (childKey, childValue) ->
+                collectStateDelta(
+                    path = "$path.$childKey",
+                    before = beforeObject?.value?.get(childKey),
+                    after = childValue,
+                    beforeExists = beforeObject?.value?.containsKey(childKey) == true,
+                    changes = changes,
+                )
+            }
+            return
+        }
+
+        changes[path] = after
     }
 
     private fun MutableMap<String, DynamicValue>.applyChanges(changes: Map<String, DynamicValue>) {
