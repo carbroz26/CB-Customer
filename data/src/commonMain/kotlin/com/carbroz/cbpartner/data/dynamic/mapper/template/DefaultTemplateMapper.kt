@@ -14,16 +14,16 @@ class DefaultTemplateMapper(
     override fun map(dto: DynamicTemplateDto): DefaultTemplate {
         val layout = values.templateLayout(dto.properties)
         return DefaultTemplate(
-        id = dto.id,
-        type = dto.type,
-        orientation = layout.orientation,
-        verticalArrangement = layout.verticalArrangement,
-        horizontalArrangement = layout.horizontalArrangement,
-        horizontalAlignment = layout.horizontalAlignment,
-        verticalAlignment = layout.verticalAlignment,
-        padding = layout.padding,
-        fillMaxSize = layout.fillMaxSize,
-        components = dto.components.map(components::map),
-    )
+            id = dto.id,
+            type = dto.type,
+            orientation = layout.orientation,
+            verticalArrangement = layout.verticalArrangement,
+            horizontalArrangement = layout.horizontalArrangement,
+            horizontalAlignment = layout.horizontalAlignment,
+            verticalAlignment = layout.verticalAlignment,
+            padding = layout.padding,
+            fillMaxSize = layout.fillMaxSize,
+            components = dto.components.map(components::map),
+        )
     }
 }
