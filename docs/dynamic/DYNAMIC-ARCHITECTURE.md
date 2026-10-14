@@ -527,6 +527,7 @@ The common generic adapter, model-class registry key, and extra key-validation s
 - Nested sequences preserve effect order and merge state changes deterministically. State changes from each step are applied before resolving/executing the next step. A genuine handler failure or invalid sequence structure fails the sequence and stops later actions; a terminal effect alone is not a failure or a reason to stop.
 - Preserve the finite sequence-depth guard, normalized handler names, duplicate-handler rejection, `back` alias to `dismiss`, unknown-action failure, existing repository request boundary, typed DynamicValue behavior, and explicit response retention.
 - The Store applies accumulated state changes and forwards all effects in order. Effect delivery must not use a lossy send path, and the UI consumer must not use cancellation semantics that drop earlier effects when a later effect arrives. Keep the queue bounded where practical and use a suspending/reliable delivery contract with deterministic close/failure behavior.
+- If UI handling of one delivered effect throws an ordinary exception, report it through the entry's existing DynamicState.Failure path and continue consuming later effects in order. Rethrow coroutine cancellation so normal lifecycle cancellation remains effective. Do not add a separate effect-consumer service, retry layer, or new reporting infrastructure.
 - Handlers return instructions only; they do not mutate navigation state, launch external URIs, or directly present UI.
 
 ### 24.3 Distinct modal presentation semantics
