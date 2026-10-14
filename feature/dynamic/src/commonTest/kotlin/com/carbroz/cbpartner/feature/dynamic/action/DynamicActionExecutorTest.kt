@@ -201,7 +201,7 @@ class DynamicActionExecutorTest {
     }
 
     @Test
-    fun nestedSequencePreservesNavigationAndExternalEffectsInOrder() = runTest {
+    fun nestedSequencePreservesAllEffectKindsAndStateChangesInOrder() = runTest {
         val destination = DynamicDestination("screen", "template", "form_template", "/screen")
         val executor = DynamicActionExecutor(
             listOf(
@@ -227,6 +227,24 @@ class DynamicActionExecutorTest {
                         destination,
                         DynamicActionResult.NavigationOperation.Push,
                     )
+                },
+                object : DynamicActionHandler {
+                    override val type = "present"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.Present(destination)
+                },
+                object : DynamicActionHandler {
+                    override val type = "dismiss"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.Dismiss()
                 },
                 object : DynamicActionHandler {
                     override val type = "external_uri"
@@ -260,7 +278,13 @@ class DynamicActionExecutorTest {
                                     mapOf("type" to DynamicValue.StringValue("state")),
                                 ),
                                 DynamicValue.ObjectValue(
+                                    mapOf("type" to DynamicValue.StringValue("present")),
+                                ),
+                                DynamicValue.ObjectValue(
                                     mapOf("type" to DynamicValue.StringValue("external_uri")),
+                                ),
+                                DynamicValue.ObjectValue(
+                                    mapOf("type" to DynamicValue.StringValue("dismiss")),
                                 ),
                                 DynamicValue.ObjectValue(
                                     mapOf("type" to DynamicValue.StringValue("noop")),
@@ -304,7 +328,9 @@ class DynamicActionExecutorTest {
                     destination,
                     DynamicActionResult.NavigationOperation.Push,
                 ),
+                DynamicActionEffect.Present(destination),
                 DynamicActionEffect.ExternalUri("https://example.com"),
+                DynamicActionEffect.Dismiss,
             ),
             sequence.effects,
         )
