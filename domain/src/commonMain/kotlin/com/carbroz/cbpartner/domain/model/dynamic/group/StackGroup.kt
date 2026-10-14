@@ -20,5 +20,5 @@ data class StackGroup(
     val background: DynamicBackground? = null,
     val border: DynamicBorder? = null,
     val shape: DynamicShape? = null,
-    val elements: List<DynamicElement> = emptyList(),
-)
+    override val elements: List<DynamicElement> = emptyList(),
+) : DynamicGroup

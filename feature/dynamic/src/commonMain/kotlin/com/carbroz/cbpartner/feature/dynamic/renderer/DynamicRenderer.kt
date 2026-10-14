@@ -1,4 +1,3 @@
-
 package com.carbroz.cbpartner.feature.dynamic.renderer
 
 import androidx.compose.foundation.layout.Box
@@ -8,9 +7,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.destination.DynamicDestination
-import com.carbroz.cbpartner.domain.model.dynamic.response.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
