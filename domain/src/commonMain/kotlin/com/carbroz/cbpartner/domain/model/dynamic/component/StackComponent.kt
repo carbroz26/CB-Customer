@@ -15,5 +15,5 @@ data class StackComponent(
     val padding: DynamicPadding? = null,
     val fillMaxWidth: Boolean = false,
     val elements: List<DynamicElement> = emptyList(),
-    override val sections: List<DynamicSection> = emptyList(),
-) : DynamicComponent
+    val sections: List<StackSection> = emptyList(),
+)

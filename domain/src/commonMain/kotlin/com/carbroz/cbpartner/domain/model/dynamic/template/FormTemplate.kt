@@ -15,5 +15,5 @@ data class FormTemplate(
     val padding: DynamicPadding? = null,
     val fillMaxSize: Boolean = false,
     val semanticRole: String? = null,
-    override val components: List<DynamicComponent> = emptyList(),
-) : DynamicTemplate
+    val components: List<StackComponent> = emptyList(),
+)

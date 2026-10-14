@@ -3,11 +3,8 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import androidx.compose.runtime.Composable
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
-import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
-import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 
@@ -32,7 +29,7 @@ class DynamicRenderContext(
         (resolve(properties[key] ?: return null) as? DynamicValue.BooleanValue)?.value
 
     @Composable
-    fun renderComponents(components: List<DynamicComponent>) {
+    fun <T : Any> renderComponents(components: List<T>) {
         components.forEach { component ->
             val renderer = registry.component(component)
                 ?: error(
@@ -43,7 +40,7 @@ class DynamicRenderContext(
     }
 
     @Composable
-    fun renderSections(sections: List<DynamicSection>) {
+    fun <T : Any> renderSections(sections: List<T>) {
         sections.forEach { section ->
             val renderer = registry.section(section)
                 ?: error(
@@ -54,7 +51,7 @@ class DynamicRenderContext(
     }
 
     @Composable
-    fun renderGroups(groups: List<DynamicGroup>) {
+    fun <T : Any> renderGroups(groups: List<T>) {
         groups.forEach { group ->
             val renderer = registry.group(group)
                 ?: error(

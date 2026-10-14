@@ -1,28 +1,24 @@
 package com.carbroz.cbpartner.feature.dynamic.registry
 
 import androidx.compose.runtime.Composable
-import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
-import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
-import com.carbroz.cbpartner.domain.model.dynamic.template.DynamicTemplate
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 
-fun interface TemplateRenderer<T : DynamicTemplate> {
+fun interface TemplateRenderer<T : Any> {
     @Composable
     fun render(template: T, context: DynamicRenderContext)
 }
 
-fun interface ComponentRenderer<T : DynamicComponent> {
+fun interface ComponentRenderer<T : Any> {
     @Composable fun render(component: T, context: DynamicRenderContext)
 }
 
-fun interface SectionRenderer<T : DynamicSection> {
+fun interface SectionRenderer<T : Any> {
     @Composable fun render(section: T, context: DynamicRenderContext)
 }
 
-fun interface GroupRenderer<T : DynamicGroup> {
+fun interface GroupRenderer<T : Any> {
     @Composable fun render(group: T, context: DynamicRenderContext)
 }
 

@@ -1,12 +1,8 @@
 
 package com.carbroz.cbpartner.feature.dynamic.registry
 
-import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
-import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
-import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
-import com.carbroz.cbpartner.domain.model.dynamic.template.DynamicTemplate
 import kotlin.reflect.KClass
 
 class DynamicRegistry private constructor(
@@ -17,16 +13,16 @@ class DynamicRegistry private constructor(
     private val elements: Map<KClass<*>, ElementRenderer<*>>,
     private val contents: Map<KClass<*>, ElementContentRenderer<*>>,
 ) {
-    fun <T : DynamicTemplate> template(model: T): TemplateRenderer<T>? =
+    fun <T : Any> template(model: T): TemplateRenderer<T>? =
         templates.lookup(model::class)
 
-    fun <T : DynamicComponent> component(model: T): ComponentRenderer<T>? =
+    fun <T : Any> component(model: T): ComponentRenderer<T>? =
         components.lookup(model::class)
 
-    fun <T : DynamicSection> section(model: T): SectionRenderer<T>? =
+    fun <T : Any> section(model: T): SectionRenderer<T>? =
         sections.lookup(model::class)
 
-    fun <T : DynamicGroup> group(model: T): GroupRenderer<T>? =
+    fun <T : Any> group(model: T): GroupRenderer<T>? =
         groups.lookup(model::class)
 
     fun <T : DynamicElement> element(model: T): ElementRenderer<T>? =
