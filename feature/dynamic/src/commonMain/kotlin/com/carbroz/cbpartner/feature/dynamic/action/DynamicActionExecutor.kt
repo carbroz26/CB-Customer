@@ -82,12 +82,12 @@ class DynamicActionExecutor(
                 depth + 1,
             )
 
-            val changes = result.stateChanges()
+            val changes = result.stateChanges
             if (changes.isNotEmpty()) {
                 sequenceState.applyChanges(changes)
                 sequenceChanges.putAll(changes)
             }
-            effects += result.effects()
+            effects += result.effects
         }
 
         return when {
@@ -95,25 +95,6 @@ class DynamicActionExecutor(
             sequenceChanges.isNotEmpty() -> DynamicActionResult.StateChanged(sequenceChanges)
             else -> DynamicActionResult.Completed
         }
-    }
-
-    private fun DynamicActionResult.stateChanges(): Map<String, DynamicValue> = when (this) {
-        DynamicActionResult.Completed -> emptyMap()
-        is DynamicActionResult.Navigate -> stateChanges
-        is DynamicActionResult.Present -> stateChanges
-        is DynamicActionResult.Dismiss -> stateChanges
-        is DynamicActionResult.ExternalUri -> stateChanges
-        is DynamicActionResult.StateChanged -> changes
-        is DynamicActionResult.Sequence -> stateChanges
-    }
-
-    private fun DynamicActionResult.effects(): List<DynamicActionEffect> = when (this) {
-        DynamicActionResult.Completed, is DynamicActionResult.StateChanged -> emptyList()
-        is DynamicActionResult.Navigate -> listOf(DynamicActionEffect.Navigate(destination, operation))
-        is DynamicActionResult.Present -> listOf(DynamicActionEffect.Present(destination))
-        is DynamicActionResult.Dismiss -> listOf(DynamicActionEffect.Dismiss)
-        is DynamicActionResult.ExternalUri -> listOf(DynamicActionEffect.ExternalUri(uri))
-        is DynamicActionResult.Sequence -> effects
     }
 
     private fun MutableMap<String, DynamicValue>.applyChanges(changes: Map<String, DynamicValue>) {
