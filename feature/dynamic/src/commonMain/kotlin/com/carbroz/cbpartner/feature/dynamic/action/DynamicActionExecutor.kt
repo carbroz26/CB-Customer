@@ -124,12 +124,11 @@ class DynamicActionExecutor(
 
     private fun DynamicValue.ObjectValue.toDestination(): DynamicDestination? {
         fun string(key: String) = (value[key] as? DynamicValue.StringValue)?.value
-        val id = string("id")
         val screenId = string("screenId") ?: return null
         val templateId = string("templateId") ?: return null
         val templateType = string("templateType") ?: return null
         val endpoint = string("endpoint") ?: return null
-        return DynamicDestination(id, screenId, templateId, templateType, endpoint)
+        return DynamicDestination(screenId, templateId, templateType, endpoint)
     }
 
     private companion object {
