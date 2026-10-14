@@ -23,6 +23,7 @@ import com.carbroz.cbpartner.feature.dynamic.store.DynamicState
 import com.carbroz.cbpartner.feature.dynamic.store.DynamicStore
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collect
 
 @Composable
@@ -50,11 +51,21 @@ fun DynamicContainer(
 
     LaunchedEffect(store) {
         store.effects.collect { effect ->
-            when (effect) {
-                is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
-                is DynamicActionEffect.Navigate -> applyNavigation(effect, navigation)
-                is DynamicActionEffect.Present -> navigation.present(effect.destination)
-                DynamicActionEffect.Dismiss -> navigation.dismissPresentation() || navigation.pop()
+            try {
+                when (effect) {
+                    is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
+                    is DynamicActionEffect.Navigate -> applyNavigation(effect, navigation)
+                    is DynamicActionEffect.Present -> navigation.present(effect.destination)
+                    DynamicActionEffect.Dismiss -> navigation.dismissPresentation() || navigation.pop()
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (error: Exception) {
+                store.accept(
+                    DynamicIntent.EffectFailed(
+                        error.message ?: "Unable to handle dynamic action effect",
+                    ),
+                )
             }
         }
     }
