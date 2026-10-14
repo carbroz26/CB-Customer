@@ -542,3 +542,15 @@ The owner revised the registry portion of this decision to apply the same typed,
 The approved plan continues to include ordered action-effect aggregation, reliable Store effect delivery, and distinct modal presentation semantics. The previous decision text limiting class-keyed dispatch to Element and Content is superseded by this revision; older records are retained as history.
 
 Source implementation and tests have not started. Confirm actual renderer paths and source declarations before any edits. Work only on `feature/dynamic-ui`; no backend changes, no new branches, and no separate mapper-consolidation work. Update implementation status only from actual verification evidence.
+
+## DYNAMIC-EFFECT-DELIVERY-FAILURE-001 — Per-effect UI failure handling — 2026-10-14
+
+**State:** ACCEPTED by explicit project-owner approval.  
+**Scope:** Frontend Dynamic UI effect consumption only; implementation is subject to the frozen Dynamic plan and required verification.
+
+- Handle each effect independently in the existing DynamicContainer.
+- On an ordinary exception from an effect handler, report the message through the existing DynamicState.Failure UI state while preserving the current DynamicScreenState, then continue collecting subsequent effects in order.
+- Rethrow coroutine cancellation; do not retry the failed effect automatically.
+- Do not add logging/reporting infrastructure, a new effect-consumer service, or move navigation responsibilities out of :navigation.
+- This does not change action-sequence handler-failure semantics or the typed effect/navigation/presentation contracts.
+- Detailed implementation scope and verification requirements: docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md section 22.30.6.
