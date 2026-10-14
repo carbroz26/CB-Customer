@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
+import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlinx.coroutines.test.runTest
@@ -195,6 +196,98 @@ class DynamicActionExecutorTest {
         assertEquals(DynamicValue.BooleanValue(true), sequence.stateChanges["afterEffect"])
         assertEquals(
             listOf(DynamicActionEffect.ExternalUri("https://example.com")),
+            sequence.effects,
+        )
+    }
+
+    @Test
+    fun nestedSequencePreservesNavigationAndExternalEffectsInOrder() = runTest {
+        val destination = DynamicDestination("screen", "template", "form_template", "/screen")
+        val executor = DynamicActionExecutor(
+            listOf(
+                object : DynamicActionHandler {
+                    override val type = "navigate"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.Navigate(
+                        destination,
+                        DynamicActionResult.NavigationOperation.Push,
+                    )
+                },
+                object : DynamicActionHandler {
+                    override val type = "external_uri"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.ExternalUri("https://example.com")
+                },
+                object : DynamicActionHandler {
+                    override val type = "noop"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ) = DynamicActionResult.Completed
+                },
+            ),
+        )
+
+        val nested = DynamicValue.ObjectValue(
+            mapOf(
+                "type" to DynamicValue.StringValue("sequence"),
+                "payload" to DynamicValue.ObjectValue(
+                    mapOf(
+                        "actions" to DynamicValue.ArrayValue(
+                            listOf(
+                                DynamicValue.ObjectValue(
+                                    mapOf("type" to DynamicValue.StringValue("external_uri")),
+                                ),
+                                DynamicValue.ObjectValue(
+                                    mapOf("type" to DynamicValue.StringValue("noop")),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+        val result = executor.execute(
+            DynamicAction(
+                type = "sequence",
+                payload = mapOf(
+                    "actions" to DynamicValue.ArrayValue(
+                        listOf(
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("navigate")),
+                            ),
+                            nested,
+                            DynamicValue.ObjectValue(
+                                mapOf("type" to DynamicValue.StringValue("noop")),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            emptyMap(),
+            emptyMap(),
+            emptyMap(),
+        ).getOrThrow()
+
+        val sequence = assertIs<DynamicActionResult.Sequence>(result)
+        assertEquals(
+            listOf(
+                DynamicActionEffect.Navigate(
+                    destination,
+                    DynamicActionResult.NavigationOperation.Push,
+                ),
+                DynamicActionEffect.ExternalUri("https://example.com"),
+            ),
             sequence.effects,
         )
     }
