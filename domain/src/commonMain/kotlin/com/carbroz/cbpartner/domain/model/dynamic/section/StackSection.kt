@@ -1,7 +1,6 @@
 package com.carbroz.cbpartner.domain.model.dynamic.section
 
 import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
-import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
@@ -16,5 +15,5 @@ data class StackSection(
     val padding: DynamicPadding? = null,
     val fillMaxWidth: Boolean = false,
     override val elements: List<DynamicElement> = emptyList(),
-    override val groups: List<StackGroup> = emptyList(),
+    override val groups: List<DynamicGroup> = emptyList(),
 ) : DynamicSection

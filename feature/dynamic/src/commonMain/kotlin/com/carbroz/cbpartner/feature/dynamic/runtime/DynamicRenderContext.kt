@@ -1,10 +1,12 @@
-
 package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import androidx.compose.runtime.Composable
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 
@@ -29,34 +31,28 @@ class DynamicRenderContext(
         (resolve(properties[key] ?: return null) as? DynamicValue.BooleanValue)?.value
 
     @Composable
-    fun <T : Any> renderComponents(components: List<T>) {
+    fun <T : DynamicComponent> renderComponents(components: List<T>) {
         components.forEach { component ->
             val renderer = registry.component(component)
-                ?: error(
-                    "No Dynamic component renderer registered for model class: ${component::class}"
-                )
+                ?: error("No Dynamic component renderer registered for model class: ${component::class}")
             renderer.render(component, this)
         }
     }
 
     @Composable
-    fun <T : Any> renderSections(sections: List<T>) {
+    fun <T : DynamicSection> renderSections(sections: List<T>) {
         sections.forEach { section ->
             val renderer = registry.section(section)
-                ?: error(
-                    "No Dynamic section renderer registered for model class: ${section::class}"
-                )
+                ?: error("No Dynamic section renderer registered for model class: ${section::class}")
             renderer.render(section, this)
         }
     }
 
     @Composable
-    fun <T : Any> renderGroups(groups: List<T>) {
+    fun <T : DynamicGroup> renderGroups(groups: List<T>) {
         groups.forEach { group ->
             val renderer = registry.group(group)
-                ?: error(
-                    "No Dynamic group renderer registered for model class: ${group::class}"
-                )
+                ?: error("No Dynamic group renderer registered for model class: ${group::class}")
             renderer.render(group, this)
         }
     }
@@ -65,9 +61,7 @@ class DynamicRenderContext(
     fun renderElements(elements: List<DynamicElement>) {
         elements.forEach { element ->
             val renderer = registry.element(element)
-                ?: error(
-                    "No Dynamic element renderer registered for model class: ${element::class}"
-                )
+                ?: error("No Dynamic element renderer registered for model class: ${element::class}")
             renderer.render(element, this)
         }
     }
@@ -76,9 +70,7 @@ class DynamicRenderContext(
     fun renderContent(contents: List<ElementContent>) {
         contents.forEach { content ->
             val renderer = registry.content(content)
-                ?: error(
-                    "No Dynamic content renderer registered for model class: ${content::class}"
-                )
+                ?: error("No Dynamic content renderer registered for model class: ${content::class}")
             renderer.render(content, this)
         }
     }
