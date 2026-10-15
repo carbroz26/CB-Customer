@@ -381,3 +381,14 @@ Historical next step when this record was written: implement section 22.28. That
 - Supports polymorphic concrete-type dispatch at Template, Component, Section and Group data-mapping boundaries; preserves multiple Component instances, existing Form/Stack models, six independent model-class renderer registries, and existing Element/Content mapping.
 - Frozen scope is **Decision 001 only**. No runtime visual QA, iOS build, future concrete Grid/List implementation or whole-feature final freeze is claimed. Older documents' implementation-not-started statements are historical to their named registry/action/effect workstreams and must not override this verified decision.
 - Next: Decision 002 (sensitive network logging) remains an independent read-only investigation until separately approved. Other X-Ray findings remain pending.
+
+## 19. DECISION-002 — Shared HTTP raw-body logging removal (2026-10-15)
+
+**State:** IMPLEMENTED → OWNER-TESTED → ANDROID/WEB BUILD VERIFIED → SOURCE DIFF RECONCILED → SOURCE-SCOPE FROZEN.
+
+- Branch: `feature/dynamic-ui`; baseline `ff58dfdca73f901b037d5d34ea0ebcc31576d0d8`; source head `c77afe232447277b67f6b28638f61b608195ba8c`.
+- The shared network `RequestHandler` no longer prints raw request body, successful String response body or console-formatting decorations. Transport functionality and headers were preserved. Added one focused test protecting returned String response values.
+- Owner environment: `./gradlew.bat :network:jvmTest :data:jvmTest :feature:dynamic:jvmTest` — BUILD SUCCESSFUL, 43 actionable tasks.
+- Owner environment: `./gradlew.bat :androidApp:assembleDebug :webApp:wasmJsBrowserDevelopmentWebpack` — BUILD SUCCESSFUL, 232 actionable tasks.
+- Git: clean working tree; `feature/dynamic-ui` fast-forwarded to the same source head as origin; `git diff --check ff58dfd..HEAD` passed; two-file diff totals 14 insertions and 57 deletions.
+- **Boundary:** Decision 002 source scope only is frozen. No whole Dynamic feature freeze, iOS build confirmation, comprehensive repository logging inventory, or runtime console-capture assertion is claimed. Network cancellation and other X-Ray items remain separate.
