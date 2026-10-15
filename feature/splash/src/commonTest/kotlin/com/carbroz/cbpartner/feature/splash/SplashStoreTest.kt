@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.splash
 import com.carbroz.cbpartner.domain.bootstrap.ApplicationBootstrap
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
+import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import com.carbroz.cbpartner.domain.model.bootstrap.FeatureConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.MaintenanceConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.UpdateConfig
@@ -125,6 +126,32 @@ class SplashStoreTest {
 
         assertEquals(SplashState.Success(output), store.state.value)
         store.close()
+    }
+
+    @Test
+    fun bootstrapFailureDoesNotExposeServerOrExceptionDetails() = runTest {
+        val failures = listOf(
+            BootstrapFailure.Api("REJECTED", "Token secret and server path /internal/auth"),
+            BootstrapFailure.Serialization("Malformed response includes sensitive payload"),
+            IllegalStateException("https://api.example.test/private?token=secret"),
+        )
+        failures.forEach { failure ->
+            val store = SplashStore(
+                bootstrap = object : ApplicationBootstrap {
+                    override suspend fun invoke(): Result<BootstrapOutput> = Result.failure(failure)
+                },
+                scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
+            )
+
+            store.accept(SplashIntent.LoadBootstrap)
+            advanceUntilIdle()
+
+            assertEquals(
+                SplashState.Failure("Unable to start the application"),
+                store.state.value,
+            )
+            store.close()
+        }
     }
 
     private fun sampleOutput() = BootstrapOutput(
