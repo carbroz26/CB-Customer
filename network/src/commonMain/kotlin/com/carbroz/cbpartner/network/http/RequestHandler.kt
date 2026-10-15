@@ -17,6 +17,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
 import kotlinx.coroutines.CancellationException
 
+/**
+ * Executes requests through the application's shared Ktor client.
+ *
+ * The caller may add application-specific headers but cannot override transport-owned
+ * authentication or runtime metadata headers. Cancellation propagates to the caller.
+ */
 class RequestHandler(
     private val httpClient: HttpClient,
     private val bearerTokenProvider: () -> String? = { null },
@@ -63,6 +69,9 @@ class RequestHandler(
         body: Any?,
         queryParams: Map<String, Any>?,
     ): HttpResponse {
+        require(headers.orEmpty().keys.none(::isTransportOwnedHeader)) {
+            "Request headers must not override transport-owned headers"
+        }
         return httpClient.prepareRequest {
             this.method = method
             url { appendPathSegments(urlPathSegments.map(Any::toString)) }
@@ -108,6 +117,13 @@ class RequestHandler(
 
     suspend inline fun <reified B, reified R> delete(urlPathSegments: List<Any>, body: B? = null): NetworkResult<R> =
         executeRequest(HttpMethod.Delete, urlPathSegments, body = body)
+
+    @PublishedApi
+    internal fun isTransportOwnedHeader(name: String): Boolean =
+        name.equals(HttpHeaders.Authorization, ignoreCase = true) ||
+            name.equals(PLATFORM_HEADER, ignoreCase = true) ||
+            name.equals(APP_VERSION_HEADER, ignoreCase = true) ||
+            name.equals(BUILD_NUMBER_HEADER, ignoreCase = true)
 
     private companion object {
         const val PLATFORM_HEADER = "X-CarBroz-Platform"
