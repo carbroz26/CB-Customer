@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.splash
 
 import com.carbroz.cbpartner.domain.bootstrap.ApplicationBootstrap
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -48,6 +49,7 @@ class SplashStore(
             bootstrap()
                 .onSuccess { output -> _state.value = SplashState.Success(output) }
                 .onFailure { error ->
+                    if (error is CancellationException) throw error
                     _state.value = SplashState.Failure(
                         error.message ?: "Unable to start the application",
                     )
