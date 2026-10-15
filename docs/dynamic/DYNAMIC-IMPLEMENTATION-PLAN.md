@@ -1030,3 +1030,15 @@ The plan is frozen; source edits and test execution have not started. The next a
 - Keep effect handling in the existing DynamicContainer; do not add a separate effect-consumer service or move navigation ownership out of :navigation.
 - Add focused Store regression coverage for effect-failure reporting and inspect the container's per-effect exception boundary. Preserve the existing ordered Store-delivery test.
 - This amendment does not change action-sequence failure semantics, effect order, navigation/presentation semantics, or the six-registry contract. Do not update implementation status or declare final freeze until the full required verification and source/diff review pass.
+
+## 22.31. DECISION-001 — Completed category transport-dispatch scope (2026-10-15)
+
+**State:** IMPLEMENTED, VERIFIED AND SCOPE-FROZEN. Historical plan record; no further Decision 001 source edits are authorized without a new decision.
+
+- Modified four parent transport boundaries: `DynamicScreenDto.template`, `FormTemplateDto.components`, `StackComponentDto.sections`, `StackSectionDto.groups`. Concrete DTO types and properties remain.
+- Modified `TemplateMapper`, `ComponentMapper`, `SectionMapper`, `GroupMapper` to dispatch by backend `type` into their existing concrete DTO-to-domain conversion; `DynamicResponseMapper` supplies the shared `Json` serializer.
+- Modified `DynamicScreen.template`, `DynamicTemplate`, `FormTemplate` to expose polymorphic root Template identity and preserve the multiple-Component collection contract.
+- Added focused `DynamicResponseMapperTest` cases for unknown Template/Section/Group types and multiple Components. Existing unknown Component and Element/Content coverage remains.
+- Scope: 13 files, 85 additions and 20 deletions relative to `6630f29b`; implemented at `5ca1e14e8b8461dcdfeb62c638922ddd31b8c118`.
+- Owner verification: `:domain:jvmTest :data:jvmTest :feature:dynamic:jvmTest :navigation:jvmTest` passed; `:androidApp:assembleDebug :webApp:wasmJsBrowserDevelopmentWebpack` passed; `git diff --check 6630f29b..HEAD` passed and diff stat matched the scoped 13 files.
+- Exclusions: registry implementations, Store, actions/effects, navigation, network/logging, UI asset/rendering, backend, dependency and tooling changes. Other workstreams in section 22.30 remain separate; this entry does not declare their completion or the whole Dynamic feature frozen.
