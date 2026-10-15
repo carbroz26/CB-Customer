@@ -2,13 +2,22 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.component.StackComponentDto
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 class ComponentMapper(
+    private val json: Json,
     private val elements: ElementMapper,
     private val sections: SectionMapper,
     private val values: DynamicValueMapper,
 ) {
-    fun map(dto: StackComponentDto): StackComponent {
+    fun map(node: JsonObject): DynamicComponent = when (values.string(node, "type")) {
+        "stack_component" -> map(json.decodeFromJsonElement(StackComponentDto.serializer(), node))
+        else -> error("Unsupported dynamic component type: " + values.string(node, "type"))
+    }
+
+    private fun map(dto: StackComponentDto): StackComponent {
         require(dto.type == "stack_component") { "Unsupported dynamic component type: " + dto.type }
         return StackComponent(
             id = dto.id,

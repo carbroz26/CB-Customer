@@ -2,12 +2,21 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.group.StackGroupDto
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 class GroupMapper(
+    private val json: Json,
     private val elements: ElementMapper,
     private val values: DynamicValueMapper,
 ) {
-    fun map(dto: StackGroupDto): StackGroup {
+    fun map(node: JsonObject): DynamicGroup = when (values.string(node, "type")) {
+        "stack_group" -> map(json.decodeFromJsonElement(StackGroupDto.serializer(), node))
+        else -> error("Unsupported dynamic group type: " + values.string(node, "type"))
+    }
+
+    private fun map(dto: StackGroupDto): StackGroup {
         require(dto.type == "stack_group") { "Unsupported dynamic group type: " + dto.type }
         return StackGroup(
             id = dto.id,

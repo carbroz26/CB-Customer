@@ -1,6 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.model.screen
 
-import com.carbroz.cbpartner.data.dynamic.model.template.FormTemplateDto
+import kotlinx.serialization.json.JsonObject
 import com.carbroz.cbpartner.data.dynamic.model.theme.DynamicThemeDto
 import kotlinx.serialization.Serializable
 
@@ -9,6 +9,6 @@ data class DynamicScreenDto(
     val screenId: String,
     val schemaVersion: String,
     val targetApp: String,
-    val template: FormTemplateDto,
+    val template: JsonObject,
     val theme: DynamicThemeDto? = null,
 )

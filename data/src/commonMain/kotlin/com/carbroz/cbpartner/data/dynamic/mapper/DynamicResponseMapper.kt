@@ -14,10 +14,10 @@ import kotlinx.serialization.json.JsonObject
 class DynamicResponseMapper(private val json: Json) {
     private val values = DynamicValueMapper()
     private val elementMapper = ElementMapper(json, values)
-    private val groups = GroupMapper(elementMapper, values)
-    private val sections = SectionMapper(elementMapper, groups, values)
-    private val components = ComponentMapper(elementMapper, sections, values)
-    private val templateMapper = TemplateMapper(components, values)
+    private val groups = GroupMapper(json, elementMapper, values)
+    private val sections = SectionMapper(json, elementMapper, groups, values)
+    private val components = ComponentMapper(json, elementMapper, sections, values)
+    private val templateMapper = TemplateMapper(json, components, values)
 
     fun map(dto: DynamicResponseDto): DynamicResponse {
         val data = dto.data

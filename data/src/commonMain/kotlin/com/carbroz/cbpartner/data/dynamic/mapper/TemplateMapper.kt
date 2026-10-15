@@ -2,12 +2,21 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.template.FormTemplateDto
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
+import com.carbroz.cbpartner.domain.model.dynamic.template.DynamicTemplate
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 class TemplateMapper(
+    private val json: Json,
     private val components: ComponentMapper,
     private val values: DynamicValueMapper,
 ) {
-    fun map(dto: FormTemplateDto): FormTemplate {
+    fun map(node: JsonObject): DynamicTemplate = when (values.string(node, "type")) {
+        "form_template" -> map(json.decodeFromJsonElement(FormTemplateDto.serializer(), node))
+        else -> error("Unsupported dynamic template type: " + values.string(node, "type"))
+    }
+
+    private fun map(dto: FormTemplateDto): FormTemplate {
         require(dto.type == "form_template") { "Unsupported dynamic template type: " + dto.type }
         return FormTemplate(
             id = dto.id,
