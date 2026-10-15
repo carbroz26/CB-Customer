@@ -8,4 +8,8 @@
     <string name="splash_ready_title">Welcome, Partner</string>
     <string name="splash_ready_description">Your partner experience is ready to get started</string>
     <string name="splash_failure_retry">Try again</string>
+    <string name="splash_maintenance_title">Service temporarily unavailable</string>
+    <string name="splash_maintenance_description">CarBroz is under maintenance. Please try again later.</string>
+    <string name="splash_required_update_title">Update required</string>
+    <string name="splash_required_update_description">Update CarBroz Partner to continue.</string>
 </resources>
