@@ -13,7 +13,7 @@ class TemplateMapper(
 ) {
     fun map(node: JsonObject): DynamicTemplate = when (values.string(node, "type")) {
         "form_template" -> map(json.decodeFromJsonElement(FormTemplateDto.serializer(), node))
-        else -> error("Unsupported dynamic template type: " + values.string(node, "type"))
+        else -> throw IllegalArgumentException("Unsupported dynamic template type: " + values.string(node, "type"))
     }
 
     private fun map(dto: FormTemplateDto): FormTemplate {
