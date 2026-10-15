@@ -369,3 +369,15 @@ Historical next step when this record was written: implement section 22.28. That
 - Source implementation and tests have not started. Verify actual renderer paths and current declarations before source edits; do not guess filenames or create duplicate renderer files.
 - Work only on `feature/dynamic-ui`; no new branches, no backend edits, and no work on the separate Element mapper consolidation.
 - Do not claim implementation, tests, builds, visual review, or final freeze until they are actually completed and audited.
+
+## 18. DECISION-001 — Six-category mapping final source freeze (2026-10-15)
+
+**State:** IMPLEMENTED → JVM VERIFIED → ANDROID/WEB BUILD VERIFIED → DIFF RECONCILED → SCOPE FROZEN.
+
+- Branch: `feature/dynamic-ui`; final tested source head `5ca1e14e8b8461dcdfeb62c638922ddd31b8c118`; baseline `6630f29b`.
+- Source diff: 13 files; 85 insertions, 20 deletions. `git diff --check` reported no whitespace errors.
+- Owner ran `./gradlew.bat :domain:jvmTest :data:jvmTest :feature:dynamic:jvmTest :navigation:jvmTest`: BUILD SUCCESSFUL, 46 actionable tasks.
+- Owner ran `./gradlew.bat :androidApp:assembleDebug :webApp:wasmJsBrowserDevelopmentWebpack`: BUILD SUCCESSFUL, 232 actionable tasks.
+- Supports polymorphic concrete-type dispatch at Template, Component, Section and Group data-mapping boundaries; preserves multiple Component instances, existing Form/Stack models, six independent model-class renderer registries, and existing Element/Content mapping.
+- Frozen scope is **Decision 001 only**. No runtime visual QA, iOS build, future concrete Grid/List implementation or whole-feature final freeze is claimed. Older documents' implementation-not-started statements are historical to their named registry/action/effect workstreams and must not override this verified decision.
+- Next: Decision 002 (sensitive network logging) remains an independent read-only investigation until separately approved. Other X-Ray findings remain pending.
