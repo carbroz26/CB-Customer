@@ -256,6 +256,29 @@ KYC must include Aadhaar verification and service selection, then training video
 - `data/dynamic/model/action/DynamicActionDto.kt`: seven conceptual action families plus five supported hooks share current polymorphic action payload.
 - No code/test/dependency changed by this document. Latest owner-reported JVM test success applies to commit `899243b4` prior to document-only audits.
 
+
+## 12. M14 — Force-update / maintenance UI backend migration (2026-10-16)
+
+**Backend reality:** no confirmed production Play Store listing URL and no backend-provided complete maintenance/force-update UI JSON today. The frontend currently receives the **existing Bootstrap config** `config.maintenance` (`enabled,title,message`) and `config.update` (`required,optional,minimumVersion,latestVersion,storeUrl`). This is **configuration, not a Dynamic screen document or dialog schema**.
+
+**Current frontend temporary UI (W2):**
+- `SplashState.Maintenance`: existing static Splash message, startup blocked.
+- `SplashState.RequiredUpdate`: static, non-dismissible Compose AlertDialog, startup blocked; no attempt to create a Dynamic Template or second navigation system.
+- `storeUrl` absent or not in the currently narrow verified listing policy → informative message and **no outgoing URL action**. No fake store URL is filled in.
+- On explicit user tap only, a supported verified Play Store listing URL may be launched through the existing Compose `LocalUriHandler` capability (not through Dynamic action executor). URL-opening exceptions are handled with safe fallback copy.
+- The initial URL matcher accepts **only** exact `https://play.google.com/store/apps/details?id=com.carbroz.cbpartner.android`, based on the existing Android application identifier. **This is a future input shape, not a claim that the listing is already published or that the URL has been confirmed by the backend.** Other query parameters, custom schemes, domains and platform-specific links remain disallowed until an approved policy change.
+- Android package/Play URL and actual release listing must be verified before production enablement. iOS App Store and Web distribution/update behavior have **no confirmed URL contract** and remain pending.
+
+**Backend migration agreement still needed:**
+1. Verify the official Android listing and canonical Play Store HTTPS URL; determine whether backend emits the per-platform store link in current `update.storeUrl` or a separately frozen additive shape. Do not rename or add keys silently.
+2. Define store link format, provenance, allowed redirect and platform validation policy, optional/required update conditions, and behavior when a required URL is missing.
+3. Decide if backend should own richer localized maintenance/update UI via a future **typed screen Template** using approved header/body/footer and Component/Element contracts, or continue simple config+native startup gate. If backend migrates to UI JSON, separately freeze its endpoint, response, actions, precedence and secure link policy. **Do not fabricate a second screen response or a new `dialog` node in the six-category contract.**
+4. Preserve maintenance-first precedence currently implemented until explicitly revised; both maintenance and required update must prevent unauthenticated or authenticated Dynamic navigation.
+5. Backend acceptance: missing URL/invalid URL, maintenance true, required true, optional true, cross-platform URL, user-tap/failed open, session bootstrap/relaunch, and no untrusted URI launch.
+6. Replace the static temporary user-facing copy only after an approved and tested backend screen UI contract exists; retain a safe static failure gate for malformed backend UI or unavailable network so mandatory update cannot be bypassed.
+
+**Status:** static frontend readiness implemented with local JVM/platform verification pending; **backend force-update UI JSON and live store listing unconfirmed**. Do not represent this as complete backend migration.
+
 ## 11. Rollout and open decision checklist
 
 - [ ] Backend and owner explicitly approve **auth response fields** (success/error/refresh/expiry), endpoint paths and web strategy.
