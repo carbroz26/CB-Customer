@@ -8,6 +8,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.network.NetworkResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -34,6 +35,8 @@ class DynamicRepositoryImpl(
         ) {
             is NetworkResult.Success -> runCatching {
                 mapper.map(json.decodeFromString<DynamicResponseDto>(response.result))
+            }.onFailure { error ->
+                if (error is CancellationException) throw error
             }
             is NetworkResult.Error -> Result.failure(response.exception)
         }
