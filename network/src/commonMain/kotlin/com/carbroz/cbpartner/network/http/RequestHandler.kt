@@ -5,6 +5,9 @@ import com.carbroz.cbpartner.network.NetworkException
 import com.carbroz.cbpartner.network.NetworkResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -21,7 +24,8 @@ import kotlinx.coroutines.CancellationException
  * Executes requests through the application's shared Ktor client.
  *
  * The caller may add application-specific headers but cannot override transport-owned
- * authentication or runtime metadata headers. Cancellation propagates to the caller.
+ * authentication or runtime metadata headers. Ktor request/connect/socket timeouts are
+ * returned as typed failures without exposing request URLs; cancellation propagates.
  */
 class RequestHandler(
     private val httpClient: HttpClient,
@@ -58,6 +62,12 @@ class RequestHandler(
             NetworkResult.Error(null, NetworkException.Serialization(error.message ?: "Unable to decode network response", error))
         } catch (error: CancellationException) {
             throw error
+        } catch (error: HttpRequestTimeoutException) {
+            NetworkResult.Error(null, NetworkException.Timeout("Network request timed out", error))
+        } catch (error: ConnectTimeoutException) {
+            NetworkResult.Error(null, NetworkException.Timeout("Network connection timed out", error))
+        } catch (error: SocketTimeoutException) {
+            NetworkResult.Error(null, NetworkException.Timeout("Network socket timed out", error))
         } catch (error: Throwable) {
             NetworkResult.Error(null, NetworkException.Unknown(error.message ?: "Unknown network error", error))
         }
