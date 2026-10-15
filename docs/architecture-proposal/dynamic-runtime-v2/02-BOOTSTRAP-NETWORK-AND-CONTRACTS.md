@@ -39,7 +39,7 @@ data class ScreenDestination(
     val authentication: AuthenticationMode,
 )
 ```
-The backend example includes `method` and `authentication`; do not drop them. Defaults GET/NONE only if agreed in backend schema. Expected destination identity is verified against fetched ScreenDocument.
+The owner-supplied canonical Login/OTP destination JSON has only `screenId`, `templateId`, `templateType`, `endpoint`. `method` and `authentication` are proposed additive fields, not present in those fixtures. GET/NONE defaults require explicit backend agreement. Expected destination identity is verified against fetched ScreenDocument.
 
 ## Shared network infrastructure
 One Ktor-based `HttpTransport` for bootstrap, screen loading and action requests. One configured API base URL per environment/platform injection (dev, staging, prod), never a per-Element base URL constant. Validate allowed host/relative endpoint resolution before attaching credentials.
