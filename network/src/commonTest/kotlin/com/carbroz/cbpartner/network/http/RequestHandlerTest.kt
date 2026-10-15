@@ -86,4 +86,18 @@ class RequestHandlerTest {
         assertTrue(error.exception is NetworkException.Server)
         assertEquals(503, error.exception.statusCode)
     }
+
+    @Test
+    fun sensitiveResponseRemainsAvailableToCallerWithoutTransportLogging() = runTest {
+        val sensitiveResponse = """{"otp":"123456","accessToken":"secret-value"}"""
+        val requestHandler = RequestHandler(
+            HttpClient(MockEngine { respond(sensitiveResponse) }) {
+                expectSuccess = true
+            },
+        )
+
+        val result = requestHandler.get<String>(listOf("api", "v1", "screen"))
+
+        assertEquals(NetworkResult.Success(sensitiveResponse), result)
+    }
 }
