@@ -18,6 +18,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
+import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -25,7 +26,8 @@ import kotlinx.coroutines.CancellationException
  *
  * The caller may add application-specific headers but cannot override transport-owned
  * authentication or runtime metadata headers. Ktor request/connect/socket timeouts are
- * returned as typed failures without exposing request URLs; cancellation propagates.
+ * returned as typed failures without exposing request URLs; unresolved DNS addresses
+ * are classified as connection failures. Cancellation propagates.
  */
 class RequestHandler(
     private val httpClient: HttpClient,
@@ -68,6 +70,8 @@ class RequestHandler(
             NetworkResult.Error(null, NetworkException.Timeout("Network connection timed out", error))
         } catch (error: SocketTimeoutException) {
             NetworkResult.Error(null, NetworkException.Timeout("Network socket timed out", error))
+        } catch (error: UnresolvedAddressException) {
+            NetworkResult.Error(null, NetworkException.Connection("Unable to resolve network address", error))
         } catch (error: Throwable) {
             NetworkResult.Error(null, NetworkException.Unknown(error.message ?: "Unknown network error", error))
         }
