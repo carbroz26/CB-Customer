@@ -9,6 +9,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -84,6 +85,7 @@ class DynamicStore(
                     )
                 }
                 .onFailure { error ->
+                    if (error is CancellationException) throw error
                     val current = currentScreen() ?: DynamicScreenState()
                     _state.value = DynamicState.Failure(
                         error.message ?: "Unable to load dynamic screen",
@@ -119,6 +121,7 @@ class DynamicStore(
                 applyActionResult(result.getOrThrow())
             } else {
                 val error = result.exceptionOrNull()
+                if (error is CancellationException) throw error
                 val screen = currentScreen() ?: current
                 _state.value = DynamicState.Failure(
                     error?.message ?: "Unable to execute dynamic action",
