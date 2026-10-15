@@ -15,7 +15,7 @@ ElementNode -> optional leading / trailing ContentNode
 ```
 Exactly six logical categories: Template, Component, Section, Group, Element, Content. **Confirmed cardinality:** exactly one Template per screen response; that Template owns one or more Components. Each Component may have direct Elements and/or Sections; each Section may have direct Elements and/or Groups; each Group has only Elements; each Element may have zero or more nested Content nodes. They are different structural responsibilities. A Component may directly own Elements and/or Sections; a Section may own Groups and/or Elements. Do not fabricate intermediate layers.
 
-Concrete initially supported examples: FormTemplateNode, StackComponentNode, StackSectionNode, StackGroupNode, TextElementNode, InputElementNode, ButtonElementNode, ImageElementNode, IconContentNode, DividerContentNode. Separate IconElementNode is **not** unconditionally authorized; confirm the actual icon-as-element backend contract during planning. Future Grid/List/Carousel/Checkbox/Picker/Upload are examples, not present implementation requirements.
+Concrete initially supported examples: FormTemplateNode, StackComponentNode, StackSectionNode, StackGroupNode, TextElementNode, InputElementNode, ButtonElementNode, ImageElementNode, IconContentNode, DividerContentNode. IconElementNode is an existing supported concrete Element and is retained. Backend migration will provide a required URL and optional fallbackUrl for all Icon Elements and Icon Content; icon-name-only assets are not a V2 contract. Future Grid/List/Carousel/Checkbox/Picker/Upload are examples, not present implementation requirements.
 
 ## Common vs unique
 - Shared category interfaces contain only truly shared properties (identity and permitted children).
@@ -54,20 +54,12 @@ Header, Body and Footer are **layout slots**, not new global node categories. A 
 
 **Critical padding rule:** template's body padding applies only to Body, never automatically to Header/Footer. The background belongs to Template Shell; each slot owns its own backend padding. System safe area/window insets are a separate platform-owned concern, not secretly conflated with backend padding.
 
-### Proposed future schema (not backend-approved)
+### Proposed additive future schema (not backend-approved)
+Keep existing `template.components[]` and `template.properties.padding` in their fixed locations. Add only optional `header` and `footer` sibling fields. No `template.body` migration.
 ```json
-{
-  "template": {
-    "id": "tpl_example",
-    "type": "form_template",
-    "properties": {"background": {"color": "#FFFFFF"}},
-    "header": {"properties": {"padding": {"all": 0}}, "components": []},
-    "body": {"properties": {"padding": {"start": 24, "top": 20, "end": 24, "bottom": 20}, "scrollable": true}, "components": []},
-    "footer": {"properties": {"padding": {"all": 0}}, "components": []}
-  }
-}
+{"template":{"id":"tpl_example","type":"form_template","properties":{"padding":{"start":24,"top":20,"end":24,"bottom":20}},"components":[{"id":"body_1","type":"stack_component","properties":{},"elements":[]}],"header":{"properties":{"padding":{"all":0}},"components":[]},"footer":{"properties":{"padding":{"all":0}},"components":[]}}}
 ```
-Current API examples use `template.properties.padding` and `template.components`. Migration/compatibility must be decided before implementation. Do not silently reinterpret legacy padding.
+Header/Footer slot structure/cardinality/scroll behavior remain an explicit contract-freeze gate. Body is the existing components array.
 
 ## Collapsible header and footer
 - Template-specific supported header behavior may be fixed, collapsible, faded or swapped to category UI on scroll; body supplies scroll input; slot renderer owns presentation-only scroll/animation progress.
@@ -77,7 +69,7 @@ Current API examples use `template.properties.padding` and `template.components`
 - Persistent app shell across multiple screens requires later explicit ownership decision; not automatically session-global.
 
 ## Theme/background
-Apply backend-declared solid/gradient using existing Compose background/Brush modifiers where sufficient; remove unjustified custom draw code, but do not ban all drawing APIs. Exact gradient angles/stops require validated conversion. No invented colors/padding/typography/assets/OTP sizes. URL asset requirements and fallback contracts must be reconciled with backend separately.
+Apply backend-declared solid/gradient using existing Compose background/Brush modifiers where sufficient; remove unjustified custom draw code, but do not ban all drawing APIs. Exact gradient angles/stops require validated conversion. No invented colors/padding/typography/assets/OTP sizes. Asset contract: backend supplies primary URL and optional fallbackUrl; Coil caches eligible remote images and a generic bundled placeholder may be shown after remote/cache failure. No icon-name lookup. Generic placeholders must never masquerade as semantic action icons.
 
 ## Rendering failure policy
 Validate screenId/templateId/templateType before rendering; mismatches/unsupported types are explicit errors rather than blank return. Unknown fields follow documented compatibility policy; unknown concrete node type must not silently disappear.
