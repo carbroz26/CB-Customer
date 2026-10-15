@@ -7,6 +7,8 @@ import com.carbroz.cbpartner.network.NetworkResult
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.http.URLProtocol
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
@@ -210,5 +212,86 @@ class RequestHandlerTest {
 
         assertTrue(result is NetworkResult.Error)
         assertEquals(0, requestsSent)
+    }
+
+    @Test
+    fun canonicalRelativeEndpointKeepsConfiguredOriginAndPath() = runTest {
+        var capturedHost: String? = null
+        var capturedPath: String? = null
+        val handler = RequestHandler(
+            HttpClient(MockEngine { request ->
+                capturedHost = request.url.host
+                capturedPath = request.url.encodedPath
+                respond("response")
+            }) {
+                expectSuccess = true
+                defaultRequest {
+                    url {
+                        protocol = URLProtocol.HTTPS
+                        host = "api.example.test"
+                    }
+                }
+            },
+        )
+
+        val result = handler.get<String>(listOf("api", "v1", "partner", "screen"))
+
+        assertEquals(NetworkResult.Success("response"), result)
+        assertEquals("api.example.test", capturedHost)
+        assertEquals("/api/v1/partner/screen", capturedPath)
+    }
+
+    @Test
+    fun endpointSegmentsMustNotCarryUrlAuthorityOrTraversal() = runTest {
+        val invalidEndpoints = listOf(
+            "https://evil.example/path",
+            "//evil.example/path",
+            "/api/../private",
+            "/api/%2e%2e/private",
+            "/api/screen?token=secret",
+            "/api/screen#fragment",
+        )
+        invalidEndpoints.forEach { endpoint ->
+            var requestsSent = 0
+            val handler = RequestHandler(
+                HttpClient(MockEngine {
+                    requestsSent++
+                    respond("unexpected request")
+                }) {
+                    expectSuccess = true
+                },
+            )
+
+            try {
+                handler.get<String>(endpoint.split('/').filter(String::isNotEmpty))
+            } catch (_: IllegalArgumentException) {
+                // A rejected caller contract is also valid; the request must not be sent.
+            }
+
+            assertEquals(0, requestsSent, "Unsafe endpoint reached transport for a rejected shape")
+        }
+    }
+
+    @Test
+    fun httpErrorCodesAreClassifiedByStatus() = runTest {
+        val cases = listOf(401, 422, 429, 500)
+        for (code in cases) {
+            val handler = RequestHandler(
+                HttpClient(MockEngine {
+                    respond("{}", HttpStatusCode.fromValue(code))
+                }) {
+                    expectSuccess = true
+                },
+            )
+            val result = handler.get<String>(listOf("api", "test"))
+            val failure = result as NetworkResult.Error
+            assertEquals(code, failure.exception.statusCode)
+            when (code) {
+                401 -> assertTrue(failure.exception is NetworkException.Unauthorized)
+                422 -> assertTrue(failure.exception is NetworkException.Validation)
+                429 -> assertTrue(failure.exception is NetworkException.RateLimit)
+                500 -> assertTrue(failure.exception is NetworkException.Server)
+            }
+        }
     }
 }
