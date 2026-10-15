@@ -13,7 +13,7 @@ class GroupMapper(
 ) {
     fun map(node: JsonObject): DynamicGroup = when (values.string(node, "type")) {
         "stack_group" -> map(json.decodeFromJsonElement(StackGroupDto.serializer(), node))
-        else -> error("Unsupported dynamic group type: " + values.string(node, "type"))
+        else -> throw IllegalArgumentException("Unsupported dynamic group type: " + values.string(node, "type"))
     }
 
     private fun map(dto: StackGroupDto): StackGroup {
