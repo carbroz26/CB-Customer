@@ -427,3 +427,9 @@ Historical decision snapshot: the contract was documentation-frozen before imple
 - **Pre-implementation gate:** verify exact current source paths and declarations for all concrete renderers, especially IconElement and IconContent/DividerContent. Do not guess or create duplicate files.
 - Work only on `feature/dynamic-ui`; no new branches, no backend edits, and no separate Element mapper consolidation.
 - No implementation/test/build completion may be claimed until the frozen verification matrix and full diff audit actually pass.
+
+## 19. DECISION-001 completed — six-category transport mapping (2026-10-15)
+
+**Current source truth for this narrowly scoped decision:** On `feature/dynamic-ui`, source head `5ca1e14e8b8461dcdfeb62c638922ddd31b8c118` implements and owner-verifies category-level backend `type` dispatch through the four existing Template/Component/Section/Group mappers. Existing concrete DTOs/domain models, separate class-keyed six renderer registries, and multiple Component instances per Template are preserved. `DynamicTemplate` includes identity needed by `DynamicRenderer`. Four JVM module tests, Android debug assemble, Web/Wasm development webpack and `git diff --check` passed; 13 changed files match the approved scope.
+
+**State:** DECISION-001 IMPLEMENTED / VERIFIED / SOURCE-SCOPE FROZEN; **whole Dynamic feature NOT frozen**. The historical section 18 plan-status statements apply to that separate registry/action/effect workstream, not this decision, and must not be used to contradict verified current source. Do not begin Decision 002 network logging or other X-Ray corrections without separate research/approval.
