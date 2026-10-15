@@ -21,6 +21,8 @@ sealed interface SplashState {
     data object Initial : SplashState
     data object Loading : SplashState
     data class Success(val output: BootstrapOutput) : SplashState
+    data class Maintenance(val title: String?, val message: String?) : SplashState
+    data class RequiredUpdate(val storeUrl: String?) : SplashState
     data class Failure(val message: String) : SplashState
 }
 
@@ -47,7 +49,16 @@ class SplashStore(
         _state.value = SplashState.Loading
         loadJob = scope.launch {
             bootstrap()
-                .onSuccess { output -> _state.value = SplashState.Success(output) }
+                .onSuccess { output ->
+                    _state.value = when {
+                        output.maintenance.enabled -> SplashState.Maintenance(
+                            output.maintenance.title,
+                            output.maintenance.message,
+                        )
+                        output.update.required -> SplashState.RequiredUpdate(output.update.storeUrl)
+                        else -> SplashState.Success(output)
+                    }
+                }
                 .onFailure { error ->
                     if (error is CancellationException) throw error
                     _state.value = SplashState.Failure(
