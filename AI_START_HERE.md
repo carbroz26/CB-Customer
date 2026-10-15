@@ -261,3 +261,7 @@ The plan also covers ordered action-effect aggregation, reliable effect transpor
 ## Current source reconciliation note — 2026-10-15
 
 Decision `DYNAMIC-CATEGORY-TRANSPORT-DISPATCH-001` (Decision 001) is implemented, owner-verified and frozen **only for its mapping/domain source scope** at `5ca1e14e8b8461dcdfeb62c638922ddd31b8c118` on `feature/dynamic-ui`. See Dynamic architecture section 25, plan section 22.31, status section 18, Project Master State section 19 and Decision Log. The older references above to source work not started apply to their distinct registry/action/effect workstream and are historical, not a status for Decision 001. The whole Dynamic feature is not finally frozen. Decision 002 network logging is separate and not authorized for edits.
+
+## Current source reconciliation note — Decision 002 (2026-10-15)
+
+`DYNAMIC-NETWORK-RAW-LOGGING-002` removed the shared `:network` `RequestHandler` raw request/response console prints and their obsolete helpers. Source head `c77afe232447277b67f6b28638f61b608195ba8c` was verified by the owner with network/data/dynamic JVM tests, Android debug assembly, Web/Wasm development webpack, and a two-file clean diff check. Decision 002 is **source-scope frozen only**; Decision 001 remains frozen and the entire Dynamic feature is not declared complete/frozen. See Dynamic architecture section 26, plan section 22.32, status section 19, Project Master State section 20, and Decision Log. The remaining logging inventory and cancellation workstreams are not part of this decision.
