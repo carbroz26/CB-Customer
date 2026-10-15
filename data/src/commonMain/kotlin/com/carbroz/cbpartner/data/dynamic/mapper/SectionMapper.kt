@@ -14,7 +14,7 @@ class SectionMapper(
 ) {
     fun map(node: JsonObject): DynamicSection = when (values.string(node, "type")) {
         "stack_section" -> map(json.decodeFromJsonElement(StackSectionDto.serializer(), node))
-        else -> error("Unsupported dynamic section type: " + values.string(node, "type"))
+        else -> throw IllegalArgumentException("Unsupported dynamic section type: " + values.string(node, "type"))
     }
 
     private fun map(dto: StackSectionDto): StackSection {
