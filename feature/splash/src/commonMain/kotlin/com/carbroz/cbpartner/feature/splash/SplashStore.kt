@@ -1,6 +1,6 @@
 package com.carbroz.cbpartner.feature.splash
 
-import com.carbroz.cbpartner.domain.bootstrap.ApplicationBootstrap
+import com.carbroz.cbpartner.domain.repository.BootstrapRepository
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +27,7 @@ sealed interface SplashState {
 }
 
 class SplashStore(
-    private val bootstrap: ApplicationBootstrap,
+    private val bootstrap: BootstrapRepository,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) {
     private val _state = MutableStateFlow<SplashState>(SplashState.Initial)
@@ -48,7 +48,7 @@ class SplashStore(
 
         _state.value = SplashState.Loading
         loadJob = scope.launch {
-            bootstrap()
+            bootstrap.fetch()
                 .onSuccess { output ->
                     _state.value = when {
                         output.maintenance.enabled -> SplashState.Maintenance(
