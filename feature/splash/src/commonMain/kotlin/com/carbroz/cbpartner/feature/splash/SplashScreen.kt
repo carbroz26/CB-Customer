@@ -100,9 +100,9 @@ fun SplashScreen(
                 Spacer(modifier = Modifier.height(if (compactHeight) 4.dp else 10.dp))
 
                 Text(
-                    text = when (state) {
+                    text = when (val current = state) {
                         is SplashState.Success -> stringResource(Res.string.splash_ready_title)
-                        is SplashState.Maintenance -> state.title?.takeIf(String::isNotBlank)
+                        is SplashState.Maintenance -> current.title?.takeIf(String::isNotBlank)
                             ?: stringResource(Res.string.splash_maintenance_title)
                         is SplashState.RequiredUpdate -> stringResource(Res.string.splash_required_update_title)
                         else -> stringResource(Res.string.splash_service_title)
@@ -117,9 +117,9 @@ fun SplashScreen(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = when (state) {
+                    text = when (val current = state) {
                         is SplashState.Success -> stringResource(Res.string.splash_ready_description)
-                        is SplashState.Maintenance -> state.message?.takeIf(String::isNotBlank)
+                        is SplashState.Maintenance -> current.message?.takeIf(String::isNotBlank)
                             ?: stringResource(Res.string.splash_maintenance_description)
                         is SplashState.RequiredUpdate -> stringResource(Res.string.splash_required_update_description)
                         else -> stringResource(Res.string.splash_service_subtitle)
