@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,11 +29,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,6 +51,8 @@ import com.carbroz.cbpartner.feature.splash.generated.resources.splash_loading_t
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_maintenance_title
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_maintenance_description
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_required_update_title
+import com.carbroz.cbpartner.feature.splash.generated.resources.splash_update_action
+import com.carbroz.cbpartner.feature.splash.generated.resources.splash_update_unavailable
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_required_update_description
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_ready_description
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_ready_title
@@ -63,6 +70,43 @@ fun SplashScreen(
 
     LaunchedEffect(Unit) {
         store.accept(SplashIntent.LoadBootstrap)
+    }
+
+    // The launch URL is approved for this platform only when it is an exact official listing.
+    val uriHandler = LocalUriHandler.current
+    val requiredUpdate = state as? SplashState.RequiredUpdate
+    val trustedUrl = requiredUpdate?.storeUrl?.takeIf(::isTrustedUpdateUrl)
+    var openFailed by remember(requiredUpdate) { mutableStateOf(false) }
+    if (requiredUpdate != null) {
+        AlertDialog(
+            onDismissRequest = {},
+            title = { Text(stringResource(Res.string.splash_required_update_title)) },
+            text = {
+                Text(
+                    stringResource(
+                        if (trustedUrl == null || openFailed) {
+                            Res.string.splash_update_unavailable
+                        } else {
+                            Res.string.splash_required_update_description
+                        },
+                    ),
+                )
+            },
+            confirmButton = {
+                if (trustedUrl != null) {
+                    Button(onClick = {
+                        try {
+                            uriHandler.openUri(trustedUrl)
+                            openFailed = false
+                        } catch (_: Exception) {
+                            openFailed = true
+                        }
+                    }) {
+                        Text(stringResource(Res.string.splash_update_action))
+                    }
+                }
+            },
+        )
     }
 
     CarBrozSplashTheme {
@@ -333,3 +377,8 @@ private fun SplashDecorations() {
         )
     }
 }
+
+// Until backend migration approves more destinations, only the canonical Android listing
+// is permitted. No redirects, alternate schemes, arbitrary query parameters or userinfo.
+internal fun isTrustedUpdateUrl(url: String): Boolean =
+    url == "https://play.google.com/store/apps/details?id=com.carbroz.cbpartner.android"
