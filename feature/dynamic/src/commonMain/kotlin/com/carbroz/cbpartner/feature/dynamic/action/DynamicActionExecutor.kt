@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.DynamicDestination
+import kotlinx.coroutines.CancellationException
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
@@ -24,6 +25,8 @@ class DynamicActionExecutor(
         state: Map<String, DynamicValue>,
     ): Result<DynamicActionResult> = runCatching {
         executeInternal(action, bindings, context, state, depth = 0)
+    }.onFailure { error ->
+        if (error is CancellationException) throw error
     }
 
     private suspend fun executeInternal(
