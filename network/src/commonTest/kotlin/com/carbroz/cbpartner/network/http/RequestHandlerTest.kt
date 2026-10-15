@@ -9,12 +9,26 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class RequestHandlerTest {
+    @Test
+    fun cancellationIsRethrownInsteadOfMappedToNetworkFailure() = runTest {
+        val handler = RequestHandler(
+            HttpClient(MockEngine { throw CancellationException("request cancelled") }) {
+                expectSuccess = true
+            },
+        )
+        assertFailsWith<CancellationException> {
+            handler.get<String>(listOf("test"))
+        }
+    }
+
     @Test
     fun successfulRequestReturnsResponse() = runTest {
         val requestHandler = RequestHandler(
