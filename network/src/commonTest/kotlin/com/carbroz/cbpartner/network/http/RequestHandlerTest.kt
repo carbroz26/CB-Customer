@@ -114,4 +114,50 @@ class RequestHandlerTest {
 
         assertEquals(NetworkResult.Success(sensitiveResponse), result)
     }
+    @Test
+    fun callerCannotOverrideTransportOwnedHeadersRegardlessOfCase() = runTest {
+        val handler = RequestHandler(
+            HttpClient(MockEngine { respond("unexpected execution") }) {
+                expectSuccess = true
+            },
+        )
+        listOf(
+            "authorization",
+            "AUTHORIZATION",
+            "x-carbroz-platform",
+            "X-CarBroz-App-Version",
+            "X-CARBROZ-BUILD-NUMBER",
+        ).forEach { forbidden ->
+            assertFailsWith<IllegalArgumentException> {
+                handler.executeRequest<Any, String>(
+                    method = HttpMethod.Get,
+                    urlPathSegments = listOf("api", "v1", "screen"),
+                    headers = mapOf(forbidden to "attacker-value"),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun ordinaryCallerHeaderIsPassedThrough() = runTest {
+        var requestHeader: String? = null
+        val handler = RequestHandler(
+            HttpClient(MockEngine { request ->
+                requestHeader = request.headers["X-Request-Id"]
+                respond("response")
+            }) {
+                expectSuccess = true
+            },
+        )
+
+        val result = handler.executeRequest<Any, String>(
+            method = HttpMethod.Get,
+            urlPathSegments = listOf("api", "v1", "screen"),
+            headers = mapOf("X-Request-Id" to "safe-correlation-id"),
+        )
+
+        assertEquals(NetworkResult.Success("response"), result)
+        assertEquals("safe-correlation-id", requestHeader)
+    }
+
 }
