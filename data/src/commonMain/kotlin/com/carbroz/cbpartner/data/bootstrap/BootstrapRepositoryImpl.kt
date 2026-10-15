@@ -7,6 +7,7 @@ import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
 import com.carbroz.cbpartner.domain.repository.BootstrapRepository
 import com.carbroz.cbpartner.network.NetworkResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
@@ -27,6 +28,8 @@ class BootstrapRepositoryImpl(
                 error.message ?: "Unable to decode bootstrap response",
             ),
         )
+    } catch (error: CancellationException) {
+        throw error
     } catch (error: Throwable) {
         Result.failure(
             BootstrapFailure.Transport(
@@ -40,6 +43,7 @@ class BootstrapRepositoryImpl(
     }.fold(
         onSuccess = mapper::map,
         onFailure = { error ->
+            if (error is CancellationException) throw error
             if (error is SerializationException) {
                 Result.failure(
                     BootstrapFailure.Serialization(
