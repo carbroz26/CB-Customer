@@ -1,6 +1,6 @@
 package com.carbroz.cbpartner.feature.splash
 
-import com.carbroz.cbpartner.domain.bootstrap.ApplicationBootstrap
+import com.carbroz.cbpartner.domain.repository.BootstrapRepository
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
@@ -23,8 +23,8 @@ class SplashStoreTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val expected = sampleOutput()
         val store = SplashStore(
-            bootstrap = object : ApplicationBootstrap {
-                override suspend fun invoke(): Result<BootstrapOutput> = Result.success(expected)
+            bootstrap = object : BootstrapRepository {
+                override suspend fun fetch(): Result<BootstrapOutput> = Result.success(expected)
             },
             scope = CoroutineScope(dispatcher),
         )
@@ -44,8 +44,8 @@ class SplashStoreTest {
         var calls = 0
         val expected = sampleOutput()
         val store = SplashStore(
-            bootstrap = object : ApplicationBootstrap {
-                override suspend fun invoke(): Result<BootstrapOutput> {
+            bootstrap = object : BootstrapRepository {
+                override suspend fun fetch(): Result<BootstrapOutput> {
                     calls++
                     return if (calls == 1) {
                         Result.failure(IllegalStateException("Bootstrap failed"))
@@ -77,8 +77,8 @@ class SplashStoreTest {
             update = sampleOutput().update.copy(required = true, storeUrl = "https://example.test/store"),
         )
         val store = SplashStore(
-            bootstrap = object : ApplicationBootstrap {
-                override suspend fun invoke(): Result<BootstrapOutput> = Result.success(output)
+            bootstrap = object : BootstrapRepository {
+                override suspend fun fetch(): Result<BootstrapOutput> = Result.success(output)
             },
             scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
         )
@@ -96,8 +96,8 @@ class SplashStoreTest {
             update = sampleOutput().update.copy(required = true, storeUrl = "https://example.test/store"),
         )
         val store = SplashStore(
-            bootstrap = object : ApplicationBootstrap {
-                override suspend fun invoke(): Result<BootstrapOutput> = Result.success(output)
+            bootstrap = object : BootstrapRepository {
+                override suspend fun fetch(): Result<BootstrapOutput> = Result.success(output)
             },
             scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
         )
@@ -115,8 +115,8 @@ class SplashStoreTest {
             update = sampleOutput().update.copy(optional = true),
         )
         val store = SplashStore(
-            bootstrap = object : ApplicationBootstrap {
-                override suspend fun invoke(): Result<BootstrapOutput> = Result.success(output)
+            bootstrap = object : BootstrapRepository {
+                override suspend fun fetch(): Result<BootstrapOutput> = Result.success(output)
             },
             scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
         )
@@ -137,8 +137,8 @@ class SplashStoreTest {
         )
         failures.forEach { failure ->
             val store = SplashStore(
-                bootstrap = object : ApplicationBootstrap {
-                    override suspend fun invoke(): Result<BootstrapOutput> = Result.failure(failure)
+                bootstrap = object : BootstrapRepository {
+                    override suspend fun fetch(): Result<BootstrapOutput> = Result.failure(failure)
                 },
                 scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
             )
