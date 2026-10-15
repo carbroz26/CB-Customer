@@ -564,3 +564,12 @@ Source implementation and tests have not started. Confirm actual renderer paths 
 Retain the six fixed structural categories, existing typed domain category contracts and separate model-class-keyed renderer registries. A Template can contain multiple Component instances, potentially of different concrete types. At Template/Component/Section/Group transport boundaries, decode backend `type` via explicit category mapper dispatch and existing concrete DTOs. The root `DynamicTemplate` exposes identity (`id`, `type`) plus `components` for screen verification; this is not a new renderer lookup hierarchy. Unknown types fail explicitly. Element/Content mapping is not redesigned.
 
 Owner-verified JVM tests, Android debug assembly, Web/Wasm development webpack, and 13-file whitespace/diff scope checks passed on the stated head. Freeze applies only to this decision, not the entire Dynamic feature. Existing `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001` and subsequent action/effect decisions remain independent; their historical status statements do not describe Decision 001.
+
+## DYNAMIC-NETWORK-RAW-LOGGING-002 — Shared HTTP confidentiality (2026-10-15)
+
+**State:** OWNER-AUTHORIZED; IMPLEMENTED; VERIFIED; SOURCE-SCOPE FROZEN.
+**Branch:** `feature/dynamic-ui`. **Verified source commit:** `c77afe232447277b67f6b28638f61b608195ba8c`.
+
+The shared `:network` `RequestHandler` previously printed arbitrary request bodies and successful String response bodies through `println`. The owner authorized the minimum correction: remove raw-body console logging and unused formatting helpers, preserving transport execution, response values, authentication, metadata headers and HTTP error contracts. No redaction framework, additional logger or Ktor plugin changes.
+
+The source diff is limited to `RequestHandler.kt` and `RequestHandlerTest.kt`: 14 insertions, 57 deletions relative to `ff58dfd`. Owner verification passed the network/data/dynamic JVM tests, Android debug assembly, Web/Wasm development webpack, and whitespace/diff scope review. The test verifies response preservation but does not capture stdout. No exhaustive claim is made about unrelated logging sites. Decision 001 stays frozen; cancellation and all other Architecture X-Ray workstreams remain independent.
