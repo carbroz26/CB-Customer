@@ -19,44 +19,16 @@ class BootstrapRepositoryImpl(
 
     override suspend fun fetch(): Result<BootstrapOutput> = try {
         when (val response = remoteDataSource.fetch()) {
-            is NetworkResult.Success -> mapResponse(response.result)
+            is NetworkResult.Success -> mapper.map(
+                json.decodeFromString<BootstrapResponseDto>(response.result),
+            )
             is NetworkResult.Error -> Result.failure(response.exception)
         }
-    } catch (error: SerializationException) {
-        Result.failure(
-            BootstrapFailure.Serialization(
-                error.message ?: "Unable to decode bootstrap response",
-            ),
-        )
     } catch (error: CancellationException) {
         throw error
+    } catch (error: SerializationException) {
+        Result.failure(BootstrapFailure.Serialization("Unable to decode bootstrap response"))
     } catch (error: Throwable) {
-        Result.failure(
-            BootstrapFailure.Transport(
-                error.message ?: "Unable to process bootstrap response",
-            ),
-        )
+        Result.failure(BootstrapFailure.Transport("Unable to process bootstrap response"))
     }
-
-    private fun mapResponse(rawResponse: String): Result<BootstrapOutput> = runCatching {
-        json.decodeFromString<BootstrapResponseDto>(rawResponse)
-    }.fold(
-        onSuccess = mapper::map,
-        onFailure = { error ->
-            if (error is CancellationException) throw error
-            if (error is SerializationException) {
-                Result.failure(
-                    BootstrapFailure.Serialization(
-                        error.message ?: "Unable to decode bootstrap response",
-                    ),
-                )
-            } else {
-                Result.failure(
-                    BootstrapFailure.Transport(
-                        error.message ?: "Unable to process bootstrap response",
-                    ),
-                )
-            }
-        },
-    )
 }
