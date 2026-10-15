@@ -60,7 +60,7 @@ A full **line-by-line final dependency audit** of all relevant classes, imports,
 - Typed `ValueExpression` from four namespaces `$binding/$context/$state/$literal`. Binding entry-local, context read-only and approved, retained state session-scoped. Mandatory unresolved references fail before POST.
 - Six structural categories with concrete types and supported child relationships, no generic all-fields model. Class-key renderer registration for each category, duplicate/unsupported-type handling.
 - Template Shell with header/body/footer independent slots: body padding never insets header/footer. Migration contract for old `template.components` and `properties.padding` must be tested, not silently broken. Theme/gradient uses built-in Compose background where possible.
-- Action registry: initially `request/navigate` typed, existing `external_uri`, `present`, `dismiss`, `state`, `sequence` require *explicit parity disposition before they can be removed*. Existing backend fixtures contain external_uri; do not treat it as compatible with just two actions.
+- Action registry: all seven existing capabilities `request`, `navigate`, `external_uri`, `present`, `dismiss`, `state`, `sequence` are required at migration release; preserve and type them, none may be omitted. Existing backend fixtures contain external_uri; do not treat it as compatible with just two actions.
 - Navigation target/templateId lookup, separate entryId, optional popTo+refresh semantics; preserve state and browser/native back behavior. Proposal syntax is not automatically backend contract.
 - Safety: redact/omit sensitive values in all staging/debug logging, never log raw requests/responses; cancellation propagates; no stale navigation after Store close.
 
