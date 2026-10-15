@@ -558,3 +558,12 @@ The exact file-by-file execution plan, tests, and stop conditions are frozen in 
 - Each category mapper keeps explicit supported-type branches and rejects unknown types deterministically. Element and Content mapping remains separate and unchanged.
 - Existing six category-specific class-keyed renderer registries and `DynamicRenderContext` dispatch remain unchanged. No universal registry, polymorphic serializer framework, new module, hypothetical Grid/List model, or new domain hierarchy.
 - Source scope and verification evidence are recorded in `DYNAMIC-IMPLEMENTATION-STATUS.md` Decision 001 section. Prior sections about registry/action/effect work are independent and must not be interpreted as reopened or completed by this decision.
+
+## 26. DECISION-002 — Network request/response confidentiality (2026-10-15)
+
+**State:** SOURCE-SCOPE FROZEN after owner verification. This is a network logging policy amendment, not a whole-Dynamic-feature freeze.
+
+- The shared `:network` `RequestHandler` must not print arbitrary HTTP request bodies or successful response bodies to the console. Backend-defined payloads may contain credentials, OTP values or personal information; redaction of arbitrary fields is not accepted as a substitute for eliminating these raw prints.
+- `RequestHandler.executeRequest` continues to execute, deserialize and return successful results unchanged. The existing authentication/metadata headers and HTTP exception mapping are unchanged.
+- Decision 002 removed the existing `logRequest`, `logResponse`, `formatJson` and unused console-color constants rather than introducing a logger framework, additional dependencies or changes to Ktor configuration.
+- Detailed verified source scope and evidence: `DYNAMIC-IMPLEMENTATION-STATUS.md` section 19. The other Architecture X-Ray findings (including cancellation semantics) are separate and remain open.
