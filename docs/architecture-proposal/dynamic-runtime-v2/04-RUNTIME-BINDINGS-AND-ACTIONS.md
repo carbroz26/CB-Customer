@@ -1,6 +1,6 @@
 # 04 — Runtime Values, Store, Actions and Stateful Extensions
 
-**State:** Discussion frozen; only request/navigate authorized as initial action capabilities.
+**State:** Discussion frozen and superseded by source reconciliation for action scope; all seven existing action capabilities must be preserved. Detailed implementation plan pending.
 
 ## Runtime owners
 - Entry-scoped Store `Ready.bindings: Map<String, DynamicValue>`: UI-input values, independently owned per navigation visit.
@@ -61,13 +61,13 @@ sealed interface DynamicEffect {
 One Store per navigation entry; no ViewModel. Renderers emit Intent; Store orchestrates load, input reduction, validation, action work and effects. Stores do not serialize JSON, call Compose, mutate navigation stack or own a dedicated HttpClient. Duplicate taps blocked before launching. On disposal, cancel entry-owned work and reject stale completion/navigation; never cancel a shared injected scope. State changes precede any navigation effect.
 
 ## Generic validation
-The FormValidator traverses permitted hierarchy, discovers bindable inputs and backend-provided required/pattern/range rules, and returns field-keyed failures; Store decides when to validate per action. Do not hardcode phone/OTP/first name logic; tests use varied configurations (length, regex, segmented presentation, multiple inputs). Invalid fields prevent requests. Validation UI remains on current screen.
+The FormValidator traverses permitted hierarchy, discovers bindable inputs and backend-provided required/pattern/range rules, and returns field-keyed failures; Every RequestAction enforces its declared validation precondition, including requests nested inside Sequence. Do not hardcode phone/OTP/first name logic; tests use varied configurations (length, regex, segmented presentation, multiple inputs). Invalid fields prevent requests. Validation UI remains on current screen.
 
 ## Action architecture
-Extensible Command + registered handlers; each handler has one action responsibility. Two supported initial action types:
+Extensible Command + registered handlers; each handler has one action responsibility. Preserve all currently supported action types, with typed handlers:
 - `RequestAction`: endpoint/method/authentication/validation, expression body, response mode none/destination, retain paths; request handler uses ReferenceResolver and DynamicRepository, returns ActionResult only.
 - `NavigateAction`: carries destination and navigation mode; handler returns navigation instruction, never calls HTTP or navigation stack directly.
-A single `DynamicActionExecutor` dispatches to registered handlers by stable backend type, rejects duplicates and unsupported types, and owns checked typed-dispatch adapter. Adding action requires concrete DTO/domain decoding + handler + registration + tests; existing handlers do not change.
+Required types beyond Request/Navigate: ExternalUri, Present, Dismiss, State, Sequence. Sequence executes typed nested actions in order, threads retained state and preserves all ordered effects. A single `DynamicActionExecutor` dispatches to registered handlers by stable backend type, rejects duplicates and unsupported types, and owns checked typed-dispatch adapter. Adding action requires concrete DTO/domain decoding + handler + registration + tests; existing handlers do not change.
 
 ```text
 Element interaction -> Intent -> Store
@@ -81,8 +81,8 @@ Element interaction -> Intent -> Store
 ## Retention
 Response-mode `destination` requires valid destination; `none` stays on screen. Retained paths such as `data.challengeId` are evaluated against successful action API data; missing mandatory paths are contract errors, not implicit null. No general previous-response cache. No partial retention/navigation on normal failure or cancellation.
 
-## Future actions: not in initial implementation
-Visibility/set-state, countdown/timer and additional actions can be added as independent handlers. Their authoritative state transitions live in Store/session state; widgets re-render based on state rather than direct element-to-element mutation. Pure scroll animation progress may remain local renderer presentation state. Resend cooldown/rate limiting must remain backend-enforced, with UI timer merely displaying the approved deadline; timer API/state/clock/test contract is future work, not frozen executable code.
+## Other future extensions
+Countdown/timer and additional genuinely new actions can be added as independent handlers; existing `state` and `sequence`, plus `external_uri`, `present`, `dismiss`, are required in initial migration. Their authoritative state transitions live in Store/session state; widgets re-render based on state rather than direct element-to-element mutation. Pure scroll animation progress may remain local renderer presentation state. Resend cooldown/rate limiting must remain backend-enforced, with UI timer merely displaying the approved deadline; timer API/state/clock/test contract is future work, not frozen executable code.
 
 ## Action request example
 Backend `body.phoneNumber = {$binding: mobileNumber}`, `body.deviceId = {$context: deviceId}`. Input renderer updates `Ready.bindings`; Button renderer dispatches its RequestAction; resolver materializes both values; RequestActionHandler calls repository; successful result returns selected `challengeId`/`phoneNumber` and destination. Store commits state then host navigates. No login/OTP classes.
