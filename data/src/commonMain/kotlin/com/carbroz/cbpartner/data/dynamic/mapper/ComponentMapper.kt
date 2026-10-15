@@ -14,7 +14,7 @@ class ComponentMapper(
 ) {
     fun map(node: JsonObject): DynamicComponent = when (values.string(node, "type")) {
         "stack_component" -> map(json.decodeFromJsonElement(StackComponentDto.serializer(), node))
-        else -> error("Unsupported dynamic component type: " + values.string(node, "type"))
+        else -> throw IllegalArgumentException("Unsupported dynamic component type: " + values.string(node, "type"))
     }
 
     private fun map(dto: StackComponentDto): StackComponent {
