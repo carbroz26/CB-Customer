@@ -263,4 +263,38 @@ class RequestHandlerTest {
             }
         }
     }
+
+    @Test
+    fun unexpectedTransportFailureCurrentlyUsesUnknownError() = runTest {
+        val handler = RequestHandler(
+            HttpClient(MockEngine {
+                throw IllegalStateException("simulated transport failure")
+            }) {
+                expectSuccess = true
+            },
+        )
+
+        val result = handler.get<String>(listOf("api", "v1", "screen"))
+
+        val failure = result as NetworkResult.Error
+        assertTrue(failure.exception is NetworkException.Unknown)
+        assertEquals(null, failure.exception.statusCode)
+    }
+
+    @Test
+    fun malformedHttpErrorBodyFallsBackToStatusDescription() = runTest {
+        val handler = RequestHandler(
+            HttpClient(MockEngine {
+                respond("not-json", HttpStatusCode.Forbidden)
+            }) {
+                expectSuccess = true
+            },
+        )
+
+        val result = handler.get<String>(listOf("api", "v1", "screen"))
+
+        val failure = result as NetworkResult.Error
+        assertTrue(failure.exception is NetworkException.Forbidden)
+        assertEquals(403, failure.exception.statusCode)
+    }
 }
