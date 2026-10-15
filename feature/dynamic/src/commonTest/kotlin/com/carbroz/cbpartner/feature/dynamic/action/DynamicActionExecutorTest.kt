@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -10,6 +11,47 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
 class DynamicActionExecutorTest {
+    @Test
+    fun cancellationDuringSequenceStopsLaterActions() = runTest {
+        var laterActionExecuted = false
+        val executor = DynamicActionExecutor(
+            listOf(
+                object : DynamicActionHandler {
+                    override val type = "cancel"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ): DynamicActionResult = throw CancellationException("action cancelled")
+                },
+                object : DynamicActionHandler {
+                    override val type = "later"
+                    override suspend fun handle(
+                        action: DynamicAction,
+                        bindings: Map<String, DynamicValue>,
+                        context: Map<String, DynamicValue>,
+                        state: Map<String, DynamicValue>,
+                    ): DynamicActionResult {
+                        laterActionExecuted = true
+                        return DynamicActionResult.Completed
+                    }
+                },
+            ),
+        )
+        val action = DynamicAction(
+            "sequence",
+            mapOf("actions" to DynamicValue.ArrayValue(listOf(
+                DynamicValue.ObjectValue(mapOf("type" to DynamicValue.StringValue("cancel"))),
+                DynamicValue.ObjectValue(mapOf("type" to DynamicValue.StringValue("later"))),
+            ))),
+        )
+        assertFailsWith<CancellationException> {
+            executor.execute(action, emptyMap(), emptyMap(), emptyMap())
+        }
+        assertEquals(false, laterActionExecuted)
+    }
+
     @Test
     fun sequenceUsesSameExecutorForNestedActions() = runTest {
         val executor = DynamicActionExecutor(
