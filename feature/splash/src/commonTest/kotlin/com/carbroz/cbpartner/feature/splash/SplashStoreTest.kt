@@ -15,6 +15,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SplashStoreTest {
@@ -152,6 +154,21 @@ class SplashStoreTest {
             )
             store.close()
         }
+    }
+
+
+    @Test
+    fun requiredUpdateLinkAcceptsOnlyOwnOfficialPlayStoreListing() {
+        assertTrue(isTrustedUpdateUrl("https://play.google.com/store/apps/details?id=com.carbroz.cbpartner.android"))
+        listOf(
+            "",
+            "https://play.google.com/store/apps/details?id=com.other.app",
+            "http://play.google.com/store/apps/details?id=com.carbroz.cbpartner.android",
+            "https://play.google.com.evil.test/store/apps/details?id=com.carbroz.cbpartner.android",
+            "https://play.google.com/store/apps/details?id=com.carbroz.cbpartner.android&redirect=evil",
+            "javascript:alert(1)",
+            "https://evil.test/",
+        ).forEach { assertFalse(isTrustedUpdateUrl(it)) }
     }
 
     private fun sampleOutput() = BootstrapOutput(
