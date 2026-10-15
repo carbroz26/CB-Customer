@@ -554,3 +554,13 @@ Source implementation and tests have not started. Confirm actual renderer paths 
 - Do not add logging/reporting infrastructure, a new effect-consumer service, or move navigation responsibilities out of :navigation.
 - This does not change action-sequence handler-failure semantics or the typed effect/navigation/presentation contracts.
 - Detailed implementation scope and verification requirements: docs/dynamic/DYNAMIC-IMPLEMENTATION-PLAN.md section 22.30.6.
+
+## DYNAMIC-CATEGORY-TRANSPORT-DISPATCH-001 — Six-category mapping (2026-10-15)
+
+**State:** OWNER-APPROVED; IMPLEMENTED; VERIFIED; DECISION-SCOPE FROZEN.
+**Branch:** `feature/dynamic-ui`.
+**Verified source head:** `5ca1e14e8b8461dcdfeb62c638922ddd31b8c118`.
+
+Retain the six fixed structural categories, existing typed domain category contracts and separate model-class-keyed renderer registries. A Template can contain multiple Component instances, potentially of different concrete types. At Template/Component/Section/Group transport boundaries, decode backend `type` via explicit category mapper dispatch and existing concrete DTOs. The root `DynamicTemplate` exposes identity (`id`, `type`) plus `components` for screen verification; this is not a new renderer lookup hierarchy. Unknown types fail explicitly. Element/Content mapping is not redesigned.
+
+Owner-verified JVM tests, Android debug assembly, Web/Wasm development webpack, and 13-file whitespace/diff scope checks passed on the stated head. Freeze applies only to this decision, not the entire Dynamic feature. Existing `DYNAMIC-REGISTRY-ACTION-EFFECT-AMENDMENT-001` and subsequent action/effect decisions remain independent; their historical status statements do not describe Decision 001.
