@@ -68,6 +68,65 @@ class SplashStoreTest {
         store.close()
     }
 
+
+    @Test
+    fun maintenancePreventsReadyEvenWhenUpdateRequired() = runTest {
+        val output = sampleOutput().copy(
+            maintenance = MaintenanceConfig(true, "Scheduled maintenance", "Try later"),
+            update = sampleOutput().update.copy(required = true, storeUrl = "https://example.test/store"),
+        )
+        val store = SplashStore(
+            bootstrap = object : ApplicationBootstrap {
+                override suspend fun invoke(): Result<BootstrapOutput> = Result.success(output)
+            },
+            scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
+        )
+
+        store.accept(SplashIntent.LoadBootstrap)
+        advanceUntilIdle()
+
+        assertEquals(SplashState.Maintenance("Scheduled maintenance", "Try later"), store.state.value)
+        store.close()
+    }
+
+    @Test
+    fun requiredUpdateBlocksReadyWhenMaintenanceDisabled() = runTest {
+        val output = sampleOutput().copy(
+            update = sampleOutput().update.copy(required = true, storeUrl = "https://example.test/store"),
+        )
+        val store = SplashStore(
+            bootstrap = object : ApplicationBootstrap {
+                override suspend fun invoke(): Result<BootstrapOutput> = Result.success(output)
+            },
+            scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
+        )
+
+        store.accept(SplashIntent.LoadBootstrap)
+        advanceUntilIdle()
+
+        assertEquals(SplashState.RequiredUpdate("https://example.test/store"), store.state.value)
+        store.close()
+    }
+
+    @Test
+    fun optionalUpdateDoesNotBlockReady() = runTest {
+        val output = sampleOutput().copy(
+            update = sampleOutput().update.copy(optional = true),
+        )
+        val store = SplashStore(
+            bootstrap = object : ApplicationBootstrap {
+                override suspend fun invoke(): Result<BootstrapOutput> = Result.success(output)
+            },
+            scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
+        )
+
+        store.accept(SplashIntent.LoadBootstrap)
+        advanceUntilIdle()
+
+        assertEquals(SplashState.Success(output), store.state.value)
+        store.close()
+    }
+
     private fun sampleOutput() = BootstrapOutput(
         version = "1",
         maintenance = MaintenanceConfig(false, null, null),
