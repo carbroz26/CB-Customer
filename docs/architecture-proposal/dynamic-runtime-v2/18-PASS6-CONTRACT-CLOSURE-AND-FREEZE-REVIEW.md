@@ -1,5 +1,7 @@
 # 18 — Pass 6 Contract Closure & Freeze Review
 
+> **Owner clarification — superseding migration gating:** [19-BACKEND-MIGRATION-INDEPENDENT-CONTRACT.md](19-BACKEND-MIGRATION-INDEPENDENT-CONTRACT.md). Backend deployment of URL-icons, optional slots and popTo is **not** a blocker to implementing current frontend behavior. Old name-only icons yield a generic local placeholder without lookup; migrated icon URLs load automatically. Gradient stops and angle are already present and required now. popTo is deferred, not a current requirement. The exact optional Header/Footer field contract must be agreed so future JSON works unchanged. Legacy recommendations in this draft marked 'blocked' solely due to backend readiness are superseded by doc 19.
+
 **Status: CONTRACT CLOSURE PROPOSAL / FREEZE CANDIDATE — NOT PLAN FROZEN.**
 Source: owner-provided Login and OTP response fixtures, owner clarifications, Passes 1–5, and draft 17. No Kotlin code was edited or compiled. This is an explicit decision matrix: **Confirmed** = supported by owner's decision; **Recommended** = coherent choice to approve at freeze; **Blocked** = requires new backend fixture or separate approval. Old code never dictates the target design.
 
