@@ -1,6 +1,8 @@
 # 17 — Pass 6: Exact V2 Implementation Blueprint (Review Draft)
 
-**State: PLAN DRAFT, NOT PLAN FROZEN. No Kotlin implementation authorized.**
+**State: PLAN DRAFT / CONTRACT CLOSURE REVIEW, NOT PLAN FROZEN. No Kotlin implementation authorized.**
+**Freeze review:** [18-PASS6-CONTRACT-CLOSURE-AND-FREEZE-REVIEW.md](18-PASS6-CONTRACT-CLOSURE-AND-FREEZE-REVIEW.md) supersedes this draft's unresolved decision defaults and provides explicit confirmed/recommended/blocked classifications. No proposed new header/footer/popTo wire fields may be implemented as approved until backend fixtures and owner acceptance.
+
 **Branch:** `architecture/dynamic-runtime-v2-discussion-freeze`.
 **Evidence:** actual GitHub tree of this branch; production sources and tests inspected during Passes 1–5; owner-provided canonical Login/OTP JSON; reconciliations 12–16. This file is a planning contract, **not** a claim of successful compile/tests.
 
