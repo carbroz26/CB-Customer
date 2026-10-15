@@ -160,4 +160,55 @@ class RequestHandlerTest {
         assertEquals(NetworkResult.Success("response"), result)
         assertEquals("safe-correlation-id", requestHeader)
     }
+
+    @Test
+    fun bearerHeaderUsesProvidedTokenOnlyWhenAuthenticationRequiresIt() = runTest {
+        val seenAuthorization = mutableListOf<String?>()
+        val handler = RequestHandler(
+            HttpClient(MockEngine { request ->
+                seenAuthorization += request.headers["Authorization"]
+                respond("response")
+            }) {
+                expectSuccess = true
+            },
+            bearerTokenProvider = { "test-token" },
+        )
+
+        val publicResult = handler.executeRequest<Any, String>(
+            method = HttpMethod.Get,
+            urlPathSegments = listOf("api", "v1", "public"),
+            authentication = "NONE",
+        )
+        val privateResult = handler.executeRequest<Any, String>(
+            method = HttpMethod.Get,
+            urlPathSegments = listOf("api", "v1", "private"),
+            authentication = "BEARER",
+        )
+
+        assertEquals(NetworkResult.Success("response"), publicResult)
+        assertEquals(NetworkResult.Success("response"), privateResult)
+        assertEquals(listOf(null, "Bearer test-token"), seenAuthorization)
+    }
+
+    @Test
+    fun missingBearerProviderFailsWithoutSendingRequest() = runTest {
+        var requestsSent = 0
+        val handler = RequestHandler(
+            HttpClient(MockEngine {
+                requestsSent++
+                respond("unexpected")
+            }) {
+                expectSuccess = true
+            },
+        )
+
+        val result = handler.executeRequest<Any, String>(
+            method = HttpMethod.Get,
+            urlPathSegments = listOf("api", "v1", "private"),
+            authentication = "BEARER",
+        )
+
+        assertTrue(result is NetworkResult.Error)
+        assertEquals(0, requestsSent)
+    }
 }
