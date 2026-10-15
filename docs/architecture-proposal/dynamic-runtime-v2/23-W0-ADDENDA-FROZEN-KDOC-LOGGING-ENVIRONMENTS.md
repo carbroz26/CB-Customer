@@ -28,3 +28,15 @@
 - No second HttpClient, generic transport layer, token store or new module without independently demonstrated need. MockEngine tests check header conflict and custom header path; apply no token provider behavior change without secure provider contract.
 - Source changes reviewed on `architecture/dynamic-runtime-v2-discussion-freeze` only.
 - User's pre-change `:network:jvmTest :data:jvmTest :feature:dynamic:jvmTest` passed; each new change still requires *new* local test/build evidence before W1 completion.
+
+## E. Mandatory source hygiene and evidence gate — owner addition
+
+After **each implementation unit**, and again at its wave integration boundary:
+1. Read the complete changed files and actual direct/indirect caller chain. Verify interface contracts, runtime dispatch, tests and DI registration before classifying old code as unused.
+2. Inspect unused imports, parameters, variables, properties, objects, functions/classes, DTOs, resources, constants, test helpers, Koin registrations, Gradle dependencies/plugins, and obsolete parallel paths. Remove only provably obsolete artifacts; preserve platform/configuration and externally used declarations.
+3. Check focused changes against adjacent production code and test coverage. Run relevant test tasks, inspect warnings, `git diff --check`, and inspect exact diff; do not silence warnings without evidence.
+4. Write/update focused KDoc and explanatory comments *as each responsibility is implemented*, including ownership, caller contract, error/cancellation behavior when useful. Remove stale comments. Avoid comment-only narration.
+5. Add structured, privacy-safe Kermit logging *at the point of meaningful work*, where diagnostics add value. No raw body/response, tokens, OTP, phone numbers, device IDs, arbitrary paths/query parameters or untrusted exception messages in any build. Do not invent a logger facade or logging-only wrappers.
+6. Report which old types/imports/dependencies were removed or kept and why, what code paths were traced, tests actually run with their outcome, and remaining verification gaps. No unit marked complete if its regression tests fail.
+
+A failure is investigated against the actual stack and current code before changing code; no assumption-driven patch or broad rewrite. Continue on this one authorized architecture branch only.
