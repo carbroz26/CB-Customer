@@ -43,6 +43,10 @@ import com.carbroz.cbpartner.feature.splash.generated.resources.splash_car_wash
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_failure_retry
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_loading_description
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_loading_title
+import com.carbroz.cbpartner.feature.splash.generated.resources.splash_maintenance_title
+import com.carbroz.cbpartner.feature.splash.generated.resources.splash_maintenance_description
+import com.carbroz.cbpartner.feature.splash.generated.resources.splash_required_update_title
+import com.carbroz.cbpartner.feature.splash.generated.resources.splash_required_update_description
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_ready_description
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_ready_title
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_service_subtitle
@@ -98,6 +102,9 @@ fun SplashScreen(
                 Text(
                     text = when (state) {
                         is SplashState.Success -> stringResource(Res.string.splash_ready_title)
+                        is SplashState.Maintenance -> state.title?.takeIf(String::isNotBlank)
+                            ?: stringResource(Res.string.splash_maintenance_title)
+                        is SplashState.RequiredUpdate -> stringResource(Res.string.splash_required_update_title)
                         else -> stringResource(Res.string.splash_service_title)
                     },
                     style = MaterialTheme.typography.headlineMedium.copy(
@@ -112,6 +119,9 @@ fun SplashScreen(
                 Text(
                     text = when (state) {
                         is SplashState.Success -> stringResource(Res.string.splash_ready_description)
+                        is SplashState.Maintenance -> state.message?.takeIf(String::isNotBlank)
+                            ?: stringResource(Res.string.splash_maintenance_description)
+                        is SplashState.RequiredUpdate -> stringResource(Res.string.splash_required_update_description)
                         else -> stringResource(Res.string.splash_service_subtitle)
                     },
                     style = MaterialTheme.typography.bodyLarge,
@@ -255,6 +265,8 @@ private fun SplashStatus(
                 )
             }
         }
+
+        is SplashState.Maintenance, is SplashState.RequiredUpdate -> Unit
 
         is SplashState.Failure -> {
             Column(
