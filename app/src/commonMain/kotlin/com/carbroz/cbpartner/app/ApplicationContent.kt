@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.app
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -32,6 +33,11 @@ fun ApplicationContent(
 
     DisposableEffect(splashStore) {
         onDispose { splashStore.close() }
+    }
+
+    // Bootstrap has completed; its startup scope must not outlive the handoff.
+    LaunchedEffect(splashStore, splashState) {
+        if (splashState is SplashState.Success) splashStore.close()
     }
 
     MaterialTheme {
