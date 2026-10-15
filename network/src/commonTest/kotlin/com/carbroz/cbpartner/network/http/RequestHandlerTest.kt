@@ -114,6 +114,7 @@ class RequestHandlerTest {
 
         assertEquals(NetworkResult.Success(sensitiveResponse), result)
     }
+
     @Test
     fun callerCannotOverrideTransportOwnedHeadersRegardlessOfCase() = runTest {
         val handler = RequestHandler(
@@ -159,5 +160,4 @@ class RequestHandlerTest {
         assertEquals(NetworkResult.Success("response"), result)
         assertEquals("safe-correlation-id", requestHeader)
     }
-
 }
