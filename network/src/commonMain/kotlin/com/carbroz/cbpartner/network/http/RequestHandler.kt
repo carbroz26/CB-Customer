@@ -15,6 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
+import kotlinx.coroutines.CancellationException
 
 class RequestHandler(
     private val httpClient: HttpClient,
