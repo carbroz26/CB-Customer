@@ -1,6 +1,6 @@
 # CB-Partner — Dynamic Runtime V2: Discussion Freeze
 
-**State:** DISCUSSION FROZEN; implementation plan NOT CREATED or authorized.
+**State:** DISCUSSION FROZEN; implementation plan DRAFT (documents 07–16), NOT PLAN FROZEN and no implementation authorized.
 **Source baseline:** `feature/dynamic-ui` at `f59577337ac78855da3f9cb474483f0211ed1f30`.
 **Branch:** `architecture/dynamic-runtime-v2-discussion-freeze`
 **Nature:** Greenfield reference architecture. No implementation has been authorized; this does not replace existing accepted/frozen architecture or feature status automatically.
@@ -40,7 +40,7 @@ flowchart TD
 
 ## Scope and preservation
 - Discussion covers all application screens through generic mechanisms, using login/OTP only as illustrative fixtures.
-- Supported initial actions: `request` and `navigate`. Timer/visibility, richer actions, upload and advanced header/footer behavior are future contract extension points, not authorized implementation.
+- Supported existing action capabilities to preserve in V2: `request`, `navigate`, `external_uri`, `present`, `dismiss`, `state`, `sequence`. Timers, upload, and new action types remain future extensions. Header/Footer have an agreed additive direction but their exact wire schema remains pending.
 - No native login/OTP-specific classes or hardcoded business flows.
 - No parallel navigation, network, mapper or cache infrastructure.
 - Source/test execution was **not** performed for these documents.
