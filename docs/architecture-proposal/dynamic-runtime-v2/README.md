@@ -1,9 +1,15 @@
 # CB-Partner — Dynamic Runtime V2: Discussion Freeze
 
-**State:** DISCUSSION FROZEN; implementation plan DRAFT (documents 07–16), NOT PLAN FROZEN and no implementation authorized.
+**State:** PLAN FROZEN via [20-PLAN-FROZEN-V2-IMPLEMENTATION-CONTRACT.md](20-PLAN-FROZEN-V2-IMPLEMENTATION-CONTRACT.md); Kotlin implementation NOT YET AUTHORIZED. Historical earlier drafts are superseded wherever inconsistent with 19/20.
 **Source baseline:** `feature/dynamic-ui` at `f59577337ac78855da3f9cb474483f0211ed1f30`.
 **Branch:** `architecture/dynamic-runtime-v2-discussion-freeze`
 **Nature:** Greenfield reference architecture. No implementation has been authorized; this does not replace existing accepted/frozen architecture or feature status automatically.
+
+## Frozen planning authority
+- [20 — PLAN FROZEN V2 Implementation Contract](20-PLAN-FROZEN-V2-IMPLEMENTATION-CONTRACT.md) — authoritative signed-off scope, exact schema, semantics, waves and test gates.
+- [19 — Backend Migration Independent Contract](19-BACKEND-MIGRATION-INDEPENDENT-CONTRACT.md) — old and new backend fixture compatibility.
+- [17 — Detailed File-by-File Blueprint](17-PASS6-EXACT-IMPLEMENTATION-BLUEPRINT-DRAFT.md) — create/modify/delete manifest as corrected by document 20.
+- [18 — Historical Closure Review](18-PASS6-CONTRACT-CLOSURE-AND-FREEZE-REVIEW.md) — earlier proposals, superseded where doc 20 differs.
 
 ## Purpose
 Record the product owner's completed Hindi-language design discussion in English, before a file-by-file implementation plan. The reference design must be reconciled against source, tests, and older accepted decisions. Conflicts are explicit review items, not silent changes.
