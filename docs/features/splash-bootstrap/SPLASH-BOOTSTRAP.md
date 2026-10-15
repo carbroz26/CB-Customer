@@ -18,8 +18,6 @@ App / ApplicationContent
   ↓
 Splash Store + UI
   ↓
-ApplicationBootstrap
-  ↓
 BootstrapRepository
   ↓
 BootstrapRepositoryImpl
@@ -39,7 +37,7 @@ DynamicDestination
 DynamicNavigationState
 ```
 
-The frozen Bootstrap implementation direction is Option B: domain owns the bootstrap use-case/repository contract, Data owns the remote source/DTO/mapping/repository implementation, and the result is handed to the canonical Dynamic navigation boundary.
+**V2 W2 owner-approved reconciliation (2026-10-16):** remove the redundant `ApplicationBootstrap` forwarding interface and Koin adapter. The Domain `BootstrapRepository` is the sole startup acquisition contract; Data owns remote source/DTO/mapping/repository implementation; SplashStore owns startup policy and passes the canonical destination to app navigation. This explicitly supersedes the older Option B use-case wrapper chain, without altering wire contracts.
 
 ## 3. Bootstrap API
 
