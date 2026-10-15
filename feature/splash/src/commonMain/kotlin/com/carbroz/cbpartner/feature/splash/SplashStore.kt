@@ -61,9 +61,9 @@ class SplashStore(
                 }
                 .onFailure { error ->
                     if (error is CancellationException) throw error
-                    _state.value = SplashState.Failure(
-                        error.message ?: "Unable to start the application",
-                    )
+                    // Bootstrap failures may contain server-provided text or request details.
+                    // Never expose exception messages through the splash UI.
+                    _state.value = SplashState.Failure("Unable to start the application")
                 }
         }
     }
