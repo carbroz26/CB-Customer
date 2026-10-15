@@ -547,3 +547,14 @@ Audit source and contract alignment across all six registries and renderers; DTO
 Preserve the four supported reference namespaces, no `$response`, no ViewModel, no Dynamic-specific HTTP client/navigation cache, no business-specific Login/OTP models, backend-owned assets/visual properties, content-owned `DynamicSpacing`, and existing behavior outside the explicitly approved scope.
 
 The exact file-by-file execution plan, tests, and stop conditions are frozen in `DYNAMIC-IMPLEMENTATION-PLAN.md` section 22.30. Documentation must be reconciled and the plan explicitly frozen before source implementation. If source paths or contracts differ, stop and reconcile before changing source.
+
+## 25. DECISION-001 — Six-category transport dispatch (2026-10-15)
+
+**State:** IMPLEMENTED; OWNER-VERIFIED; DECISION-001 SOURCE SCOPE FROZEN. This is not a freeze of the entire Dynamic feature.
+
+- The structural categories remain Template, Component, Section, Group, Element, and Content. One Template has a Component category and may contain multiple Component instances.
+- Data mapping selects the supported concrete Template, Component, Section, and Group DTO/model by each node's backend `type`. At polymorphic transport boundaries, the screen template is a `JsonObject` and concrete parent DTO child collections use `List<JsonObject>`. Existing concrete DTOs and domain models remain.
+- `DynamicScreen.template` uses the existing `DynamicTemplate` interface. Its shared `id`, `type`, and `components` support identity validation and composition; these are not introduced for renderer registry dispatch.
+- Each category mapper keeps explicit supported-type branches and rejects unknown types deterministically. Element and Content mapping remains separate and unchanged.
+- Existing six category-specific class-keyed renderer registries and `DynamicRenderContext` dispatch remain unchanged. No universal registry, polymorphic serializer framework, new module, hypothetical Grid/List model, or new domain hierarchy.
+- Source scope and verification evidence are recorded in `DYNAMIC-IMPLEMENTATION-STATUS.md` Decision 001 section. Prior sections about registry/action/effect work are independent and must not be interpreted as reopened or completed by this decision.
