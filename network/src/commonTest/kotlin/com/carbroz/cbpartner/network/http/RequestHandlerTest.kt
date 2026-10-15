@@ -14,6 +14,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.http.URLProtocol
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -321,5 +322,23 @@ class RequestHandlerTest {
             assertEquals(null, failure.exception.statusCode)
             assertTrue(failure.exception.message.orEmpty().contains("private").not())
         }
+    }
+
+    @Test
+    fun unresolvedAddressProducesConnectionFailure() = runTest {
+        val handler = RequestHandler(
+            HttpClient(MockEngine {
+                throw UnresolvedAddressException()
+            }) {
+                expectSuccess = true
+            },
+        )
+
+        val result = handler.get<String>(listOf("api", "v1", "screen"))
+
+        val failure = result as NetworkResult.Error
+        assertTrue(failure.exception is NetworkException.Connection)
+        assertEquals(null, failure.exception.statusCode)
+        assertEquals("Unable to resolve network address", failure.exception.message)
     }
 }
