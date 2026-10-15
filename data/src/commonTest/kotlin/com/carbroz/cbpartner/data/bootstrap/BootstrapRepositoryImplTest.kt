@@ -9,12 +9,14 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.test.assertFailsWith
 
 class BootstrapRepositoryImplTest {
     @Test
@@ -69,6 +71,19 @@ class BootstrapRepositoryImplTest {
             503,
             (result.exceptionOrNull() as? com.carbroz.cbpartner.network.NetworkException.Server)?.statusCode,
         )
+    }
+
+    @Test
+    fun cancelledBootstrapFetchPropagatesCancellation() = runTest {
+        val repository = createRepository(
+            MockEngine {
+                throw CancellationException("Startup cancelled")
+            },
+        )
+
+        assertFailsWith<CancellationException> {
+            repository.fetch()
+        }
     }
 
     private fun createRepository(engine: MockEngine): BootstrapRepositoryImpl =
