@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.feature.splash
 
-import com.carbroz.cbpartner.domain.repository.BootstrapRepository
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
+import com.carbroz.cbpartner.domain.repository.BootstrapRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +26,11 @@ sealed interface SplashState {
     data class Failure(val message: String) : SplashState
 }
 
+/**
+ * Owns bootstrap loading, retry and startup blocking states until app handoff.
+ * The caller closes this Store after successful handoff or composition disposal.
+ * UI errors are deliberately generic; raw backend exception messages are never exposed.
+ */
 class SplashStore(
     private val bootstrap: BootstrapRepository,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
