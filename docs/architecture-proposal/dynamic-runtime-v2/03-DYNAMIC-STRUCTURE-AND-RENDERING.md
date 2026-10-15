@@ -13,7 +13,7 @@ ScreenDocument
      └─ optional footer components
 ElementNode -> optional leading / trailing ContentNode
 ```
-Exactly six logical categories: Template, Component, Section, Group, Element, Content. They are different structural responsibilities. A Component may directly own Elements and/or Sections; a Section may own Groups and/or Elements. Do not fabricate intermediate layers.
+Exactly six logical categories: Template, Component, Section, Group, Element, Content. **Confirmed cardinality:** exactly one Template per screen response; that Template owns one or more Components. Each Component may have direct Elements and/or Sections; each Section may have direct Elements and/or Groups; each Group has only Elements; each Element may have zero or more nested Content nodes. They are different structural responsibilities. A Component may directly own Elements and/or Sections; a Section may own Groups and/or Elements. Do not fabricate intermediate layers.
 
 Concrete initially supported examples: FormTemplateNode, StackComponentNode, StackSectionNode, StackGroupNode, TextElementNode, InputElementNode, ButtonElementNode, ImageElementNode, IconContentNode, DividerContentNode. Separate IconElementNode is **not** unconditionally authorized; confirm the actual icon-as-element backend contract during planning. Future Grid/List/Carousel/Checkbox/Picker/Upload are examples, not present implementation requirements.
 
