@@ -46,6 +46,8 @@ class RequestHandler(
             NetworkResult.Error(null, error.toNetworkException())
         } catch (error: kotlinx.serialization.SerializationException) {
             NetworkResult.Error(null, NetworkException.Serialization(error.message ?: "Unable to decode network response", error))
+        } catch (error: CancellationException) {
+            throw error
         } catch (error: Throwable) {
             NetworkResult.Error(null, NetworkException.Unknown(error.message ?: "Unknown network error", error))
         }
