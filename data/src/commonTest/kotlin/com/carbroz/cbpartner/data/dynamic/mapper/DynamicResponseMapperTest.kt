@@ -254,4 +254,34 @@ class DynamicResponseMapperTest {
         assertEquals(null, leadingIcon.spacing)
         assertEquals(null, assertIs<DividerContent>(text.trailingContent.single()).spacing)
     }
+
+    @Test
+    fun categoryDispatchRejectsUnknownTemplateSectionAndGroup() {
+        fun response(template: String): DynamicResponseDto = json.decodeFromString(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"invalid","schemaVersion":"3.0.0","targetApp":"PARTNER","template":$template}}""",
+        )
+        val templates = listOf(
+            """{"id":"tpl","type":"future_template"}""",
+            """{"id":"tpl","type":"form_template","components":[{"id":"c","type":"stack_component","sections":[{"id":"s","type":"future_section"}]}]}""",
+            """{"id":"tpl","type":"form_template","components":[{"id":"c","type":"stack_component","sections":[{"id":"s","type":"stack_section","groups":[{"id":"g","type":"future_group"}]}]}]}""",
+        )
+        templates.forEach { template ->
+            assertFailsWith<IllegalArgumentException> {
+                DynamicResponseMapper(json).map(response(template))
+            }
+        }
+    }
+
+    @Test
+    fun categoryDispatchPreservesMultipleComponents() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"multi","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"first","type":"stack_component"},{"id":"second","type":"stack_component"}]}}}""",
+        )
+        val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
+        assertEquals("tpl", screen.template.id)
+        assertEquals("form_template", screen.template.type)
+        assertEquals(2, screen.template.components.size)
+        assertEquals("first", assertIs<StackComponent>(screen.template.components[0]).id)
+        assertEquals("second", assertIs<StackComponent>(screen.template.components[1]).id)
+    }
 }
