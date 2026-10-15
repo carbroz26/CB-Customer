@@ -7,6 +7,9 @@ import com.carbroz.cbpartner.network.NetworkResult
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.http.URLProtocol
 import io.ktor.http.HttpMethod
@@ -296,5 +299,27 @@ class RequestHandlerTest {
         val failure = result as NetworkResult.Error
         assertTrue(failure.exception is NetworkException.Forbidden)
         assertEquals(403, failure.exception.statusCode)
+    }
+
+    @Test
+    fun ktorTimeoutsProduceTypedFailuresWithoutLeakingEndpoint() = runTest {
+        val cases = listOf(
+            HttpRequestTimeoutException("https://private.example.test/token", 1000),
+            ConnectTimeoutException("private-host"),
+            SocketTimeoutException("private-host"),
+        )
+        for (cause in cases) {
+            val handler = RequestHandler(
+                HttpClient(MockEngine { throw cause }) {
+                    expectSuccess = true
+                },
+            )
+
+            val result = handler.get<String>(listOf("api", "v1", "private"))
+            val failure = result as NetworkResult.Error
+            assertTrue(failure.exception is NetworkException.Timeout)
+            assertEquals(null, failure.exception.statusCode)
+            assertTrue(failure.exception.message.orEmpty().contains("private").not())
+        }
     }
 }
