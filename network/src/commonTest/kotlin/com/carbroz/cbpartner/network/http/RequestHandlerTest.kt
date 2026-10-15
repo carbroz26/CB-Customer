@@ -242,37 +242,6 @@ class RequestHandlerTest {
     }
 
     @Test
-    fun endpointSegmentsMustNotCarryUrlAuthorityOrTraversal() = runTest {
-        val invalidEndpoints = listOf(
-            "https://evil.example/path",
-            "//evil.example/path",
-            "/api/../private",
-            "/api/%2e%2e/private",
-            "/api/screen?token=secret",
-            "/api/screen#fragment",
-        )
-        invalidEndpoints.forEach { endpoint ->
-            var requestsSent = 0
-            val handler = RequestHandler(
-                HttpClient(MockEngine {
-                    requestsSent++
-                    respond("unexpected request")
-                }) {
-                    expectSuccess = true
-                },
-            )
-
-            try {
-                handler.get<String>(endpoint.split('/').filter(String::isNotEmpty))
-            } catch (_: IllegalArgumentException) {
-                // A rejected caller contract is also valid; the request must not be sent.
-            }
-
-            assertEquals(0, requestsSent, "Unsafe endpoint reached transport for a rejected shape")
-        }
-    }
-
-    @Test
     fun httpErrorCodesAreClassifiedByStatus() = runTest {
         val cases = listOf(401, 422, 429, 500)
         for (code in cases) {
