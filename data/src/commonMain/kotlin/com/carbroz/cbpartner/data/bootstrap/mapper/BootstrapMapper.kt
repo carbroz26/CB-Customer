@@ -8,6 +8,11 @@ import com.carbroz.cbpartner.domain.model.bootstrap.FeatureConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.MaintenanceConfig
 import com.carbroz.cbpartner.domain.model.bootstrap.UpdateConfig
 
+/**
+ * Validates the bootstrap response envelope and required startup configuration,
+ * then maps it to the canonical Domain output and four-field destination.
+ * It does not perform networking, UI presentation, or external URL opening.
+ */
 class BootstrapMapper {
     fun map(response: BootstrapResponseDto): Result<BootstrapOutput> {
         if (response.status !in 200..299) {
