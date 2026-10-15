@@ -1042,3 +1042,13 @@ The plan is frozen; source edits and test execution have not started. The next a
 - Scope: 13 files, 85 additions and 20 deletions relative to `6630f29b`; implemented at `5ca1e14e8b8461dcdfeb62c638922ddd31b8c118`.
 - Owner verification: `:domain:jvmTest :data:jvmTest :feature:dynamic:jvmTest :navigation:jvmTest` passed; `:androidApp:assembleDebug :webApp:wasmJsBrowserDevelopmentWebpack` passed; `git diff --check 6630f29b..HEAD` passed and diff stat matched the scoped 13 files.
 - Exclusions: registry implementations, Store, actions/effects, navigation, network/logging, UI asset/rendering, backend, dependency and tooling changes. Other workstreams in section 22.30 remain separate; this entry does not declare their completion or the whole Dynamic feature frozen.
+
+## 22.32. DECISION-002 — Completed raw HTTP logging removal (2026-10-15)
+
+**State:** IMPLEMENTED → VERIFIED → SOURCE-SCOPE FROZEN. Historical execution record; no additional code changes approved by this entry.
+
+- Modified `network/src/commonMain/kotlin/com/carbroz/cbpartner/network/http/RequestHandler.kt`: removed calls printing request/response contents, their formatting helpers and unused ANSI constants; preserved request execution, response decoding, headers, authentication, HTTP error classification and API surface.
+- Modified `network/src/commonTest/kotlin/com/carbroz/cbpartner/network/http/RequestHandlerTest.kt`: added a response-preservation regression case with a synthetic sensitive-looking payload. It verifies that decoded String response content remains available to the caller, not console-output interception.
+- Source baseline `ff58dfdca73f901b037d5d34ea0ebcc31576d0d8`; final owner-verified source head `c77afe232447277b67f6b28638f61b608195ba8c`. Diff: exactly two files, 14 insertions and 57 deletions.
+- Owner verification: `:network:jvmTest :data:jvmTest :feature:dynamic:jvmTest` BUILD SUCCESSFUL (43 actionable tasks); `:androidApp:assembleDebug :webApp:wasmJsBrowserDevelopmentWebpack` BUILD SUCCESSFUL (232 actionable tasks); `git diff --check ff58dfd..HEAD` passed; reviewed `git diff --stat` showed only the two approved files. Branch `feature/dynamic-ui` fast-forwarded and local HEAD matched origin.
+- No claims of full repository-wide logging inventory, iOS build, runtime log capture, or final freeze of the entire Dynamic feature. Coroutine cancellation, lifecycle, actions and unrelated refactors are outside Decision 002.
