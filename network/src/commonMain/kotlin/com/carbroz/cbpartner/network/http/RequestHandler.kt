@@ -38,6 +38,9 @@ class RequestHandler(
     ): NetworkResult<R> {
         val authenticationMode = authentication.uppercase()
         require(authenticationMode in setOf("NONE", "BEARER")) { "Unsupported authentication mode: $authentication" }
+        require(headers.orEmpty().keys.none(::isTransportOwnedHeader)) {
+            "Request headers must not override transport-owned headers"
+        }
         return try {
             val response = performRequest(
                 method = method,
@@ -69,9 +72,6 @@ class RequestHandler(
         body: Any?,
         queryParams: Map<String, Any>?,
     ): HttpResponse {
-        require(headers.orEmpty().keys.none(::isTransportOwnedHeader)) {
-            "Request headers must not override transport-owned headers"
-        }
         return httpClient.prepareRequest {
             this.method = method
             url { appendPathSegments(urlPathSegments.map(Any::toString)) }
