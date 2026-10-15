@@ -341,4 +341,30 @@ class RequestHandlerTest {
         assertEquals(null, failure.exception.statusCode)
         assertEquals("Unable to resolve network address", failure.exception.message)
     }
+
+    @Test
+    fun blankBearerCredentialFailsBeforeNetworkRequest() = runTest {
+        listOf("", "   ").forEach { credential ->
+            var requestsSent = 0
+            val client = HttpClient(MockEngine {
+                requestsSent++
+                respond("unexpected")
+            }) {
+                expectSuccess = true
+            }
+            try {
+                val handler = RequestHandler(client, bearerTokenProvider = { credential })
+                val result = handler.executeRequest<Any, String>(
+                    method = HttpMethod.Get,
+                    urlPathSegments = listOf("api", "v1", "private"),
+                    authentication = "BEARER",
+                )
+
+                assertTrue(result is NetworkResult.Error)
+                assertEquals(0, requestsSent)
+            } finally {
+                client.close()
+            }
+        }
+    }
 }
