@@ -1,5 +1,7 @@
 # 17 — Pass 6: Exact V2 Implementation Blueprint (Review Draft)
 
+> **Owner clarification — superseding migration gating:** [19-BACKEND-MIGRATION-INDEPENDENT-CONTRACT.md](19-BACKEND-MIGRATION-INDEPENDENT-CONTRACT.md). Backend deployment of URL-icons, optional slots and popTo is **not** a blocker to implementing current frontend behavior. Old name-only icons yield a generic local placeholder without lookup; migrated icon URLs load automatically. Gradient stops and angle are already present and required now. popTo is deferred, not a current requirement. The exact optional Header/Footer field contract must be agreed so future JSON works unchanged. Legacy recommendations in this draft marked 'blocked' solely due to backend readiness are superseded by doc 19.
+
 **State: PLAN DRAFT / CONTRACT CLOSURE REVIEW, NOT PLAN FROZEN. No Kotlin implementation authorized.**
 **Freeze review:** [18-PASS6-CONTRACT-CLOSURE-AND-FREEZE-REVIEW.md](18-PASS6-CONTRACT-CLOSURE-AND-FREEZE-REVIEW.md) supersedes this draft's unresolved decision defaults and provides explicit confirmed/recommended/blocked classifications. No proposed new header/footer/popTo wire fields may be implemented as approved until backend fixtures and owner acceptance.
 
