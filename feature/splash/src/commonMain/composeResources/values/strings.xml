@@ -12,4 +12,6 @@
     <string name="splash_maintenance_description">CarBroz is under maintenance. Please try again later.</string>
     <string name="splash_required_update_title">Update required</string>
     <string name="splash_required_update_description">Update CarBroz Partner to continue.</string>
+    <string name="splash_update_action">Open Play Store</string>
+    <string name="splash_update_unavailable">An update is required, but a verified download link is not available yet. Please try again later.</string>
 </resources>
