@@ -34,5 +34,9 @@ kotlin {
             implementation("androidx.compose.runtime:runtime-retain:1.12.0")
             implementation(compose.material3)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+        }
     }
 }
