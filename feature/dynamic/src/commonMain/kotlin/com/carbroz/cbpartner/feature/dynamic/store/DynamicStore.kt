@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic.store
 
+import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -50,6 +51,19 @@ class DynamicStore(
 ) {
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
+
+    private val diagnosticLogger = Logger.withTag("CBPartnerFlow")
+
+    private fun reportAction(trace: TraceContext?, event: String, type: String, outcome: String? = null) {
+        val safeType = when (type.trim().lowercase()) {
+            "request", "navigate", "present", "dismiss", "external_uri", "state", "sequence", "back" -> type.trim().lowercase()
+            else -> "other"
+        }
+        val fields = "event=$event sessionId=${trace?.sessionId ?: "-"} " +
+            "actionId=${trace?.actionId ?: "-"} parentActionId=${trace?.parentActionId ?: "-"} " +
+            "type=$safeType" + (outcome?.let { " outcome=$it" } ?: "")
+        runCatching { diagnosticLogger.i { fields } }
+    }
 
     private var loadJob: Job? = null
     private var actionJob: Job? = null
@@ -109,6 +123,7 @@ class DynamicStore(
             val traceContext = entry.diagnosticSessionId?.let { session ->
                 TraceContext(session, Uuid.random().toString(), entry.parentActionId)
             }
+            reportAction(traceContext, "action.started", action.type)
             val context = contextProvider()
             val stateValues = runtimeState.values.value
             val validationResult = runCatching {
@@ -124,6 +139,7 @@ class DynamicStore(
             val validationError = validationResult.exceptionOrNull()
             if (validationError != null) {
                 if (validationError is CancellationException) throw validationError
+                reportAction(traceContext, "action.completed", action.type, "validation_rejected")
                 reduce(current.copy(validationMessage = "Unable to process request"))
                 return@launch
             }
@@ -131,11 +147,13 @@ class DynamicStore(
             if (validationResult.getOrThrow()) {
                 val screen = current.response?.data
                 if (screen == null) {
+                    reportAction(traceContext, "action.completed", action.type, "validation_rejected")
                     reduce(current.copy(validationMessage = "Unable to validate form"))
                     return@launch
                 }
                 val message = validator.validate(screen, current.bindings)
                 if (message != null) {
+                    reportAction(traceContext, "action.completed", action.type, "validation_rejected")
                     reduce(current.copy(validationMessage = message))
                     return@launch
                 }
@@ -150,9 +168,11 @@ class DynamicStore(
             )
             if (result.isSuccess) {
                 applyActionResult(result.getOrThrow(), traceContext)
+                reportAction(traceContext, "action.completed", action.type, "success")
             } else {
                 val error = result.exceptionOrNull()
                 if (error is CancellationException) throw error
+                reportAction(traceContext, "action.completed", action.type, "failed")
                 val screen = currentScreen() ?: current
                 reduce(screen.copy(validationMessage = "Unable to complete action"))
             }

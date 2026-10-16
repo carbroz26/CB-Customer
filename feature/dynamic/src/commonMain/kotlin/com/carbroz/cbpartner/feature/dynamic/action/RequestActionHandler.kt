@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
+import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
@@ -11,6 +12,7 @@ class RequestActionHandler(
     private val repository: DynamicRepository,
 ) : DynamicActionHandler {
     override val type = "request"
+    private val diagnosticLogger = Logger.withTag("CBPartnerFlow")
 
     override suspend fun handle(
         action: DynamicAction,
@@ -70,6 +72,13 @@ class RequestActionHandler(
         }
 
         val destination = response.destination ?: error("Dynamic request did not provide data.destination")
+        runCatching {
+            diagnosticLogger.i {
+                "event=destination.resolved sessionId=${traceContext?.sessionId ?: "-"} " +
+                    "actionId=${traceContext?.actionId ?: "-"} " +
+                    "parentActionId=${traceContext?.parentActionId ?: "-"} outcome=success"
+            }
+        }
         return DynamicActionResult.Navigate(destination, operation, stateChanges)
     }
 

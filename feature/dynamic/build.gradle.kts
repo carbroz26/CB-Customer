@@ -17,6 +17,7 @@ kotlin {
             implementation(project(":core"))
             implementation(project(":domain"))
             implementation(project(":navigation"))
+            implementation(libs.kermit)
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
