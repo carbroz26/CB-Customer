@@ -73,9 +73,20 @@ internal class DynamicSession(
     ): Boolean = locked {
         if (closed) return@locked false
         val copied = effects.toList()
-        runtimeState.setAll(changes)
-        if (copied.isNotEmpty()) {
-            batches.addLast(Batch(++nextBatch, copied, trace))
+        // Prepare and enqueue before publishing the state patch. A failed
+        // enqueue must never leave state changes without accepted effects.
+        val batch = if (copied.isEmpty()) null else Batch(nextBatch + 1L, copied, trace)
+        if (batch != null) batches.addLast(batch)
+        try {
+            runtimeState.setAll(changes)
+        } catch (failure: Throwable) {
+            // StateFlow.update computes a complete new map before publication.
+            // Roll back the unannounced batch if the state update fails.
+            if (batch != null) batches.removeLast()
+            throw failure
+        }
+        if (batch != null) {
+            nextBatch = batch.id
             changed()
         }
         true
@@ -108,7 +119,7 @@ internal class DynamicSession(
     fun markDispatchStarted(claim: ClaimedEffect): Boolean = locked {
         val active = reservation
         if (closed || currentLease != claim.leaseId ||
-            active?.claim != claim || active.started
+            active?.claim !== claim || active.started
         ) return@locked false
         active.started = true
         true
@@ -118,7 +129,7 @@ internal class DynamicSession(
     fun acknowledge(claim: ClaimedEffect, outcome: EffectOutcome): Boolean = locked {
         val active = reservation
         if (closed || currentLease != claim.leaseId ||
-            active?.claim != claim || !active.started
+            active?.claim !== claim || !active.started
         ) return@locked false
         // The caller renders any generic UI-safe error for Rejected.
         advance()

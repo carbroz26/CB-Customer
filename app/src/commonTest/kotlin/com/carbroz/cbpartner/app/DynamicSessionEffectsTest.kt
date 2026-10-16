@@ -250,6 +250,21 @@ class DynamicSessionEffectsTest {
         assertEquals(ordered, claimed)
     }
 
+    @Test
+    fun copiedClaimCannotStartOrAcknowledgeAnotherReservation() = runTest {
+        val session = session()
+        assertTrue(session.commit(emptyMap(), effects()))
+        val lease = session.attachConsumer()
+        val issued = assertNotNull(session.claimNext(lease))
+        val copied = issued.copy()
+        assertEquals(issued, copied)
+        assertFalse(session.markDispatchStarted(copied))
+        assertTrue(session.markDispatchStarted(issued))
+        assertFalse(session.acknowledge(copied, DynamicSession.EffectOutcome.Applied))
+        assertTrue(session.acknowledge(issued, DynamicSession.EffectOutcome.Applied))
+        assertEquals(effects()[1], assertNotNull(session.claimNext(lease)).effect)
+    }
+
     private fun session() = DynamicSession("g2-test-session", destination("root"))
 
     private fun destination(id: String) =
