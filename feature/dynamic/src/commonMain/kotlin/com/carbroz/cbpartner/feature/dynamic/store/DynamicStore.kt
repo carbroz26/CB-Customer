@@ -61,7 +61,9 @@ class DynamicStore(
 
     private fun updateBinding(key: String, value: DynamicValue) {
         val current = currentScreen() ?: return
-        reduce(current.copy(bindings = current.bindings + (key to value)))
+        val bindings = current.bindings + (key to value)
+        entry.updateBindings(bindings)
+        reduce(current.copy(bindings = bindings))
     }
 
     private fun load() {
@@ -74,7 +76,7 @@ class DynamicStore(
                     _state.value = DynamicState.Success(
                         DynamicScreenState(
                             response = response,
-                            bindings = previous?.bindings.orEmpty(),
+                            bindings = previous?.bindings ?: entry.bindings,
                             validationMessage = null,
                         ),
                     )
