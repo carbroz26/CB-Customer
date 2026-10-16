@@ -105,6 +105,41 @@ class DynamicNavigationStateTest {
         assertEquals(DynamicValue.StringValue("456"), other.bindings["phone"])
     }
 
+
+    @Test
+    fun dismissPresentationWithoutModalDoesNotPopNonRootStack() {
+        val state = DynamicNavigationState(destination("root"))
+        state.push(destination("second"))
+        val current = state.currentEntry
+
+        assertFalse(state.dismissPresentation())
+        assertSame(current, state.currentEntry)
+        assertEquals(2, state.backStack.size)
+    }
+
+    @Test
+    fun dismissPresentationWithoutModalDoesNotPopRoot() {
+        val state = DynamicNavigationState(destination("root"))
+        val root = state.currentEntry
+
+        assertFalse(state.dismissPresentation())
+        assertSame(root, state.currentEntry)
+        assertEquals(1, state.backStack.size)
+    }
+
+    @Test
+    fun dismissPresentationWithModalKeepsUnderlyingStack() {
+        val state = DynamicNavigationState(destination("root"))
+        state.push(destination("second"))
+        val current = state.currentEntry
+        assertTrue(state.present(destination("modal")))
+
+        assertTrue(state.dismissPresentation())
+        assertEquals(null, state.presentationEntry)
+        assertSame(current, state.currentEntry)
+        assertEquals(2, state.backStack.size)
+    }
+
     private fun destination(id: String) =
         DynamicDestination(id, "tpl_$id", "form_template", "/$id")
 }
