@@ -306,15 +306,15 @@ class DynamicResponseMapperTest {
     }
 
     @Test
-    fun missingAssetUrlsMapToEmptyValuesForRendererFallback() {
+    fun legacyMissingIconUrlsUseRendererFallbackWhileImageHasRequiredUrl() {
         val dto = json.decodeFromString<DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"asset_fallback","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_assets","type":"form_template","components":[{"id":"assets","type":"stack_component","elements":[{"id":"icon","type":"icon","properties":{}},{"id":"image","type":"image","properties":{}},{"id":"label","type":"text","properties":{"text":"Label","textAlign":"center","fillMaxWidth":true,"leading":[{"type":"icon","properties":{}}],"trailing":[{"type":"divider","properties":{"orientation":"vertical","height":20,"thickness":1}}]}}]}]}}}""",
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"asset_fallback","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_assets","type":"form_template","components":[{"id":"assets","type":"stack_component","elements":[{"id":"icon","type":"icon","properties":{}},{"id":"image","type":"image","properties":{"url":"https://backend.example/assets/image.png"}},{"id":"label","type":"text","properties":{"text":"Label","textAlign":"center","fillMaxWidth":true,"leading":[{"type":"icon","properties":{}}],"trailing":[{"type":"divider","properties":{"orientation":"vertical","height":20,"thickness":1}}]}}]}]}}}""",
         )
 
         val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
         val component = assertIs<StackComponent>(assertIs<FormTemplate>(screen.template).components.single())
         assertEquals("", assertIs<IconElement>(component.elements[0]).url)
-        assertEquals("", assertIs<ImageElement>(component.elements[1]).url)
+        assertEquals("https://backend.example/assets/image.png", assertIs<ImageElement>(component.elements[1]).url)
         val text = assertIs<TextElement>(component.elements[2])
         assertEquals("center", text.textAlign)
         assertEquals(true, text.fillMaxWidth)
