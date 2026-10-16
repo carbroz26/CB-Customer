@@ -92,7 +92,7 @@ private fun DynamicContent(
                             DynamicActionResult.NavigationOperation.Pop -> check(navigationState.pop()) { "Navigation unavailable" }
                         }
                         is DynamicActionEffect.Present -> check(navigationState.present(effect.destination)) { "Presentation unavailable" }
-                        DynamicActionEffect.Dismiss -> check(navigationState.dismissPresentation() || navigationState.pop()) { "Dismiss unavailable" }
+                        DynamicActionEffect.Dismiss -> check(navigationState.dismissPresentation()) { "Dismiss unavailable" }
                     }
                 } catch (cancellation: CancellationException) {
                     throw cancellation
