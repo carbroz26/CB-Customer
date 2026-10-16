@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
 
 class ExternalUriActionHandler : DynamicActionHandler {
     override val type = "external_uri"
@@ -13,7 +14,7 @@ class ExternalUriActionHandler : DynamicActionHandler {
         state: Map<String, DynamicValue>,
     ): DynamicActionResult.ExternalUri {
         val value = action.payload["uri"] ?: error("Dynamic external URI is missing")
-        val uri = (DynamicActionValueResolver.resolve(value, bindings, context, state) as? DynamicValue.StringValue)?.value
+        val uri = (DynamicReferenceResolver.resolve(value, bindings, context, state) as? DynamicValue.StringValue)?.value
             ?: error("Dynamic external URI value is invalid")
         return DynamicActionResult.ExternalUri(uri)
     }
