@@ -7,11 +7,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalUriHandler
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.DynamicContainer
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.registry.dynamicRendererRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
@@ -22,6 +25,8 @@ import com.carbroz.cbpartner.feature.splash.SplashStore
 import com.carbroz.cbpartner.navigation.DynamicNavigationHost
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import org.koin.core.Koin
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
 
 @Composable
 fun ApplicationContent(
@@ -59,6 +64,35 @@ private fun DynamicContent(
     runtimeMetadataProvider: RuntimeMetadataProvider,
 ) {
     val navigationState = remember(initialDestination) { DynamicNavigationState(initialDestination) }
+    val effectBatches = remember(navigationState) { Channel<List<DynamicActionEffect>>(Channel.UNLIMITED) }
+    val uriHandler = LocalUriHandler.current
+
+    DisposableEffect(effectBatches) {
+        onDispose { effectBatches.close() }
+    }
+
+    LaunchedEffect(effectBatches, navigationState, uriHandler) {
+        for (batch in effectBatches) {
+            for (effect in batch) {
+                try {
+                    when (effect) {
+                        is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
+                        is DynamicActionEffect.Navigate -> when (effect.operation) {
+                            DynamicActionResult.NavigationOperation.Push -> navigationState.push(requireNotNull(effect.destination))
+                            DynamicActionResult.NavigationOperation.Replace -> navigationState.replace(requireNotNull(effect.destination))
+                            DynamicActionResult.NavigationOperation.Pop -> check(navigationState.pop()) { "Navigation unavailable" }
+                        }
+                        is DynamicActionEffect.Present -> check(navigationState.present(effect.destination)) { "Presentation unavailable" }
+                        DynamicActionEffect.Dismiss -> check(navigationState.dismissPresentation() || navigationState.pop()) { "Dismiss unavailable" }
+                    }
+                } catch (cancellation: CancellationException) {
+                    throw cancellation
+                } catch (_: Exception) {
+                    // A rejected effect does not discard later effects in the committed batch.
+                }
+            }
+        }
+    }
     val runtimeState = remember { DynamicRuntimeState() }
     val registry = remember { dynamicRendererRegistry() }
     val metadata = runtimeMetadataProvider.current()
@@ -74,7 +108,6 @@ private fun DynamicContent(
     DynamicNavigationHost(state = navigationState) { entry ->
         DynamicContainer(
             entry = entry,
-            navigation = navigationState,
             runtimeState = runtimeState,
             contextValues = contextValues,
             storeFactory = {
@@ -85,6 +118,7 @@ private fun DynamicContent(
                     entry = entry,
                     runtimeState = runtimeState,
                     contextProvider = { contextValues },
+                    deliverEffects = { effects -> effectBatches.send(effects) },
                 )
             },
             registry = registry,
