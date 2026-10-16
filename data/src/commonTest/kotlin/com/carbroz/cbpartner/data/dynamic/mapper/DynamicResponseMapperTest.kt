@@ -134,6 +134,42 @@ class DynamicResponseMapperTest {
         )
     }
 
+
+    @Test
+    fun mapsOptionalHeaderFooterSlotsWithoutMovingBodyComponents() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"slots","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","properties":{"padding":{"all":20}},"header":{"properties":{"padding":{"all":8}},"components":[{"id":"title","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Location"}}]}]},"components":[{"id":"body","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Body"}}]}],"footer":{"properties":{"padding":{"all":12}},"components":[]}}}}}""",
+        )
+
+        val template = assertIs<FormTemplate>(assertNotNull(DynamicResponseMapper(json).map(dto).data).template)
+        assertEquals("body", assertIs<StackComponent>(template.components.single()).id)
+        assertEquals(20.0, template.padding?.top)
+        val header = assertNotNull(template.header)
+        assertEquals(8.0, header.padding?.top)
+        assertEquals("title", assertIs<StackComponent>(header.components.single()).id)
+        assertEquals("Location", assertIs<TextElement>(header.components.single().elements.single()).text)
+        val footer = assertNotNull(template.footer)
+        assertEquals(12.0, footer.padding?.top)
+        assertEquals(0, footer.components.size)
+    }
+
+    @Test
+    fun existingBodyOnlyScreenHasNoHeaderOrFooterSlots() {
+        val dto = json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.GENERIC_SCREEN_JSON)
+        val template = assertIs<FormTemplate>(assertNotNull(DynamicResponseMapper(json).map(dto).data).template)
+        assertEquals(null, template.header)
+        assertEquals(null, template.footer)
+        assertEquals(2, template.components.size)
+    }
+
+    @Test
+    fun unknownHeaderComponentTypeFailsWithoutDroppingContent() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"slots","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"body","type":"stack_component"}],"header":{"components":[{"id":"new","type":"unsupported_component"}]}}}}""",
+        )
+        assertFailsWith<IllegalArgumentException> { DynamicResponseMapper(json).map(dto) }
+    }
+
     @Test
     fun preservesNumericLookingJsonStringsAsStrings() {
         val dto = json.decodeFromString<DynamicResponseDto>(
