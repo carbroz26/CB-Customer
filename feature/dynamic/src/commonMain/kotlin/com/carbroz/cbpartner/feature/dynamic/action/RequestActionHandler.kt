@@ -42,7 +42,7 @@ class RequestActionHandler(
                 "Invalid dynamic request validate flag"
             }
         }
-        val body = action.payload["body"]?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) }
+        val body = action.payload["body"]?.let { DynamicReferenceResolver.resolve(it, bindings, context, state) }
         val retainedPaths = retainedPaths(action.payload["retain"])
 
         val response = repository.fetch(
@@ -64,21 +64,21 @@ class RequestActionHandler(
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
-    ): DynamicValue = value?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) } ?: DynamicValue.NullValue
+    ): DynamicValue = value?.let { DynamicReferenceResolver.resolve(it, bindings, context, state) } ?: DynamicValue.NullValue
 
     private fun resolveString(
         value: DynamicValue?,
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
-    ): String? = DynamicActionValueResolver.string(resolve(value, bindings, context, state))
+    ): String? = DynamicReferenceResolver.string(resolve(value, bindings, context, state))
 
     private fun resolveBoolean(
         value: DynamicValue?,
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
-    ): Boolean? = DynamicActionValueResolver.boolean(resolve(value, bindings, context, state))
+    ): Boolean? = DynamicReferenceResolver.boolean(resolve(value, bindings, context, state))
 
     private fun retainedPaths(retain: DynamicValue?): Map<String, String> {
         if (retain == null) return emptyMap()
@@ -86,7 +86,7 @@ class RequestActionHandler(
             ?: error("Dynamic request retain must be an object")
         return mappings.value.map { (key, pathValue) ->
             require(key.isNotBlank()) { "Dynamic request retain target is blank" }
-            val path = DynamicActionValueResolver.string(pathValue)
+            val path = DynamicReferenceResolver.string(pathValue)
             require(!path.isNullOrBlank()) { "Dynamic request retain path is invalid" }
             key to path
         }.toMap()
