@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.bootstrap
 
+import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
 import com.carbroz.cbpartner.data.bootstrap.model.BootstrapResponseDto
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
@@ -17,8 +18,8 @@ class BootstrapRepositoryImpl(
     private val json: Json,
 ) : BootstrapRepository {
 
-    override suspend fun fetch(): Result<BootstrapOutput> = try {
-        when (val response = remoteDataSource.fetch()) {
+    override suspend fun fetch(sessionId: String?, actionId: String?): Result<BootstrapOutput> = try {
+        when (val response = remoteDataSource.fetch(sessionId?.let { TraceContext(it, actionId) })) {
             is NetworkResult.Success -> mapper.map(
                 json.decodeFromString<BootstrapResponseDto>(response.result),
             )

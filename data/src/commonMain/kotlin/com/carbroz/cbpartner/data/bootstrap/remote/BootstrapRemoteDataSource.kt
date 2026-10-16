@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.bootstrap.remote
 
+import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.network.NetworkResult
 import com.carbroz.cbpartner.network.http.RequestHandler
 import io.ktor.http.HttpMethod
@@ -13,8 +14,9 @@ import io.ktor.http.HttpMethod
 class BootstrapRemoteDataSource(
     private val requestHandler: RequestHandler,
 ) {
-    suspend fun fetch(): NetworkResult<String> = requestHandler.executeRequest<Any, String>(
+    suspend fun fetch(traceContext: TraceContext? = null): NetworkResult<String> = requestHandler.executeRequest<Any, String>(
         method = HttpMethod.Get,
+        traceContext = traceContext,
         urlPathSegments = BOOTSTRAP_ENDPOINT.split('/').filter(String::isNotEmpty),
     )
 

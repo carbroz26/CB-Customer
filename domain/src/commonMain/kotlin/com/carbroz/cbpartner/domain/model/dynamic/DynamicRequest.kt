@@ -9,4 +9,8 @@ data class DynamicRequest(
     val validate: Boolean = false,
     val body: DynamicValue? = null,
     val responseMode: String = "destination",
+    /** Diagnostic-only identifiers. Never sent as headers or included in request JSON. */
+    val sessionId: String? = null,
+    val actionId: String? = null,
+    val parentActionId: String? = null,
 )

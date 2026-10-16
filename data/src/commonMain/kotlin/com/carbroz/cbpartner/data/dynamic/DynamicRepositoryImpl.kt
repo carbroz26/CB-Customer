@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic
 
+import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.data.dynamic.remote.DynamicRemoteDataSource
@@ -28,6 +29,9 @@ class DynamicRepositoryImpl(
                 endpoint = request.endpoint,
                 method = request.method,
                 authentication = request.authentication,
+                traceContext = request.sessionId?.let { session ->
+                    TraceContext(session, request.actionId, request.parentActionId)
+                },
                 body = request.body?.toJsonElement()?.let {
                     json.encodeToString(JsonElement.serializer(), it)
                 },

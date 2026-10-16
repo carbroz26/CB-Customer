@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.remote
 
+import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.network.NetworkResult
 import com.carbroz.cbpartner.network.http.RequestHandler
 import io.ktor.http.HttpMethod
@@ -19,6 +20,7 @@ class DynamicRemoteDataSource(
         method: String,
         authentication: String,
         body: String?,
+        traceContext: TraceContext? = null,
     ): NetworkResult<String> {
         val segments = endpoint.removePrefix("/").split('/')
         require(
@@ -34,6 +36,7 @@ class DynamicRemoteDataSource(
             method = HttpMethod.parse(method),
             urlPathSegments = segments,
             authentication = authentication,
+            traceContext = traceContext,
             body = body,
         )
     }
