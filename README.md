@@ -99,6 +99,15 @@ if ($appPid) {
 }
 ~~~
 
+For **API request success/failure logs**, filter the shared network diagnostic tag (safe method, outcome, HTTP status, failure category and elapsed milliseconds; no request/response contents):
+
+~~~powershell
+$device = "PHONE_IP:CONNECTION_PORT"
+adb -s $device logcat -v time -s CBPartnerNetwork:I AndroidRuntime:E
+~~~
+
+Typical safe lines contain `method=GET outcome=success status=200 category=none durationMs=...` or `outcome=failed status=500 category=http`. Use a separate Antigravity Terminal pane for this stream, launch/retry in the other pane. This output depends on installing an APK built from the networking diagnostics implementation. Do not add Ktor BODY/HEADERS transport logging to troubleshoot.
+
 `Ctrl+C` stops live logs. The PID changes after restart; rerun the command. If an early crash prevents PID lookup, **before launching**, collect broader errors:
 
 ~~~powershell
