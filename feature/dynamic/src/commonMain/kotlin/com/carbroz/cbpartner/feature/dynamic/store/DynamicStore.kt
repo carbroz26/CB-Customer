@@ -24,7 +24,6 @@ sealed interface DynamicIntent {
     data object Load : DynamicIntent
     data object Retry : DynamicIntent
     data object ClearMessage : DynamicIntent
-    data class EffectFailed(val message: String) : DynamicIntent
     data class Action(val action: DynamicAction) : DynamicIntent
     data class ValueChanged(val key: String, val value: DynamicValue) : DynamicIntent
 }
@@ -56,7 +55,6 @@ class DynamicStore(
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
             DynamicIntent.ClearMessage -> currentScreen()?.let { reduce(it.copy(validationMessage = null)) }
-            is DynamicIntent.EffectFailed -> reportEffectFailure(intent.message)
             is DynamicIntent.ValueChanged -> updateBinding(intent.key, intent.value)
             is DynamicIntent.Action -> handleAction(intent.action)
         }
@@ -154,11 +152,6 @@ class DynamicStore(
         if (result.effects.isNotEmpty()) {
             deliverEffects(result.effects.toList())
         }
-    }
-
-    private fun reportEffectFailure(message: String) {
-        val screen = currentScreen() ?: return
-        reduce(screen.copy(validationMessage = "Unable to complete action"))
     }
 
     private fun currentScreen(): DynamicScreenState? = when (val value = _state.value) {
