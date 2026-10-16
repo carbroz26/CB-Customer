@@ -70,7 +70,7 @@ class RequestHandlerTest {
             },
             runtimeMetadataProvider = RuntimeMetadataProvider {
                 RuntimeMetadata(
-                    platform = "WEB",
+                    platform = "android",
                     appVersion = "1.0.0",
                     buildNumber = "1",
                     deviceId = "device-1",
@@ -80,7 +80,7 @@ class RequestHandlerTest {
 
         requestHandler.get<String>(listOf("api", "v1", "screen"))
 
-        assertEquals("WEB", capturedPlatform)
+        assertEquals("ANDROID", capturedPlatform)
         assertEquals("1.0.0", capturedAppVersion)
         assertEquals("1", capturedBuildNumber)
     }

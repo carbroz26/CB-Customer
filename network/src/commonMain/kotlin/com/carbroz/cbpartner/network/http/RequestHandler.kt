@@ -171,7 +171,7 @@ class RequestHandler(
             this.method = method
             url { appendPathSegments(urlPathSegments.map(Any::toString)) }
             runtimeMetadataProvider?.current()?.let { metadata ->
-                header(PLATFORM_HEADER, metadata.platform)
+                header(PLATFORM_HEADER, metadata.platform.uppercase())
                 header(APP_VERSION_HEADER, metadata.appVersion)
                 header(BUILD_NUMBER_HEADER, metadata.buildNumber)
             }
