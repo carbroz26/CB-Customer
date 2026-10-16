@@ -40,3 +40,9 @@ The arbitrary chained multi-child `sequence` implementation is **wrong and is to
 
 ## Gate
 **NO IMPLEMENTATION / NOT FROZEN.** Return focused owner review for sequence-only frozen-contract override and backend contract coordination before changing Kotlin. No build verification run here.
+
+
+## 2026-10-16 owner revision — backend migration deferred; inert Sequence retained
+**SUPERSEDES earlier removal-of-action-type/unsupported-sequence instructions in this document.** The owner now explicitly directs: do **not migrate or modify the backend**; keep `sequence` as an individually registered action type, but it performs **no child actions and no application logic**. On click the current frontend returns `DynamicActionResult.Completed` from `SequenceActionHandler`; it does not parse or execute `payload.actions`, navigate, change state, call APIs, or open links. A toast was illustrative only; no new notification UI is authorized or necessary. Do not invent timer, visibility or cross-element behavior. A future jointly approved backend/frontend contract will define that independently.
+
+Backend `CB-Backend/development` and existing backend `sequenceAction` authoring are **unchanged**; migration removed from the current implementation scope and explicitly marked **DEFERRED**. Previously frozen doc20/doc51 child-execution semantics remain superseded; the action type itself is not removed. Existing generic DTO/domain payload continues to deserialize legacy JSON, but child payload has no effect. Subsequent action SRP changes beyond this limited cleanup require their own freeze.
