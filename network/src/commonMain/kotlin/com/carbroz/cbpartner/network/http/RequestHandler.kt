@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.network.http
 
+import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.network.NetworkException
 import com.carbroz.cbpartner.network.NetworkResult
@@ -20,6 +21,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
+import kotlin.time.TimeSource
 
 /**
  * Executes requests through the application's shared Ktor client.
@@ -47,6 +49,10 @@ class RequestHandler(
         require(headers.orEmpty().keys.none(::isTransportOwnedHeader)) {
             "Request headers must not override transport-owned headers"
         }
+        val startedAt = TimeSource.Monotonic.markNow()
+        var outcome = "failed"
+        var category = "unknown"
+        var statusCode: Int? = null
         return try {
             val response = performRequest(
                 method = method,
@@ -56,24 +62,56 @@ class RequestHandler(
                 body = body,
                 queryParams = queryParams,
             )
+            statusCode = response.status.value
             val result = response.body<R>()
+            outcome = "success"
+            category = "none"
             NetworkResult.Success(result)
         } catch (error: ResponseException) {
+            statusCode = error.response.status.value
+            category = "http"
             NetworkResult.Error(null, error.toNetworkException())
         } catch (error: kotlinx.serialization.SerializationException) {
+            category = "serialization"
             NetworkResult.Error(null, NetworkException.Serialization(error.message ?: "Unable to decode network response", error))
         } catch (error: CancellationException) {
+            outcome = "cancelled"
+            category = "cancellation"
             throw error
         } catch (error: HttpRequestTimeoutException) {
+            category = "timeout"
             NetworkResult.Error(null, NetworkException.Timeout("Network request timed out", error))
         } catch (error: ConnectTimeoutException) {
+            category = "timeout"
             NetworkResult.Error(null, NetworkException.Timeout("Network connection timed out", error))
         } catch (error: SocketTimeoutException) {
+            category = "timeout"
             NetworkResult.Error(null, NetworkException.Timeout("Network socket timed out", error))
         } catch (error: UnresolvedAddressException) {
+            category = "connection"
             NetworkResult.Error(null, NetworkException.Connection("Unable to resolve network address", error))
         } catch (error: Throwable) {
+            category = "unknown"
             NetworkResult.Error(null, NetworkException.Unknown(error.message ?: "Unknown network error", error))
+        } finally {
+            // Operational diagnostics only: never log URL, path, headers, body or exception text.
+            runCatching {
+                val durationMs = startedAt.elapsedNow().inWholeMilliseconds
+                val safeMethod = when (method) {
+                    HttpMethod.Get -> "GET"
+                    HttpMethod.Post -> "POST"
+                    HttpMethod.Put -> "PUT"
+                    HttpMethod.Delete -> "DELETE"
+                    HttpMethod.Patch -> "PATCH"
+                    else -> "OTHER"
+                }
+                val event = "method=$safeMethod outcome=$outcome status=${statusCode ?: "-"} category=$category durationMs=$durationMs"
+                if (outcome == "failed") {
+                    Logger.w(tag = "CBPartnerNetwork") { event }
+                } else {
+                    Logger.i(tag = "CBPartnerNetwork") { event }
+                }
+            }
         }
     }
 
