@@ -9,4 +9,6 @@ data class FormTemplateDto(
     val type: String,
     val properties: JsonObject = JsonObject(emptyMap()),
     val components: List<JsonObject> = emptyList(),
+    val header: TemplateSlotDto? = null,
+    val footer: TemplateSlotDto? = null,
 )
