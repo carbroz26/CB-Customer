@@ -35,3 +35,9 @@ For **each coherent source commit**: inspect diff, source-consumer reconciliatio
 Stop if backend production/registry fixtures contain active sequence, if the source requires unplanned action types or wire contract migrations, or if result simplification would discard valid Request state+navigation output. Report conflict; do not silently retain dead compatibility, invent successor abstractions, or break source.
 
 **Scope clarification:** This is a contract freeze for sequence removal, not permission to silently implement the other proposals in drafts 58/59. Remaining actions require separate decisions/freeze. No Kotlin changes are made in this freeze document.
+
+
+## 2026-10-16 owner revision — backend migration deferred; inert Sequence retained
+**SUPERSEDES earlier removal-of-action-type/unsupported-sequence instructions in this document.** The owner now explicitly directs: do **not migrate or modify the backend**; keep `sequence` as an individually registered action type, but it performs **no child actions and no application logic**. On click the current frontend returns `DynamicActionResult.Completed` from `SequenceActionHandler`; it does not parse or execute `payload.actions`, navigate, change state, call APIs, or open links. A toast was illustrative only; no new notification UI is authorized or necessary. Do not invent timer, visibility or cross-element behavior. A future jointly approved backend/frontend contract will define that independently.
+
+Backend `CB-Backend/development` and existing backend `sequenceAction` authoring are **unchanged**; migration removed from the current implementation scope and explicitly marked **DEFERRED**. Previously frozen doc20/doc51 child-execution semantics remain superseded; the action type itself is not removed. Existing generic DTO/domain payload continues to deserialize legacy JSON, but child payload has no effect. Subsequent action SRP changes beyond this limited cleanup require their own freeze.
