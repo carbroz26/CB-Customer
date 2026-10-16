@@ -122,32 +122,6 @@ class DynamicStoreTest {
     }
 
     @Test
-    fun effectHandlerFailureUsesFailureStateAndPreservesCurrentScreen() = runTest {
-        val dispatcher = UnconfinedTestDispatcher(testScheduler)
-        val repository = object : DynamicRepository {
-            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
-                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
-        }
-        val store = store(
-            DynamicNavigationEntry(destination("current")),
-            repository,
-            DynamicRuntimeState(),
-            dispatcher,
-        )
-
-        store.accept(DynamicIntent.Load)
-        advanceUntilIdle()
-        val currentScreen = assertIs<DynamicState.Success>(store.state.value).screen
-
-        store.accept(DynamicIntent.EffectFailed("Unable to open external URI"))
-
-        val screen = assertIs<DynamicState.Success>(store.state.value).screen
-        assertEquals(currentScreen.response, screen.response)
-        assertEquals("Unable to complete action", screen.validationMessage)
-        store.close()
-    }
-
-    @Test
     fun recreatedStoreRestoresBindingsFromSameNavigationEntry() = runTest {
         val dispatcher = UnconfinedTestDispatcher(testScheduler)
         val repository = object : DynamicRepository {
@@ -260,6 +234,7 @@ class DynamicStoreTest {
         store.accept(DynamicIntent.Load)
         advanceUntilIdle()
         store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("123456")))
+        val loadedResponse = assertIs<DynamicState.Success>(store.state.value).screen.response
         store.accept(DynamicIntent.Action(DynamicAction(
             type = "request",
             payload = mapOf(
@@ -270,6 +245,8 @@ class DynamicStoreTest {
         advanceUntilIdle()
         val current = assertIs<DynamicState.Success>(store.state.value)
         assertEquals(DynamicValue.StringValue("123456"), current.screen.bindings["phone"])
+        assertEquals(loadedResponse, current.screen.response)
+        assertEquals("Unable to complete action", current.screen.validationMessage)
         store.close()
     }
 
@@ -301,24 +278,6 @@ class DynamicStoreTest {
         advanceUntilIdle()
         assertEquals(0, submitCalls)
         assertNotNull(assertIs<DynamicState.Success>(store.state.value).screen.validationMessage)
-        store.close()
-    }
-
-    @Test
-    fun effectFailureKeepsScreenAndBindingsUsable() = runTest {
-        val repository = object : DynamicRepository {
-            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
-                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, null))
-        }
-        val store = store(DynamicNavigationEntry(destination("current")), repository,
-            DynamicRuntimeState(), UnconfinedTestDispatcher(testScheduler))
-        store.accept(DynamicIntent.Load)
-        advanceUntilIdle()
-        store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("1234")))
-        store.accept(DynamicIntent.EffectFailed("private-error-data"))
-        val screen = assertIs<DynamicState.Success>(store.state.value).screen
-        assertEquals(DynamicValue.StringValue("1234"), screen.bindings["phone"])
-        assertEquals("Unable to complete action", screen.validationMessage)
         store.close()
     }
 
