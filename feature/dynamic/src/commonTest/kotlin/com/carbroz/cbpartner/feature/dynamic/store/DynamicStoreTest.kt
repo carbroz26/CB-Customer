@@ -18,9 +18,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -158,6 +155,7 @@ class DynamicStoreTest {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
                 Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
         }
+        val delivered = mutableListOf<DynamicActionEffect>()
         val store = DynamicStore(
             loadDynamicScreen = LoadDynamicScreenUseCase(repository),
             actionExecutor = DynamicActionExecutor(listOf(ExternalUriActionHandler())),
@@ -165,11 +163,8 @@ class DynamicStoreTest {
             entry = DynamicNavigationEntry(destination("current")),
             runtimeState = DynamicRuntimeState(),
             scope = CoroutineScope(dispatcher),
+            deliverEffects = { batch -> delivered.addAll(batch) },
         )
-        val delivered = mutableListOf<DynamicActionEffect>()
-        val collector = launch(dispatcher) {
-            store.effects.take(2).toList(delivered)
-        }
 
         store.accept(DynamicIntent.Load)
         advanceUntilIdle()
@@ -211,7 +206,6 @@ class DynamicStoreTest {
             ),
             delivered,
         )
-        collector.cancel()
         store.close()
     }
 
