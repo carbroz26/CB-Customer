@@ -10,6 +10,45 @@ import kotlin.test.assertTrue
 
 class DynamicNavigationStateTest {
     @Test
+    fun pushAndPopPreserveParentActionOnExistingEntries() {
+        val state = DynamicNavigationState(destination("root"), "session-id")
+        val root = state.currentEntry
+        assertEquals("session-id", root.diagnosticSessionId)
+        assertEquals(null, root.parentActionId)
+
+        state.push(destination("next"), "action-one")
+        assertEquals("action-one", state.currentEntry.parentActionId)
+        assertEquals("session-id", state.currentEntry.diagnosticSessionId)
+
+        state.push(destination("third"), "action-two")
+        assertEquals("action-two", state.currentEntry.parentActionId)
+        assertTrue(state.pop())
+        assertEquals("action-one", state.currentEntry.parentActionId)
+        assertTrue(state.pop())
+        assertSame(root, state.currentEntry)
+        assertEquals(null, root.parentActionId)
+    }
+
+    @Test
+    fun replaceAndPresentationStoreParentWithoutChangingUnderlyingEntry() {
+        val state = DynamicNavigationState(destination("root"), "session-id")
+        val root = state.currentEntry
+        state.push(destination("child"), "first-action")
+        state.replace(destination("replacement"), "replace-action")
+        assertEquals("replace-action", state.currentEntry.parentActionId)
+        assertSame(root, state.backStack.first())
+
+        assertTrue(state.present(destination("modal"), "modal-action"))
+        assertEquals("modal-action", state.presentationEntry?.parentActionId)
+        assertEquals("session-id", state.presentationEntry?.diagnosticSessionId)
+        assertFalse(state.present(destination("other"), "unused-action"))
+        assertEquals("modal-action", state.presentationEntry?.parentActionId)
+        assertTrue(state.dismissPresentation())
+        assertEquals("replace-action", state.currentEntry.parentActionId)
+    }
+
+
+    @Test
     fun pushCreatesIndependentEntriesEvenForSameDestination() {
         val destination = destination("same")
         val state = DynamicNavigationState(destination)

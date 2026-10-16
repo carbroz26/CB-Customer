@@ -14,6 +14,38 @@ import kotlin.test.assertFailsWith
 
 class RequestActionHandlerTest {
     @Test
+    fun diagnosticContextReachesRequestWithoutEnteringBody() = runTest {
+        var captured: DynamicRequest? = null
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                captured = request
+                return Result.success(DynamicResponse(200, "OK", "Done", null, null))
+            }
+        }
+        val trace = com.carbroz.cbpartner.core.diagnostics.TraceContext(
+            "session-123", "action-456", "parent-789",
+        )
+        RequestActionHandler(repository).handle(
+            DynamicAction(
+                "request",
+                mapOf(
+                    "endpoint" to DynamicValue.StringValue("/submit"),
+                    "responseMode" to DynamicValue.StringValue("none"),
+                    "body" to DynamicValue.ObjectValue(mapOf("field" to DynamicValue.StringValue("value"))),
+                ),
+            ),
+            emptyMap(), emptyMap(), emptyMap(), trace,
+        )
+        val request = requireNotNull(captured)
+        assertEquals(trace.sessionId, request.sessionId)
+        assertEquals(trace.actionId, request.actionId)
+        assertEquals(trace.parentActionId, request.parentActionId)
+        val body = assertIs<DynamicValue.ObjectValue>(request.body)
+        assertEquals(setOf("field"), body.value.keys)
+    }
+
+
+    @Test
     fun resolvesTypedReferencesAndExplicitlyRetainsResponseValues() = runTest {
         var capturedRequest: DynamicRequest? = null
         val next = DynamicDestination("screen_next", "tpl_next", "form_template", "/next")

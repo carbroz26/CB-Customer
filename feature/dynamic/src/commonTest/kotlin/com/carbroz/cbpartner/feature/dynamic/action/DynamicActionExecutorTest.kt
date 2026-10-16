@@ -12,6 +12,37 @@ import kotlin.test.assertTrue
 
 class DynamicActionExecutorTest {
     @Test
+    fun requestHandlerReceivesExactExecutionTrace() = runTest {
+        var observed: com.carbroz.cbpartner.core.diagnostics.TraceContext? = null
+        val handler = object : DynamicActionHandler {
+            override val type = "request"
+            override suspend fun handle(
+                action: DynamicAction,
+                bindings: Map<String, DynamicValue>,
+                context: Map<String, DynamicValue>,
+                state: Map<String, DynamicValue>,
+            ): DynamicActionResult = error("Legacy handler path should not run")
+
+            override suspend fun handle(
+                action: DynamicAction,
+                bindings: Map<String, DynamicValue>,
+                context: Map<String, DynamicValue>,
+                state: Map<String, DynamicValue>,
+                traceContext: com.carbroz.cbpartner.core.diagnostics.TraceContext?,
+            ): DynamicActionResult {
+                observed = traceContext
+                return DynamicActionResult.Completed
+            }
+        }
+        val trace = com.carbroz.cbpartner.core.diagnostics.TraceContext("session", "action", "parent")
+        DynamicActionExecutor(listOf(handler))
+            .execute(DynamicAction("request"), emptyMap(), emptyMap(), emptyMap(), trace)
+            .getOrThrow()
+        assertEquals(trace, observed)
+    }
+
+
+    @Test
     fun sequenceIsInertEvenWhenLegacyPayloadContainsActions() = runTest {
         var invoked = false
         val other = object : DynamicActionHandler {
