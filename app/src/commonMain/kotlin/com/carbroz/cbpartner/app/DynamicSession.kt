@@ -8,43 +8,155 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 /**
- * Test-only behavioral scaffold for the owner-frozen G1/G2 API in document 91.
+ * Owns a logical dynamic session and accepted, ordered effect progress.
  *
- * The session lifecycle, effect queue, consumer leasing and commit transaction
- * are deliberately NOT implemented. Tests must fail on behavior, not missing symbols.
- * This type is not wired into App or DynamicStore until separate authorization.
+ * Does not execute actions, perform navigation, open external URIs or retain DI
+ * dependencies. An active application consumer dispatches claimed effects.
  */
+@OptIn(ExperimentalAtomicApi::class)
 internal class DynamicSession(
     val diagnosticSessionId: String,
     initialDestination: DynamicDestination,
 ) {
-    val navigationState: DynamicNavigationState =
-        DynamicNavigationState(initialDestination, diagnosticSessionId)
-    val runtimeState: DynamicRuntimeState = DynamicRuntimeState()
+    val navigationState = DynamicNavigationState(initialDestination, diagnosticSessionId)
+    val runtimeState = DynamicRuntimeState()
 
     private val _workRevision = MutableStateFlow(0L)
     val workRevision: StateFlow<Long> = _workRevision
 
-    // Intentional failing placeholders; no production queue or state patch here.
+    // This lock covers only short, non-suspending state changes. Never dispatch an
+    // effect or invoke application callbacks while holding it.
+    private val busy = AtomicBoolean(false)
+    private var closed = false
+    private var nextLease = 0L
+    private var currentLease: Long? = null
+    private var nextBatch = 0L
+    private val batches = ArrayDeque<Batch>()
+    private var reservation: Reservation? = null
+
+    private class Batch(
+        val id: Long,
+        val effects: List<DynamicActionEffect>,
+        val trace: TraceContext?,
+        var index: Int = 0,
+    )
+
+    private class Reservation(
+        val claim: ClaimedEffect,
+        var started: Boolean = false,
+    )
+
+    private inline fun <T> locked(block: () -> T): T {
+        while (!busy.compareAndSet(false, true)) {
+            // Non-suspending cross-platform commit/lease serialization.
+        }
+        try {
+            return block()
+        } finally {
+            busy.store(false)
+        }
+    }
+
+    private fun changed() {
+        _workRevision.value += 1L
+    }
+
+    /** Accepts state changes and a copied effect batch without suspension. */
     fun commit(
         changes: Map<String, DynamicValue>,
         effects: List<DynamicActionEffect>,
         trace: TraceContext? = null,
-    ): Boolean = false
+    ): Boolean = locked {
+        if (closed) return@locked false
+        val copied = effects.toList()
+        runtimeState.setAll(changes)
+        if (copied.isNotEmpty()) {
+            batches.addLast(Batch(++nextBatch, copied, trace))
+            changed()
+        }
+        true
+    }
 
-    fun attachConsumer(): Long = 0L
+    /** Grants the only active consumer lease, replacing any previous one. */
+    fun attachConsumer(): Long = locked {
+        if (closed) return@locked 0L
+        releaseReservation()
+        currentLease = ++nextLease
+        changed()
+        nextLease
+    }
 
-    fun claimNext(leaseId: Long): ClaimedEffect? = null
+    /** Reserves only the first uncompleted effect for the active consumer. */
+    fun claimNext(leaseId: Long): ClaimedEffect? = locked {
+        if (closed || currentLease != leaseId) return@locked null
+        reservation?.let { return@locked it.claim }
+        val batch = batches.firstOrNull() ?: return@locked null
+        ClaimedEffect(
+            leaseId = leaseId,
+            batchId = batch.id,
+            effectIndex = batch.index,
+            effect = batch.effects[batch.index],
+            trace = batch.trace,
+        ).also { reservation = Reservation(it) }
+    }
 
-    fun markDispatchStarted(claim: ClaimedEffect): Boolean = false
+    /** Records the only permitted dispatch attempt before platform invocation. */
+    fun markDispatchStarted(claim: ClaimedEffect): Boolean = locked {
+        val active = reservation
+        if (closed || currentLease != claim.leaseId ||
+            active?.claim != claim || active.started
+        ) return@locked false
+        active.started = true
+        true
+    }
 
-    fun acknowledge(claim: ClaimedEffect, outcome: EffectOutcome): Boolean = false
+    /** Completes an attempted effect; rejection still permits later effects. */
+    fun acknowledge(claim: ClaimedEffect, outcome: EffectOutcome): Boolean = locked {
+        val active = reservation
+        if (closed || currentLease != claim.leaseId ||
+            active?.claim != claim || !active.started
+        ) return@locked false
+        // The caller renders any generic UI-safe error for Rejected.
+        advance()
+        true
+    }
 
-    fun detachConsumer(leaseId: Long) = Unit
+    /** Revokes the active lease without replaying a dispatch-started effect. */
+    fun detachConsumer(leaseId: Long) = locked {
+        if (!closed && currentLease == leaseId) {
+            releaseReservation()
+            currentLease = null
+            changed()
+        }
+    }
 
-    fun close() = Unit
+    /** Final retirement; transient consumer detachment must not call close. */
+    fun close() = locked {
+        if (!closed) {
+            closed = true
+            currentLease = null
+            reservation = null
+            batches.clear()
+            changed()
+        }
+    }
+
+    private fun releaseReservation() {
+        if (reservation?.started == true) advance() // Ambiguous attempt: no replay.
+        else reservation = null
+    }
+
+    private fun advance() {
+        val batch = batches.firstOrNull() ?: return
+        batch.index += 1
+        if (batch.index == batch.effects.size) batches.removeFirst()
+        reservation = null
+        changed()
+    }
 
     data class ClaimedEffect(
         val leaseId: Long,

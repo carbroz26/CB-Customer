@@ -12,7 +12,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * G2-B deterministic red regressions against document 91's test-only scaffold.
+ * G2-B deterministic regressions for document 91's session effect contract.
  * No real navigation, network, platform URI dispatch, clock delays or business screens.
  */
 class DynamicSessionEffectsTest {
@@ -132,6 +132,64 @@ class DynamicSessionEffectsTest {
         assertTrue(accepted)
         assertEquals(DynamicValue.BooleanValue(true), session.runtimeState.get("transaction.marker"))
         assertNotNull(session.claimNext(session.attachConsumer()))
+    }
+
+
+    @Test
+    fun workRevisionSignalsAcceptedAndCompletedWork() = runTest {
+        val session = session()
+        val initial = session.workRevision.value
+        assertTrue(session.commit(emptyMap(), effects()))
+        assertTrue(session.workRevision.value > initial)
+        val lease = session.attachConsumer()
+        val beforeAck = session.workRevision.value
+        val claim = assertNotNull(session.claimNext(lease))
+        assertTrue(session.markDispatchStarted(claim))
+        assertTrue(session.acknowledge(claim, DynamicSession.EffectOutcome.Applied))
+        assertTrue(session.workRevision.value > beforeAck)
+    }
+
+    @Test
+    fun consumerReplacementDoesNotReplayStartedEffect() = runTest {
+        val session = session()
+        assertTrue(session.commit(emptyMap(), effects()))
+        val first = session.attachConsumer()
+        val attempted = assertNotNull(session.claimNext(first))
+        assertTrue(session.markDispatchStarted(attempted))
+        val second = session.attachConsumer()
+        assertTrue(first != second)
+        assertEquals(effects()[1], assertNotNull(session.claimNext(second)).effect)
+        assertFalse(session.acknowledge(attempted, DynamicSession.EffectOutcome.Applied))
+    }
+
+    @Test
+    fun emptyEffectCommitStillAppliesStateAndClosedCommitDoesNot() = runTest {
+        val session = session()
+        val value = DynamicValue.BooleanValue(true)
+        assertTrue(session.commit(mapOf("confirmed" to value), emptyList()))
+        assertEquals(value, session.runtimeState.get("confirmed"))
+        val lease = session.attachConsumer()
+        assertNull(session.claimNext(lease))
+        session.close()
+        assertFalse(session.commit(mapOf("confirmed" to DynamicValue.BooleanValue(false)), effects()))
+        assertEquals(value, session.runtimeState.get("confirmed"))
+    }
+
+    @Test
+    fun acceptedBatchesAreConsumedInCommitOrder() = runTest {
+        val session = session()
+        val first = DynamicActionEffect.Dismiss
+        val second = DynamicActionEffect.ExternalUri("https://example.invalid/second")
+        assertTrue(session.commit(emptyMap(), listOf(first)))
+        assertTrue(session.commit(emptyMap(), listOf(second)))
+        val lease = session.attachConsumer()
+        for (effect in listOf(first, second)) {
+            val claim = assertNotNull(session.claimNext(lease))
+            assertEquals(effect, claim.effect)
+            assertTrue(session.markDispatchStarted(claim))
+            assertTrue(session.acknowledge(claim, DynamicSession.EffectOutcome.Applied))
+        }
+        assertNull(session.claimNext(lease))
     }
 
     private fun session() = DynamicSession("g2-test-session", destination("root"))
