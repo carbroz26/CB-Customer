@@ -64,6 +64,17 @@ internal object DynamicReferenceResolver {
     fun boolean(value: DynamicValue?): Boolean? =
         (value as? DynamicValue.BooleanValue)?.value
 
+    fun resolveExistingPath(root: Map<String, DynamicValue>, path: String): DynamicValue? {
+        val segments = path.split('.')
+        if (segments.any(String::isBlank)) return null
+        root[path]?.let { return it }
+        var current: DynamicValue = root[segments.first()] ?: return null
+        for (segment in segments.drop(1)) {
+            current = (current as? DynamicValue.ObjectValue)?.value?.get(segment) ?: return null
+        }
+        return current
+    }
+
     fun resolvePath(root: Map<String, DynamicValue>, path: String): DynamicValue {
         val segments = path.split('.').filter(String::isNotBlank)
         if (segments.isEmpty()) return DynamicValue.NullValue
