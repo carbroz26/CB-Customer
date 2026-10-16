@@ -14,6 +14,9 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.test.runCurrent
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -378,6 +381,124 @@ class DynamicStoreTest {
         val effect = assertIs<DynamicActionEffect.Navigate>(requireNotNull(delivered).single())
         assertEquals(target, effect.destination)
         store.close()
+    }
+
+
+    @Test
+    fun completedActionHandsOffOneBatchWithOneEffect() = runTest {
+        // Current concrete action result variants expose at most one effect.
+        // Do not mistake this test for proof of multi-effect sequence delivery.
+        val delivered = mutableListOf<List<DynamicActionEffect>>()
+        val target = destination("target")
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(
+                    DynamicResponse(
+                        200, "OK", "Loaded", null, null,
+                        destination = if (request.endpoint == "/submit") target else null,
+                    ),
+                )
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("root")),
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
+            deliverEffects = { delivered += it },
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/submit"),
+            "responseMode" to DynamicValue.StringValue("destination"),
+        ))))
+        advanceUntilIdle()
+
+        assertEquals(1, delivered.size)
+        assertEquals(target, assertIs<DynamicActionEffect.Navigate>(delivered.single().single()).destination)
+        store.close()
+    }
+
+    @Test
+    fun cancelledInFlightActionCannotCommitOrDeliverEffects() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        val submitted = CompletableDeferred<Unit>()
+        var delivered = 0
+        val runtimeState = DynamicRuntimeState()
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/submit") {
+                    submitted.complete(Unit)
+                    gate.await()
+                    return Result.success(
+                        DynamicResponse(200, "OK", "Done", null, null, destination = destination("next")),
+                    )
+                }
+                return Result.success(DynamicResponse(200, "OK", "Loaded", null, null))
+            }
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("root")),
+            runtimeState = runtimeState,
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
+            deliverEffects = { delivered++ },
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/submit"),
+            "responseMode" to DynamicValue.StringValue("destination"),
+        ))))
+        submitted.await()
+        store.close()
+        gate.complete(Unit)
+        runCurrent()
+
+        assertEquals(0, delivered)
+        assertTrue(runtimeState.values.value.isEmpty())
+    }
+
+    @Test
+    fun acceptedEffectBatchRemainsWithIndependentSinkAfterSourceStoreClose() = runTest {
+        val accepted = mutableListOf<List<DynamicActionEffect>>()
+        val target = destination("next")
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(
+                    DynamicResponse(
+                        200, "OK", "Done", null, null,
+                        destination = if (request.endpoint == "/submit") target else null,
+                    ),
+                )
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("root")),
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
+            deliverEffects = { effects -> accepted += effects.toList() },
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/submit"),
+            "responseMode" to DynamicValue.StringValue("destination"),
+        ))))
+        advanceUntilIdle()
+        assertEquals(1, accepted.size)
+        store.close()
+
+        assertEquals(target, assertIs<DynamicActionEffect.Navigate>(accepted.single().single()).destination)
     }
 
     private fun store(
