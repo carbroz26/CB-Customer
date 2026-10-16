@@ -12,13 +12,23 @@ class NavigateActionHandler : DynamicActionHandler {
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
     ): DynamicActionResult.Navigate {
-        val destination = action.destination ?: error("Dynamic navigation destination is missing")
-        val operation = when (DynamicActionValueResolver.string(
-                DynamicActionValueResolver.resolve(action.payload["mode"] ?: DynamicValue.NullValue, bindings, context, state),
-            )?.lowercase()) {
+        val rawMode = action.payload["mode"]
+        val mode = if (rawMode == null) {
+            "push"
+        } else {
+            DynamicActionValueResolver.string(
+                DynamicActionValueResolver.resolve(rawMode, bindings, context, state),
+            )?.lowercase() ?: throw IllegalArgumentException("Invalid dynamic navigation mode")
+        }
+        val operation = when (mode) {
+            "push" -> DynamicActionResult.NavigationOperation.Push
             "replace" -> DynamicActionResult.NavigationOperation.Replace
             "pop", "back" -> DynamicActionResult.NavigationOperation.Pop
-            else -> DynamicActionResult.NavigationOperation.Push
+            else -> throw IllegalArgumentException("Unsupported dynamic navigation mode")
+        }
+        val destination = action.destination
+        if (operation != DynamicActionResult.NavigationOperation.Pop) {
+            requireNotNull(destination) { "Dynamic navigation destination is missing" }
         }
         return DynamicActionResult.Navigate(destination, operation)
     }
