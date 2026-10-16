@@ -1,12 +1,19 @@
 package com.carbroz.cbpartner.app
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.align
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
@@ -66,6 +73,7 @@ private fun DynamicContent(
     val navigationState = remember(initialDestination) { DynamicNavigationState(initialDestination) }
     val effectBatches = remember(navigationState) { Channel<List<DynamicActionEffect>>(Channel.UNLIMITED) }
     val uriHandler = LocalUriHandler.current
+    var effectError by remember(navigationState) { mutableStateOf<String?>(null) }
 
     DisposableEffect(effectBatches) {
         onDispose { effectBatches.close() }
@@ -88,7 +96,8 @@ private fun DynamicContent(
                 } catch (cancellation: CancellationException) {
                     throw cancellation
                 } catch (_: Exception) {
-                    // A rejected effect does not discard later effects in the committed batch.
+                    // Keep the message UI-safe; never render exception text or an external URI.
+                    effectError = "Unable to complete this action"
                 }
             }
         }
@@ -105,8 +114,9 @@ private fun DynamicContent(
         )
     }
 
-    DynamicNavigationHost(state = navigationState) { entry ->
-        DynamicContainer(
+    Box {
+        DynamicNavigationHost(state = navigationState) { entry ->
+            DynamicContainer(
             entry = entry,
             runtimeState = runtimeState,
             contextValues = contextValues,
@@ -122,6 +132,10 @@ private fun DynamicContent(
                 )
             },
             registry = registry,
-        )
+            )
+        }
+        effectError?.let { message ->
+            Text(message, modifier = androidx.compose.ui.Modifier.align(Alignment.TopCenter))
+        }
     }
 }
