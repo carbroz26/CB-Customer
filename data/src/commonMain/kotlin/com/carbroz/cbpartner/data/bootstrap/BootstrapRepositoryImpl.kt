@@ -18,6 +18,8 @@ class BootstrapRepositoryImpl(
     private val json: Json,
 ) : BootstrapRepository {
 
+    override suspend fun fetch(): Result<BootstrapOutput> = fetch(null, null)
+
     override suspend fun fetch(sessionId: String?, actionId: String?): Result<BootstrapOutput> = try {
         when (val response = remoteDataSource.fetch(sessionId?.let { TraceContext(it, actionId) })) {
             is NetworkResult.Success -> mapper.map(
