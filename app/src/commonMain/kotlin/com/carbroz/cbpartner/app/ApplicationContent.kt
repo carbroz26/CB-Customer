@@ -2,7 +2,9 @@ package com.carbroz.cbpartner.app
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -11,7 +13,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
@@ -80,6 +81,7 @@ private fun DynamicContent(
 
     LaunchedEffect(effectBatches, navigationState, uriHandler) {
         for (batch in effectBatches) {
+            var failed = false
             for (effect in batch) {
                 try {
                     when (effect) {
@@ -96,9 +98,10 @@ private fun DynamicContent(
                     throw cancellation
                 } catch (_: Exception) {
                     // Keep the message UI-safe; never render exception text or an external URI.
-                    effectError = "Unable to complete this action"
+                    failed = true
                 }
             }
+            effectError = if (failed) "Unable to complete this action" else null
         }
     }
     val runtimeState = remember { DynamicRuntimeState() }
@@ -134,7 +137,12 @@ private fun DynamicContent(
             )
         }
         effectError?.let { message ->
-            Text(message, modifier = androidx.compose.ui.Modifier.align(Alignment.TopCenter))
+            Column(modifier = androidx.compose.ui.Modifier.align(Alignment.TopCenter)) {
+                Text(message)
+                TextButton(onClick = { effectError = null }) {
+                    Text("Dismiss")
+                }
+            }
         }
     }
 }
