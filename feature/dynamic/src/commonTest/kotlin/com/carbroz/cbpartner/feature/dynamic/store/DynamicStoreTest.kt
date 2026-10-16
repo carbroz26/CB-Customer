@@ -654,6 +654,25 @@ class DynamicStoreTest {
         second.close()
     }
 
+    @Test
+    fun failedScreenLoadDoesNotExposeServerErrorMessage() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.failure(IllegalStateException("private-server-token-and-internal-url"))
+        }
+        val entry = DynamicNavigationEntry(destination("failed"))
+        val store = store(entry, repository, DynamicRuntimeState(), dispatcher)
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+
+        val failure = assertIs<DynamicState.Failure>(store.state.value)
+        assertEquals("Unable to load dynamic screen", failure.message)
+        assertEquals(null, entry.screenResponse)
+        store.close()
+    }
+
     private fun store(
         entry: DynamicNavigationEntry,
         repository: DynamicRepository,

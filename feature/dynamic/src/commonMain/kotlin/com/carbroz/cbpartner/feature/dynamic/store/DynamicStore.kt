@@ -116,7 +116,7 @@ class DynamicStore(
                     if (error is CancellationException) throw error
                     val current = currentScreen() ?: DynamicScreenState()
                     _state.value = DynamicState.Failure(
-                        error.message ?: "Unable to load dynamic screen",
+                        "Unable to load dynamic screen",
                         current,
                     )
                 }
