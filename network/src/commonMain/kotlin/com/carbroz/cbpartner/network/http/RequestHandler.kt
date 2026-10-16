@@ -1,6 +1,9 @@
 package com.carbroz.cbpartner.network.http
 
 import co.touchlab.kermit.Logger
+import com.carbroz.cbpartner.core.diagnostics.TraceContext
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.network.NetworkException
 import com.carbroz.cbpartner.network.NetworkResult
@@ -35,6 +38,7 @@ class RequestHandler(
     private val httpClient: HttpClient,
     private val bearerTokenProvider: () -> String? = { null },
     private val runtimeMetadataProvider: RuntimeMetadataProvider? = null,
+    private val logger: Logger = Logger.withTag("CBPartnerNetwork"),
 ) {
     suspend inline fun <reified B, reified R> executeRequest(
         method: HttpMethod,
@@ -43,13 +47,33 @@ class RequestHandler(
         authentication: String = "NONE",
         body: B? = null,
         queryParams: Map<String, Any>? = null,
+        traceContext: TraceContext? = null,
     ): NetworkResult<R> {
         val authenticationMode = authentication.uppercase()
         require(authenticationMode in setOf("NONE", "BEARER")) { "Unsupported authentication mode: $authentication" }
         require(headers.orEmpty().keys.none(::isTransportOwnedHeader)) {
             "Request headers must not override transport-owned headers"
         }
+        val requestId = newRequestId()
+        val safeMethod = when (method) {
+            HttpMethod.Get -> "GET"
+            HttpMethod.Post -> "POST"
+            HttpMethod.Put -> "PUT"
+            HttpMethod.Delete -> "DELETE"
+            HttpMethod.Patch -> "PATCH"
+            else -> "OTHER"
+        }
+        val traceFields = "sessionId=${safeDiagnosticId(traceContext?.sessionId)} " +
+            "actionId=${safeDiagnosticId(traceContext?.actionId)} " +
+            "parentActionId=${safeDiagnosticId(traceContext?.parentActionId)}"
+
         val startedAt = TimeSource.Monotonic.markNow()
+        runCatching {
+            writeDiagnostic(
+                "started",
+                "event=http.request requestId=$requestId $traceFields method=$safeMethod",
+            )
+        }
         var outcome = "failed"
         var category = "unknown"
         var statusCode: Int? = null
@@ -97,21 +121,40 @@ class RequestHandler(
             // Operational diagnostics only: never log URL, path, headers, body or exception text.
             runCatching {
                 val durationMs = startedAt.elapsedNow().inWholeMilliseconds
-                val safeMethod = when (method) {
-                    HttpMethod.Get -> "GET"
-                    HttpMethod.Post -> "POST"
-                    HttpMethod.Put -> "PUT"
-                    HttpMethod.Delete -> "DELETE"
-                    HttpMethod.Patch -> "PATCH"
-                    else -> "OTHER"
-                }
-                val event = "method=$safeMethod outcome=$outcome status=${statusCode ?: "-"} category=$category durationMs=$durationMs"
-                if (outcome == "failed") {
-                    Logger.w(tag = "CBPartnerNetwork") { event }
-                } else {
-                    Logger.i(tag = "CBPartnerNetwork") { event }
-                }
+                val event = "event=http.response requestId=$requestId $traceFields " +
+                    "method=$safeMethod outcome=$outcome status=${statusCode ?: "-"} " +
+                    "category=$category durationMs=$durationMs"
+                writeDiagnostic(outcome, event)
             }
+        }
+    }
+
+    /** Creates a new diagnostic identifier for each HTTP execution. */
+    @OptIn(ExperimentalUuidApi::class)
+    @PublishedApi
+    internal fun newRequestId(): String = Uuid.random().toString()
+
+    /** Accepts only bounded diagnostic identifier characters for logging. */
+    @PublishedApi
+    internal fun safeDiagnosticId(value: String?): String {
+        if (value.isNullOrEmpty() || value.length > 64) return "-"
+        return value.takeIf { identifier ->
+            identifier.all { char ->
+                char in 'a'..'z' ||
+                    char in 'A'..'Z' ||
+                    char in '0'..'9' ||
+                    char == '-' ||
+                    char == '_'
+            }
+        } ?: "-"
+    }
+    /** Writes only the already-sanitized network summary through the supplied Kermit logger. */
+    @PublishedApi
+    internal fun writeDiagnostic(outcome: String, event: String) {
+        if (outcome == "failed") {
+            logger.w { event }
+        } else {
+            logger.i { event }
         }
     }
 
