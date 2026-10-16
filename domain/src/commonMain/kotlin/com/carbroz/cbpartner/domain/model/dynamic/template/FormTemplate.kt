@@ -16,4 +16,6 @@ data class FormTemplate(
     val fillMaxSize: Boolean = false,
     val semanticRole: String? = null,
     override val components: List<DynamicComponent> = emptyList(),
+    override val header: TemplateSlot? = null,
+    override val footer: TemplateSlot? = null,
 ) : DynamicTemplate
