@@ -209,6 +209,68 @@ class DynamicStoreTest {
         second.close()
     }
 
+
+    @Test
+    fun resolvedTrueValidationWithoutLoadedFormPreventsRequest() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var requestCalls = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/submit") requestCalls++
+                return Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
+            }
+        }
+        val store = store(
+            DynamicNavigationEntry(destination("current")),
+            repository,
+            DynamicRuntimeState(),
+            dispatcher,
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction(
+            type = "request",
+            payload = mapOf(
+                "endpoint" to DynamicValue.StringValue("/submit"),
+                "responseMode" to DynamicValue.StringValue("none"),
+                "validate" to ref("\$context", "mustValidate"),
+            ),
+        )))
+        advanceUntilIdle()
+        assertEquals(0, requestCalls)
+        store.close()
+    }
+
+    @Test
+    fun failedRequestPreservesLoadedFormStateAndBindings() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                if (request.endpoint == "/submit") Result.failure(IllegalStateException("private-server-detail"))
+                else Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
+        }
+        val store = store(
+            DynamicNavigationEntry(destination("current")),
+            repository,
+            DynamicRuntimeState(),
+            dispatcher,
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("123456")))
+        store.accept(DynamicIntent.Action(DynamicAction(
+            type = "request",
+            payload = mapOf(
+                "endpoint" to DynamicValue.StringValue("/submit"),
+                "responseMode" to DynamicValue.StringValue("none"),
+            ),
+        )))
+        advanceUntilIdle()
+        val current = assertIs<DynamicState.Success>(store.state.value)
+        assertEquals(DynamicValue.StringValue("123456"), current.screen.bindings["phone"])
+        store.close()
+    }
+
     private fun store(
         entry: DynamicNavigationEntry,
         repository: DynamicRepository,
