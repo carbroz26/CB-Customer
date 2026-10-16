@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 sealed interface DynamicIntent {
     data object Load : DynamicIntent
     data object Retry : DynamicIntent
+    data object ClearMessage : DynamicIntent
     data class EffectFailed(val message: String) : DynamicIntent
     data class Action(val action: DynamicAction) : DynamicIntent
     data class ValueChanged(val key: String, val value: DynamicValue) : DynamicIntent
@@ -54,6 +55,7 @@ class DynamicStore(
     fun accept(intent: DynamicIntent) {
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
+            DynamicIntent.ClearMessage -> currentScreen()?.let { reduce(it.copy(validationMessage = null)) }
             is DynamicIntent.EffectFailed -> reportEffectFailure(intent.message)
             is DynamicIntent.ValueChanged -> updateBinding(intent.key, intent.value)
             is DynamicIntent.Action -> handleAction(intent.action)
