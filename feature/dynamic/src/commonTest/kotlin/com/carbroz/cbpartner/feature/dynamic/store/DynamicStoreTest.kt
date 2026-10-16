@@ -9,6 +9,8 @@ import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.ExternalUriActionHandler
+import com.carbroz.cbpartner.feature.dynamic.action.NavigateActionHandler
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
@@ -249,6 +251,59 @@ class DynamicStoreTest {
             listOf(
                 DynamicActionEffect.ExternalUri("https://one.example"),
                 DynamicActionEffect.ExternalUri("https://two.example"),
+            ),
+            sessionBatches.single(),
+        )
+    }
+
+    @Test
+    fun navigateFirstBatchKeepsLaterEffectAfterSourceStoreCloses() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val destination = destination("next")
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
+        }
+        val sessionBatches = mutableListOf<List<DynamicActionEffect>>()
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(NavigateActionHandler(), ExternalUriActionHandler())),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("source")),
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+            deliverEffects = { batch -> sessionBatches.add(batch) },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction(
+            type = "sequence",
+            payload = mapOf("actions" to DynamicValue.ArrayValue(listOf(
+                DynamicValue.ObjectValue(mapOf(
+                    "type" to DynamicValue.StringValue("navigate"),
+                    "destination" to DynamicValue.ObjectValue(mapOf(
+                        "screenId" to DynamicValue.StringValue(destination.screenId),
+                        "templateId" to DynamicValue.StringValue(destination.templateId),
+                        "templateType" to DynamicValue.StringValue(destination.templateType),
+                        "endpoint" to DynamicValue.StringValue(destination.endpoint),
+                    )),
+                )),
+                DynamicValue.ObjectValue(mapOf(
+                    "type" to DynamicValue.StringValue("external_uri"),
+                    "payload" to DynamicValue.ObjectValue(mapOf(
+                        "uri" to DynamicValue.StringValue("https://after.example"),
+                    )),
+                )),
+            ))),
+        )))
+        advanceUntilIdle()
+        store.close()
+
+        assertEquals(1, sessionBatches.size)
+        assertContentEquals(
+            listOf(
+                DynamicActionEffect.Navigate(destination, DynamicActionResult.NavigationOperation.Push),
+                DynamicActionEffect.ExternalUri("https://after.example"),
             ),
             sessionBatches.single(),
         )
