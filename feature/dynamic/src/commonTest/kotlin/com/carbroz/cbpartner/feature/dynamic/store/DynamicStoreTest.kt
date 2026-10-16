@@ -210,6 +210,51 @@ class DynamicStoreTest {
     }
 
     @Test
+    fun acceptedEffectBatchOutlivesSourceStoreDisposal() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
+        }
+        val sessionBatches = mutableListOf<List<DynamicActionEffect>>()
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(ExternalUriActionHandler())),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("source")),
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+            deliverEffects = { batch -> sessionBatches.add(batch) },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction(
+            type = "sequence",
+            payload = mapOf("actions" to DynamicValue.ArrayValue(listOf(
+                DynamicValue.ObjectValue(mapOf(
+                    "type" to DynamicValue.StringValue("external_uri"),
+                    "payload" to DynamicValue.ObjectValue(mapOf("uri" to DynamicValue.StringValue("https://one.example"))),
+                )),
+                DynamicValue.ObjectValue(mapOf(
+                    "type" to DynamicValue.StringValue("external_uri"),
+                    "payload" to DynamicValue.ObjectValue(mapOf("uri" to DynamicValue.StringValue("https://two.example"))),
+                )),
+            ))),
+        )))
+        advanceUntilIdle()
+        store.close()
+
+        assertEquals(1, sessionBatches.size)
+        assertContentEquals(
+            listOf(
+                DynamicActionEffect.ExternalUri("https://one.example"),
+                DynamicActionEffect.ExternalUri("https://two.example"),
+            ),
+            sessionBatches.single(),
+        )
+    }
+
+    @Test
     fun screenStateIsIndependentPerEntry() = runTest {
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
