@@ -4,6 +4,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
 
 class RequestActionHandler(
     private val repository: DynamicRepository,
@@ -21,7 +22,26 @@ class RequestActionHandler(
         val method = resolveString(action.payload["method"], bindings, context, state) ?: "POST"
         val authentication = resolveString(action.payload["authentication"], bindings, context, state) ?: "NONE"
         val validate = resolveBoolean(action.payload["validate"], bindings, context, state) ?: false
-        val responseMode = resolveString(action.payload["responseMode"], bindings, context, state) ?: "destination"
+        val responseMode = if ("responseMode" in action.payload) {
+            requireNotNull(resolveString(action.payload["responseMode"], bindings, context, state)) {
+                "Invalid dynamic request responseMode"
+            }.lowercase().also {
+                require(it == "none" || it == "destination") { "Unsupported dynamic request responseMode" }
+            }
+        } else "none"
+        val operation = if ("mode" in action.payload) {
+            require(responseMode == "destination") { "Request mode requires destination responseMode" }
+            when (resolveString(action.payload["mode"], bindings, context, state)?.lowercase()) {
+                "push" -> DynamicActionResult.NavigationOperation.Push
+                "replace" -> DynamicActionResult.NavigationOperation.Replace
+                else -> error("Unsupported dynamic request navigation mode")
+            }
+        } else DynamicActionResult.NavigationOperation.Push
+        if ("validate" in action.payload) {
+            check(resolveBoolean(action.payload["validate"], bindings, context, state) != null) {
+                "Invalid dynamic request validate flag"
+            }
+        }
         val body = action.payload["body"]?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) }
 
         val response = repository.fetch(
@@ -35,11 +55,6 @@ class RequestActionHandler(
         }
 
         val destination = response.destination ?: error("Dynamic request did not provide data.destination")
-        val operation = when (resolveString(action.payload["mode"], bindings, context, state)?.lowercase()) {
-            "replace" -> DynamicActionResult.NavigationOperation.Replace
-            "pop", "back" -> DynamicActionResult.NavigationOperation.Pop
-            else -> DynamicActionResult.NavigationOperation.Push
-        }
         return DynamicActionResult.Navigate(destination, operation, stateChanges)
     }
 
@@ -68,13 +83,17 @@ class RequestActionHandler(
         retain: DynamicValue?,
         dataPayload: DynamicValue?,
     ): Map<String, DynamicValue> {
-        val mappings = retain as? DynamicValue.ObjectValue ?: return emptyMap()
-        val root = DynamicValue.ObjectValue(
-            mapOf("data" to (dataPayload ?: DynamicValue.NullValue)),
-        )
-        return mappings.value.mapNotNull { (key, pathValue) ->
-            val path = DynamicActionValueResolver.string(pathValue) ?: return@mapNotNull null
-            key to DynamicActionValueResolver.resolvePath(root.value, path)
+        if (retain == null) return emptyMap()
+        val mappings = retain as? DynamicValue.ObjectValue
+            ?: error("Dynamic request retain must be an object")
+        val root = mapOf("data" to (dataPayload ?: DynamicValue.NullValue))
+        return mappings.value.map { (key, pathValue) ->
+            require(key.isNotBlank()) { "Dynamic request retain target is blank" }
+            val path = DynamicActionValueResolver.string(pathValue)
+            require(!path.isNullOrBlank()) { "Dynamic request retain path is invalid" }
+            val value = DynamicReferenceResolver.resolveExistingPath(root, path)
+                ?: error("Dynamic request retain path is missing")
+            key to value
         }.toMap()
     }
 }
