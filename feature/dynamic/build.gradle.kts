@@ -14,6 +14,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core"))
             implementation(project(":domain"))
             implementation(project(":navigation"))
             implementation(libs.koin.core)
