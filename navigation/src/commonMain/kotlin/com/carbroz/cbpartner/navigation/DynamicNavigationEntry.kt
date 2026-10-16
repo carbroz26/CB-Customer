@@ -11,6 +11,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 class DynamicNavigationEntry(
     val destination: DynamicDestination,
     val entryId: Long = 0L,
+    val diagnosticSessionId: String? = null,
+    val parentActionId: String? = null,
 ) {
     var bindings: Map<String, DynamicValue> = emptyMap()
         private set

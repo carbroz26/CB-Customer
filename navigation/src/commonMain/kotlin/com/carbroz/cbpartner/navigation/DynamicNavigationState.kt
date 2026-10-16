@@ -9,11 +9,12 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 
 class DynamicNavigationState(
     initialDestination: DynamicDestination,
+    private val diagnosticSessionId: String? = null,
 ) {
     private var nextEntryId = 0L
 
     private fun newEntry(destination: DynamicDestination): DynamicNavigationEntry =
-        DynamicNavigationEntry(destination, ++nextEntryId)
+        DynamicNavigationEntry(destination, ++nextEntryId, diagnosticSessionId)
 
     internal val backStack: SnapshotStateList<DynamicNavigationEntry> =
         mutableStateListOf(newEntry(initialDestination))

@@ -57,6 +57,7 @@ fun ApplicationContent(
             is SplashState.Success -> DynamicContent(
                 koin = koin,
                 initialDestination = state.output.destination,
+                diagnosticSessionId = splashStore.diagnosticSessionId,
                 runtimeMetadataProvider = runtimeMetadataProvider,
             )
             else -> SplashScreen(store = splashStore)
@@ -68,9 +69,12 @@ fun ApplicationContent(
 private fun DynamicContent(
     koin: Koin,
     initialDestination: DynamicDestination,
+    diagnosticSessionId: String,
     runtimeMetadataProvider: RuntimeMetadataProvider,
 ) {
-    val navigationState = remember(initialDestination) { DynamicNavigationState(initialDestination) }
+    val navigationState = remember(initialDestination, diagnosticSessionId) {
+        DynamicNavigationState(initialDestination, diagnosticSessionId)
+    }
     val effectBatches = remember(navigationState) { Channel<List<DynamicActionEffect>>(Channel.UNLIMITED) }
     val uriHandler = LocalUriHandler.current
     var effectError by remember(navigationState) { mutableStateOf<String?>(null) }

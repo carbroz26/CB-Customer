@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 
 sealed interface DynamicIntent {
     data object Load : DynamicIntent
@@ -71,7 +72,12 @@ class DynamicStore(
         if (currentScreen()?.response != null || loadJob?.isActive == true) return
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
-            loadDynamicScreen(entry.destination)
+            loadDynamicScreen(
+                destination = entry.destination,
+                sessionId = entry.diagnosticSessionId,
+                actionId = Uuid.random().toString(),
+                parentActionId = entry.parentActionId,
+            )
                 .onSuccess { response ->
                     val previous = currentScreen()
                     _state.value = DynamicState.Success(
