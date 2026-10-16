@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
 
 class NavigateActionHandler : DynamicActionHandler {
     override val type = "navigate"
@@ -16,8 +17,8 @@ class NavigateActionHandler : DynamicActionHandler {
         val mode = if (rawMode == null) {
             "push"
         } else {
-            DynamicActionValueResolver.string(
-                DynamicActionValueResolver.resolve(rawMode, bindings, context, state),
+            DynamicReferenceResolver.string(
+                DynamicReferenceResolver.resolve(rawMode, bindings, context, state),
             )?.lowercase() ?: throw IllegalArgumentException("Invalid dynamic navigation mode")
         }
         val operation = when (mode) {
