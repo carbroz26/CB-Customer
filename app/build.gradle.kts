@@ -31,6 +31,7 @@ kotlin {
             implementation(libs.kermit)
             implementation(libs.koin.core)
             implementation(compose.runtime)
+            implementation("androidx.compose.runtime:runtime-retain:1.12.0")
             implementation(compose.material3)
         }
     }
