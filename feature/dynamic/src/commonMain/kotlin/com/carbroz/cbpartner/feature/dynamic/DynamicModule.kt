@@ -8,6 +8,7 @@ import com.carbroz.cbpartner.feature.dynamic.action.NavigateActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.PresentActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.StateActionHandler
+import com.carbroz.cbpartner.feature.dynamic.action.SequenceActionHandler
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import org.koin.dsl.bind
@@ -22,5 +23,6 @@ val dynamicModule = module {
     factory { DismissActionHandler() } bind DynamicActionHandler::class
     factory { PresentActionHandler() } bind DynamicActionHandler::class
     factory { StateActionHandler() } bind DynamicActionHandler::class
+    factory { SequenceActionHandler() } bind DynamicActionHandler::class
     factory { DynamicActionExecutor(getAll<DynamicActionHandler>()) }
 }
