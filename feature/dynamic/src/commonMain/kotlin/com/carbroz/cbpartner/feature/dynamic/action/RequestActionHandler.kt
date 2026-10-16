@@ -43,12 +43,13 @@ class RequestActionHandler(
             }
         }
         val body = action.payload["body"]?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) }
+        val retainedPaths = retainedPaths(action.payload["retain"])
 
         val response = repository.fetch(
             DynamicRequest(endpoint, method, authentication, validate, body, responseMode),
         ).getOrThrow()
 
-        val stateChanges = extractRetainedState(action.payload["retain"], response.dataPayload)
+        val stateChanges = extractRetainedState(retainedPaths, response.dataPayload)
         if (responseMode.equals("none", true)) {
             return if (stateChanges.isEmpty()) DynamicActionResult.Completed
             else DynamicActionResult.StateChanged(stateChanges)
@@ -79,18 +80,24 @@ class RequestActionHandler(
         state: Map<String, DynamicValue>,
     ): Boolean? = DynamicActionValueResolver.boolean(resolve(value, bindings, context, state))
 
-    private fun extractRetainedState(
-        retain: DynamicValue?,
-        dataPayload: DynamicValue?,
-    ): Map<String, DynamicValue> {
+    private fun retainedPaths(retain: DynamicValue?): Map<String, String> {
         if (retain == null) return emptyMap()
         val mappings = retain as? DynamicValue.ObjectValue
             ?: error("Dynamic request retain must be an object")
-        val root = mapOf("data" to (dataPayload ?: DynamicValue.NullValue))
         return mappings.value.map { (key, pathValue) ->
             require(key.isNotBlank()) { "Dynamic request retain target is blank" }
             val path = DynamicActionValueResolver.string(pathValue)
             require(!path.isNullOrBlank()) { "Dynamic request retain path is invalid" }
+            key to path
+        }.toMap()
+    }
+
+    private fun extractRetainedState(
+        mappings: Map<String, String>,
+        dataPayload: DynamicValue?,
+    ): Map<String, DynamicValue> {
+        val root = mapOf("data" to (dataPayload ?: DynamicValue.NullValue))
+        return mappings.map { (key, path) ->
             val value = DynamicReferenceResolver.resolveExistingPath(root, path)
                 ?: error("Dynamic request retain path is missing")
             key to value
