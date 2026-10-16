@@ -138,7 +138,7 @@ class DynamicResponseMapperTest {
     @Test
     fun mapsOptionalHeaderFooterSlotsWithoutMovingBodyComponents() {
         val dto = json.decodeFromString<DynamicResponseDto>(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"slots","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","properties":{"padding":{"all":20}},"header":{"properties":{"padding":{"all":8}},"components":[{"id":"title","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Location"}}]}]},"components":[{"id":"body","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Body"}}]}],"footer":{"properties":{"padding":{"all":12}},"components":[]}}}}}""",
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"slots","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","properties":{"padding":{"all":20}},"header":{"properties":{"padding":{"all":8}},"components":[{"id":"title","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Location"}}]}]},"components":[{"id":"body","type":"stack_component","elements":[{"id":"text","type":"text","properties":{"text":"Body"}}]}],"footer":{"properties":{"padding":{"all":12}},"components":[]}}}}""",
         )
 
         val template = assertIs<FormTemplate>(assertNotNull(DynamicResponseMapper(json).map(dto).data).template)
