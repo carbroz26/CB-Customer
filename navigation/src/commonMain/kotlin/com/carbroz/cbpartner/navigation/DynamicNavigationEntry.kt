@@ -9,4 +9,5 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
  */
 class DynamicNavigationEntry(
     val destination: DynamicDestination,
+    val entryId: Long = 0L,
 )
