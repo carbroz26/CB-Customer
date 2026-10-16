@@ -22,6 +22,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 class DynamicResponseMapperTest {
     private val json = Json { ignoreUnknownKeys = true }
@@ -168,6 +169,38 @@ class DynamicResponseMapperTest {
             """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"slots","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"body","type":"stack_component"}],"header":{"components":[{"id":"new","type":"unsupported_component"}]}}}}""",
         )
         assertFailsWith<IllegalArgumentException> { DynamicResponseMapper(json).map(dto) }
+    }
+
+
+    @Test
+    fun imageElementRequiresNonBlankUrlButLegacyIconMayOmitUrl() {
+        val mapper = ElementMapper(json, DynamicValueMapper())
+        for (properties in listOf("{}", """{"url":""}""", """{"url":"   "}""")) {
+            val element = json.parseToJsonElement(
+                """{"id":"hero","type":"image","properties":$properties}""",
+            ).jsonObject
+            assertFailsWith<IllegalArgumentException> { mapper.map(element) }
+        }
+        val icon = json.parseToJsonElement(
+            """{"id":"legacy_icon","type":"icon","properties":{"name":"notifications"}}""",
+        ).jsonObject
+        assertEquals("", assertIs<IconElement>(mapper.map(icon)).url)
+    }
+
+    @Test
+    fun malformedLeadingTrailingContentFailsRatherThanDroppingItems() {
+        val mapper = ElementMapper(json, DynamicValueMapper())
+        for (content in listOf("""[{"type":"divider"},null]""", """[42]""", """"invalid"""", "null")) {
+            val element = json.parseToJsonElement(
+                """{"id":"text","type":"text","properties":{"text":"Hello","leading":$content}}""",
+            ).jsonObject
+            assertFailsWith<IllegalArgumentException> { mapper.map(element) }
+        }
+        val element = json.parseToJsonElement(
+            """{"id":"text","type":"text","properties":{"text":"Hello","trailing":[{"type":"divider","properties":{"spacing":{"top":6}}}]}}""",
+        ).jsonObject
+        val text = assertIs<TextElement>(mapper.map(element))
+        assertEquals(6.0, assertIs<DividerContent>(text.trailingContent.single()).spacing?.top)
     }
 
     @Test
