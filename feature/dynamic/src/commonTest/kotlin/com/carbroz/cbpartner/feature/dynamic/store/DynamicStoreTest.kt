@@ -58,9 +58,10 @@ class DynamicStoreTest {
             entry = source,
             runtimeState = DynamicRuntimeState(),
             scope = CoroutineScope(dispatcher),
-            deliverCorrelatedEffects = { trace, effects ->
+            commitActionResult = { _, effects, trace ->
                 deliveredTrace = trace
                 deliveredEffects = effects
+                true
             },
         )
         store.accept(DynamicIntent.Load)
@@ -363,9 +364,11 @@ class DynamicStoreTest {
             entry = DynamicNavigationEntry(destination("current")),
             runtimeState = state,
             scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
-            deliverEffects = { effects ->
+            commitActionResult = { changes, effects, _ ->
+                state.setAll(changes)
                 observed = state.values.value["reference"]
                 delivered = effects
+                true
             },
         )
         store.accept(DynamicIntent.Load)
@@ -406,7 +409,7 @@ class DynamicStoreTest {
             entry = DynamicNavigationEntry(destination("root")),
             runtimeState = DynamicRuntimeState(),
             scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
-            deliverEffects = { delivered += it },
+            commitActionResult = { _, effects, _ -> delivered += effects; true },
         )
 
         store.accept(DynamicIntent.Load)
@@ -447,7 +450,7 @@ class DynamicStoreTest {
             entry = DynamicNavigationEntry(destination("root")),
             runtimeState = runtimeState,
             scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
-            deliverEffects = { delivered++ },
+            commitActionResult = { _, _, _ -> delivered++; true },
         )
 
         store.accept(DynamicIntent.Load)
@@ -485,7 +488,7 @@ class DynamicStoreTest {
             entry = DynamicNavigationEntry(destination("root")),
             runtimeState = DynamicRuntimeState(),
             scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
-            deliverEffects = { effects -> accepted += effects.toList() },
+            commitActionResult = { _, effects, _ -> accepted += effects.toList(); true },
         )
 
         store.accept(DynamicIntent.Load)

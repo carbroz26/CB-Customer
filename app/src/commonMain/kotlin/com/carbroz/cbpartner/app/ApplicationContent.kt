@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.key
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,104 +37,115 @@ import com.carbroz.cbpartner.navigation.DynamicNavigationHost
 import com.carbroz.cbpartner.navigation.DynamicNavigationState
 import org.koin.core.Koin
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
 
 @Composable
 fun ApplicationContent(
     koin: Koin,
     runtimeMetadataProvider: RuntimeMetadataProvider,
+    retainedSession: MutableState<DynamicSession?>,
 ) {
-    val splashStore = remember { koin.get<SplashStore>() }
-    val splashState by splashStore.state.collectAsState()
-
-    DisposableEffect(splashStore) {
-        onDispose { splashStore.close() }
-    }
-
-    // Bootstrap has completed; its startup scope must not outlive the handoff.
-    LaunchedEffect(splashStore, splashState) {
-        if (splashState is SplashState.Success) splashStore.close()
-    }
-
     MaterialTheme {
-        when (val state = splashState) {
-            is SplashState.Success -> DynamicContent(
-                koin = koin,
-                initialDestination = state.output.destination,
-                diagnosticSessionId = splashStore.diagnosticSessionId,
-                runtimeMetadataProvider = runtimeMetadataProvider,
-            )
-            else -> SplashScreen(store = splashStore)
+        val session = retainedSession.value
+        if (session != null) {
+            DynamicContent(koin, session, runtimeMetadataProvider)
+        } else {
+            BootstrapContent(koin) { destination, diagnosticId ->
+                if (retainedSession.value == null) {
+                    retainedSession.value = DynamicSession(diagnosticId, destination)
+                }
+            }
         }
     }
 }
 
 @Composable
+private fun BootstrapContent(
+    koin: Koin,
+    onHandoff: (DynamicDestination, String) -> Unit,
+) {
+    val splashStore = remember(koin) { koin.get<SplashStore>() }
+    val splashState by splashStore.state.collectAsState()
+    DisposableEffect(splashStore) {
+        onDispose { splashStore.close() }
+    }
+    LaunchedEffect(splashStore, splashState) {
+        val success = splashState as? SplashState.Success
+        if (success != null) {
+            onHandoff(success.output.destination, splashStore.diagnosticSessionId)
+            splashStore.close()
+        }
+    }
+    SplashScreen(splashStore)
+}
+
+@Composable
 private fun DynamicContent(
     koin: Koin,
-    initialDestination: DynamicDestination,
-    diagnosticSessionId: String,
+    session: DynamicSession,
     runtimeMetadataProvider: RuntimeMetadataProvider,
 ) {
-    val navigationState = remember(initialDestination, diagnosticSessionId) {
-        DynamicNavigationState(initialDestination, diagnosticSessionId)
-    }
-    val effectBatches = remember(navigationState) {
-        Channel<Pair<TraceContext?, List<DynamicActionEffect>>>(Channel.UNLIMITED)
-    }
+    val navigationState = session.navigationState
     val uriHandler = LocalUriHandler.current
-    val flowLogger = remember(navigationState) { Logger.withTag("CBPartnerFlow") }
-    var effectError by remember(navigationState) { mutableStateOf<String?>(null) }
+    val flowLogger = remember(session) { Logger.withTag("CBPartnerFlow") }
+    var effectError by remember(session) { mutableStateOf<String?>(null) }
 
-    DisposableEffect(effectBatches) {
-        onDispose { effectBatches.close() }
-    }
-
-    LaunchedEffect(effectBatches, navigationState, uriHandler) {
-        for ((traceContext, batch) in effectBatches) {
-            var failed = false
-            for (effect in batch) {
-                val operation = when (effect) {
-                    is DynamicActionEffect.Navigate -> effect.operation.name.lowercase()
-                    is DynamicActionEffect.Present -> "present"
-                    DynamicActionEffect.Dismiss -> "dismiss"
-                    is DynamicActionEffect.ExternalUri -> "external_uri"
-                }
-                try {
-                    when (effect) {
-                        is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
-                        is DynamicActionEffect.Navigate -> when (effect.operation) {
-                            DynamicActionResult.NavigationOperation.Push -> navigationState.push(requireNotNull(effect.destination), traceContext?.actionId)
-                            DynamicActionResult.NavigationOperation.Replace -> navigationState.replace(requireNotNull(effect.destination), traceContext?.actionId)
-                            DynamicActionResult.NavigationOperation.Pop -> check(navigationState.pop()) { "Navigation unavailable" }
-                        }
-                        is DynamicActionEffect.Present -> check(navigationState.present(effect.destination, traceContext?.actionId)) { "Presentation unavailable" }
-                        DynamicActionEffect.Dismiss -> check(navigationState.dismissPresentation()) { "Dismiss unavailable" }
+    LaunchedEffect(session, uriHandler) {
+        val lease = session.attachConsumer()
+        try {
+            session.workRevision.collect {
+                while (true) {
+                    val claim = session.claimNext(lease) ?: break
+                    if (!session.markDispatchStarted(claim)) break
+                    val effect = claim.effect
+                    val traceContext = claim.trace
+                    val operation = when (effect) {
+                        is DynamicActionEffect.Navigate -> effect.operation.name.lowercase()
+                        is DynamicActionEffect.Present -> "present"
+                        DynamicActionEffect.Dismiss -> "dismiss"
+                        is DynamicActionEffect.ExternalUri -> "external_uri"
                     }
+                    var applied = false
+                    try {
+                        when (effect) {
+                            is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
+                            is DynamicActionEffect.Navigate -> when (effect.operation) {
+                                DynamicActionResult.NavigationOperation.Push ->
+                                    navigationState.push(requireNotNull(effect.destination), traceContext?.actionId)
+                                DynamicActionResult.NavigationOperation.Replace ->
+                                    navigationState.replace(requireNotNull(effect.destination), traceContext?.actionId)
+                                DynamicActionResult.NavigationOperation.Pop ->
+                                    check(navigationState.pop()) { "Navigation unavailable" }
+                            }
+                            is DynamicActionEffect.Present ->
+                                check(navigationState.present(effect.destination, traceContext?.actionId)) { "Presentation unavailable" }
+                            DynamicActionEffect.Dismiss ->
+                                check(navigationState.dismissPresentation()) { "Dismiss unavailable" }
+                        }
+                        applied = true
+                    } catch (cancellation: CancellationException) {
+                        throw cancellation
+                    } catch (_: Exception) {
+                        effectError = "Unable to complete this action"
+                    }
+                    if (!session.acknowledge(
+                            claim,
+                            if (applied) DynamicSession.EffectOutcome.Applied else DynamicSession.EffectOutcome.Rejected,
+                        )) break
                     runCatching {
                         flowLogger.i {
-                            "event=navigation.applied sessionId=${traceContext?.sessionId ?: "-"} " +
-                                "actionId=${traceContext?.actionId ?: "-"} operation=$operation"
-                        }
-                    }
-                } catch (cancellation: CancellationException) {
-                    throw cancellation
-                } catch (_: Exception) {
-                    // Keep the message UI-safe; never render exception text or an external URI.
-                    failed = true
-                    runCatching {
-                        flowLogger.w {
-                            "event=navigation.failed sessionId=${traceContext?.sessionId ?: "-"} " +
+                            "event=navigation.${if (applied) "applied" else "failed"} " +
+                                "sessionId=${traceContext?.sessionId ?: "-"} " +
                                 "actionId=${traceContext?.actionId ?: "-"} operation=$operation"
                         }
                     }
                 }
             }
-            effectError = if (failed) "Unable to complete this action" else null
+        } finally {
+            session.detachConsumer(lease)
         }
     }
-    val runtimeState = remember { DynamicRuntimeState() }
-    val registry = remember { dynamicRendererRegistry() }
+    val registry = remember(session) { dynamicRendererRegistry() }
     val metadata = runtimeMetadataProvider.current()
     val contextValues = remember(metadata) {
         mapOf(
@@ -145,9 +158,10 @@ private fun DynamicContent(
 
     Box {
         DynamicNavigationHost(state = navigationState) { entry ->
+            key(koin, entry) {
             DynamicContainer(
             entry = entry,
-            runtimeState = runtimeState,
+            runtimeState = session.runtimeState,
             contextValues = contextValues,
             storeFactory = {
                 DynamicStore(
@@ -155,14 +169,16 @@ private fun DynamicContent(
                     actionExecutor = koin.get<DynamicActionExecutor>(),
                     validator = koin.get<DynamicFormValidator>(),
                     entry = entry,
-                    runtimeState = runtimeState,
+                    runtimeState = session.runtimeState,
                     contextProvider = { contextValues },
-                    deliverEffects = { effects -> effectBatches.send(null to effects) },
-                    deliverCorrelatedEffects = { trace, effects -> effectBatches.send(trace to effects) },
+                    commitActionResult = { changes, effects, trace ->
+                        session.commit(changes, effects, trace)
+                    },
                 )
             },
             registry = registry,
             )
+            }
         }
         effectError?.let { message ->
             Column(modifier = androidx.compose.ui.Modifier.align(Alignment.TopCenter)) {

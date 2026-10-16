@@ -16,6 +16,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,8 +48,8 @@ class DynamicStore(
     private val runtimeState: DynamicRuntimeState,
     private val contextProvider: () -> Map<String, DynamicValue> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
-    private val deliverEffects: suspend (List<DynamicActionEffect>) -> Unit = {},
-    private val deliverCorrelatedEffects: (suspend (TraceContext, List<DynamicActionEffect>) -> Unit)? = null,
+    private val commitActionResult: (Map<String, DynamicValue>, List<DynamicActionEffect>, TraceContext?) -> Boolean =
+        { changes, _, _ -> runtimeState.setAll(changes); true },
 ) {
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
@@ -167,8 +169,13 @@ class DynamicStore(
                 traceContext = traceContext,
             )
             if (result.isSuccess) {
-                applyActionResult(result.getOrThrow(), traceContext)
-                reportAction(traceContext, "action.completed", action.type, "success")
+                coroutineContext.ensureActive()
+                val accepted = applyActionResult(result.getOrThrow(), traceContext)
+                reportAction(traceContext, "action.completed", action.type, if (accepted) "success" else "rejected")
+                if (!accepted) {
+                    val screen = currentScreen() ?: current
+                    reduce(screen.copy(validationMessage = "Unable to complete action"))
+                }
             } else {
                 val error = result.exceptionOrNull()
                 if (error is CancellationException) throw error
@@ -179,17 +186,8 @@ class DynamicStore(
         }
     }
 
-    private suspend fun applyActionResult(result: DynamicActionResult, traceContext: TraceContext?) {
-        runtimeState.setAll(result.stateChanges)
-        if (result.effects.isNotEmpty()) {
-            val effects = result.effects.toList()
-            if (traceContext != null && deliverCorrelatedEffects != null) {
-                deliverCorrelatedEffects.invoke(traceContext, effects)
-            } else {
-                deliverEffects(effects)
-            }
-        }
-    }
+    private fun applyActionResult(result: DynamicActionResult, traceContext: TraceContext?): Boolean =
+        commitActionResult(result.stateChanges, result.effects, traceContext)
 
     private fun currentScreen(): DynamicScreenState? = when (val value = _state.value) {
         DynamicState.Initial, DynamicState.Loading -> null

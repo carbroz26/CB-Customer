@@ -3,6 +3,9 @@ package com.carbroz.cbpartner.app
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.retain.RetainedEffect
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.data.di.bootstrapModule
 import com.carbroz.cbpartner.data.di.dynamicDataModule
@@ -19,6 +22,10 @@ fun App(
     runtimeMetadataProvider: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
 ) {
+    val retainedSession = retain { mutableStateOf<DynamicSession?>(null) }
+    RetainedEffect(retainedSession) {
+        onRetire { retainedSession.value?.close() }
+    }
     val koin = remember(runtimeMetadataProvider, apiBaseUrl) {
         koinApplication {
             modules(
@@ -37,5 +44,5 @@ fun App(
         onDispose { koin.close() }
     }
 
-    ApplicationContent(koin.koin, runtimeMetadataProvider)
+    ApplicationContent(koin.koin, runtimeMetadataProvider, retainedSession)
 }
