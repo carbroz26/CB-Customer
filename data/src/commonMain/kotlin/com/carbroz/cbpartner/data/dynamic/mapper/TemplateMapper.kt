@@ -1,8 +1,10 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.template.FormTemplateDto
+import com.carbroz.cbpartner.data.dynamic.model.template.TemplateSlotDto
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.template.DynamicTemplate
+import com.carbroz.cbpartner.domain.model.dynamic.template.TemplateSlot
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
@@ -30,6 +32,13 @@ class TemplateMapper(
             fillMaxSize = values.boolean(dto.properties, "fillMaxSize") ?: false,
             semanticRole = values.string(dto.properties, "semanticRole"),
             components = dto.components.map(components::map),
+            header = dto.header?.let(::mapSlot),
+            footer = dto.footer?.let(::mapSlot),
         )
     }
+
+    private fun mapSlot(slot: TemplateSlotDto): TemplateSlot = TemplateSlot(
+        padding = values.padding(slot.properties),
+        components = slot.components.map(components::map),
+    )
 }
