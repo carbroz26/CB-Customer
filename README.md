@@ -42,7 +42,9 @@ Use the repository Gradle Wrapper (`gradlew.bat` on Windows, `./gradlew` on macO
    adb devices -l
    ~~~
 
-The phone should show status `device`. If the same phone appears more than once, target one transport explicitly in the commands below. Pairing and connection ports are displayed by Android; do not guess them.
+The phone should show status `device`. Pairing and connection ports are displayed by Android; do not guess them.
+
+**Verified Samsung A35 workflow:** A single device can appear under an mDNS/TLS serial such as `adb-<device-id>._adb-tls-connect._tcp` rather than `PHONE_IP:CONNECTION_PORT`. This is a valid ADB serial, not automatically a duplicate. If `adb devices -l` shows exactly one `device`, use ordinary `adb` commands; `adb -s` is not necessary. If two entries are present, choose **the exact serial** from `adb devices -l` with `adb -s "<serial>"`, or disconnect the unwanted transport. Don't disconnect the sole working connection.
 
 ### 2. Choose the backend connection method
 
@@ -51,38 +53,51 @@ The development backend listens on port `3000`. A real phone **cannot** use the 
 - **Recommended when the phone can connect to ADB over Wi-Fi, but direct LAN API requests are blocked:** ADB reverse. It forwards the phone's localhost port 3000 through ADB to the development PC. Build the Android APK with `http://127.0.0.1:3000`. Keep ADB connected; repeat `adb reverse` after disconnect/reconnect.
 - **Direct LAN:** Find the PC's active IPv4 address using `ipconfig`, verify the phone can open `http://PC_LAN_IP:3000`, then build with `http://PC_LAN_IP:3000`. Phone and PC must be on a reachable network; Windows Firewall and router client isolation can prevent access even if the PC can access its own LAN IP.
 
-For the ADB reverse workflow:
+### 2a. Recommended: ADB reverse (verified working on Samsung A35)
+
+Use this when Wi-Fi debugging works but Samsung Chrome cannot reach the PC LAN address. **A working PC-side `curl` or `Test-NetConnection` does not prove phone-to-PC LAN access.** A private-only Windows Firewall rule will not apply to a network whose profile is `Public`; do not change firewall or Wi-Fi profile merely to make this development workflow work.
+
+From `D:\\CarBroz\\CB-Partner` in PowerShell, with **one connected ADB device**:
 
 ~~~powershell
-$device = "PHONE_IP:CONNECTION_PORT" # copy serial exactly from adb devices -l
+adb devices -l
+adb reverse tcp:3000 tcp:3000
+adb reverse --list
+.\\gradlew.bat :androidApp:installDebug '-Pcbpartner.api.baseUrl=http://127.0.0.1:3000'
+adb shell am force-stop com.carbroz.cbpartner.android
+adb shell monkey -p com.carbroz.cbpartner.android -c android.intent.category.LAUNCHER 1
+~~~
+
+The verified result was `adb reverse --list` containing `tcp:3000 tcp:3000`, Gradle reporting `Installed on 1 device`, and the Login screen appearing after launch. The prefix of the reverse-list line (for example `host-26`) is transport-specific, not another phone. The backend still runs on the PC/Docker at port 3000; the phone connects through ADB at `127.0.0.1:3000`.
+
+**If more than one device is listed**, use the exact ADB serial in **every** command, for example:
+
+~~~powershell
+$device = "EXACT_SERIAL_FROM_ADB_DEVICES"
 adb -s $device reverse tcp:3000 tcp:3000
 adb -s $device reverse --list
-~~~
-
-The expected mapping is `tcp:3000 tcp:3000`. On the phone's Chrome browser, `http://127.0.0.1:3000/api/v1/partner/config/bootstrap` can verify connectivity. **A 500 `Missing update config for undefined` for a browser GET means the request lacks the app's platform header; it does not by itself indicate transport failure.** The app adds `X-CarBroz-Platform` and version headers. On the development PC, a diagnostic request is:
-
-~~~powershell
-curl.exe -i -H "X-CarBroz-Platform: ANDROID" -H "X-CarBroz-App-Version: 1.0.0" -H "X-CarBroz-Build-Number: 1" http://127.0.0.1:3000/api/v1/partner/config/bootstrap
-~~~
-
-Use the actual app version/build for a production-equivalent check. Never log actual identity, session tokens, phone/OTP values, or response bodies.
-
-### 3. Build, install, and launch on the selected physical device
-
-From the repository root in **Antigravity's PowerShell terminal**:
-
-~~~powershell
-$device = "PHONE_IP:CONNECTION_PORT" # e.g. the current Wi-Fi serial listed by adb
-adb -s $device reverse tcp:3000 tcp:3000
-.\gradlew.bat :androidApp:assembleDebug "-Pcbpartner.api.baseUrl=http://127.0.0.1:3000"
-adb -s $device install -r .\androidApp\build\outputs\apk\debug\androidApp-debug.apk
+.\\gradlew.bat :androidApp:assembleDebug '-Pcbpartner.api.baseUrl=http://127.0.0.1:3000'
+adb -s $device install -r .\\androidApp\\build\\outputs\\apk\\debug\\androidApp-debug.apk
 adb -s $device shell am force-stop com.carbroz.cbpartner.android
 adb -s $device shell monkey -p com.carbroz.cbpartner.android -c android.intent.category.LAUNCHER 1
 ~~~
 
-For direct LAN **instead**, replace the Gradle property with `"-Pcbpartner.api.baseUrl=http://PC_LAN_IP:3000"` and omit `adb reverse`. The Android Gradle convention defaults to emulator `10.0.2.2` when the property is not provided. Rebuild **and reinstall** if you change the base URL. `assembleDebug` alone does not update an APK already installed on the device.
+`:androidApp:installDebug` is simplest with one device. When there are multiple devices, assembling once and explicitly using `adb -s` avoids an ambiguous Gradle install target. Re-establish `adb reverse` after ADB disconnect/reconnect. Changing the API base URL requires rebuilding **and reinstalling** the APK; do not reuse an APK built for a different origin.
 
-Always include `adb -s $device`: Wireless debugging can show the same physical Samsung device twice, through an IP connection and an mDNS/TLS connection. `adb install` without `-s` then fails with `more than one device/emulator`. Never guess pairing and connection ports.
+### 3. Troubleshoot Bootstrap without unnecessary changes
+
+- **Samsung Chrome cannot open `http://PC_LAN_IP:3000` and app logs `category=timeout status=-`:** first check `adb reverse --list` and use the ADB-reverse `127.0.0.1` setup above. Do not immediately change frontend architecture, PostgreSQL, Redis, Docker or Windows Firewall.
+- **Direct LAN is intentionally required:** check that phone and PC can reach each other and that the PC network profile/firewall/router permits inbound TCP 3000. The development workaround above avoids needing this.
+- **Backend responds `Missing update config for undefined` on raw browser/curl GET:** the diagnostic request omitted `X-CarBroz-Platform`; this is an HTTP application response, not a network timeout.
+- **Backend responds `Missing update config for android` but `ANDROID` succeeds:** the backend bootstrap configuration uses uppercase `ANDROID`, `IOS`, `WEB` keys. The shared `RequestHandler` now uppercases the platform HTTP header. The app's runtime metadata value itself is unchanged.
+- **Check backend contract from the PC** (these are diagnostic version/build values, not necessarily the installed app's values):
+
+  ~~~powershell
+  curl.exe -i -H "X-CarBroz-Platform: ANDROID" -H "X-CarBroz-App-Version: 1.0.0" -H "X-CarBroz-Build-Number: 1" http://127.0.0.1:3000/api/v1/partner/config/bootstrap
+  ~~~
+
+- **Failed app launch / no PID:** first confirm `adb devices -l` and `adb shell monkey -p com.carbroz.cbpartner.android -c android.intent.category.LAUNCHER 1`. For app-specific network failures, inspect `CBPartnerNetwork` logs without logging request headers, response bodies, credentials or OTPs.
+- **Gradle warnings** about Android host tests and iOS simulator tests on Windows are not API connection failures. Do not modify `gradle.properties` just to silence them during this smoke test.
 
 ### 4. Android logging in Antigravity's terminal
 
