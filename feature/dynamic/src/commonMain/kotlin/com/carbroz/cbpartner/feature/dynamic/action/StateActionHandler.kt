@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
 
 class StateActionHandler : DynamicActionHandler {
     override val type = "state"
@@ -12,10 +13,10 @@ class StateActionHandler : DynamicActionHandler {
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
     ): DynamicActionResult.StateChanged {
-        val key = DynamicActionValueResolver.string(action.payload["key"])
+        val key = DynamicReferenceResolver.string(action.payload["key"])
             ?: error("Dynamic state key is missing")
         val value = action.payload["value"]
-            ?.let { DynamicActionValueResolver.resolve(it, bindings, context, state) }
+            ?.let { DynamicReferenceResolver.resolve(it, bindings, context, state) }
             ?: DynamicValue.NullValue
         return DynamicActionResult.StateChanged(mapOf(key to value))
     }
