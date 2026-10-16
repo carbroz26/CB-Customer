@@ -64,7 +64,9 @@ class ElementMapper(
     private fun mapImage(dto: ImageElementDto) = ImageElement(
         id = dto.id,
         semanticRole = semanticRole(dto.properties),
-        url = values.string(dto.properties, "url").orEmpty(),
+        url = requireNotNull(values.string(dto.properties, "url")?.takeIf(String::isNotBlank)) {
+            "ImageElement requires a non-blank url"
+        },
         fallbackUrl = values.string(dto.properties, "fallbackUrl"),
         width = values.number(dto.properties, "width"),
         height = values.number(dto.properties, "height"),
