@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.uuid.Uuid
 
 sealed interface SplashIntent {
     data object LoadBootstrap : SplashIntent
@@ -38,6 +39,9 @@ class SplashStore(
     private val _state = MutableStateFlow<SplashState>(SplashState.Initial)
     val state: StateFlow<SplashState> = _state.asStateFlow()
 
+    /** Stable, locally generated identifier for the startup session. */
+    val diagnosticSessionId: String = Uuid.random().toString()
+
     private var loadJob: Job? = null
 
     fun accept(intent: SplashIntent) {
@@ -53,7 +57,7 @@ class SplashStore(
 
         _state.value = SplashState.Loading
         loadJob = scope.launch {
-            bootstrap.fetch()
+            bootstrap.fetch(diagnosticSessionId, Uuid.random().toString())
                 .onSuccess { output ->
                     _state.value = when {
                         output.maintenance.enabled -> SplashState.Maintenance(
