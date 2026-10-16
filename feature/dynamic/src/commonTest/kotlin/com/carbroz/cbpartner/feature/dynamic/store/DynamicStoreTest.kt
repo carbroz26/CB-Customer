@@ -141,9 +141,9 @@ class DynamicStoreTest {
 
         store.accept(DynamicIntent.EffectFailed("Unable to open external URI"))
 
-        val failure = assertIs<DynamicState.Failure>(store.state.value)
-        assertEquals("Unable to open external URI", failure.message)
-        assertEquals(currentScreen, failure.screen)
+        val screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(currentScreen.response, screen.response)
+        assertEquals("Unable to complete action", screen.validationMessage)
         store.close()
     }
 
