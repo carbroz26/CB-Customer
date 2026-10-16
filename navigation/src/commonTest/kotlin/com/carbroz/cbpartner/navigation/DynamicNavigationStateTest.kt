@@ -20,6 +20,7 @@ class DynamicNavigationStateTest {
         assertTrue(first !== second)
         assertTrue(state.backStack.size == 2)
         assertFalse(first === second)
+        assertTrue(first.entryId != second.entryId)
     }
 
     @Test
@@ -30,6 +31,7 @@ class DynamicNavigationStateTest {
 
         assertTrue(state.pop())
         assertSame(first, state.currentEntry)
+        assertEquals(first.entryId, state.currentEntry.entryId)
         assertFalse(state.pop())
     }
 
