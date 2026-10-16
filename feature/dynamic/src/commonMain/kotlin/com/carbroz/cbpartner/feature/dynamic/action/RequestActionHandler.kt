@@ -23,14 +23,14 @@ class RequestActionHandler(
         val authentication = resolveString(action.payload["authentication"], bindings, context, state) ?: "NONE"
         val validate = resolveBoolean(action.payload["validate"], bindings, context, state) ?: false
         val responseMode = if ("responseMode" in action.payload) {
-            requireNotNull(resolveString(action.payload["responseMode"], bindings, context, state)) {
+            checkNotNull(resolveString(action.payload["responseMode"], bindings, context, state)) {
                 "Invalid dynamic request responseMode"
             }.lowercase().also {
-                require(it == "none" || it == "destination") { "Unsupported dynamic request responseMode" }
+                check(it == "none" || it == "destination") { "Unsupported dynamic request responseMode" }
             }
         } else "none"
         val operation = if ("mode" in action.payload) {
-            require(responseMode == "destination") { "Request mode requires destination responseMode" }
+            check(responseMode == "destination") { "Request mode requires destination responseMode" }
             when (resolveString(action.payload["mode"], bindings, context, state)?.lowercase()) {
                 "push" -> DynamicActionResult.NavigationOperation.Push
                 "replace" -> DynamicActionResult.NavigationOperation.Replace
