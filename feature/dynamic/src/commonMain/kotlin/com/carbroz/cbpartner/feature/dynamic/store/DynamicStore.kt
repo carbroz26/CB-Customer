@@ -149,3 +149,31 @@ class DynamicStore(
         }
     }
 
+    private suspend fun applyActionResult(result: DynamicActionResult) {
+        runtimeState.setAll(result.stateChanges)
+        if (result.effects.isNotEmpty()) {
+            deliverEffects(result.effects.toList())
+        }
+    }
+
+    private fun reportEffectFailure(message: String) {
+        val screen = currentScreen() ?: return
+        _state.value = DynamicState.Failure(message, screen)
+    }
+
+    private fun currentScreen(): DynamicScreenState? = when (val value = _state.value) {
+        DynamicState.Initial, DynamicState.Loading -> null
+        is DynamicState.Success -> value.screen
+        is DynamicState.Failure -> value.screen
+    }
+
+    private fun reduce(screen: DynamicScreenState) {
+        _state.value = DynamicState.Success(screen)
+    }
+
+    fun close() {
+        loadJob?.cancel()
+        actionJob?.cancel()
+        scope.cancel()
+    }
+}
