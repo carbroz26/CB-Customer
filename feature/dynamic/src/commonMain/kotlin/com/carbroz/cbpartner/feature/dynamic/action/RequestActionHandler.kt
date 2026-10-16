@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic.action
 
+import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -16,6 +17,14 @@ class RequestActionHandler(
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
+    ): DynamicActionResult = handle(action, bindings, context, state, null)
+
+    override suspend fun handle(
+        action: DynamicAction,
+        bindings: Map<String, DynamicValue>,
+        context: Map<String, DynamicValue>,
+        state: Map<String, DynamicValue>,
+        traceContext: TraceContext?,
     ): DynamicActionResult {
         val endpoint = resolveString(action.payload["endpoint"], bindings, context, state)
             ?: error("Dynamic request endpoint is missing")
@@ -46,7 +55,12 @@ class RequestActionHandler(
         val retainedPaths = retainedPaths(action.payload["retain"])
 
         val response = repository.fetch(
-            DynamicRequest(endpoint, method, authentication, validate, body, responseMode),
+            DynamicRequest(
+                endpoint, method, authentication, validate, body, responseMode,
+                sessionId = traceContext?.sessionId,
+                actionId = traceContext?.actionId,
+                parentActionId = traceContext?.parentActionId,
+            ),
         ).getOrThrow()
 
         val stateChanges = extractRetainedState(retainedPaths, response.dataPayload)
