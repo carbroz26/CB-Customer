@@ -310,6 +310,31 @@ class DynamicStoreTest {
     }
 
     @Test
+    fun recreatedStoreRestoresBindingsFromSameNavigationEntry() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, "test"))
+        }
+        val entry = DynamicNavigationEntry(destination("same"))
+        val runtimeState = DynamicRuntimeState()
+        val first = store(entry, repository, runtimeState, dispatcher)
+        first.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        first.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("987654")))
+        first.close()
+
+        val recreated = store(entry, repository, runtimeState, dispatcher)
+        recreated.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        assertEquals(
+            DynamicValue.StringValue("987654"),
+            assertIs<DynamicState.Success>(recreated.state.value).screen.bindings["phone"],
+        )
+        recreated.close()
+    }
+
+    @Test
     fun screenStateIsIndependentPerEntry() = runTest {
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
