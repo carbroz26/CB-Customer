@@ -10,6 +10,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertFailsWith
 
 class RequestActionHandlerTest {
     @Test
@@ -100,6 +101,117 @@ class RequestActionHandlerTest {
         )
         assertEquals("none", capturedResponseMode)
         assertIs<DynamicActionResult.Completed>(result)
+    }
+
+
+    @Test
+    fun missingResponseModeDefaultsToNoneWithoutNavigation() = runTest {
+        var observedMode: String? = null
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                observedMode = request.responseMode
+                return Result.success(DynamicResponse(200, "OK", "Done", null, null))
+            }
+        }
+        val result = RequestActionHandler(repository).handle(
+            DynamicAction("request", mapOf("endpoint" to DynamicValue.StringValue("/submit"))),
+            emptyMap(), emptyMap(), emptyMap(),
+        )
+        assertEquals("none", observedMode)
+        assertIs<DynamicActionResult.Completed>(result)
+    }
+
+    @Test
+    fun invalidResponseModeIsRejectedBeforeHttpCall() = runTest {
+        var calls = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                calls++
+                return Result.success(DynamicResponse(200, "OK", "Done", null, null))
+            }
+        }
+        assertFailsWith<IllegalStateException> {
+            RequestActionHandler(repository).handle(
+                DynamicAction("request", mapOf(
+                    "endpoint" to DynamicValue.StringValue("/submit"),
+                    "responseMode" to DynamicValue.StringValue("unsupported"),
+                )),
+                emptyMap(), emptyMap(), emptyMap(),
+            )
+        }
+        assertEquals(0, calls)
+    }
+
+    @Test
+    fun requestPopModeIsRejectedBeforeHttpCall() = runTest {
+        var calls = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                calls++
+                return Result.success(DynamicResponse(200, "OK", "Done", null, null))
+            }
+        }
+        assertFailsWith<IllegalStateException> {
+            RequestActionHandler(repository).handle(
+                DynamicAction("request", mapOf(
+                    "endpoint" to DynamicValue.StringValue("/submit"),
+                    "responseMode" to DynamicValue.StringValue("destination"),
+                    "mode" to DynamicValue.StringValue("pop"),
+                )),
+                emptyMap(), emptyMap(), emptyMap(),
+            )
+        }
+        assertEquals(0, calls)
+    }
+
+    @Test
+    fun missingRetainPathRejectsInsteadOfSilentlyStoringNull() = runTest {
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(
+                    200, "OK", "Done", null, null,
+                    dataPayload = DynamicValue.ObjectValue(emptyMap()),
+                ))
+        }
+        assertFailsWith<IllegalStateException> {
+            RequestActionHandler(repository).handle(
+                DynamicAction("request", mapOf(
+                    "endpoint" to DynamicValue.StringValue("/submit"),
+                    "responseMode" to DynamicValue.StringValue("none"),
+                    "retain" to DynamicValue.ObjectValue(mapOf(
+                        "reference" to DynamicValue.StringValue("data.missing"),
+                    )),
+                )),
+                emptyMap(), emptyMap(), emptyMap(),
+            )
+        }
+    }
+
+    @Test
+    fun explicitNullRetainedValueRemainsNull() = runTest {
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(
+                    200, "OK", "Done", null, null,
+                    dataPayload = DynamicValue.ObjectValue(mapOf(
+                        "reference" to DynamicValue.NullValue,
+                    )),
+                ))
+        }
+        val result = RequestActionHandler(repository).handle(
+            DynamicAction("request", mapOf(
+                "endpoint" to DynamicValue.StringValue("/submit"),
+                "responseMode" to DynamicValue.StringValue("none"),
+                "retain" to DynamicValue.ObjectValue(mapOf(
+                    "reference" to DynamicValue.StringValue("data.reference"),
+                )),
+            )),
+            emptyMap(), emptyMap(), emptyMap(),
+        )
+        assertEquals(
+            DynamicValue.NullValue,
+            assertIs<DynamicActionResult.StateChanged>(result).changes["reference"],
+        )
     }
 
     private fun ref(type: String, value: String) =
