@@ -1,6 +1,6 @@
 # 51 — W4 Plan Freeze Review and Implementation Gates
 
-**Status: PLAN REVIEW COMPLETE; FREEZE-READY, OWNER SIGN-OFF PENDING. NO KOTLIN IMPLEMENTATION.**
+**Status: PLAN_FROZEN — OWNER APPROVED D1–D6 AND EXACT FILE SCOPE; KOTLIN IMPLEMENTATION NOT AUTHORIZED.**
 **Branch:** `architecture/dynamic-runtime-v2-discussion-freeze`.
 **Source authority:** frozen baseline 20, source audit 48, file plan 49, freeze candidate 50, canonical fixtures summary 12, current DynamicActionMapper / NavigateActionHandler / DynamicActionExecutor / DynamicStore / NavigationState / Nav3 Host and existing tests.
 
@@ -45,7 +45,7 @@
 | Session sink | At most one narrow session-owned helper if needed by type/dependency ownership |
 
 ## Freeze gates / implementation sequence
-- **Gate 0 (before code):** owner explicitly approves D1–D6 and file scope, resolving the top-level Back alias policy as preserve-pending-evidence. The document is NOT automatically owner approved by being written.
+- **Gate 0 (completed):** owner explicitly approved D1–D6 and the exact file-by-file scope on 2026-10-16. Top-level `back` compatibility must be preserved pending usage evidence. **This approval freezes planning only; do not edit Kotlin without a separate implementation authorization.**
 - **W4-A tests first:** failing regression for same-destination distinct entry identities, Nav3 entry disposal/binding persistence, unknown mode Push bug, navigate-first sequence effect loss. Keep reproducibility evidence.
 - **W4-B:** implement only minimal session handoff plus single consumer and test state-before-effects, ordered follow-up after Navigate/Replace, effect failure, cancellation.
 - **W4-C:** entryId + entry lifetime/retention on push/pop/replace/present/dismiss; test restoration.
@@ -53,4 +53,4 @@
 - **Build gate:** `./gradlew :navigation:jvmTest :feature:dynamic:jvmTest :domain:jvmTest :data:jvmTest :webApp:wasmJsBrowserDevelopmentWebpack` on Windows; `git diff --check`. Android/iOS runtime remains explicitly deferred. No claim W4 tests run.
 
 ## Final sign-off status
-The source-backed W4 plan is **freeze-ready, not frozen**. It cannot truthfully be marked `PLAN_FROZEN` without explicit owner approval of D1–D6; it is also **not an authorization to edit Kotlin**. On approval, change state to `PLAN_FROZEN` through a documentation-only commit, then request/confirm separate Kotlin implementation authorization according to the frozen workflow.
+**PLAN_FROZEN (2026-10-16).** Owner explicitly accepted D1–D6, preservation of the top-level `back` compatibility alias pending evidence, and this document's exact file scope. **Kotlin implementation remains NOT AUTHORIZED**, explicitly per owner instruction. The frozen W4 plan may be implemented only after separate owner authorization; tests and platform verification remain future gates.
