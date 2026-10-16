@@ -504,6 +504,84 @@ class DynamicStoreTest {
         assertEquals(target, assertIs<DynamicActionEffect.Navigate>(accepted.single().single()).destination)
     }
 
+
+    @Test
+    fun successfulRequestUsesOneNonSuspendingCommitForStateAndEffect() = runTest {
+        val target = destination("after-submit")
+        val state = DynamicRuntimeState()
+        var commitCount = 0
+        var acceptedEffect: DynamicActionEffect? = null
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(
+                    200, "OK", "Done", null, null,
+                    dataPayload = DynamicValue.ObjectValue(
+                        mapOf("reference" to DynamicValue.StringValue("saved"))),
+                    destination = if (request.endpoint == "/submit") target else null,
+                ))
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("root")),
+            runtimeState = state,
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
+            commitActionResult = { changes, effects, _ ->
+                commitCount++
+                assertEquals(DynamicValue.StringValue("saved"), changes["reference"])
+                state.setAll(changes)
+                acceptedEffect = effects.single()
+                true
+            },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/submit"),
+            "responseMode" to DynamicValue.StringValue("destination"),
+            "retain" to DynamicValue.ObjectValue(
+                mapOf("reference" to DynamicValue.StringValue("data.reference"))),
+        ))))
+        advanceUntilIdle()
+        assertEquals(1, commitCount)
+        assertEquals(DynamicValue.StringValue("saved"), state.values.value["reference"])
+        assertEquals(target, assertIs<DynamicActionEffect.Navigate>(acceptedEffect).destination)
+        store.close()
+    }
+
+    @Test
+    fun rejectedCommitReportsSafeFailureWithoutMutatingRuntimeState() = runTest {
+        val state = DynamicRuntimeState()
+        var attempts = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "OK", "Done", null, null,
+                    destination = destination("next")))
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("root")),
+            runtimeState = state,
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
+            commitActionResult = { _, _, _ -> attempts++; false },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/submit"),
+            "responseMode" to DynamicValue.StringValue("destination"),
+        ))))
+        advanceUntilIdle()
+        assertEquals(1, attempts)
+        assertEquals("Unable to complete action",
+            assertIs<DynamicState.Success>(store.state.value).screen.validationMessage)
+        assertTrue(state.values.value.isEmpty())
+        store.close()
+    }
+
     private fun store(
         entry: DynamicNavigationEntry,
         repository: DynamicRepository,
