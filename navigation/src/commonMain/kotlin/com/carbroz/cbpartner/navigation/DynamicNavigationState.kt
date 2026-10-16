@@ -10,8 +10,13 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 class DynamicNavigationState(
     initialDestination: DynamicDestination,
 ) {
+    private var nextEntryId = 0L
+
+    private fun newEntry(destination: DynamicDestination): DynamicNavigationEntry =
+        DynamicNavigationEntry(destination, ++nextEntryId)
+
     internal val backStack: SnapshotStateList<DynamicNavigationEntry> =
-        mutableStateListOf(DynamicNavigationEntry(initialDestination))
+        mutableStateListOf(newEntry(initialDestination))
 
     var presentationEntry: DynamicNavigationEntry? by mutableStateOf(null)
         private set
@@ -25,21 +30,21 @@ class DynamicNavigationState(
     fun setRoot(destination: DynamicDestination) {
         presentationEntry = null
         backStack.clear()
-        backStack.add(DynamicNavigationEntry(destination))
+        backStack.add(newEntry(destination))
     }
 
     fun push(destination: DynamicDestination) {
-        backStack.add(DynamicNavigationEntry(destination))
+        backStack.add(newEntry(destination))
     }
 
     fun replace(destination: DynamicDestination) {
-        if (backStack.isEmpty()) backStack.add(DynamicNavigationEntry(destination))
-        else backStack[backStack.lastIndex] = DynamicNavigationEntry(destination)
+        if (backStack.isEmpty()) backStack.add(newEntry(destination))
+        else backStack[backStack.lastIndex] = newEntry(destination)
     }
 
     fun present(destination: DynamicDestination): Boolean {
         if (presentationEntry != null) return false
-        presentationEntry = DynamicNavigationEntry(destination)
+        presentationEntry = newEntry(destination)
         return true
     }
 
