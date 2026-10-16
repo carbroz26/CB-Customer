@@ -96,6 +96,7 @@ class DynamicReferenceResolverTest {
             value,
         )
     }
+
     @Test
     fun resolvesTypedBindingsWithoutStringCoercion() {
         val input = DynamicValue.ObjectValue(
@@ -184,6 +185,7 @@ class DynamicReferenceResolverTest {
 
     private fun ref(type: String, value: DynamicValue) =
         DynamicValue.ObjectValue(mapOf(type to value))
+
     @Test
     fun existingPathDistinguishesMissingAndExplicitNull() {
         val root = mapOf(
