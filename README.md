@@ -6,16 +6,16 @@ Use this README to sync the code and run Android/Web locally. Architecture and b
 
 ## Project setup
 
-**Current working branch:** `feature/dynamic-ui`  
+**Current working branch:** `architecture/dynamic-runtime-v2-discussion-freeze`  
 **Gradle Wrapper:** 9.7.1  
 **JDK:** 17
 
 On Windows, open PowerShell in `D:\CarBroz\CB-Partner`.
 
 ~~~powershell
-git switch feature/dynamic-ui
+git switch architecture/dynamic-runtime-v2-discussion-freeze
 git fetch origin --prune
-git pull --ff-only origin feature/dynamic-ui
+git pull --ff-only origin architecture/dynamic-runtime-v2-discussion-freeze
 java -version
 .\gradlew.bat --version
 ~~~
@@ -44,39 +44,78 @@ Use the repository Gradle Wrapper (`gradlew.bat` on Windows, `./gradlew` on macO
 
 The phone should show status `device`. If the same phone appears more than once, target one transport explicitly in the commands below. Pairing and connection ports are displayed by Android; do not guess them.
 
-### 2. Configure the backend address
+### 2. Choose the backend connection method
 
-Find the development PC's LAN IPv4 address with:
+The development backend listens on port `3000`. A real phone **cannot** use the Android emulator's default `http://10.0.2.2:3000`. Use either of these **development-only** configurations:
 
-~~~powershell
-ipconfig
-~~~
+- **Recommended when the phone can connect to ADB over Wi-Fi, but direct LAN API requests are blocked:** ADB reverse. It forwards the phone's localhost port 3000 through ADB to the development PC. Build the Android APK with `http://127.0.0.1:3000`. Keep ADB connected; repeat `adb reverse` after disconnect/reconnect.
+- **Direct LAN:** Find the PC's active IPv4 address using `ipconfig`, verify the phone can open `http://PC_LAN_IP:3000`, then build with `http://PC_LAN_IP:3000`. Phone and PC must be on a reachable network; Windows Firewall and router client isolation can prevent access even if the PC can access its own LAN IP.
 
-Use the IPv4 address of the active Wi-Fi/Ethernet adapter—not the phone's IP. Ensure the backend is running on port `3000`, listening on a LAN-reachable interface, and allowed through Windows Firewall. Keep the phone and PC on a network that can reach each other.
-
-The address below is an example only. Replace `192.168.1.25` with the PC's current LAN IP; do not commit a personal LAN address.
-
-### 3. Build, install, and launch
+For the ADB reverse workflow:
 
 ~~~powershell
-.\gradlew.bat "-Pcbpartner.api.baseUrl=http://192.168.1.25:3000" :androidApp:assembleDebug
+$device = "PHONE_IP:CONNECTION_PORT" # copy serial exactly from adb devices -l
+adb -s $device reverse tcp:3000 tcp:3000
+adb -s $device reverse --list
 ~~~
 
-Set `$device` to the phone's IP and **connection port** from the Wireless debugging screen. The serial must match one entry from `adb devices -l`.
+The expected mapping is `tcp:3000 tcp:3000`. On the phone's Chrome browser, `http://127.0.0.1:3000/api/v1/partner/config/bootstrap` can verify connectivity. **A 500 `Missing update config for undefined` for a browser GET means the request lacks the app's platform header; it does not by itself indicate transport failure.** The app adds `X-CarBroz-Platform` and version headers. On the development PC, a diagnostic request is:
+
+~~~powershell
+curl.exe -i -H "X-CarBroz-Platform: ANDROID" -H "X-CarBroz-App-Version: 1.0.0" -H "X-CarBroz-Build-Number: 1" http://127.0.0.1:3000/api/v1/partner/config/bootstrap
+~~~
+
+Use the actual app version/build for a production-equivalent check. Never log actual identity, session tokens, phone/OTP values, or response bodies.
+
+### 3. Build, install, and launch on the selected physical device
+
+From the repository root in **Antigravity's PowerShell terminal**:
+
+~~~powershell
+$device = "PHONE_IP:CONNECTION_PORT" # e.g. the current Wi-Fi serial listed by adb
+adb -s $device reverse tcp:3000 tcp:3000
+.\gradlew.bat :androidApp:assembleDebug "-Pcbpartner.api.baseUrl=http://127.0.0.1:3000"
+adb -s $device install -r .\androidApp\build\outputs\apk\debug\androidApp-debug.apk
+adb -s $device shell am force-stop com.carbroz.cbpartner.android
+adb -s $device shell monkey -p com.carbroz.cbpartner.android -c android.intent.category.LAUNCHER 1
+~~~
+
+For direct LAN **instead**, replace the Gradle property with `"-Pcbpartner.api.baseUrl=http://PC_LAN_IP:3000"` and omit `adb reverse`. The Android Gradle convention defaults to emulator `10.0.2.2` when the property is not provided. Rebuild **and reinstall** if you change the base URL. `assembleDebug` alone does not update an APK already installed on the device.
+
+Always include `adb -s $device`: Wireless debugging can show the same physical Samsung device twice, through an IP connection and an mDNS/TLS connection. `adb install` without `-s` then fails with `more than one device/emulator`. Never guess pairing and connection ports.
+
+### 4. Android logging in Antigravity's terminal
+
+Open a **second terminal** and run this while the app is open:
 
 ~~~powershell
 $device = "PHONE_IP:CONNECTION_PORT"
-adb -s $device install -r .\androidApp\build\outputs\apk\debug\androidApp-debug.apk
-adb -s $device shell monkey -p com.brocarz.cbpartner.android 1
+$package = "com.carbroz.cbpartner.android"
+$appPid = adb -s $device shell pidof -s $package
+if ($appPid) {
+    adb -s $device logcat --pid=$($appPid.Trim()) -v time
+} else {
+    Write-Host "App is not running: launch it, then re-run PID capture"
+}
 ~~~
 
-If installation reports “more than one device/emulator”, always include `-s $device` with ADB commands. `adb install` installs the app but does not open it; the `monkey` command launches its launcher activity.
+`Ctrl+C` stops live logs. The PID changes after restart; rerun the command. If an early crash prevents PID lookup, **before launching**, collect broader errors:
 
-### 4. Run/debug from Antigravity
+~~~powershell
+adb -s $device logcat -c
+adb -s $device logcat -v time | Select-String 'AndroidRuntime|FATAL EXCEPTION|CBPartner|Network|ConnectException|UnknownHost|Cleartext'
+~~~
 
-- Keep Wireless debugging enabled and verify the device with `adb devices -l`.
-- In Antigravity, select the connected phone in the Android device/run target selector and run/debug the Android app.
-- If the device is missing, confirm ADB shows it as `device`, then refresh/reselect the target.
+Then launch in the first terminal. Use **`adb -s $device logcat`**, not `adb -s $device -c` or an empty `$device` variable.
+
+The Android-only process filter avoids unrelated Samsung/system logs. `SLF4J(W): No SLF4J providers were found` can occur from third-party logging and is **not proof that the API failed**. Ktor's raw transport body/header logging must stay disabled to protect tokens, OTPs, phone numbers and other user data; use only privacy-safe diagnostic events supported by the project.
+
+### 5. Run/debug from Antigravity
+
+- Keep the phone paired over Wireless debugging; confirm its exact serial with `adb devices -l`.
+- Use the **Terminal** tab for the Gradle/build/ADB commands above and a second terminal for Logcat. The **Output** panel does not automatically stream app Logcat without an IDE/device-log integration.
+- If selecting an IDE run target, ensure it points to the intended ADB transport and correct Gradle URL configuration. Otherwise install explicitly with `adb -s` as above.
+- On a reconnect, re-establish `adb reverse`, then relaunch; if an API attempt appears to fail, test Backend connectivity and confirm the installed APK's configured URL before changing app source.
 
 ## Web — browser development server
 
@@ -129,7 +168,7 @@ Windows may report that iOS simulator tests are disabled because they require ma
 - `:feature:splash`, `:feature:dynamic` — shared features
 - `iosApp/` — native Xcode/iOS boundary
 
-There is no `:desktopApp` Gradle module on `feature/dynamic-ui`.
+There is no `:desktopApp` Gradle module on `architecture/dynamic-runtime-v2-discussion-freeze`.
 
 ## Authoritative project documents
 
