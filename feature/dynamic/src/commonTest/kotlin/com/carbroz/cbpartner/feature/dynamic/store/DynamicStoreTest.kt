@@ -6,6 +6,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
@@ -21,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DynamicStoreTest {
@@ -268,6 +270,95 @@ class DynamicStoreTest {
         advanceUntilIdle()
         val current = assertIs<DynamicState.Success>(store.state.value)
         assertEquals(DynamicValue.StringValue("123456"), current.screen.bindings["phone"])
+        store.close()
+    }
+
+    @Test
+    fun resolvedTrueValidationWithoutDocumentRejectsBeforeRequest() = runTest {
+        var submitCalls = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/submit") submitCalls++
+                return Result.success(DynamicResponse(200, "SUCCESS", "OK", null, null))
+            }
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("current")),
+            runtimeState = DynamicRuntimeState(),
+            contextProvider = { mapOf("mustValidate" to DynamicValue.BooleanValue(true)) },
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction(
+            "request",
+            mapOf("endpoint" to DynamicValue.StringValue("/submit"),
+                "validate" to ref("\$context", "mustValidate")),
+        )))
+        advanceUntilIdle()
+        assertEquals(0, submitCalls)
+        assertNotNull(assertIs<DynamicState.Success>(store.state.value).screen.validationMessage)
+        store.close()
+    }
+
+    @Test
+    fun effectFailureKeepsScreenAndBindingsUsable() = runTest {
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, null))
+        }
+        val store = store(DynamicNavigationEntry(destination("current")), repository,
+            DynamicRuntimeState(), UnconfinedTestDispatcher(testScheduler))
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("1234")))
+        store.accept(DynamicIntent.EffectFailed("private-error-data"))
+        val screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(DynamicValue.StringValue("1234"), screen.bindings["phone"])
+        assertEquals("Unable to complete action", screen.validationMessage)
+        store.close()
+    }
+
+    @Test
+    fun retainedStateIsCommittedBeforeRequestNavigationEffect() = runTest {
+        val target = destination("next")
+        val state = DynamicRuntimeState()
+        var observed: DynamicValue? = null
+        var delivered: List<DynamicActionEffect>? = null
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, null,
+                    dataPayload = DynamicValue.ObjectValue(
+                        mapOf("reference" to DynamicValue.StringValue("ref-2"))),
+                    destination = target))
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("current")),
+            runtimeState = state,
+            scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler)),
+            deliverEffects = { effects ->
+                observed = state.values.value["reference"]
+                delivered = effects
+            },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/submit"),
+            "responseMode" to DynamicValue.StringValue("destination"),
+            "retain" to DynamicValue.ObjectValue(mapOf(
+                "reference" to DynamicValue.StringValue("data.reference"))),
+        ))))
+        advanceUntilIdle()
+        assertEquals(DynamicValue.StringValue("ref-2"), observed)
+        val effect = assertIs<DynamicActionEffect.Navigate>(requireNotNull(delivered).single())
+        assertEquals(target, effect.destination)
         store.close()
     }
 
