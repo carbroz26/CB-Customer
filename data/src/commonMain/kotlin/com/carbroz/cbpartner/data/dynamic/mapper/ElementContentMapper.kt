@@ -13,10 +13,14 @@ class ElementContentMapper(
     private val values: DynamicValueMapper,
     private val actionMapper: DynamicActionMapper = DynamicActionMapper(values),
 ) {
-    fun mapList(properties: JsonObject, key: String): List<ElementContent> =
-        (properties[key] as? JsonArray).orEmpty()
-            .mapNotNull { it as? JsonObject }
-            .map { map(it) }
+    fun mapList(properties: JsonObject, key: String): List<ElementContent> {
+        val items = properties[key] ?: return emptyList()
+        require(items is JsonArray) { "Dynamic element content '$key' must be an array" }
+        return items.map { item ->
+            require(item is JsonObject) { "Dynamic element content '$key' entries must be objects" }
+            map(item)
+        }
+    }
 
     fun map(element: JsonObject): ElementContent {
         val type = values.string(element, "type")
