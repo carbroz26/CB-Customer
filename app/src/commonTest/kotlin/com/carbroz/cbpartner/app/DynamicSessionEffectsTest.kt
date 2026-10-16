@@ -192,6 +192,64 @@ class DynamicSessionEffectsTest {
         assertNull(session.claimNext(lease))
     }
 
+
+    @Test
+    fun detachedOldConsumerCannotInvalidateReplacementLease() = runTest {
+        val session = session()
+        assertTrue(session.commit(emptyMap(), effects()))
+        val oldLease = session.attachConsumer()
+        val replacement = session.attachConsumer()
+        session.detachConsumer(oldLease)
+        val claim = assertNotNull(session.claimNext(replacement))
+        assertEquals(effects().first(), claim.effect)
+        assertTrue(session.markDispatchStarted(claim))
+        assertTrue(session.acknowledge(claim, DynamicSession.EffectOutcome.Applied))
+    }
+
+    @Test
+    fun noDispatchMayBeAcknowledgedBeforeItStarts() = runTest {
+        val session = session()
+        assertTrue(session.commit(emptyMap(), effects()))
+        val lease = session.attachConsumer()
+        val claim = assertNotNull(session.claimNext(lease))
+        assertFalse(session.acknowledge(claim, DynamicSession.EffectOutcome.Applied))
+        assertEquals(claim, session.claimNext(lease))
+        assertTrue(session.markDispatchStarted(claim))
+        assertFalse(session.markDispatchStarted(claim))
+    }
+
+    @Test
+    fun closeInvalidatesStartedClaimAndConsumerLease() = runTest {
+        val session = session()
+        assertTrue(session.commit(emptyMap(), effects()))
+        val lease = session.attachConsumer()
+        val claim = assertNotNull(session.claimNext(lease))
+        assertTrue(session.markDispatchStarted(claim))
+        session.close()
+        assertFalse(session.acknowledge(claim, DynamicSession.EffectOutcome.Applied))
+        assertFalse(session.markDispatchStarted(claim))
+        assertEquals(0L, session.attachConsumer())
+        assertNull(session.claimNext(lease))
+    }
+
+    @Test
+    fun drainAfterRevisionChangeClaimsEveryAcceptedEffect() = runTest {
+        val session = session()
+        val lease = session.attachConsumer()
+        val observedRevision = session.workRevision.value
+        val ordered = effects()
+        assertTrue(session.commit(emptyMap(), ordered))
+        assertTrue(session.workRevision.value > observedRevision)
+        val claimed = mutableListOf<DynamicActionEffect>()
+        while (true) {
+            val next = session.claimNext(lease) ?: break
+            claimed.add(next.effect)
+            assertTrue(session.markDispatchStarted(next))
+            assertTrue(session.acknowledge(next, DynamicSession.EffectOutcome.Applied))
+        }
+        assertEquals(ordered, claimed)
+    }
+
     private fun session() = DynamicSession("g2-test-session", destination("root"))
 
     private fun destination(id: String) =
