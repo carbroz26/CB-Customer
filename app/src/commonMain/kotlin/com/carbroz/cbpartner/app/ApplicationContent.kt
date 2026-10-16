@@ -40,7 +40,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collect
 
 @Composable
-fun ApplicationContent(
+internal fun ApplicationContent(
     koin: Koin,
     runtimeMetadataProvider: RuntimeMetadataProvider,
     retainedSession: MutableState<DynamicSession?>,
