@@ -14,12 +14,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 sealed interface DynamicIntent {
@@ -45,12 +42,10 @@ class DynamicStore(
     private val runtimeState: DynamicRuntimeState,
     private val contextProvider: () -> Map<String, DynamicValue> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    private val deliverEffects: suspend (List<DynamicActionEffect>) -> Unit = {},
 ) {
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
-
-    private val _effects = Channel<DynamicActionEffect>(Channel.BUFFERED)
-    val effects = _effects.receiveAsFlow()
 
     private var loadJob: Job? = null
     private var actionJob: Job? = null
@@ -136,16 +131,8 @@ class DynamicStore(
 
     private suspend fun applyActionResult(result: DynamicActionResult) {
         runtimeState.setAll(result.stateChanges)
-        for (effect in result.effects) {
-            emitEffect(effect)
-        }
-    }
-
-    private suspend fun emitEffect(effect: DynamicActionEffect) {
-        try {
-            _effects.send(effect)
-        } catch (_: ClosedSendChannelException) {
-            // Disposal closes the channel to release any suspended senders.
+        if (result.effects.isNotEmpty()) {
+            deliverEffects(result.effects.toList())
         }
     }
 
@@ -167,7 +154,6 @@ class DynamicStore(
     fun close() {
         loadJob?.cancel()
         actionJob?.cancel()
-        _effects.close()
         scope.cancel()
     }
 }
