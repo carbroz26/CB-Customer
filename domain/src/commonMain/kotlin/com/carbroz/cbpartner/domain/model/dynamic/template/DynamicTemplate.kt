@@ -11,5 +11,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 interface DynamicTemplate {
     val id: String
     val type: String
+    val header: TemplateSlot?
+    val footer: TemplateSlot?
     val components: List<DynamicComponent>
 }
