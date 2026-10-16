@@ -26,6 +26,65 @@ import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DynamicStoreTest {
+
+    @Test
+    fun actionAndNavigationEffectShareTraceAndScreenLoadRetainsParent() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val sessionId = "session-from-bootstrap"
+        val parentId = "previous-action"
+        val source = DynamicNavigationEntry(destination("source"), 1L, sessionId, parentId)
+        val target = destination("target")
+        var submitted: DynamicRequest? = null
+        var deliveredTrace: com.carbroz.cbpartner.core.diagnostics.TraceContext? = null
+        var deliveredEffects: List<DynamicActionEffect>? = null
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/submit") {
+                    submitted = request
+                    return Result.success(
+                        DynamicResponse(200, "OK", "Done", null, null, destination = target),
+                    )
+                }
+                return Result.success(DynamicResponse(200, "OK", "Loaded", null, null))
+            }
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = source,
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+            deliverCorrelatedEffects = { trace, effects ->
+                deliveredTrace = trace
+                deliveredEffects = effects
+            },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "request",
+                    mapOf(
+                        "endpoint" to DynamicValue.StringValue("/submit"),
+                        "responseMode" to DynamicValue.StringValue("destination"),
+                    ),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+        val request = requireNotNull(submitted)
+        val trace = requireNotNull(deliveredTrace)
+        assertEquals(sessionId, trace.sessionId)
+        assertEquals(parentId, trace.parentActionId)
+        assertEquals(trace.actionId, request.actionId)
+        assertEquals(sessionId, request.sessionId)
+        assertEquals(parentId, request.parentActionId)
+        assertIs<DynamicActionEffect.Navigate>(requireNotNull(deliveredEffects).single())
+        store.close()
+    }
+
     @Test
     fun typedBindingIsUsedByRequest() = runTest {
         val dispatcher = UnconfinedTestDispatcher(testScheduler)
