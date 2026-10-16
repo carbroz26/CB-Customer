@@ -5,6 +5,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
@@ -94,25 +95,46 @@ class DynamicStore(
 
     private fun handleAction(action: DynamicAction) {
         val current = currentScreen() ?: return
-        if (requiresValidation(action)) {
-            val screen = current.response?.data
-            if (screen != null) {
+        if (actionJob?.isActive == true) return
+
+        actionJob = scope.launch {
+            val context = contextProvider()
+            val stateValues = runtimeState.values.value
+            val validationResult = runCatching {
+                if (action.type.trim().equals("request", ignoreCase = true)) {
+                    val flag = action.payload["validate"]
+                    if (flag == null) false else {
+                        val resolved = DynamicReferenceResolver.resolve(flag, current.bindings, context, stateValues)
+                        (resolved as? DynamicValue.BooleanValue)?.value
+                            ?: error("Invalid dynamic request validate flag")
+                    }
+                } else false
+            }
+            val validationError = validationResult.exceptionOrNull()
+            if (validationError != null) {
+                if (validationError is CancellationException) throw validationError
+                reduce(current.copy(validationMessage = "Unable to process request"))
+                return@launch
+            }
+
+            if (validationResult.getOrThrow()) {
+                val screen = current.response?.data
+                if (screen == null) {
+                    reduce(current.copy(validationMessage = "Unable to validate form"))
+                    return@launch
+                }
                 val message = validator.validate(screen, current.bindings)
                 if (message != null) {
                     reduce(current.copy(validationMessage = message))
-                    return
+                    return@launch
                 }
-                reduce(current.copy(validationMessage = null))
             }
-        }
-
-        if (actionJob?.isActive == true) return
-        actionJob = scope.launch {
+            reduce(current.copy(validationMessage = null))
             val result = actionExecutor.execute(
                 action = action,
                 bindings = current.bindings,
-                context = contextProvider(),
-                state = runtimeState.values.value,
+                context = context,
+                state = stateValues,
             )
             if (result.isSuccess) {
                 applyActionResult(result.getOrThrow())
@@ -120,42 +142,8 @@ class DynamicStore(
                 val error = result.exceptionOrNull()
                 if (error is CancellationException) throw error
                 val screen = currentScreen() ?: current
-                _state.value = DynamicState.Failure(
-                    error?.message ?: "Unable to execute dynamic action",
-                    screen,
-                )
+                reduce(screen.copy(validationMessage = "Unable to complete action"))
             }
         }
     }
 
-    private fun requiresValidation(action: DynamicAction): Boolean =
-        (action.payload["validate"] as? DynamicValue.BooleanValue)?.value == true
-
-    private suspend fun applyActionResult(result: DynamicActionResult) {
-        runtimeState.setAll(result.stateChanges)
-        if (result.effects.isNotEmpty()) {
-            deliverEffects(result.effects.toList())
-        }
-    }
-
-    private fun reportEffectFailure(message: String) {
-        val screen = currentScreen() ?: return
-        _state.value = DynamicState.Failure(message, screen)
-    }
-
-    private fun currentScreen(): DynamicScreenState? = when (val value = _state.value) {
-        DynamicState.Initial, DynamicState.Loading -> null
-        is DynamicState.Success -> value.screen
-        is DynamicState.Failure -> value.screen
-    }
-
-    private fun reduce(screen: DynamicScreenState) {
-        _state.value = DynamicState.Success(screen)
-    }
-
-    fun close() {
-        loadJob?.cancel()
-        actionJob?.cancel()
-        scope.cancel()
-    }
-}
