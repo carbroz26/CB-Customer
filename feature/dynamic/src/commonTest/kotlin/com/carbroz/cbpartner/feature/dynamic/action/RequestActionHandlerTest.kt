@@ -214,6 +214,28 @@ class RequestActionHandlerTest {
         )
     }
 
+    @Test
+    fun malformedRetainMappingIsRejectedBeforeHttp() = runTest {
+        var calls = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                calls++
+                return Result.success(DynamicResponse(200, "OK", "Done", null, null))
+            }
+        }
+        assertFailsWith<IllegalArgumentException> {
+            RequestActionHandler(repository).handle(
+                DynamicAction("request", mapOf(
+                    "endpoint" to DynamicValue.StringValue("/submit"),
+                    "retain" to DynamicValue.ObjectValue(mapOf(
+                        "reference" to DynamicValue.NumberValue(1.0))),
+                )),
+                emptyMap(), emptyMap(), emptyMap(),
+            )
+        }
+        assertEquals(0, calls)
+    }
+
     private fun ref(type: String, value: String) =
         DynamicValue.ObjectValue(mapOf(type to DynamicValue.StringValue(value)))
 }
