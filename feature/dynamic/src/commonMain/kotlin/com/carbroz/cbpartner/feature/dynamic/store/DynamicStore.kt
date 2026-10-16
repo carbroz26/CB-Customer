@@ -88,6 +88,10 @@ class DynamicStore(
 
     private fun load() {
         if (currentScreen()?.response != null || loadJob?.isActive == true) return
+        entry.screenResponse?.let { response ->
+            reduce(DynamicScreenState(response, entry.bindings, entry.validationMessage))
+            return
+        }
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
             loadDynamicScreen(
@@ -97,6 +101,8 @@ class DynamicStore(
                 parentActionId = entry.parentActionId,
             )
                 .onSuccess { response ->
+                    coroutineContext.ensureActive()
+                    entry.updateScreenResponse(response)
                     val previous = currentScreen()
                     _state.value = DynamicState.Success(
                         DynamicScreenState(
@@ -196,6 +202,7 @@ class DynamicStore(
     }
 
     private fun reduce(screen: DynamicScreenState) {
+        entry.updateValidationMessage(screen.validationMessage)
         _state.value = DynamicState.Success(screen)
     }
 

@@ -10,6 +10,17 @@ import kotlin.test.assertTrue
 
 class DynamicNavigationStateTest {
     @Test
+    fun entrySnapshotIsDiscardedWithRemovedNavigationEntry() {
+        val state = DynamicNavigationState(destination("root"))
+        val first = state.currentEntry
+        first.updateScreenResponse(com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse(200, "OK", "Loaded", null, null))
+        state.replace(destination("replacement"))
+        assertTrue(first !== state.currentEntry)
+        assertEquals(null, state.currentEntry.screenResponse)
+        assertEquals(null, state.currentEntry.validationMessage)
+    }
+
+    @Test
     fun pushAndPopPreserveParentActionOnExistingEntries() {
         val state = DynamicNavigationState(destination("root"), "session-id")
         val root = state.currentEntry

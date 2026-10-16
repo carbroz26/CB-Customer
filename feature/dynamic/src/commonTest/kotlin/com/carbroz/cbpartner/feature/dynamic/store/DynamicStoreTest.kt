@@ -582,6 +582,78 @@ class DynamicStoreTest {
         store.close()
     }
 
+    @Test
+    fun entrySnapshotRestoresResponseBindingsAndSafeMessageWithoutAnotherGet() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var fetches = 0
+        val response = DynamicResponse(200, "SUCCESS", "Loaded", null, "trace")
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                fetches++
+                return Result.success(response)
+            }
+        }
+        val entry = DynamicNavigationEntry(destination("same"))
+        val runtime = DynamicRuntimeState()
+        val first = store(entry, repository, runtime, dispatcher)
+        first.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        first.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("123")))
+        first.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/submit"),
+            "responseMode" to DynamicValue.StringValue("none"),
+            "validate" to DynamicValue.BooleanValue(true),
+        ))))
+        advanceUntilIdle()
+        val saved = assertIs<DynamicState.Success>(first.state.value).screen
+        assertNotNull(saved.validationMessage)
+        assertEquals(1, fetches)
+        first.close()
+
+        val second = store(entry, repository, runtime, dispatcher)
+        second.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        val restored = assertIs<DynamicState.Success>(second.state.value).screen
+        assertEquals(1, fetches)
+        assertEquals(response, restored.response)
+        assertEquals(saved.bindings, restored.bindings)
+        assertEquals(saved.validationMessage, restored.validationMessage)
+        second.accept(DynamicIntent.ClearMessage)
+        second.close()
+        val third = store(entry, repository, runtime, dispatcher)
+        third.accept(DynamicIntent.Load)
+        assertEquals(null, assertIs<DynamicState.Success>(third.state.value).screen.validationMessage)
+        assertEquals(1, fetches)
+        third.close()
+    }
+
+    @Test
+    fun newEntryDoesNotInheritResponseSnapshotOrValidationMessage() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var fetches = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                fetches++
+                return Result.success(DynamicResponse(200, "SUCCESS", request.endpoint, null, null))
+            }
+        }
+        val navigation = com.carbroz.cbpartner.navigation.DynamicNavigationState(destination("same"))
+        val firstEntry = navigation.currentEntry
+        val first = store(firstEntry, repository, DynamicRuntimeState(), dispatcher)
+        first.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        first.close()
+        navigation.push(destination("same"))
+        val second = store(navigation.currentEntry, repository, DynamicRuntimeState(), dispatcher)
+        second.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        assertEquals(2, fetches)
+        assertNotNull(firstEntry.screenResponse)
+        assertNotNull(navigation.currentEntry.screenResponse)
+        assertTrue(firstEntry !== navigation.currentEntry)
+        second.close()
+    }
+
     private fun store(
         entry: DynamicNavigationEntry,
         repository: DynamicRepository,
