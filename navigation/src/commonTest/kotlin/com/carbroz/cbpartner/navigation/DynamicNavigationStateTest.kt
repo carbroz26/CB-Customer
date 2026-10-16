@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.navigation
 
 import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -85,6 +86,23 @@ class DynamicNavigationStateTest {
         assertSame(current, state.currentEntry)
         assertTrue(state.pop())
         assertEquals("root", state.currentDestination.screenId)
+    }
+
+    @Test
+    fun bindingsFollowEntryMembershipAcrossPushAndPop() {
+        val state = DynamicNavigationState(destination("root"))
+        val root = state.currentEntry
+        root.updateBindings(mapOf("phone" to DynamicValue.StringValue("123")))
+
+        state.push(destination("root"))
+        val other = state.currentEntry
+        assertTrue(other.bindings.isEmpty())
+        other.updateBindings(mapOf("phone" to DynamicValue.StringValue("456")))
+
+        assertTrue(state.pop())
+        assertSame(root, state.currentEntry)
+        assertEquals(DynamicValue.StringValue("123"), root.bindings["phone"])
+        assertEquals(DynamicValue.StringValue("456"), other.bindings["phone"])
     }
 
     private fun destination(id: String) =
