@@ -11,6 +11,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core"))
+            implementation(libs.kermit)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.engine.defaults)
             implementation(libs.ktor.client.content.negotiation)
