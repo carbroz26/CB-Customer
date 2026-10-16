@@ -3,6 +3,11 @@ package com.carbroz.cbpartner.feature.dynamic.renderer
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +36,7 @@ class DynamicRenderer(
     fun Render(
         response: DynamicResponse,
         destination: DynamicDestination,
+        onRenderCommitted: () -> Unit = {},
     ) {
         val screen = response.data ?: return
 
@@ -40,6 +46,16 @@ class DynamicRenderer(
             screen.template.type != destination.templateType
         ) {
             return
+        }
+
+        val templateRenderer = registry.template(screen.template)
+            ?: error("No Dynamic template renderer registered for model class: " + screen.template::class)
+        var reported by remember(screen) { mutableStateOf(false) }
+        SideEffect {
+            if (!reported) {
+                reported = true
+                onRenderCommitted()
+            }
         }
 
         val context = DynamicRenderContext(
@@ -56,12 +72,6 @@ class DynamicRenderer(
                 .fillMaxSize()
                 .screenTheme(screen.theme?.properties),
         ) {
-            val templateRenderer = registry.template(screen.template)
-                ?: error(
-                    "No Dynamic template renderer registered for model class: " +
-                        screen.template::class
-                )
-
             templateRenderer.render(screen.template, context)
         }
     }

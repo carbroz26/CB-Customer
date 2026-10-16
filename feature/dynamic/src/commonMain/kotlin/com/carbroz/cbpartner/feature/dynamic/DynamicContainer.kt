@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic
 
+import co.touchlab.kermit.Logger
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ fun DynamicContainer(
     modifier: Modifier = Modifier,
 ) {
     val store = remember(entry) { storeFactory() }
+    val flowLogger = remember(entry) { Logger.withTag("CBPartnerFlow") }
     val state by store.state.collectAsState()
     val runtimeValues by runtimeState.values.collectAsState()
 
@@ -62,7 +64,14 @@ fun DynamicContainer(
                         onValueChange = { key, value ->
                             store.accept(DynamicIntent.ValueChanged(key, value))
                         },
-                    ).Render(response, entry.destination)
+                    ).Render(response, entry.destination) {
+                        runCatching {
+                            flowLogger.i {
+                                "event=render.committed sessionId=${entry.diagnosticSessionId ?: "-"} " +
+                                    "parentActionId=${entry.parentActionId ?: "-"} outcome=success"
+                            }
+                        }
+                    }
                 }
                 current.screen.validationMessage?.let { message ->
                     Surface(modifier = Modifier.align(Alignment.BottomCenter)) {

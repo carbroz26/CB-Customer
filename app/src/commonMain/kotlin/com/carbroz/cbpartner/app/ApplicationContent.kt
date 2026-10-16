@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.app
 
+import co.touchlab.kermit.Logger
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -80,6 +81,7 @@ private fun DynamicContent(
         Channel<Pair<TraceContext?, List<DynamicActionEffect>>>(Channel.UNLIMITED)
     }
     val uriHandler = LocalUriHandler.current
+    val flowLogger = remember(navigationState) { Logger.withTag("CBPartnerFlow") }
     var effectError by remember(navigationState) { mutableStateOf<String?>(null) }
 
     DisposableEffect(effectBatches) {
@@ -90,6 +92,12 @@ private fun DynamicContent(
         for ((traceContext, batch) in effectBatches) {
             var failed = false
             for (effect in batch) {
+                val operation = when (effect) {
+                    is DynamicActionEffect.Navigate -> effect.operation.name.lowercase()
+                    is DynamicActionEffect.Present -> "present"
+                    DynamicActionEffect.Dismiss -> "dismiss"
+                    is DynamicActionEffect.ExternalUri -> "external_uri"
+                }
                 try {
                     when (effect) {
                         is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
@@ -101,11 +109,23 @@ private fun DynamicContent(
                         is DynamicActionEffect.Present -> check(navigationState.present(effect.destination, traceContext?.actionId)) { "Presentation unavailable" }
                         DynamicActionEffect.Dismiss -> check(navigationState.dismissPresentation()) { "Dismiss unavailable" }
                     }
+                    runCatching {
+                        flowLogger.i {
+                            "event=navigation.applied sessionId=${traceContext?.sessionId ?: "-"} " +
+                                "actionId=${traceContext?.actionId ?: "-"} operation=$operation"
+                        }
+                    }
                 } catch (cancellation: CancellationException) {
                     throw cancellation
                 } catch (_: Exception) {
                     // Keep the message UI-safe; never render exception text or an external URI.
                     failed = true
+                    runCatching {
+                        flowLogger.w {
+                            "event=navigation.failed sessionId=${traceContext?.sessionId ?: "-"} " +
+                                "actionId=${traceContext?.actionId ?: "-"} operation=$operation"
+                        }
+                    }
                 }
             }
             effectError = if (failed) "Unable to complete this action" else null

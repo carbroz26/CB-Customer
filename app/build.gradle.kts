@@ -28,6 +28,7 @@ kotlin {
             implementation(project(":navigation"))
             implementation(project(":feature:splash"))
             implementation(project(":feature:dynamic"))
+            implementation(libs.kermit)
             implementation(libs.koin.core)
             implementation(compose.runtime)
             implementation(compose.material3)
