@@ -13,8 +13,8 @@ class DynamicNavigationState(
 ) {
     private var nextEntryId = 0L
 
-    private fun newEntry(destination: DynamicDestination): DynamicNavigationEntry =
-        DynamicNavigationEntry(destination, ++nextEntryId, diagnosticSessionId)
+    private fun newEntry(destination: DynamicDestination, parentActionId: String? = null): DynamicNavigationEntry =
+        DynamicNavigationEntry(destination, ++nextEntryId, diagnosticSessionId, parentActionId)
 
     internal val backStack: SnapshotStateList<DynamicNavigationEntry> =
         mutableStateListOf(newEntry(initialDestination))
@@ -34,18 +34,18 @@ class DynamicNavigationState(
         backStack.add(newEntry(destination))
     }
 
-    fun push(destination: DynamicDestination) {
-        backStack.add(newEntry(destination))
+    fun push(destination: DynamicDestination, parentActionId: String? = null) {
+        backStack.add(newEntry(destination, parentActionId))
     }
 
-    fun replace(destination: DynamicDestination) {
-        if (backStack.isEmpty()) backStack.add(newEntry(destination))
-        else backStack[backStack.lastIndex] = newEntry(destination)
+    fun replace(destination: DynamicDestination, parentActionId: String? = null) {
+        if (backStack.isEmpty()) backStack.add(newEntry(destination, parentActionId))
+        else backStack[backStack.lastIndex] = newEntry(destination, parentActionId)
     }
 
-    fun present(destination: DynamicDestination): Boolean {
+    fun present(destination: DynamicDestination, parentActionId: String? = null): Boolean {
         if (presentationEntry != null) return false
-        presentationEntry = newEntry(destination)
+        presentationEntry = newEntry(destination, parentActionId)
         return true
     }
 

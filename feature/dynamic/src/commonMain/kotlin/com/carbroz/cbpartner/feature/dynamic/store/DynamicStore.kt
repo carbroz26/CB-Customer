@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic.store
 
+import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
@@ -45,6 +46,7 @@ class DynamicStore(
     private val contextProvider: () -> Map<String, DynamicValue> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val deliverEffects: suspend (List<DynamicActionEffect>) -> Unit = {},
+    private val deliverCorrelatedEffects: (suspend (TraceContext, List<DynamicActionEffect>) -> Unit)? = null,
 ) {
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
@@ -104,6 +106,9 @@ class DynamicStore(
         if (actionJob?.isActive == true) return
 
         actionJob = scope.launch {
+            val traceContext = entry.diagnosticSessionId?.let { session ->
+                TraceContext(session, Uuid.random().toString(), entry.parentActionId)
+            }
             val context = contextProvider()
             val stateValues = runtimeState.values.value
             val validationResult = runCatching {
@@ -141,9 +146,10 @@ class DynamicStore(
                 bindings = current.bindings,
                 context = context,
                 state = stateValues,
+                traceContext = traceContext,
             )
             if (result.isSuccess) {
-                applyActionResult(result.getOrThrow())
+                applyActionResult(result.getOrThrow(), traceContext)
             } else {
                 val error = result.exceptionOrNull()
                 if (error is CancellationException) throw error
@@ -153,10 +159,15 @@ class DynamicStore(
         }
     }
 
-    private suspend fun applyActionResult(result: DynamicActionResult) {
+    private suspend fun applyActionResult(result: DynamicActionResult, traceContext: TraceContext?) {
         runtimeState.setAll(result.stateChanges)
         if (result.effects.isNotEmpty()) {
-            deliverEffects(result.effects.toList())
+            val effects = result.effects.toList()
+            if (traceContext != null && deliverCorrelatedEffects != null) {
+                deliverCorrelatedEffects.invoke(traceContext, effects)
+            } else {
+                deliverEffects(effects)
+            }
         }
     }
 

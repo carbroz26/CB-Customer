@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
+import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -75,7 +76,9 @@ private fun DynamicContent(
     val navigationState = remember(initialDestination, diagnosticSessionId) {
         DynamicNavigationState(initialDestination, diagnosticSessionId)
     }
-    val effectBatches = remember(navigationState) { Channel<List<DynamicActionEffect>>(Channel.UNLIMITED) }
+    val effectBatches = remember(navigationState) {
+        Channel<Pair<TraceContext?, List<DynamicActionEffect>>>(Channel.UNLIMITED)
+    }
     val uriHandler = LocalUriHandler.current
     var effectError by remember(navigationState) { mutableStateOf<String?>(null) }
 
@@ -84,18 +87,18 @@ private fun DynamicContent(
     }
 
     LaunchedEffect(effectBatches, navigationState, uriHandler) {
-        for (batch in effectBatches) {
+        for ((traceContext, batch) in effectBatches) {
             var failed = false
             for (effect in batch) {
                 try {
                     when (effect) {
                         is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
                         is DynamicActionEffect.Navigate -> when (effect.operation) {
-                            DynamicActionResult.NavigationOperation.Push -> navigationState.push(requireNotNull(effect.destination))
-                            DynamicActionResult.NavigationOperation.Replace -> navigationState.replace(requireNotNull(effect.destination))
+                            DynamicActionResult.NavigationOperation.Push -> navigationState.push(requireNotNull(effect.destination), traceContext?.actionId)
+                            DynamicActionResult.NavigationOperation.Replace -> navigationState.replace(requireNotNull(effect.destination), traceContext?.actionId)
                             DynamicActionResult.NavigationOperation.Pop -> check(navigationState.pop()) { "Navigation unavailable" }
                         }
-                        is DynamicActionEffect.Present -> check(navigationState.present(effect.destination)) { "Presentation unavailable" }
+                        is DynamicActionEffect.Present -> check(navigationState.present(effect.destination, traceContext?.actionId)) { "Presentation unavailable" }
                         DynamicActionEffect.Dismiss -> check(navigationState.dismissPresentation()) { "Dismiss unavailable" }
                     }
                 } catch (cancellation: CancellationException) {
@@ -134,7 +137,8 @@ private fun DynamicContent(
                     entry = entry,
                     runtimeState = runtimeState,
                     contextProvider = { contextValues },
-                    deliverEffects = { effects -> effectBatches.send(effects) },
+                    deliverEffects = { effects -> effectBatches.send(null to effects) },
+                    deliverCorrelatedEffects = { trace, effects -> effectBatches.send(trace to effects) },
                 )
             },
             registry = registry,
