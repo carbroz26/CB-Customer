@@ -45,3 +45,10 @@ Implement successful Bootstrap -> retained logical session -> fresh active-graph
 
 ## Stop conditions and completion
 One cohesive implementation commit (or one clear reviewed diff) and one bounded verification pass, not repeated mini-approvals. If source reveals a real architecture conflict (G3 type boundary, retained host capability), request only that decision. No production changes by this planning document alone. Keep backend untouched and branch unchanged.
+
+
+## Post-implementation evidence addendum — 2026-10-17 (supersedes this plan's initial pre-implementation status)
+
+G1-B/S2 was subsequently implemented on the frozen V2 branch (commits `079107b8`, `a2c5939`, `29f13e08`, visibility fix `211a3bad`). Owner reported `:app:jvmTest :feature:dynamic:jvmTest :app:compileKotlinWasmJs :androidApp:assembleDebug` BUILD SUCCESSFUL. Physical Android Samsung A35 smoke passed Login → OTP navigation and a controlled orientation change with stable PID/session and OTP screen visibility; subsequent POST/navigation/GET was successful. Exact endpoint-level absence of duplicate Bootstrap on reattach remains unverified. This is not proof of process-death, Web/iOS lifecycle, or G3 entry snapshot. The current consolidated status/evidence is recorded in `docs/dynamic/DYNAMIC-IMPLEMENTATION-STATUS.md` final V2 section. This addendum records implementation history; the original plan text above is preserved as historical planning baseline.
+
+**Next:** G3 screen response snapshot ownership/type reconciliation and scoped owner authorization; G4 and other gates must follow their own frozen contracts. Do not implement G3 solely because the G1-B/S2 tests passed.
