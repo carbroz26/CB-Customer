@@ -51,15 +51,6 @@ sealed interface DynamicActionResult {
         override val effects: List<DynamicActionEffect> = emptyList()
     }
 
-    /**
-     * Result of a sequence. State changes are reduced once, while effects retain
-     * execution order and are delivered independently by the Store.
-     */
-    data class Sequence(
-        override val stateChanges: Map<String, DynamicValue>,
-        override val effects: List<DynamicActionEffect>,
-    ) : DynamicActionResult
-
     enum class NavigationOperation {
         Push,
         Replace,
