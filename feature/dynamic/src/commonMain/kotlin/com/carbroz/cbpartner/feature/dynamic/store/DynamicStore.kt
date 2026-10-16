@@ -158,7 +158,7 @@ class DynamicStore(
 
     private fun reportEffectFailure(message: String) {
         val screen = currentScreen() ?: return
-        _state.value = DynamicState.Failure(message, screen)
+        reduce(screen.copy(validationMessage = "Unable to complete action"))
     }
 
     private fun currentScreen(): DynamicScreenState? = when (val value = _state.value) {
