@@ -5,7 +5,7 @@ sealed interface DynamicBackground {
     data class LinearGradient(val angle: Double = 0.0, val colors: List<DynamicGradientStop> = emptyList()) : DynamicBackground
 }
 
-data class DynamicGradientStop(val color: String)
+data class DynamicGradientStop(val color: String, val stop: Double? = null)
 
 data class DynamicBorder(val width: Double, val color: String)
 

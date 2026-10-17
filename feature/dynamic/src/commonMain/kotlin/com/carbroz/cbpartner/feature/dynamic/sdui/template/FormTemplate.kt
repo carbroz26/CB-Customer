@@ -16,9 +16,18 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 class FormTemplate : TemplateRenderer<FormTemplateModel> {
     @Composable
     override fun render(template: FormTemplateModel, context: DynamicRenderContext) {
+        if (template.header != null || template.footer != null) {
+            TemplateShell(template, context) { RenderBody(template, context, Modifier) }
+        } else {
+            RenderBody(template, context, Modifier.applyLayout(template))
+        }
+    }
+
+    @Composable
+    internal fun RenderBody(template: FormTemplateModel, context: DynamicRenderContext, modifier: Modifier) {
         if (template.orientation == "horizontal") {
             Row(
-                modifier = Modifier.applyLayout(template),
+                modifier = modifier,
                 horizontalArrangement = template.horizontalArrangement.toHorizontalArrangement(),
                 verticalAlignment = template.verticalAlignment.toVerticalAlignment(),
             ) {
@@ -26,7 +35,7 @@ class FormTemplate : TemplateRenderer<FormTemplateModel> {
             }
         } else {
             Column(
-                modifier = Modifier.applyLayout(template),
+                modifier = modifier,
                 verticalArrangement = template.verticalArrangement.toVerticalArrangement(),
                 horizontalAlignment = template.horizontalAlignment.toHorizontalAlignment(),
             ) {

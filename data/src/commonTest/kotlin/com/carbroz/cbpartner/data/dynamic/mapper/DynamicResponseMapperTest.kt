@@ -16,6 +16,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -339,6 +340,19 @@ class DynamicResponseMapperTest {
                 DynamicResponseMapper(json).map(response(template))
             }
         }
+    }
+
+    @Test
+    fun preservesGradientStopsForBackgroundMapping() {
+        val value = DynamicValueMapper().background(
+            json.parseToJsonElement(
+                """{"background":{"type":"linearGradient","angle":135,"colors":[{"color":"#001122","stop":0},{"color":"#112233","stop":0.28},{"color":"#223344","stop":0.55},{"color":"#334455","stop":1}]}}"""
+            ).jsonObject
+        )
+        val gradient = assertIs<DynamicBackground.LinearGradient>(value)
+        assertEquals(135.0, gradient.angle)
+        assertEquals(listOf(0.0, 0.28, 0.55, 1.0), gradient.colors.map { it.stop })
+        assertEquals(listOf("#001122", "#112233", "#223344", "#334455"), gradient.colors.map { it.color })
     }
 
     @Test

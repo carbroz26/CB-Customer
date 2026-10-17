@@ -9,9 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
@@ -19,10 +16,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyLinearGradient
 
 class DynamicRenderer(
     private val registry: DynamicRegistry,
@@ -83,42 +77,15 @@ class DynamicRenderer(
             properties?.get("gradient") as? DynamicValue.ObjectValue
                 ?: return this
 
-        val colors = (
-            gradient.value["colors"] as? DynamicValue.ArrayValue
-            )?.value?.mapNotNull { item ->
-            val objectValue = item as? DynamicValue.ObjectValue
-                ?: return@mapNotNull null
-
-            (objectValue.value["color"] as? DynamicValue.StringValue)
-                ?.value
-                ?.toColor()
-        }.orEmpty()
-
-        if (colors.size < 2) return this
-
-        val angle =
-            (gradient.value["angle"] as? DynamicValue.NumberValue)?.value
-                ?: 0.0
-
-        return drawWithCache {
-            val radians = angle * PI / 180.0
-            val direction = Offset(
-                cos(radians).toFloat(),
-                sin(radians).toFloat(),
-            )
-            val center = Offset(size.width / 2f, size.height / 2f)
-            val length =
-                sqrt(size.width * size.width + size.height * size.height) / 2f
-
-            val brush = Brush.linearGradient(
-                colors = colors,
-                start = center - direction * length,
-                end = center + direction * length,
-            )
-
-            onDrawBehind {
-                drawRect(brush = brush)
+        val stops = (gradient.value["colors"] as? DynamicValue.ArrayValue)
+            ?.value.orEmpty().mapNotNull { item ->
+                val value = (item as? DynamicValue.ObjectValue)?.value ?: return@mapNotNull null
+                val color = (value["color"] as? DynamicValue.StringValue)?.value?.toColor()
+                    ?: return@mapNotNull null
+                val stop = (value["stop"] as? DynamicValue.NumberValue)?.value
+                stop to color
             }
-        }
+        val angle = (gradient.value["angle"] as? DynamicValue.NumberValue)?.value ?: 0.0
+        return applyLinearGradient(angle, stops)
     }
 }

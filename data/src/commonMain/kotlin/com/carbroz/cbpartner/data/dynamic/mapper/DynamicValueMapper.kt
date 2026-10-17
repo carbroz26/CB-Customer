@@ -76,7 +76,9 @@ class DynamicValueMapper {
             "linearGradient" -> DynamicBackground.LinearGradient(
                 angle = number(value, "angle") ?: 0.0,
                 colors = (value["colors"] as? JsonArray).orEmpty().mapNotNull { item ->
-                    (item as? JsonObject)?.let { string(it, "color")?.let(::DynamicGradientStop) }
+                    (item as? JsonObject)?.let { color ->
+                        string(color, "color")?.let { DynamicGradientStop(it, number(color, "stop")) }
+                    }
                 },
             )
             else -> string(value, "color")?.let(DynamicBackground::Solid)

@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -139,9 +140,30 @@ internal fun DynamicArrangement.toVerticalAlignment(): Alignment.Vertical = when
     else -> Alignment.CenterVertically
 }
 
-internal fun DynamicBackground?.brush(): Brush? = when (this) {
-    is DynamicBackground.LinearGradient -> Brush.linearGradient(colors.mapNotNull { it.color.toColor() })
-    else -> null
+internal fun Modifier.applyLinearGradient(angle: Double, stops: List<Pair<Double?, Color>>): Modifier {
+    if (stops.size < 2) return this
+    val positions = stops.mapIndexed { index, (stop, color) ->
+        val position = stop ?: index.toDouble() / (stops.size - 1)
+        if (!position.isFinite() || position !in 0.0..1.0) return this
+        position.toFloat() to color
+    }
+    if (positions.zipWithNext().any { (a, b) -> a.first > b.first }) return this
+    if (!angle.isFinite()) return this
+    return drawWithCache {
+        val radians = angle * kotlin.math.PI / 180.0
+        val direction = androidx.compose.ui.geometry.Offset(
+            kotlin.math.cos(radians).toFloat(),
+            kotlin.math.sin(radians).toFloat(),
+        )
+        val center = androidx.compose.ui.geometry.Offset(size.width / 2f, size.height / 2f)
+        val length = kotlin.math.sqrt(size.width * size.width + size.height * size.height) / 2f
+        val brush = Brush.linearGradient(
+            colorStops = positions.toTypedArray(),
+            start = center - direction * length,
+            end = center + direction * length,
+        )
+        onDrawBehind { drawRect(brush) }
+    }
 }
 
 internal fun DynamicBackground?.color(): Color? = when (this) {
@@ -150,7 +172,11 @@ internal fun DynamicBackground?.color(): Color? = when (this) {
 }
 
 private fun Modifier.applyBackground(background: DynamicBackground?): Modifier = when {
-    background?.brush() != null -> background(background.brush()!!)
+    background is DynamicBackground.LinearGradient -> {
+        applyLinearGradient(background.angle, background.colors.mapNotNull { stop ->
+            stop.color.toColor()?.let { stop.stop to it }
+        })
+    }
     background?.color() != null -> background(background.color()!!)
     else -> this
 }
