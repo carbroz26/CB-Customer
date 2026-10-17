@@ -1,5 +1,7 @@
 package com.carbroz.cbpartner.feature.splash
 
+import co.touchlab.kermit.Logger
+import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
 import com.carbroz.cbpartner.domain.repository.BootstrapRepository
 import kotlinx.coroutines.CancellationException
@@ -42,7 +44,15 @@ class SplashStore(
     /** Stable, locally generated identifier for the startup session. */
     val diagnosticSessionId: String = Uuid.random().toString()
 
+    private val diagnosticLogger = Logger.withTag("CBPartnerFlow")
     private var loadJob: Job? = null
+
+    private fun reportBootstrap(actionId: String, event: String, outcome: String? = null) {
+        val fields = "event=$event phase=bootstrap sessionId=${safeDiagnosticId(diagnosticSessionId)} " +
+            "actionId=${safeDiagnosticId(actionId)} parentActionId=-" +
+            (outcome?.let { " outcome=$it" } ?: "")
+        runCatching { diagnosticLogger.d { fields } }
+    }
 
     fun accept(intent: SplashIntent) {
         when (intent) {
@@ -57,8 +67,11 @@ class SplashStore(
 
         _state.value = SplashState.Loading
         loadJob = scope.launch {
-            bootstrap.fetch(diagnosticSessionId, Uuid.random().toString())
+            val actionId = Uuid.random().toString()
+            reportBootstrap(actionId, "bootstrap.started")
+            bootstrap.fetch(diagnosticSessionId, actionId)
                 .onSuccess { output ->
+                    reportBootstrap(actionId, "bootstrap.completed", "success")
                     _state.value = when {
                         output.maintenance.enabled -> SplashState.Maintenance(
                             output.maintenance.title,
@@ -70,6 +83,7 @@ class SplashStore(
                 }
                 .onFailure { error ->
                     if (error is CancellationException) throw error
+                    reportBootstrap(actionId, "bootstrap.completed", "failed")
                     // Bootstrap failures may contain server-provided text or request details.
                     // Never expose exception messages through the splash UI.
                     _state.value = SplashState.Failure("Unable to start the application")
