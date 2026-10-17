@@ -53,3 +53,8 @@
 - If approved: add minimal tests in test files only, then owner runs `./gradlew :feature:dynamic:jvmTest :navigation:jvmTest` (Windows `.\\gradlew.bat`); inspect results and exact diff. No need to rerun Android/Web for test-only change unless dependency/build scope demands.
 - If no missing behavior is found, close W6-B as an audit with deferred backend migration notes. Do not invent a production change to justify a workstream.
 - All future backend work would occur in fork `carbroz26/carwash-backend` branch `feature/backend-migration`, with upstream development as PR base, only after owner authorization.
+
+
+## Approved implementation addendum (2026-10-17)
+
+Owner explicitly approved and froze tests-only W6-B changes. Commit f0e334d adds PresentDismissActionHandlerTest.kt and StateActionHandlerTest.kt. Only existing frontend behavior is covered. No production code or backend source was changed. JVM verification is pending owner execution: :feature:dynamic:jvmTest :navigation:jvmTest. Backend wire migrations and outside-click keyboard behavior remain deferred.
