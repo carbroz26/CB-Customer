@@ -131,6 +131,48 @@ class DynamicStoreTest {
     }
 
     @Test
+    fun valueChangedImmediatelyBeforeActionUsesLatestBindingSnapshot() = runTest {
+        // Use a queued dispatcher to cover the real accept() ordering: state update
+        // is synchronous, while Request action execution begins on the next turn.
+        val dispatcher = kotlinx.coroutines.test.StandardTestDispatcher(testScheduler)
+        val entry = DynamicNavigationEntry(destination("current"))
+        var submitted: DynamicValue? = null
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/submit") submitted = request.body
+                return Result.success(DynamicResponse(200, "SUCCESS", "OK", null, null))
+            }
+        }
+        val store = store(entry, repository, DynamicRuntimeState(), dispatcher)
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+
+        store.accept(DynamicIntent.ValueChanged("otp", DynamicValue.StringValue("1")))
+        store.accept(DynamicIntent.ValueChanged("otp", DynamicValue.StringValue("12")))
+        store.accept(DynamicIntent.ValueChanged("otp", DynamicValue.StringValue("1234")))
+        store.accept(DynamicIntent.Action(DynamicAction(
+            type = "request",
+            payload = mapOf(
+                "endpoint" to DynamicValue.StringValue("/submit"),
+                "responseMode" to DynamicValue.StringValue("none"),
+                "body" to DynamicValue.ObjectValue(mapOf("otp" to ref("\$binding", "otp"))),
+            ),
+        )))
+        advanceUntilIdle()
+
+        assertEquals(
+            DynamicValue.StringValue("1234"),
+            assertIs<DynamicValue.ObjectValue>(submitted).value["otp"],
+        )
+        assertEquals(
+            DynamicValue.StringValue("1234"),
+            assertIs<DynamicState.Success>(store.state.value).screen.bindings["otp"],
+        )
+        assertEquals(DynamicValue.StringValue("1234"), entry.bindings["otp"])
+        store.close()
+    }
+
+    @Test
     fun explicitResponseRetentionBecomesRuntimeState() = runTest {
         val dispatcher = UnconfinedTestDispatcher(testScheduler)
         val next = destination("next")
