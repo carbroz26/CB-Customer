@@ -68,7 +68,9 @@ class InputElement : ElementRenderer<InputElementModel> {
             element.actions["onSubmit"]?.let(context.onAction)
         }
         val keyboardActions = KeyboardActions(
-            onDone = submit, onGo = submit, onSend = submit,
+            onDone = { submit() },
+            onGo = { submit() },
+            onSend = { submit() },
         )
         val submitIme = if (element.actions.containsKey("onSubmit")) ImeAction.Done else ImeAction.Default
 
