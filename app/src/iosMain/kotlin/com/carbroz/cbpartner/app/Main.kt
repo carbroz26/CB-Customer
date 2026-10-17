@@ -33,6 +33,7 @@ fun MainViewController(): UIViewController {
         (NSBundle.mainBundle.objectForInfoDictionaryKey("CBPARTNER_ENVIRONMENT") as? String)
             ?: error("Application environment is missing"),
     )
+    configureLogging(environment)
     val runtimeMetadataProvider = IosRuntimeMetadataProvider()
     val apiBaseUrl = iosApiBaseUrl(environment)
     return ComposeUIViewController {
