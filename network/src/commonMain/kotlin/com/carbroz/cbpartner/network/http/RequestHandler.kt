@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.network.http
 
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
+import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
@@ -134,20 +135,6 @@ class RequestHandler(
     @PublishedApi
     internal fun newRequestId(): String = Uuid.random().toString()
 
-    /** Accepts only bounded diagnostic identifier characters for logging. */
-    @PublishedApi
-    internal fun safeDiagnosticId(value: String?): String {
-        if (value.isNullOrEmpty() || value.length > 64) return "-"
-        return value.takeIf { identifier ->
-            identifier.all { char ->
-                char in 'a'..'z' ||
-                    char in 'A'..'Z' ||
-                    char in '0'..'9' ||
-                    char == '-' ||
-                    char == '_'
-            }
-        } ?: "-"
-    }
     /** Writes only the already-sanitized network summary through the supplied Kermit logger. */
     @PublishedApi
     internal fun writeDiagnostic(outcome: String, event: String) {
