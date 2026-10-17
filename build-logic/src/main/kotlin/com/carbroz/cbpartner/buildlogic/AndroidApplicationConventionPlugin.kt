@@ -61,7 +61,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     val host = parsed?.host?.lowercase()
                     val forbidden = listOf(".invalid", ".test", ".example", ".localhost", ".local", ".internal")
                     if (parsed?.scheme != "https" || host.isNullOrBlank() ||
-                        !host.contains('.') || host.none { it in 'a'..'z' } || host.any { it !in 'a'..'z' && it !in '0'..'9' && it != '.' && it != '-' } ||
+                        !host.contains('.') || host.endsWith('.') || host.none { it in 'a'..'z' } || host.any { it !in 'a'..'z' && it !in '0'..'9' && it != '.' && it != '-' } ||
                         forbidden.any { host.endsWith(it) } ||
                         parsed.rawUserInfo != null || !parsed.rawPath.isNullOrEmpty() ||
                         parsed.rawQuery != null || parsed.rawFragment != null
