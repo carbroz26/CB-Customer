@@ -1,6 +1,5 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.element
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,8 +35,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
-import com.carbroz.cbpartner.feature.dynamic.runtime.brush
-import com.carbroz.cbpartner.feature.dynamic.runtime.color
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicBackground
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
 class InputElement : ElementRenderer<InputElementModel> {
@@ -183,11 +181,7 @@ class InputElement : ElementRenderer<InputElementModel> {
 private fun Modifier.applyBackground(
     background: DynamicBackground?,
     shape: DynamicShape?,
-): Modifier = when {
-    background?.brush() != null -> background(background.brush()!!, shape.toComposeShape())
-    background?.color() != null -> background(background.color()!!, shape.toComposeShape())
-    else -> this
-}
+): Modifier = applyDynamicBackground(background, shape.toComposeShape())
 
 private fun Modifier.applyInputBorder(
     border: DynamicBorder?,

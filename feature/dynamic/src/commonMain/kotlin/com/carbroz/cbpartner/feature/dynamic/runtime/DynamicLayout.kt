@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.foundation.layout.Arrangement
@@ -166,36 +167,28 @@ internal fun Modifier.applyLinearGradient(angle: Double, stops: List<Pair<Double
     }
 }
 
-/** Keeps existing button/input brush callers compatible, including declared stops. */
-internal fun DynamicBackground?.brush(): Brush? = when (this) {
-    is DynamicBackground.LinearGradient -> {
-        val positions = colors.mapIndexedNotNull { index, stop ->
-            val color = stop.color.toColor() ?: return@mapIndexedNotNull null
-            val position = stop.stop ?: index.toDouble() / (colors.size - 1).coerceAtLeast(1)
-            position.toFloat() to color
+/** Applies background using the same stop-aware angle conversion as screen gradients. */
+internal fun Modifier.applyDynamicBackground(background: DynamicBackground?, shape: Shape = RectangleShape): Modifier =
+    when (background) {
+        is DynamicBackground.LinearGradient -> {
+            clip(shape).applyLinearGradient(
+                background.angle,
+                background.colors.mapNotNull { stop ->
+                    stop.color.toColor()?.let { stop.stop to it }
+                },
+            )
         }
-        if (positions.size < 2 ||
-            positions.any { !it.first.isFinite() || it.first !in 0f..1f } ||
-            positions.zipWithNext().any { (a, b) -> a.first > b.first }
-        ) null else Brush.linearGradient(*positions.toTypedArray())
+        is DynamicBackground.Solid -> background.color.toColor()?.let { background(it, shape) } ?: this
+        null -> this
     }
-    else -> null
-}
 
 internal fun DynamicBackground?.color(): Color? = when (this) {
     is DynamicBackground.Solid -> color.toColor()
     else -> null
 }
 
-private fun Modifier.applyBackground(background: DynamicBackground?): Modifier = when {
-    background is DynamicBackground.LinearGradient -> {
-        applyLinearGradient(background.angle, background.colors.mapNotNull { stop ->
-            stop.color.toColor()?.let { stop.stop to it }
-        })
-    }
-    background?.color() != null -> background(background.color()!!)
-    else -> this
-}
+private fun Modifier.applyBackground(background: DynamicBackground?): Modifier =
+    applyDynamicBackground(background)
 
 private fun Modifier.applyBorder(border: DynamicBorder?, shape: DynamicShape?): Modifier {
     if (border == null) return this
