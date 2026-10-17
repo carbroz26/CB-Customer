@@ -13,6 +13,10 @@
 - Development: debug and safe trace events; Staging: info and safe errors; Production: warning/error only. This is policy; logger configuration belongs at platform composition root/one shared policy, not feature-specific loggers. Safe no-op if logging cannot initialize; logger failures never change business results.
 - Retain Decision 002 removing raw RequestHandler console logs. Cover no-sensitive-log behavior with focused tests.
 
+### Local inspection clarification (2026-10-17; decision 107)
+- See **107-LOCAL-DEVELOPMENT-SDUI-INSPECTION-EXCEPTION-FROZEN.md** for the owner's later, narrowly scoped **opt-in local inspection** decision. The ban in this section and section E item 5 remains fully effective for Kermit, Logcat, persistent diagnostic sinks, and all regular operational logs. Decision 107 is a *separate, ephemeral, guarded inspection capability*, not authorization for plaintext OTP, tokens, arbitrary raw bodies or private data in log streams.
+- Decision 107 fixes requirements and safeguards **only**. Exact source-level implementation plan, separate authorization, and negative environment/privacy tests are pending. Do not infer local eligibility from Development severity or localhost text alone; staging, production, release and remote backends remain ineligible.
+
 ## C. Deployment environments
 - Exactly three environment identifiers: `development`, `staging`, `production`. Each uses the same business/UI/domain code and one shared Ktor transport.
 - Android: apply a single `environment` flavor dimension with `development`, `staging`, `production` flavors in existing Android Application convention; keep existing `debug` / `release` build types independently (six named variants are Gradle's natural matrix, not six different architectures). Debuggable build type solely controls debugging; deployment env solely selects API URL and default safe-log policy.
