@@ -13,6 +13,7 @@ import com.carbroz.cbpartner.data.di.serializationModule
 import com.carbroz.cbpartner.feature.dynamic.dynamicModule
 import com.carbroz.cbpartner.feature.splash.splashModule
 import com.carbroz.cbpartner.network.ApiBaseUrl
+import com.carbroz.cbpartner.network.AppEnvironment
 import com.carbroz.cbpartner.network.networkModule
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
@@ -21,12 +22,13 @@ import org.koin.dsl.module
 fun App(
     runtimeMetadataProvider: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
+    environment: AppEnvironment = AppEnvironment.Development,
 ) {
     val retainedSession = retain { mutableStateOf<DynamicSession?>(null) }
     RetainedEffect(retainedSession) {
         onRetire { retainedSession.value?.close() }
     }
-    val koin = remember(runtimeMetadataProvider, apiBaseUrl) {
+    val koin = remember(runtimeMetadataProvider, apiBaseUrl, environment) {
         koinApplication {
             modules(
                 module { single<RuntimeMetadataProvider> { runtimeMetadataProvider } },

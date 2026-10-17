@@ -165,6 +165,8 @@
           "$(SRCROOT)/../app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
         );
         GENERATE_INFOPLIST_FILE = YES;
+        CBPARTNER_ENVIRONMENT = development;
+        INFOPLIST_KEY_CBPARTNER_ENVIRONMENT = "$(CBPARTNER_ENVIRONMENT)";
         CBPARTNER_API_BASE_URL = "http://localhost:3000";
         INFOPLIST_KEY_CBPARTNER_API_BASE_URL = "$(CBPARTNER_API_BASE_URL)";
         INFOPLIST_KEY_NSLocalNetworkUsageDescription = "CB-Partner connects to the development backend on your local network.";
@@ -196,7 +198,9 @@
           "$(SRCROOT)/../app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
         );
         GENERATE_INFOPLIST_FILE = YES;
-        CBPARTNER_API_BASE_URL = "https://api.invalid";
+        CBPARTNER_ENVIRONMENT = production;
+        INFOPLIST_KEY_CBPARTNER_ENVIRONMENT = "$(CBPARTNER_ENVIRONMENT)";
+        CBPARTNER_API_BASE_URL = "";
         INFOPLIST_KEY_CBPARTNER_API_BASE_URL = "$(CBPARTNER_API_BASE_URL)";
         INFOPLIST_KEY_NSLocalNetworkUsageDescription = "CB-Partner connects to the development backend on your local network.";
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
