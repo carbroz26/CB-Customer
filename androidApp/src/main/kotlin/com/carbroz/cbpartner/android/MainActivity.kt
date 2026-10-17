@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.RetainCompatibilityProbe
-import com.carbroz.cbpartner.app.W6EventPreview
 import com.carbroz.cbpartner.network.ApiBaseUrl
 
 class MainActivity : ComponentActivity() {
@@ -14,9 +13,7 @@ class MainActivity : ComponentActivity() {
         val runtimeMetadataProvider = AndroidRuntimeMetadataProvider(applicationContext)
         val apiBaseUrl = ApiBaseUrl(BuildConfig.CBPARTNER_API_BASE_URL)
         setContent {
-            if (BuildConfig.DEBUG && intent.getBooleanExtra("cbpartner.w6_preview", false)) {
-                W6EventPreview()
-            } else if (BuildConfig.DEBUG && intent.getBooleanExtra("cbpartner.retention_probe", false)) {
+            if (BuildConfig.DEBUG && intent.getBooleanExtra("cbpartner.retention_probe", false)) {
                 RetainCompatibilityProbe()
             } else {
                 App(runtimeMetadataProvider, apiBaseUrl)
