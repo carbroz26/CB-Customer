@@ -158,7 +158,7 @@ internal fun Modifier.applyLinearGradient(angle: Double, stops: List<Pair<Double
         val center = androidx.compose.ui.geometry.Offset(size.width / 2f, size.height / 2f)
         val length = kotlin.math.sqrt(size.width * size.width + size.height * size.height) / 2f
         val brush = Brush.linearGradient(
-            colorStops = positions.toTypedArray(),
+            *positions.toTypedArray(),
             start = center - direction * length,
             end = center + direction * length,
         )

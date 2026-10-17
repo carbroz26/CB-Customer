@@ -17,7 +17,7 @@ class FormTemplate : TemplateRenderer<FormTemplateModel> {
     @Composable
     override fun render(template: FormTemplateModel, context: DynamicRenderContext) {
         if (template.header != null || template.footer != null) {
-            TemplateShell(template, context) { RenderBody(template, context, Modifier) }
+            TemplateShell(template, context) { bodyModifier -> RenderBody(template, context, bodyModifier) }
         } else {
             RenderBody(template, context, Modifier.applyLayout(template))
         }
