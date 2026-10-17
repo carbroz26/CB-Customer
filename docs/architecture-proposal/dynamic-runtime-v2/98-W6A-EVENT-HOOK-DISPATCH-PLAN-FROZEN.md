@@ -43,3 +43,10 @@
 8. Owner verification after production changes: relevant JVM tests + `:app:compileKotlinWasmJs :androidApp:assembleDebug` once; manual Android/Web interactions for native gesture, focus and IME; iOS native verification deferred to macOS. Never claim runtime PASS from JVM-only tests.
 
 **No Kotlin production edits, additional modules, backend migration, new branches or builds authorized by this plan document.** Next step is owner review and separate explicit implementation approval. If platform Compose gesture/IME semantics conflict with the above plan, document the exact conflict before coding further.
+
+
+## Implementation addendum — 2026-10-17
+
+**Owner authorization:** explicitly approved tests-first W6-A Kotlin implementation. Test-first mapping regression commit `734be501`; implementation commit `5559841d` adds small renderer-owned `dynamicGestures` modifier for conditional click/long-click without creating a manager, wires Button, Image, Icon and Content gesture surfaces, adds plain Text element gestures only where it has no independently clickable spans, and wires Input focus-gain and explicit IME actions (including segmented input) through existing `context.onAction`. Store/Executor/Session/Backend untouched.
+
+**Known narrow limitation:** When a Text element has an independently clickable link span, the renderer deliberately does not add a parent element-level gesture; event precedence between parent and span remains unverified. This part of the frozen acceptance gate is **OPEN** pending native Compose interaction proof, not silently marked implemented. Native gesture/IME behavior and no-duplicate dispatch require Android/Web smoke. Tests and all compilations **NOT RUN** for these new commits; owner should run `:data:jvmTest :feature:dynamic:jvmTest :app:compileKotlinWasmJs :androidApp:assembleDebug` and report failures for targeted corrections. No iOS claim.
