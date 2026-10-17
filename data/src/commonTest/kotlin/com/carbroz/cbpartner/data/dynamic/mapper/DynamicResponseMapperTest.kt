@@ -356,6 +356,16 @@ class DynamicResponseMapperTest {
     }
 
     @Test
+    fun mapsAllFiveDeclaredEventHooksOnInputElement() {
+        val payload = """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"events","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_events","type":"form_template","components":[{"id":"c","type":"stack_component","elements":[{"id":"input","type":"input","properties":{"binding":{"key":"otp"}},"actions":{"onClick":{"type":"navigate","payload":{"mode":"pop"}},"onLongClick":{"type":"dismiss"},"onValueChange":{"type":"state","payload":{"key":"v","value":1}},"onFocus":{"type":"dismiss"},"onSubmit":{"type":"dismiss"}}}] }]}}}"""
+        val dto = json.decodeFromString<DynamicResponseDto>(payload)
+        val template = assertIs<FormTemplate>(assertNotNull(DynamicResponseMapper(json).map(dto).data).template)
+        val input = assertIs<InputElement>(assertIs<StackComponent>(template.components.single()).elements.single())
+        assertEquals(setOf("onClick", "onLongClick", "onValueChange", "onFocus", "onSubmit"), input.actions.keys)
+        assertEquals("state", input.actions.getValue("onValueChange").type)
+    }
+
+    @Test
     fun categoryDispatchPreservesMultipleComponents() {
         val dto = json.decodeFromString<DynamicResponseDto>(
             """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"multi","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"first","type":"stack_component"},{"id":"second","type":"stack_component"}]}}}""",
