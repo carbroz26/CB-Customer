@@ -11,5 +11,8 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kermit)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }
