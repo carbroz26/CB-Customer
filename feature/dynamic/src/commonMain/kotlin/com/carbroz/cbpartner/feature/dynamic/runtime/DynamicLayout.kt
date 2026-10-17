@@ -166,6 +166,22 @@ internal fun Modifier.applyLinearGradient(angle: Double, stops: List<Pair<Double
     }
 }
 
+/** Keeps existing button/input brush callers compatible, including declared stops. */
+internal fun DynamicBackground?.brush(): Brush? = when (this) {
+    is DynamicBackground.LinearGradient -> {
+        val positions = colors.mapIndexedNotNull { index, stop ->
+            val color = stop.color.toColor() ?: return@mapIndexedNotNull null
+            val position = stop.stop ?: index.toDouble() / (colors.size - 1).coerceAtLeast(1)
+            position.toFloat() to color
+        }
+        if (positions.size < 2 ||
+            positions.any { !it.first.isFinite() || it.first !in 0f..1f } ||
+            positions.zipWithNext().any { (a, b) -> a.first > b.first }
+        ) null else Brush.linearGradient(*positions.toTypedArray())
+    }
+    else -> null
+}
+
 internal fun DynamicBackground?.color(): Color? = when (this) {
     is DynamicBackground.Solid -> color.toColor()
     else -> null
