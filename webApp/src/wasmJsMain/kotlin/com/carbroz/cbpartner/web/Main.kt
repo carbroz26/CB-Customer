@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.web
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import com.carbroz.cbpartner.app.App
+import com.carbroz.cbpartner.app.configureLogging
 import com.carbroz.cbpartner.app.RetainCompatibilityProbe
 import com.carbroz.cbpartner.network.ApiBaseUrl
 import com.carbroz.cbpartner.network.AppEnvironment
@@ -25,6 +26,7 @@ fun main() {
         else -> error("Staging and production require an explicit API origin")
     }
     val apiBaseUrl = ApiBaseUrl(url, environment)
+    configureLogging(environment)
     ComposeViewport(viewportContainerId = "webApp") {
         if (window.location.search.contains("cbpartnerRetentionProbe=1")) {
             RetainCompatibilityProbe()
