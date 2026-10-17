@@ -68,6 +68,13 @@ class DynamicStore(
         runCatching { diagnosticLogger.i { fields } }
     }
 
+    private fun reportScreenLoad(actionId: String, event: String, outcome: String? = null) {
+        val fields = "event=$event phase=screen_load sessionId=${safeDiagnosticId(entry.diagnosticSessionId)} " +
+            "actionId=${safeDiagnosticId(actionId)} parentActionId=${safeDiagnosticId(entry.parentActionId)}" +
+            (outcome?.let { " outcome=$it" } ?: "")
+        runCatching { diagnosticLogger.d { fields } }
+    }
+
     private var loadJob: Job? = null
     private var actionJob: Job? = null
 
@@ -95,14 +102,17 @@ class DynamicStore(
         }
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
+            val actionId = Uuid.random().toString()
+            reportScreenLoad(actionId, "screen_load.started")
             loadDynamicScreen(
                 destination = entry.destination,
                 sessionId = entry.diagnosticSessionId,
-                actionId = Uuid.random().toString(),
+                actionId = actionId,
                 parentActionId = entry.parentActionId,
             )
                 .onSuccess { response ->
                     coroutineContext.ensureActive()
+                    reportScreenLoad(actionId, "screen_load.completed", "success")
                     entry.updateScreenResponse(response)
                     val previous = currentScreen()
                     _state.value = DynamicState.Success(
@@ -115,6 +125,7 @@ class DynamicStore(
                 }
                 .onFailure { error ->
                     if (error is CancellationException) throw error
+                    reportScreenLoad(actionId, "screen_load.completed", "failed")
                     val current = currentScreen() ?: DynamicScreenState()
                     _state.value = DynamicState.Failure(
                         "Unable to load dynamic screen",
