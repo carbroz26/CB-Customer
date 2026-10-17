@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +57,21 @@ class InputElement : ElementRenderer<InputElementModel> {
             element.actions["onValueChange"]?.let(context.onAction)
         }
 
+        var hadFocus by remember(element.id) { mutableStateOf(false) }
+        val focusModifier = Modifier.onFocusChanged { state ->
+            if (state.isFocused && !hadFocus) {
+                element.actions["onFocus"]?.let(context.onAction)
+            }
+            hadFocus = state.isFocused
+        }
+        val submit: () -> Unit = {
+            element.actions["onSubmit"]?.let(context.onAction)
+        }
+        val keyboardActions = KeyboardActions(
+            onDone = submit, onGo = submit, onSend = submit,
+        )
+        val submitIme = if (element.actions.containsKey("onSubmit")) ImeAction.Done else ImeAction.Default
+
         val width = element.width
         val maxWidth = element.maxWidth
         val placeholder = element.placeholder
@@ -86,17 +103,21 @@ class InputElement : ElementRenderer<InputElementModel> {
                     focusBorder = presentation.focusBorder,
                     textStyle = inputTextStyle(element),
                     onValueChange = ::changed,
+                    focusModifier = focusModifier,
+                    keyboardActions = keyboardActions,
+                    imeAction = submitIme,
                 )
             } else {
                 BasicTextField(
-                    modifier = Modifier
+                    modifier = focusModifier
                         .then(element.weight?.let { Modifier.weight(it.toFloat()) } ?: Modifier)
                         .then(width?.let { Modifier.width(it.dp) } ?: Modifier)
                         .then(maxWidth?.let { Modifier.widthIn(max = it.dp) } ?: Modifier),
                     value = value,
                     onValueChange = ::changed,
                     textStyle = inputTextStyle(element),
-                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = submitIme),
+                    keyboardActions = keyboardActions,
                     singleLine = true,
                     decorationBox = { innerTextField ->
                         Box {
@@ -137,16 +158,20 @@ class InputElement : ElementRenderer<InputElementModel> {
         focusBorder: DynamicBorder?,
         textStyle: TextStyle,
         onValueChange: (String) -> Unit,
+        focusModifier: Modifier,
+        keyboardActions: KeyboardActions,
+        imeAction: ImeAction,
     ) {
         var focused by remember { mutableStateOf(false) }
 
         BasicTextField(
-            modifier = Modifier
+            modifier = focusModifier
                 .fillMaxWidth()
                 .onFocusChanged { focused = it.isFocused },
             value = value,
             onValueChange = onValueChange,
-            keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, imeAction = imeAction),
+            keyboardActions = keyboardActions,
             singleLine = true,
             textStyle = textStyle,
             decorationBox = {

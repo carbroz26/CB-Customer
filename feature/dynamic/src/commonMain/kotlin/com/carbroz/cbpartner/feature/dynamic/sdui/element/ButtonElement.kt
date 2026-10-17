@@ -1,6 +1,5 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.element
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -25,9 +24,7 @@ class ButtonElement : ElementRenderer<ButtonElementModel> {
             .applyDynamicBackground(element.background, element.shape.toComposeShape())
 
         Box(
-            modifier = modifier.clickable {
-                element.actions["onClick"]?.let(context.onAction)
-            },
+            modifier = modifier.dynamicGestures(element.actions, context.onAction),
             contentAlignment = Alignment.Center,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {

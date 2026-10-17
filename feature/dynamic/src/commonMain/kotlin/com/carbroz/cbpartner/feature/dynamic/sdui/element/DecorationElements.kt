@@ -18,7 +18,7 @@ class IconElement : ElementRenderer<IconElementModel> {
     @Composable
     override fun render(element: IconElementModel, context: DynamicRenderContext) {
         Row(
-            modifier = Modifier.applyLayout(element),
+            modifier = Modifier.applyLayout(element).dynamicGestures(element.actions, context.onAction),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             context.renderContent(element.leadingContent)

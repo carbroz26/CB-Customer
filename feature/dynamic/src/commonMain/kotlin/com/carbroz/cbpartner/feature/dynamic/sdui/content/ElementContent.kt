@@ -2,7 +2,6 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.content
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
@@ -19,18 +18,13 @@ import com.carbroz.cbpartner.feature.dynamic.registry.ElementContentRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicSpacing
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.dynamicGestures
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
 import org.jetbrains.compose.resources.painterResource
 
-private fun Modifier.contentClick(
-    content: ElementContent,
-    context: DynamicRenderContext,
-): Modifier = if (content.actions["onClick"] != null) {
-    clickable { content.actions["onClick"]?.let(context.onAction) }
-} else {
-    this
-}
+private fun Modifier.contentClick(content: ElementContent, context: DynamicRenderContext): Modifier =
+    dynamicGestures(content.actions, context.onAction)
 
 class IconContent : ElementContentRenderer<IconContentModel> {
     @Composable

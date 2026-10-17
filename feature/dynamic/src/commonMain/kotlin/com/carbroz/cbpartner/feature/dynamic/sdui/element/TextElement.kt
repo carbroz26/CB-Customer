@@ -61,7 +61,10 @@ class TextElement : ElementRenderer<TextElementModel> {
         }
 
         Row(
-            modifier = Modifier.applyLayout(element),
+            modifier = Modifier.applyLayout(element).let { base ->
+                if (element.spans.any { it.action != null }) base
+                else base.dynamicGestures(element.actions, context.onAction)
+            },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             context.renderContent(element.leadingContent)
