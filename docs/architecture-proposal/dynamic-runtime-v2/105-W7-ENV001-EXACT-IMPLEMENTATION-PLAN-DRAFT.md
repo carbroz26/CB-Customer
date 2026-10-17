@@ -59,3 +59,8 @@
 
 ## 6. Status and freeze gate
 This is a proposed **minimal file scope**, not authorization. Owner reviews ENV-D1/2/3 and the file list. Freeze only after those choices are settled; implementation afterward on this existing branch in a cohesive bounded change, then owner-run tests. No backend source changes, no new branch, no production edits yet.
+
+
+## Owner decision and plan freeze — 2026-10-17
+
+**W7-ENV-001 PLAN FROZEN / IMPLEMENTATION AUTHORIZED.** Owner approved ENV-D1, ENV-D2, ENV-D3 and the minimal file-by-file plan following doc23. ENV-D1: explicitly supplied trustworthy HTTPS staging/production origin, no localhost/placeholder fallback; reviewed narrow hostname/URL validation, not DNS/TLS guarantees. ENV-D2: variant-scoped staging/production configuration enforcement; development builds remain usable without staging/production URLs; productionDebug also uses production origin. ENV-D3: reuse Xcode settings where unambiguous; add Staging config only if existing settings cannot express staging separately. No new manager, second transport, backend/auth/Store/Session/Navigation changes. Document 105 historical 'NOT FROZEN' heading is superseded by this signed-off addendum. Source implementation and local build verification must be tracked separately; approval does not constitute a build PASS.
