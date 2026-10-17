@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic
 
 import co.touchlab.kermit.Logger
+import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
@@ -67,8 +68,8 @@ fun DynamicContainer(
                     ).Render(response, entry.destination) {
                         runCatching {
                             flowLogger.i {
-                                "event=render.committed sessionId=${entry.diagnosticSessionId ?: "-"} " +
-                                    "parentActionId=${entry.parentActionId ?: "-"} outcome=success"
+                                "event=render.committed sessionId=${safeDiagnosticId(entry.diagnosticSessionId)} " +
+                                    "parentActionId=${safeDiagnosticId(entry.parentActionId)} outcome=success"
                             }
                         }
                     }
