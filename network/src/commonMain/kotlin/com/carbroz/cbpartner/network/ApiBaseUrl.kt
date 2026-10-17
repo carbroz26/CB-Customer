@@ -27,7 +27,7 @@ class ApiBaseUrl(value: String, environment: AppEnvironment = AppEnvironment.Dev
             "API base URL cannot include credentials"
         }
         if (environment != AppEnvironment.Development) {
-            val host = url.host.lowercase().trimEnd('.')
+            val host = url.host.lowercase()
             val reservedSuffixes = listOf(".localhost", ".invalid", ".test", ".example", ".local", ".internal")
             require(url.protocol == URLProtocol.HTTPS &&
                 host.contains('.') &&

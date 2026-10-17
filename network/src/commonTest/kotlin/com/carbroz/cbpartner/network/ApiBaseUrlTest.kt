@@ -48,6 +48,15 @@ class ApiBaseUrlTest {
     }
 
     @Test
+    fun stagingAndProductionRejectTrailingDotHostname() {
+        for (environment in listOf(AppEnvironment.Staging, AppEnvironment.Production)) {
+            assertFailsWith<IllegalArgumentException> {
+                ApiBaseUrl("https://api.example.org.", environment)
+            }
+        }
+    }
+
+    @Test
     fun parsesOnlyThreeKnownEnvironmentIdentifiers() {
         assertEquals(AppEnvironment.Development, AppEnvironment.parse("development"))
         assertEquals(AppEnvironment.Staging, AppEnvironment.parse("staging"))

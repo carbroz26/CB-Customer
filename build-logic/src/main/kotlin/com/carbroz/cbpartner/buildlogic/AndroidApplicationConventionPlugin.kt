@@ -58,7 +58,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 doFirst {
                     val (environment, origin) = variant
                     val parsed = runCatching { java.net.URI(origin) }.getOrNull()
-                    val host = parsed?.host?.lowercase()?.trimEnd('.')
+                    val host = parsed?.host?.lowercase()
                     val forbidden = listOf(".invalid", ".test", ".example", ".localhost", ".local", ".internal")
                     if (parsed?.scheme != "https" || host.isNullOrBlank() ||
                         !host.contains('.') || host.none { it in 'a'..'z' } || host.any { it !in 'a'..'z' && it !in '0'..'9' && it != '.' && it != '-' } ||
