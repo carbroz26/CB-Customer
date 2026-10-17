@@ -2,6 +2,9 @@ package com.carbroz.cbpartner.feature.dynamic.renderer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -61,10 +64,15 @@ class DynamicRenderer(
             onValueChange = onValueChange,
         )
 
+        val focusManager = LocalFocusManager.current
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .screenTheme(screen.theme?.properties),
+                .screenTheme(screen.theme?.properties)
+                .pointerInput(focusManager) {
+                    // Child controls consume their own taps; blank screen taps clear focus.
+                    detectTapGestures(onTap = { focusManager.clearFocus() })
+                },
         ) {
             templateRenderer.render(screen.template, context)
         }
