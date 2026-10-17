@@ -17,6 +17,7 @@ kotlin {
             implementation(project(":domain"))
             implementation(project(":core"))
             implementation(project(":navigation"))
+            implementation(libs.kermit)
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(compose.runtime)
