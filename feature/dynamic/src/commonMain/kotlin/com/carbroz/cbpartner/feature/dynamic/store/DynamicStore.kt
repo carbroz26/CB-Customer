@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.store
 
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
+import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
@@ -61,8 +62,8 @@ class DynamicStore(
             "request", "navigate", "present", "dismiss", "external_uri", "state", "sequence", "back" -> type.trim().lowercase()
             else -> "other"
         }
-        val fields = "event=$event sessionId=${trace?.sessionId ?: "-"} " +
-            "actionId=${trace?.actionId ?: "-"} parentActionId=${trace?.parentActionId ?: "-"} " +
+        val fields = "event=$event sessionId=${safeDiagnosticId(trace?.sessionId)} " +
+            "actionId=${safeDiagnosticId(trace?.actionId)} parentActionId=${safeDiagnosticId(trace?.parentActionId)} " +
             "type=$safeType" + (outcome?.let { " outcome=$it" } ?: "")
         runCatching { diagnosticLogger.i { fields } }
     }
