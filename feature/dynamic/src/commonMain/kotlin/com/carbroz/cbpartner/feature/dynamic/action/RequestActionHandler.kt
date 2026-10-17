@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
+import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -74,9 +75,9 @@ class RequestActionHandler(
         val destination = response.destination ?: error("Dynamic request did not provide data.destination")
         runCatching {
             diagnosticLogger.i {
-                "event=destination.resolved sessionId=${traceContext?.sessionId ?: "-"} " +
-                    "actionId=${traceContext?.actionId ?: "-"} " +
-                    "parentActionId=${traceContext?.parentActionId ?: "-"} outcome=success"
+                "event=destination.resolved sessionId=${safeDiagnosticId(traceContext?.sessionId)} " +
+                    "actionId=${safeDiagnosticId(traceContext?.actionId)} " +
+                    "parentActionId=${safeDiagnosticId(traceContext?.parentActionId)} outcome=success"
             }
         }
         return DynamicActionResult.Navigate(destination, operation, stateChanges)
