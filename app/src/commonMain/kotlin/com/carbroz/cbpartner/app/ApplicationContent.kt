@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
+import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -135,8 +136,8 @@ private fun DynamicContent(
                     runCatching {
                         flowLogger.i {
                             "event=navigation.${if (applied) "applied" else "failed"} " +
-                                "sessionId=${traceContext?.sessionId ?: "-"} " +
-                                "actionId=${traceContext?.actionId ?: "-"} operation=$operation"
+                                "sessionId=${safeDiagnosticId(traceContext?.sessionId)} " +
+                                "actionId=${safeDiagnosticId(traceContext?.actionId)} operation=$operation"
                         }
                     }
                 }
