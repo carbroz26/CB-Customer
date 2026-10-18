@@ -118,6 +118,19 @@ class RequestHandlerTest {
     }
 
     @Test
+    fun bodyDiagnosticsRespectRealPresenceAndMaskPhoneValue() {
+        val handler = RequestHandler(HttpClient(MockEngine { respond("ok") }))
+        assertEquals(" bodyState=absent", handler.safeBodyDiagnosticFields(null))
+        assertEquals(" bodyState=present", handler.safeBodyDiagnosticFields("""{"other":"secret"}"""))
+        assertEquals(
+            " bodyState=present bodyPhoneField=present",
+            handler.safeBodyDiagnosticFields("""{"phone":"9876543210"}"""),
+        )
+        assertTrue("9876543210" !in handler.safeBodyDiagnosticFields("""{"phone":"9876543210"}"""))
+        assertEquals(" bodyState=present", handler.safeBodyDiagnosticFields("not-json"))
+    }
+
+    @Test
     fun failedRequestReturnsNetworkException() = runTest {
         val requestHandler = RequestHandler(
             HttpClient(
