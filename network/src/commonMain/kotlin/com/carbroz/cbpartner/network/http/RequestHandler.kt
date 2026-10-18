@@ -85,7 +85,7 @@ class RequestHandler(
                 "/api/v1/partner/screen/[redacted]"
             else -> "[redacted]"
         }
-        val requestMetadata = runtimeMetadataProvider?.current()
+        val requestMetadata = currentRuntimeMetadata()
         val startedAt = TimeSource.Monotonic.markNow()
         runCatching {
             writeDiagnostic(
@@ -149,6 +149,10 @@ class RequestHandler(
             }
         }
     }
+
+    /** Accesses the private provider safely from public inline request execution. */
+    @PublishedApi
+    internal fun currentRuntimeMetadata(): RuntimeMetadata? = runtimeMetadataProvider?.current()
 
     /** Bounded metadata from the exact snapshot passed into Ktor; no caller headers or tokens. */
     @PublishedApi
