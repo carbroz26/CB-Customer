@@ -214,6 +214,77 @@ class RequestHandlerLoggingTest {
     }
 
     @Test
+    fun trustedOperationIsPairedAndUnknownOperationIsRedacted() = runTest {
+        val writer = TestLogWriter(loggable = Severity.Verbose)
+        val client = HttpClient(MockEngine { respond("ok") }) {
+            expectSuccess = true
+        }
+        try {
+            val handler = RequestHandler(httpClient = client, logger = testLogger(writer))
+            handler.executeRequest<Any, String>(
+                method = HttpMethod.Get,
+                urlPathSegments = listOf("private-route"),
+                diagnosticOperation = "bootstrap",
+            )
+            assertEquals(2, writer.logs.size)
+            assertTrue(writer.logs.all { it.message.contains("operation=bootstrap") })
+            val requestId = Regex("""requestId=([0-9a-f-]{36})""")
+            assertEquals(
+                requestId.find(writer.logs[0].message)?.groupValues?.get(1),
+                requestId.find(writer.logs[1].message)?.groupValues?.get(1),
+            )
+            handler.executeRequest<Any, String>(
+                method = HttpMethod.Post,
+                urlPathSegments = listOf("private-route"),
+                diagnosticOperation = "token=secret",
+            )
+            assertTrue(writer.logs.takeLast(2).all { it.message.contains("operation=other") })
+            assertFalse(writer.logs.any { it.message.contains("private-route") || it.message.contains("token=secret") })
+        } finally {
+            client.close()
+        }
+    }
+
+    @Test
+    fun failedAndCancelledRequestsKeepSafeOperation() = runTest {
+        val failedWriter = TestLogWriter(loggable = Severity.Verbose)
+        val failedClient = HttpClient(MockEngine {
+            respond("error", HttpStatusCode.ServiceUnavailable)
+        }) { expectSuccess = true }
+        try {
+            val handler = RequestHandler(failedClient, logger = testLogger(failedWriter))
+            handler.executeRequest<Any, String>(
+                method = HttpMethod.Get,
+                urlPathSegments = listOf("private-route"),
+                diagnosticOperation = "dynamic_request",
+            )
+            assertTrue(failedWriter.logs.all { it.message.contains("operation=dynamic_request") })
+            assertTrue(failedWriter.logs.last().message.contains("status=503"))
+        } finally {
+            failedClient.close()
+        }
+
+        val cancelledWriter = TestLogWriter(loggable = Severity.Verbose)
+        val cancelledClient = HttpClient(MockEngine {
+            throw CancellationException("secret")
+        }) { expectSuccess = true }
+        try {
+            val handler = RequestHandler(cancelledClient, logger = testLogger(cancelledWriter))
+            assertFailsWith<CancellationException> {
+                handler.executeRequest<Any, String>(
+                    method = HttpMethod.Get,
+                    urlPathSegments = listOf("private-route"),
+                    diagnosticOperation = "dynamic_action",
+                )
+            }
+            assertTrue(cancelledWriter.logs.all { it.message.contains("operation=dynamic_action") })
+            assertTrue(cancelledWriter.logs.last().message.contains("outcome=cancelled"))
+        } finally {
+            cancelledClient.close()
+        }
+    }
+
+    @Test
     fun separateHttpExecutionsHaveDifferentRequestIds() = runTest {
         val writer = TestLogWriter(loggable = Severity.Verbose)
         val client = HttpClient(MockEngine {
