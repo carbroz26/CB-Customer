@@ -1,6 +1,6 @@
 # 108 — L1 Hybrid Local Inspection: Exact Implementation Plan FROZEN
 
-**State:** EXACT L1 PLAN FROZEN by owner's hybrid-approach approval (2026-10-18). **NO IMPLEMENTATION AUTHORIZATION**; no runtime/source changes permitted by this document alone.
+**SUPERSEDED (2026-10-18):** Owner explicitly cancelled the in-app Inspector and L1-A eligibility implementation and authorized complete code cleanup. This document is historical planning context only, **not current implementation authority**. Active developer debugging direction is terminal-only; existing TraceContext and DiagnosticId remain necessary for safe Kermit flow correlation. Cleanup restored MainActivity, App, ApplicationContent and deleted LocalInspectionPanel, LocalInspectionEligibility and its tests. This supersession does not authorize unrestricted raw secrets in logs; Doc23 continues to govern logging until a separately frozen amendment.\n\n**State:** EXACT L1 PLAN FROZEN by owner's hybrid-approach approval (2026-10-18). **NO IMPLEMENTATION AUTHORIZATION**; no runtime/source changes permitted by this document alone.
 **Branch:** `architecture/dynamic-runtime-v2-discussion-freeze` only. Backend READ ONLY. Governing decisions: Doc23 operational safe logs + Doc107 guarded local inspector. No new Gradle modules, HTTP transport, logging facade, navigation owner, or ViewModel.
 
 ## User-visible contract and placement
