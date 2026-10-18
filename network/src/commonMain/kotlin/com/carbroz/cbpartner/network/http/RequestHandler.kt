@@ -5,6 +5,7 @@ import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import com.carbroz.cbpartner.core.runtime.RuntimeMetadata
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.network.NetworkException
 import com.carbroz.cbpartner.network.NetworkResult
@@ -84,11 +85,13 @@ class RequestHandler(
                 "/api/v1/partner/screen/[redacted]"
             else -> "[redacted]"
         }
+        val requestMetadata = runtimeMetadataProvider?.current()
         val startedAt = TimeSource.Monotonic.markNow()
         runCatching {
             writeDiagnostic(
                 "started",
-                "event=http.request requestId=$requestId $traceFields method=$safeMethod$operationField route=$safeRoute",
+                "event=http.request requestId=$requestId $traceFields method=$safeMethod$operationField route=$safeRoute" +
+                    safeMetadataHeaderFields(requestMetadata),
             )
         }
         var outcome = "failed"
@@ -102,6 +105,7 @@ class RequestHandler(
                 authenticationMode = authenticationMode,
                 body = body,
                 queryParams = queryParams,
+                metadata = requestMetadata,
             )
             statusCode = response.status.value
             val result = response.body<R>()
@@ -146,6 +150,17 @@ class RequestHandler(
         }
     }
 
+    /** Bounded metadata from the exact snapshot passed into Ktor; no caller headers or tokens. */
+    @PublishedApi
+    internal fun safeMetadataHeaderFields(metadata: RuntimeMetadata?): String {
+        if (metadata == null) return ""
+        fun safe(value: String, pattern: Regex): String =
+            if (value.length <= 32 && pattern.matches(value)) value else "[redacted]"
+        return " headerPlatform=" + safe(metadata.platform.uppercase(), Regex("[A-Z]{2,16}")) +
+            " headerAppVersion=" + safe(metadata.appVersion, Regex("[0-9A-Za-z][0-9A-Za-z._-]{0,31}")) +
+            " headerBuildNumber=" + safe(metadata.buildNumber, Regex("[0-9]{1,16}"))
+    }
+
     /** Creates a new diagnostic identifier for each HTTP execution. */
     @OptIn(ExperimentalUuidApi::class)
     @PublishedApi
@@ -169,11 +184,12 @@ class RequestHandler(
         authenticationMode: String,
         body: Any?,
         queryParams: Map<String, Any>?,
+        metadata: RuntimeMetadata?,
     ): HttpResponse {
         return httpClient.prepareRequest {
             this.method = method
             url { appendPathSegments(urlPathSegments.map(Any::toString)) }
-            runtimeMetadataProvider?.current()?.let { metadata ->
+            metadata?.let { metadata ->
                 header(PLATFORM_HEADER, metadata.platform.uppercase())
                 header(APP_VERSION_HEADER, metadata.appVersion)
                 header(BUILD_NUMBER_HEADER, metadata.buildNumber)
