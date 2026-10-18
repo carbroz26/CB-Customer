@@ -8,7 +8,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.doubleOrNull
-import kotlinx.serialization.json.isString
 
 /**
  * Preserves a response's object/array shape while withholding unsafe values from Logcat.
