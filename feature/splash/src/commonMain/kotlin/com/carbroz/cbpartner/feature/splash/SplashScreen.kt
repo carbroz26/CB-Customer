@@ -25,6 +25,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import co.touchlab.kermit.Logger
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -67,6 +69,17 @@ fun SplashScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by store.state.collectAsState()
+    var splashReported by remember(store) { mutableStateOf(false) }
+    SideEffect {
+        if (!splashReported) {
+            splashReported = true
+            runCatching {
+                Logger.withTag("CBPartnerFlow").d {
+                    "event=splash.committed sessionId=${com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId(store.diagnosticSessionId)} screen=splash"
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         store.accept(SplashIntent.LoadBootstrap)
