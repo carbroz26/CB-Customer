@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
+import com.carbroz.cbpartner.data.dynamic.diagnostics.sanitizedResponseJson
 import com.carbroz.cbpartner.data.bootstrap.model.BootstrapResponseDto
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
@@ -29,9 +30,18 @@ class BootstrapRepositoryImpl(
             }
         }
         when (val response = remoteDataSource.fetch(sessionId?.let { TraceContext(it, actionId) })) {
-            is NetworkResult.Success -> mapper.map(
-                json.decodeFromString<BootstrapResponseDto>(response.result),
-            )
+            is NetworkResult.Success -> {
+                runCatching {
+                    val logger = Logger.withTag("CBPartnerFlow")
+                    val identity = " sessionId=${safeDiagnosticId(sessionId)} actionId=${safeDiagnosticId(actionId)}"
+                    logger.d { "event=api.json.begin kind=bootstrap$identity" }
+                    sanitizedResponseJson(response.result).forEach { line ->
+                        logger.d { "event=api.json.line value=$line" }
+                    }
+                    logger.d { "event=api.json.end kind=bootstrap$identity" }
+                }
+                mapper.map(json.decodeFromString<BootstrapResponseDto>(response.result))
+            }
             is NetworkResult.Error -> Result.failure(response.exception)
         }
     } catch (error: CancellationException) {
