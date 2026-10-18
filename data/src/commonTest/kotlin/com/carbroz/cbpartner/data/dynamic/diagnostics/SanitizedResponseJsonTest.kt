@@ -58,6 +58,20 @@ class SanitizedResponseJsonTest {
     }
 
     @Test
+    fun safeColorAlignmentAndUnknownFieldsStayUnambiguous() {
+        val output = sanitizedResponseJson(
+            """{"data":{"template":{"properties":{"color":"#13B8B5","horizontalAlignment":"center","fontSize":18,"untrustedA":"secret-one","untrustedB":"secret-two"}}}}"""
+        ).joinToString("\\n")
+        assertTrue(output.contains("#13B8B5"))
+        assertTrue(output.contains("center"))
+        assertTrue(output.contains("[unknown-fields-omitted]"))
+        assertFalse(output.contains("untrustedA"))
+        assertFalse(output.contains("untrustedB"))
+        assertFalse(output.contains("secret-one"))
+        assertFalse(output.contains("secret-two"))
+    }
+
+    @Test
     fun primitivePersonalDataIsRedactedEvenWhenNumeric() {
         val output = sanitizedResponseJson(
             """{"data":{"phoneNumber":919876543210,"otp":123456,"authenticated":false,"status":200}}"""
