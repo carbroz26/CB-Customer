@@ -9,6 +9,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.doubleOrNull
 
+private val prettyTraceJson = Json { prettyPrint = true }
+
 /**
  * Preserves a response's object/array shape while withholding unsafe values from Logcat.
  * Never emits raw response strings. Unknown keys are represented by a generic placeholder.
@@ -94,7 +96,6 @@ internal fun sanitizedResponseJson(source: String): List<String> {
         }
     }
     val sanitized = walk(tree, "", 0)
-    val pretty = Json { prettyPrint = true }
-        .encodeToString(JsonElement.serializer(), sanitized)
+    val pretty = prettyTraceJson.encodeToString(JsonElement.serializer(), sanitized)
     return pretty.lines().take(1800).map { line -> line.take(350) }
 }
