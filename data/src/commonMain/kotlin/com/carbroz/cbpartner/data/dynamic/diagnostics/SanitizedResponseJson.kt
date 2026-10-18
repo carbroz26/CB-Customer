@@ -76,6 +76,7 @@ internal fun sanitizedResponseJson(source: String): List<String> {
             key == "type" && value in safeEnums -> value
             key in setOf("templateType", "method", "authentication", "orientation", "textAlign",
                 "contentScale", "keyboardType", "responseMode", "mode", "targetApp", "theme",
+                "horizontalAlignment", "verticalAlignment",
                 "statusBar", "semanticRole") && value in safeEnums -> value
             key in setOf("version", "schemaVersion", "minimumVersion", "latestVersion") &&
                 value.matches(Regex("^[0-9]{1,4}(\\.[0-9]{1,4}){0,3}$")) -> value
