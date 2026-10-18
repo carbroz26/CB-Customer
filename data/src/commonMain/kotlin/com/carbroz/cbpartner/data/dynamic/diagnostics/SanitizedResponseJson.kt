@@ -39,7 +39,9 @@ internal fun sanitizedResponseJson(source: String): List<String> {
         "cornerRadius", "thickness", "contentScale", "weight", "keyboardType",
         "maxLength", "presentation", "count", "segmentWidth", "segmentHeight",
         "focusBorder", "angle", "colors", "stop", "underline", "spans", "text",
-        "url", "fallbackUrl", "name", "size", "fillMaxWidth", "response",
+        "url", "fallbackUrl", "name", "size", "response",
+        "theme", "statusBar", "gradient", "textColor", "placeholder",
+        "registrationEnabled", "individualPartnerEnabled", "organizationPartnerEnabled",
         "\$binding", "\$context", "\$state", "\$literal",
     )
     val safeIdentityKeys = setOf("screenId", "templateId", "id", "key")
@@ -56,7 +58,7 @@ internal fun sanitizedResponseJson(source: String): List<String> {
     )
     val numericStyleKeys = setOf(
         "status", "fontSize", "fontWeight", "letterSpacing", "lineHeight", "width",
-        "height", "maxHeight", "maxWidth", "spacing", "start", "top", "end",
+        "height", "maxHeight", "maxWidth", "spacing", "size", "start", "top", "end",
         "bottom", "cornerRadius", "thickness", "weight", "maxLength", "count",
         "segmentWidth", "segmentHeight", "angle", "stop",
     )
@@ -65,10 +67,12 @@ internal fun sanitizedResponseJson(source: String): List<String> {
         "fillMaxSize", "fillMaxWidth", "fillMaxHeight", "underline",
         "registrationEnabled", "individualPartnerEnabled", "organizationPartnerEnabled",
     )
+    val colorPattern = Regex("^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$")
     val identityPattern = Regex("^[A-Za-z][A-Za-z0-9_]{0,63}$")
     fun safeString(key: String, value: String): String {
         return when {
             key in safeIdentityKeys && identityPattern.matches(value) -> value
+            key in setOf("color", "textColor") && colorPattern.matches(value) -> value
             key == "type" && value in safeEnums -> value
             key in setOf("templateType", "method", "authentication", "orientation", "textAlign",
                 "contentScale", "keyboardType", "responseMode", "mode", "targetApp", "theme",
@@ -81,9 +85,11 @@ internal fun sanitizedResponseJson(source: String): List<String> {
     fun walk(value: JsonElement, key: String, depth: Int): JsonElement {
         if (++fields > maxFields || depth > 32) return JsonPrimitive("[truncated]")
         return when (value) {
-            is JsonObject -> JsonObject(value.entries.associate { (name, child) ->
-                val safeName = if (name in allowedKeys || name in booleanKeys) name else "[unknown-field]"
-                safeName to walk(child, name, depth + 1)
+            is JsonObject -> JsonObject(buildMap {
+                value.entries.forEach { (name, child) ->
+                    if (name in allowedKeys || name in booleanKeys) put(name, walk(child, name, depth + 1))
+                    else put("[unknown-fields-omitted]", JsonPrimitive(true))
+                }
             })
             is JsonArray -> JsonArray(value.map { walk(it, key, depth + 1) })
             JsonNull -> JsonNull
