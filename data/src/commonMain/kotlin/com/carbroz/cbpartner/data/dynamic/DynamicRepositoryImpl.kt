@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.data.dynamic.diagnostics.projectSduiStructure
+import com.carbroz.cbpartner.data.dynamic.diagnostics.sanitizedResponseJson
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.data.dynamic.remote.DynamicRemoteDataSource
@@ -52,6 +53,15 @@ class DynamicRepositoryImpl(
             )
         ) {
             is NetworkResult.Success -> runCatching {
+                runCatching {
+                    val logger = Logger.withTag("CBPartnerFlow")
+                    val identity = " sessionId=${safeDiagnosticId(request.sessionId)} actionId=${safeDiagnosticId(request.actionId)}"
+                    logger.d { "event=api.json.begin kind=dynamic$identity" }
+                    sanitizedResponseJson(response.result).forEach { line ->
+                        logger.d { "event=api.json.line value=$line" }
+                    }
+                    logger.d { "event=api.json.end kind=dynamic$identity" }
+                }
                 report("decodeFromString", "enter")
                 val dto = json.decodeFromString<DynamicResponseDto>(response.result)
                 report("decodeFromString", "exit")
