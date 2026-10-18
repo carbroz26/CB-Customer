@@ -26,7 +26,7 @@ class ImageElement : ElementRenderer<ImageElementModel> {
                 fallbackUrl = element.fallbackUrl,
                 fallbackPainter = painterResource(Res.drawable.dynamic_image_fallback),
                 contentDescription = element.semanticRole,
-                modifier = Modifier.applyImageSize(element).dynamicGestures(element.actions, context.onAction),
+                modifier = Modifier.applyImageSize(element).dynamicGestures(element.actions, context.onAction, element.id),
                 contentScale = when (element.contentScale) {
                     "crop" -> ContentScale.Crop
                     "fillBounds" -> ContentScale.FillBounds
