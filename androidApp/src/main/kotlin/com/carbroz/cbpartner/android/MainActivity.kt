@@ -20,12 +20,7 @@ class MainActivity : ComponentActivity() {
             if (BuildConfig.DEBUG && intent.getBooleanExtra("cbpartner.retention_probe", false)) {
                 RetainCompatibilityProbe()
             } else {
-                App(
-                    runtimeMetadataProvider,
-                    apiBaseUrl,
-                    environment,
-                    localDebugUiAllowed = BuildConfig.DEBUG && environment == AppEnvironment.Development,
-                )
+                App(runtimeMetadataProvider, apiBaseUrl, environment)
             }
         }
     }
