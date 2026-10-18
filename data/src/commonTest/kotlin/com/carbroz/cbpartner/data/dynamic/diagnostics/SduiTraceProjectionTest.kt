@@ -21,6 +21,9 @@ class SduiTraceProjectionTest {
         assertTrue(lines.any { it.contains("category=section type=stack_section") })
         assertTrue(lines.any { it.contains("category=group type=stack_group") })
         assertTrue(lines.any { it.contains("category=element type=button") })
+        assertTrue(lines.any { it.contains("actions=onClick:request") })
+        assertTrue(lines.any { it.contains("binding=present") })
+        assertTrue(lines.any { it.contains("category=screen type=dynamic") })
         assertTrue(lines.any { it.contains("category=content type=icon") })
         val joined = lines.joinToString("\n")
         for (secret in listOf("Welcome", "Submit", "fieldA", "fieldB", "example.com", "referenceId", "deviceId")) {
