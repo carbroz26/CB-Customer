@@ -55,14 +55,21 @@ class InputElement : ElementRenderer<InputElementModel> {
 
         fun changed(newValue: String) {
             val limited = newValue.take(element.maxLength ?: Int.MAX_VALUE)
+            reportDynamicOrigin(element.id, "onValueChange", "state")
             context.onValueChange(binding, DynamicValue.StringValue(limited))
-            element.actions["onValueChange"]?.let(context.onAction)
+            element.actions["onValueChange"]?.let {
+                reportDynamicOrigin(element.id, "onValueChange", it.type)
+                context.onAction(it)
+            }
         }
 
         var hadFocus by remember(element.id) { mutableStateOf(false) }
         val focusModifier = Modifier.onFocusChanged { state ->
             if (state.isFocused && !hadFocus) {
-                element.actions["onFocus"]?.let(context.onAction)
+                element.actions["onFocus"]?.let {
+                    reportDynamicOrigin(element.id, "onFocus", it.type)
+                    context.onAction(it)
+                }
             }
             hadFocus = state.isFocused
         }
@@ -71,7 +78,10 @@ class InputElement : ElementRenderer<InputElementModel> {
         val submit: () -> Unit = {
             keyboardController?.hide()
             focusManager.clearFocus()
-            element.actions["onSubmit"]?.let(context.onAction)
+            element.actions["onSubmit"]?.let {
+                reportDynamicOrigin(element.id, "onSubmit", it.type)
+                context.onAction(it)
+            }
         }
         val keyboardActions = KeyboardActions(
             onDone = { submit() },
