@@ -24,7 +24,7 @@ class ButtonElement : ElementRenderer<ButtonElementModel> {
             .applyDynamicBackground(element.background, element.shape.toComposeShape())
 
         Box(
-            modifier = modifier.dynamicGestures(element.actions, context.onAction),
+            modifier = modifier.dynamicGestures(element.actions, context.onAction, element.id),
             contentAlignment = Alignment.Center,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
