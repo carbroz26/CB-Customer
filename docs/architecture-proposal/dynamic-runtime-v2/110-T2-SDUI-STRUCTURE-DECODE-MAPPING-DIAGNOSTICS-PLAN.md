@@ -1,5 +1,7 @@
 # 110 — T2 Terminal SDUI Structure, Decode & Mapping Diagnostics — Exact Plan
 
+**SUPERSEDED (2026-10-18):** Owner rejected standalone decode/map success viewer stages and approved one chronological six-stage live execution trace direction. Follow **Doc111** for current frozen planning. This document is retained as historical source research, not implementation authority.
+
 **State: PLAN REVIEW / OWNER FREEZE PENDING; SOURCE IMPLEMENTATION NOT AUTHORIZED.**
 Branch: `architecture/dynamic-runtime-v2-discussion-freeze` only. Backend read-only. T1 operation correlation is implemented. Doc23 safe Kermit policy prevails. Docs107/108 describe an earlier guarded in-app inspection path; Doc108 is superseded. T2 does **not** reintroduce a UI inspector or claim the Doc107 exception permits Kermit output.
 
