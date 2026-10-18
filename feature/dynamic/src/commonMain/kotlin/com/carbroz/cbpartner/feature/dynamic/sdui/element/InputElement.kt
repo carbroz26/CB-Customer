@@ -55,7 +55,6 @@ class InputElement : ElementRenderer<InputElementModel> {
 
         fun changed(newValue: String) {
             val limited = newValue.take(element.maxLength ?: Int.MAX_VALUE)
-            reportDynamicOrigin(element.id, "onValueChange", "state")
             context.onValueChange(binding, DynamicValue.StringValue(limited))
             element.actions["onValueChange"]?.let {
                 reportDynamicOrigin(element.id, "onValueChange", it.type)
