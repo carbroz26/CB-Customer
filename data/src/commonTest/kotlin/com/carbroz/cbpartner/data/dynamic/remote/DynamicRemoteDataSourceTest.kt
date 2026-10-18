@@ -1,5 +1,10 @@
 package com.carbroz.cbpartner.data.dynamic.remote
 
+import co.touchlab.kermit.ExperimentalKermitApi
+import co.touchlab.kermit.Logger
+import co.touchlab.kermit.Severity
+import co.touchlab.kermit.TestConfig
+import co.touchlab.kermit.TestLogWriter
 import com.carbroz.cbpartner.network.NetworkResult
 import com.carbroz.cbpartner.network.http.RequestHandler
 import io.ktor.client.HttpClient
@@ -37,6 +42,24 @@ class DynamicRemoteDataSourceTest {
                 }
             }
             assertEquals(0, requestsSent)
+        } finally {
+            client.close()
+        }
+    }
+
+    @OptIn(ExperimentalKermitApi::class)
+    @Test
+    fun dynamicRequestEmitsTrustedOperationInsteadOfServerPath() = runTest {
+        val writer = TestLogWriter(loggable = Severity.Verbose)
+        val logger = Logger(TestConfig(minSeverity = Severity.Verbose, logWriterList = listOf(writer)), "CBPartnerNetwork")
+        val client = HttpClient(MockEngine { respond("ok") }) { expectSuccess = true }
+        try {
+            val source = DynamicRemoteDataSource(RequestHandler(client, logger = logger))
+            val result = source.fetch("/api/private-dynamic-path", "GET", "NONE", null)
+            assertTrue(result is NetworkResult.Success)
+            assertEquals(2, writer.logs.size)
+            assertTrue(writer.logs.all { it.message.contains("operation=dynamic_request") })
+            assertTrue(writer.logs.none { it.message.contains("private-dynamic-path") })
         } finally {
             client.close()
         }
