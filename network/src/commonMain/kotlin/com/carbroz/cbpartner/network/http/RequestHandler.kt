@@ -26,6 +26,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlin.time.TimeSource
 
 /**
@@ -91,7 +93,7 @@ class RequestHandler(
             writeDiagnostic(
                 "started",
                 "event=http.request requestId=$requestId $traceFields method=$safeMethod$operationField route=$safeRoute" +
-                    safeMetadataHeaderFields(requestMetadata),
+                    safeMetadataHeaderFields(requestMetadata) + safeBodyDiagnosticFields(body),
             )
         }
         var outcome = "failed"
@@ -163,6 +165,18 @@ class RequestHandler(
         return " headerPlatform=" + safe(metadata.platform.uppercase(), Regex("[A-Z]{2,16}")) +
             " headerAppVersion=" + safe(metadata.appVersion, Regex("[0-9A-Za-z][0-9A-Za-z._-]{0,31}")) +
             " headerBuildNumber=" + safe(metadata.buildNumber, Regex("[0-9]{1,16}"))
+    }
+
+    /** Emits only presence and one allowlisted JSON key; never serializes request values. */
+    @PublishedApi
+    internal fun safeBodyDiagnosticFields(body: Any?): String {
+        if (body == null) return " bodyState=absent"
+        val parsed = (body as? String)?.let {
+            runCatching { Json.parseToJsonElement(it) }.getOrNull()
+        }
+        val phonePresent = (parsed as? JsonObject)?.containsKey("phone") == true
+        return if (phonePresent) " bodyState=present bodyPhoneField=present"
+            else " bodyState=present"
     }
 
     /** Creates a new diagnostic identifier for each HTTP execution. */
