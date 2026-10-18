@@ -1,6 +1,8 @@
 package com.carbroz.cbpartner.data.dynamic
 
+import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
+import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.data.dynamic.remote.DynamicRemoteDataSource
@@ -24,6 +26,17 @@ class DynamicRepositoryImpl(
 ) : DynamicRepository {
 
     override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+        fun report(method: String, stage: String) {
+            runCatching {
+                Logger.withTag("CBPartnerFlow").d {
+                    "event=trace.step owner=DynamicRepositoryImpl method=$method stage=$stage " +
+                        "sessionId=${safeDiagnosticId(request.sessionId)} " +
+                        "actionId=${safeDiagnosticId(request.actionId)} " +
+                        "parentActionId=${safeDiagnosticId(request.parentActionId)}"
+                }
+            }
+        }
+        report("fetch", "enter")
         return when (
             val response = remoteDataSource.fetch(
                 endpoint = request.endpoint,
@@ -38,9 +51,16 @@ class DynamicRepositoryImpl(
             )
         ) {
             is NetworkResult.Success -> runCatching {
-                mapper.map(json.decodeFromString<DynamicResponseDto>(response.result))
+                report("decodeFromString", "enter")
+                val dto = json.decodeFromString<DynamicResponseDto>(response.result)
+                report("decodeFromString", "exit")
+                report("DynamicResponseMapper.map", "enter")
+                val mapped = mapper.map(dto)
+                report("DynamicResponseMapper.map", "exit")
+                mapped
             }.onFailure { error ->
                 if (error is CancellationException) throw error
+                report("fetch", "failed")
             }
             is NetworkResult.Error -> Result.failure(response.exception)
         }
