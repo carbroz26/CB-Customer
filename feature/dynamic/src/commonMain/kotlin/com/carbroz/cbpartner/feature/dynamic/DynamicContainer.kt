@@ -61,7 +61,18 @@ fun DynamicContainer(
                         bindings = current.screen.bindings,
                         contextValues = contextValues,
                         stateValues = runtimeValues,
-                        onAction = { store.accept(DynamicIntent.Action(it)) },
+                        onAction = { action ->
+                            val safeType = when (action.type.trim().lowercase()) {
+                                "request", "navigate", "present", "dismiss", "external_uri", "state", "sequence" -> action.type.trim().lowercase()
+                                else -> "other"
+                            }
+                            runCatching {
+                                flowLogger.d {
+                                    "event=action.dispatched sessionId=${safeDiagnosticId(entry.diagnosticSessionId)} type=$safeType"
+                                }
+                            }
+                            store.accept(DynamicIntent.Action(action))
+                        },
                         onValueChange = { key, value ->
                             store.accept(DynamicIntent.ValueChanged(key, value))
                         },
