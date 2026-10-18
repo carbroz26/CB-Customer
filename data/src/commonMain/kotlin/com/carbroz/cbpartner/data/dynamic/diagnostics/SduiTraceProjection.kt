@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.data.dynamic.diagnostics
 
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
@@ -21,7 +22,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 /**
  * Bounded, value-free domain SDUI hierarchy for developer diagnostics.
  *
- * Never writes free text, input/binding values, URLs, dynamic ids or action payloads.
+ * Never writes free text, input/binding values, URLs or action payloads.
  * It does not log or make changes to the mapped screen. Node paths use fixed labels
  * and numeric indexes only; unknown model classes are represented as 'other'.
  */
@@ -33,13 +34,22 @@ internal fun projectSduiStructure(screen: DynamicScreen, limit: Int = 100): List
         if (lines.size >= budget) { truncated = true; return }
         lines += "event=sdui.node path=$path category=$category type=$type$extra"
     }
+    fun actionSummary(actions: Map<String, DynamicAction>): String {
+        val allowedEvents = setOf("onClick", "onLongClick", "onFocus", "onSubmit", "onValueChange")
+        val allowedTypes = setOf("request", "navigate", "present", "dismiss", "external_uri", "state", "sequence", "back")
+        return actions.entries.filter { it.key in allowedEvents }.take(8).joinToString(",") { (event, action) ->
+            val type = action.type.trim().lowercase().takeIf { it in allowedTypes } ?: "other"
+            "$event:$type"
+        }
+    }
     fun content(items: List<ElementContent>, path: String) {
         items.forEachIndexed { i, node ->
             val type = when (node) {
                 is IconContent -> "icon"
                 is DividerContent -> "divider"
             }
-            add("$path[$i]", "content", type)
+            val actions = actionSummary(node.actions)
+            add("$path[$i]", "content", type, if (actions.isEmpty()) "" else " actions=$actions")
         }
     }
     fun element(items: List<DynamicElement>, path: String) {
@@ -68,7 +78,17 @@ internal fun projectSduiStructure(screen: DynamicScreen, limit: Int = 100): List
                 is ImageElement -> node.trailingContent
                 else -> emptyList()
             }
-            add("$path[$i]", "element", type)
+            val elementActions = when (node) {
+                is TextElement -> node.actions
+                is ButtonElement -> node.actions
+                is InputElement -> node.actions
+                is IconElement -> node.actions
+                is ImageElement -> node.actions
+                else -> emptyMap()
+            }
+            val actions = actionSummary(elementActions)
+            val binding = if (node is InputElement && node.binding != null) " binding=present" else ""
+            add("$path[$i]", "element", type, binding + if (actions.isEmpty()) "" else " actions=$actions")
             content(leading, "$path[$i]/leading")
             content(trailing, "$path[$i]/trailing")
         }
@@ -93,8 +113,8 @@ internal fun projectSduiStructure(screen: DynamicScreen, limit: Int = 100): List
             sections(node.sections, "$path[$i]/sections")
         }
     }
-    val screenId = screen.screenId.takeIf { it.matches(Regex("^(partner|screen)_[a-z0-9_]{1,48}$")) } ?: "redacted"
-    val templateId = screen.template.id.takeIf { it.matches(Regex("^tpl_[A-Za-z0-9_]{1,48}$")) } ?: "redacted"
+    val screenId = screen.screenId.takeIf { it.matches(Regex("^[A-Za-z][A-Za-z0-9_]{0,63}$")) } ?: "redacted"
+    val templateId = screen.template.id.takeIf { it.matches(Regex("^[A-Za-z][A-Za-z0-9_]{0,63}$")) } ?: "redacted"
     add("screen", "screen", "dynamic", " screenId=$screenId templateId=$templateId")
     val template = screen.template
     add("template", "template", if (template is FormTemplate) "form_template" else "other")
