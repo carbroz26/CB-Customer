@@ -86,6 +86,38 @@ class RequestHandlerTest {
     }
 
     @Test
+    fun safeHeaderDiagnosticsUseOnlyBoundedRuntimeMetadata() {
+        val handler = RequestHandler(HttpClient(MockEngine { respond("ok") }))
+        val fields = handler.safeMetadataHeaderFields(
+            RuntimeMetadata(
+                platform = "android",
+                appVersion = "1.0.0",
+                buildNumber = "1",
+                deviceId = "private-device-id",
+            ),
+        )
+        assertEquals(" headerPlatform=ANDROID headerAppVersion=1.0.0 headerBuildNumber=1", fields)
+        assertTrue("private-device-id" !in fields)
+        assertTrue("Authorization" !in fields)
+        assertEquals("", handler.safeMetadataHeaderFields(null))
+    }
+
+    @Test
+    fun unsafeRuntimeMetadataValuesAreRedacted() {
+        val handler = RequestHandler(HttpClient(MockEngine { respond("ok") }))
+        val fields = handler.safeMetadataHeaderFields(
+            RuntimeMetadata(
+                platform = "android secret",
+                appVersion = "1.0.0 token=secret",
+                buildNumber = "123;Authorization=secret",
+                deviceId = "private",
+            ),
+        )
+        assertEquals(" headerPlatform=[redacted] headerAppVersion=[redacted] headerBuildNumber=[redacted]", fields)
+        assertTrue("secret" !in fields)
+    }
+
+    @Test
     fun failedRequestReturnsNetworkException() = runTest {
         val requestHandler = RequestHandler(
             HttpClient(
