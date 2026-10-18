@@ -74,11 +74,21 @@ class RequestHandler(
             "bootstrap", "dynamic_screen", "dynamic_action", "dynamic_request" -> " operation=$diagnosticOperation"
             else -> " operation=other"
         }
+        // Only a code-owned fixed route or a masked, known route family enters Logcat.
+        // Never expose arbitrary backend path segments, URL authority or query values.
+        val safeRoute = when {
+            diagnosticOperation == "bootstrap" -> "/api/v1/partner/config/bootstrap"
+            diagnosticOperation == "dynamic_request" &&
+                urlPathSegments.size >= 5 &&
+                urlPathSegments.take(4).map(Any::toString) == listOf("api", "v1", "partner", "screen") ->
+                "/api/v1/partner/screen/[redacted]"
+            else -> "[redacted]"
+        }
         val startedAt = TimeSource.Monotonic.markNow()
         runCatching {
             writeDiagnostic(
                 "started",
-                "event=http.request requestId=$requestId $traceFields method=$safeMethod$operationField",
+                "event=http.request requestId=$requestId $traceFields method=$safeMethod$operationField route=$safeRoute",
             )
         }
         var outcome = "failed"
