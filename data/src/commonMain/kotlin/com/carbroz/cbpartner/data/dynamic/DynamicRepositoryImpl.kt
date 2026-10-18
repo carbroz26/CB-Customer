@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.data.dynamic
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
+import com.carbroz.cbpartner.data.dynamic.diagnostics.projectSduiStructure
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.data.dynamic.remote.DynamicRemoteDataSource
@@ -57,6 +58,15 @@ class DynamicRepositoryImpl(
                 report("DynamicResponseMapper.map", "enter")
                 val mapped = mapper.map(dto)
                 report("DynamicResponseMapper.map", "exit")
+                mapped.data?.let { screen ->
+                    runCatching {
+                        val trace = " sessionId=${safeDiagnosticId(request.sessionId)} actionId=${safeDiagnosticId(request.actionId)}"
+                        val logger = Logger.withTag("CBPartnerFlow")
+                        projectSduiStructure(screen).forEach { node ->
+                            logger.d { node + trace }
+                        }
+                    }
+                }
                 mapped
             }.onFailure { error ->
                 if (error is CancellationException) throw error
