@@ -95,7 +95,7 @@ internal fun sanitizedResponseJson(source: String): List<String> {
         }
     }
     val sanitized = walk(tree, "", 0)
-    val pretty = Json { prettyPrint = true; prettyPrintIndent = "  " }
+    val pretty = Json { prettyPrint = true }
         .encodeToString(JsonElement.serializer(), sanitized)
     return pretty.lines().take(1800).map { line -> line.take(350) }
 }
