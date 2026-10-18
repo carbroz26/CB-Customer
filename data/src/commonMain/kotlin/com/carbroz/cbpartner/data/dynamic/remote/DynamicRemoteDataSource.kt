@@ -37,6 +37,7 @@ class DynamicRemoteDataSource(
             urlPathSegments = segments,
             authentication = authentication,
             traceContext = traceContext,
+            diagnosticOperation = "dynamic_request",
             body = body,
         )
     }
