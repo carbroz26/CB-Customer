@@ -1,6 +1,8 @@
 package com.carbroz.cbpartner.data.bootstrap
 
+import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
+import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
 import com.carbroz.cbpartner.data.bootstrap.model.BootstrapResponseDto
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
@@ -21,6 +23,11 @@ class BootstrapRepositoryImpl(
     override suspend fun fetch(): Result<BootstrapOutput> = fetch(null, null)
 
     override suspend fun fetch(sessionId: String?, actionId: String?): Result<BootstrapOutput> = try {
+        runCatching {
+            Logger.withTag("CBPartnerFlow").d {
+                "event=trace.step owner=BootstrapRepositoryImpl method=fetch stage=enter sessionId=${safeDiagnosticId(sessionId)} actionId=${safeDiagnosticId(actionId)}"
+            }
+        }
         when (val response = remoteDataSource.fetch(sessionId?.let { TraceContext(it, actionId) })) {
             is NetworkResult.Success -> mapper.map(
                 json.decodeFromString<BootstrapResponseDto>(response.result),
