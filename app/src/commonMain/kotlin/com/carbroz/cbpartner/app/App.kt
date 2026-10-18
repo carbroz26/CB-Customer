@@ -23,7 +23,6 @@ fun App(
     runtimeMetadataProvider: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
     environment: AppEnvironment = AppEnvironment.Development,
-    localDebugUiAllowed: Boolean = false,
 ) {
     val retainedSession = retain { mutableStateOf<DynamicSession?>(null) }
     RetainedEffect(retainedSession) {
@@ -47,5 +46,5 @@ fun App(
         onDispose { koin.close() }
     }
 
-    ApplicationContent(koin.koin, runtimeMetadataProvider, retainedSession, localDebugUiAllowed && environment == AppEnvironment.Development)
+    ApplicationContent(koin.koin, runtimeMetadataProvider, retainedSession)
 }
