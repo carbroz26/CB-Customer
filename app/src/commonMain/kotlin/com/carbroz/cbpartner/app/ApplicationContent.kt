@@ -6,8 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.OutlinedButton
-import com.carbroz.cbpartner.core.diagnostics.isLocalInspectionEligible
 import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -47,42 +45,15 @@ internal fun ApplicationContent(
     koin: Koin,
     runtimeMetadataProvider: RuntimeMetadataProvider,
     retainedSession: MutableState<DynamicSession?>,
-    localDebugUiAllowed: Boolean = false,
 ) {
-    var inspectionVisible by remember(localDebugUiAllowed) { mutableStateOf(false) }
-    var optedIn by remember(localDebugUiAllowed) { mutableStateOf(false) }
     MaterialTheme {
-        Box {
-            val session = retainedSession.value
-            if (session != null) {
-                DynamicContent(koin, session, runtimeMetadataProvider)
-            } else {
-                BootstrapContent(koin) { destination, diagnosticId ->
-                    if (retainedSession.value == null) {
-                        retainedSession.value = DynamicSession(diagnosticId, destination)
-                    }
-                }
-            }
-            if (localDebugUiAllowed) {
-                if (inspectionVisible) {
-                    Box(modifier = androidx.compose.ui.Modifier.align(Alignment.TopEnd)) {
-                        LocalInspectionPanel(
-                            optedIn = optedIn,
-                            inspectionEligible = isLocalInspectionEligible(
-                                isDevelopment = true,
-                                debuggable = true,
-                                verifiedLocalBackend = false,
-                                optedIn = optedIn,
-                            ),
-                            onOptIn = { optedIn = true },
-                            onClose = { inspectionVisible = false; optedIn = false },
-                        )
-                    }
-                } else {
-                    OutlinedButton(
-                        onClick = { inspectionVisible = true },
-                        modifier = androidx.compose.ui.Modifier.align(Alignment.TopEnd),
-                    ) { Text("Inspector") }
+        val session = retainedSession.value
+        if (session != null) {
+            DynamicContent(koin, session, runtimeMetadataProvider)
+        } else {
+            BootstrapContent(koin) { destination, diagnosticId ->
+                if (retainedSession.value == null) {
+                    retainedSession.value = DynamicSession(diagnosticId, destination)
                 }
             }
         }
