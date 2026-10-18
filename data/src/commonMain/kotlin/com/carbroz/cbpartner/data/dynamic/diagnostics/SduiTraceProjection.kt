@@ -93,6 +93,9 @@ internal fun projectSduiStructure(screen: DynamicScreen, limit: Int = 100): List
             sections(node.sections, "$path[$i]/sections")
         }
     }
+    val screenId = screen.screenId.takeIf { it.matches(Regex("^(partner|screen)_[a-z0-9_]{1,48}$")) } ?: "redacted"
+    val templateId = screen.template.id.takeIf { it.matches(Regex("^tpl_[A-Za-z0-9_]{1,48}$")) } ?: "redacted"
+    add("screen", "screen", "dynamic", " screenId=$screenId templateId=$templateId")
     val template = screen.template
     add("template", "template", if (template is FormTemplate) "form_template" else "other")
     template.header?.let { components(it.components, "template/header/components") }
