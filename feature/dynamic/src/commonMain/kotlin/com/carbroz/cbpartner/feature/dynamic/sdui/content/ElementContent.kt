@@ -24,7 +24,7 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fa
 import org.jetbrains.compose.resources.painterResource
 
 private fun Modifier.contentClick(content: ElementContent, context: DynamicRenderContext): Modifier =
-    dynamicGestures(content.actions, context.onAction)
+    dynamicGestures(content.actions, context.onAction, content.id)
 
 class IconContent : ElementContentRenderer<IconContentModel> {
     @Composable
