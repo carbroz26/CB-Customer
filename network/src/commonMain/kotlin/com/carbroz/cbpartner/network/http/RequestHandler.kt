@@ -49,6 +49,7 @@ class RequestHandler(
         body: B? = null,
         queryParams: Map<String, Any>? = null,
         traceContext: TraceContext? = null,
+        diagnosticOperation: String? = null,
     ): NetworkResult<R> {
         val authenticationMode = authentication.uppercase()
         require(authenticationMode in setOf("NONE", "BEARER")) { "Unsupported authentication mode: $authentication" }
@@ -68,11 +69,16 @@ class RequestHandler(
             "actionId=${safeDiagnosticId(traceContext?.actionId)} " +
             "parentActionId=${safeDiagnosticId(traceContext?.parentActionId)}"
 
+        val operationField = when (diagnosticOperation) {
+            null -> ""
+            "bootstrap", "dynamic_screen", "dynamic_action", "dynamic_request" -> " operation=$diagnosticOperation"
+            else -> " operation=other"
+        }
         val startedAt = TimeSource.Monotonic.markNow()
         runCatching {
             writeDiagnostic(
                 "started",
-                "event=http.request requestId=$requestId $traceFields method=$safeMethod",
+                "event=http.request requestId=$requestId $traceFields method=$safeMethod$operationField",
             )
         }
         var outcome = "failed"
@@ -123,7 +129,7 @@ class RequestHandler(
             runCatching {
                 val durationMs = startedAt.elapsedNow().inWholeMilliseconds
                 val event = "event=http.response requestId=$requestId $traceFields " +
-                    "method=$safeMethod outcome=$outcome status=${statusCode ?: "-"} " +
+                    "method=$safeMethod$operationField outcome=$outcome status=${statusCode ?: "-"} " +
                     "category=$category durationMs=$durationMs"
                 writeDiagnostic(outcome, event)
             }
