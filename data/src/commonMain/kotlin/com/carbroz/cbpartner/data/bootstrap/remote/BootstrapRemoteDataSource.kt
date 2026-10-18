@@ -17,6 +17,7 @@ class BootstrapRemoteDataSource(
     suspend fun fetch(traceContext: TraceContext? = null): NetworkResult<String> = requestHandler.executeRequest<Any, String>(
         method = HttpMethod.Get,
         traceContext = traceContext,
+        diagnosticOperation = "bootstrap",
         urlPathSegments = BOOTSTRAP_ENDPOINT.split('/').filter(String::isNotEmpty),
     )
 
