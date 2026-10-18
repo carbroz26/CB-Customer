@@ -48,7 +48,10 @@ class TextElement : ElementRenderer<TextElementModel> {
                         val link = LinkAnnotation.Clickable(
                             tag = spanText,
                             styles = TextLinkStyles(style = style),
-                            linkInteractionListener = { context.onAction(action) },
+                            linkInteractionListener = {
+                                reportDynamicOrigin(element.id, "onSpanClick", action.type)
+                                context.onAction(action)
+                            },
                         )
                         val start = length
                         append(spanText)
@@ -63,7 +66,7 @@ class TextElement : ElementRenderer<TextElementModel> {
         Row(
             modifier = Modifier.applyLayout(element).let { base ->
                 if (element.spans.any { it.action != null }) base
-                else base.dynamicGestures(element.actions, context.onAction)
+                else base.dynamicGestures(element.actions, context.onAction, element.id)
             },
             verticalAlignment = Alignment.CenterVertically,
         ) {
