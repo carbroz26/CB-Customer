@@ -23,6 +23,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
 class DynamicRenderer(
     private val registry: DynamicRegistry,
+    private val trustedAssetOrigin: String? = null,
     private val onAction: (DynamicAction) -> Unit = {},
     private val onValueChange: (String, DynamicValue) -> Unit = { _, _ -> },
     private val onFocusChange: (String, Boolean) -> Unit = { _, _ -> },
@@ -60,6 +61,7 @@ class DynamicRenderer(
 
         val context = DynamicRenderContext(
             registry = registry,
+            trustedAssetOrigin = trustedAssetOrigin,
             bindings = bindings,
             contextValues = contextValues,
             stateValues = stateValues,

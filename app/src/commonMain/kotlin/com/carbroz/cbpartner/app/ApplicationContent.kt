@@ -45,11 +45,12 @@ internal fun ApplicationContent(
     koin: Koin,
     runtimeMetadataProvider: RuntimeMetadataProvider,
     retainedSession: MutableState<DynamicSession?>,
+    trustedAssetOrigin: String,
 ) {
     MaterialTheme {
         val session = retainedSession.value
         if (session != null) {
-            DynamicContent(koin, session, runtimeMetadataProvider)
+            DynamicContent(koin, session, runtimeMetadataProvider, trustedAssetOrigin)
         } else {
             BootstrapContent(koin) { destination, diagnosticId ->
                 if (retainedSession.value == null) {
@@ -85,6 +86,7 @@ private fun DynamicContent(
     koin: Koin,
     session: DynamicSession,
     runtimeMetadataProvider: RuntimeMetadataProvider,
+    trustedAssetOrigin: String,
 ) {
     val navigationState = session.navigationState
     val uriHandler = LocalUriHandler.current
@@ -158,6 +160,7 @@ private fun DynamicContent(
             entry = entry,
             runtimeState = session.runtimeState,
             contextValues = contextValues,
+            trustedAssetOrigin = trustedAssetOrigin,
             storeFactory = {
                 DynamicStore(
                     loadDynamicScreen = koin.get(),

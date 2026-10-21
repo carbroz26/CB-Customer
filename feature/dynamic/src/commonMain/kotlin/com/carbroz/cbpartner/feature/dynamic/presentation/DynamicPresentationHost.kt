@@ -32,6 +32,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 fun DynamicPresentationHost(
     presentation: DynamicPresentation,
     registry: DynamicRegistry,
+    trustedAssetOrigin: String? = null,
     bindings: Map<String, DynamicValue>,
     contextValues: Map<String, DynamicValue>,
     stateValues: Map<String, DynamicValue>,
@@ -44,6 +45,7 @@ fun DynamicPresentationHost(
 ) {
     val context = DynamicRenderContext(
         registry = registry,
+        trustedAssetOrigin = trustedAssetOrigin,
         bindings = bindings,
         contextValues = contextValues,
         stateValues = stateValues,

@@ -35,6 +35,7 @@ fun DynamicContainer(
     entry: DynamicNavigationEntry,
     runtimeState: DynamicRuntimeState,
     contextValues: Map<String, DynamicValue>,
+    trustedAssetOrigin: String? = null,
     storeFactory: () -> DynamicStore,
     registry: DynamicRegistry,
     modifier: Modifier = Modifier,
@@ -76,6 +77,7 @@ fun DynamicContainer(
                 if (response != null) {
                     DynamicRenderer(
                         registry = registry,
+                        trustedAssetOrigin = trustedAssetOrigin,
                         bindings = current.screen.bindings,
                         contextValues = contextValues,
                         stateValues = runtimeValues,
@@ -106,6 +108,7 @@ fun DynamicContainer(
                         DynamicPresentationHost(
                             presentation = presentation,
                             registry = registry,
+                            trustedAssetOrigin = trustedAssetOrigin,
                             bindings = current.screen.bindings + current.screen.presentationBindings,
                             contextValues = contextValues,
                             stateValues = runtimeValues,
