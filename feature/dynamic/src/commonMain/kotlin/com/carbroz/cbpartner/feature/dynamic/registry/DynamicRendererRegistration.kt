@@ -4,6 +4,7 @@ package com.carbroz.cbpartner.feature.dynamic.registry
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent as StackComponentModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent as DividerContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconContentModel
+import com.carbroz.cbpartner.domain.model.dynamic.content.ImageContent as ImageContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement as ButtonElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.DividerElement as DividerElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement as IconElementModel
@@ -16,6 +17,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormT
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
+import com.carbroz.cbpartner.feature.dynamic.sdui.content.ImageContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.DividerElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.IconElement
@@ -39,4 +41,5 @@ fun dynamicRendererRegistry(): DynamicRegistry = DynamicRegistry.builder()
     .element(IconElementModel::class, IconElement())
     .content(DividerContentModel::class, DividerContent())
     .content(IconContentModel::class, IconContent())
+    .content(ImageContentModel::class, ImageContent())
     .build()
