@@ -173,12 +173,12 @@ class InputElement : ElementRenderer<InputElementModel> {
                         ) {
                             if (value.isEmpty()) {
                                 element.placeholder?.let { placeholder ->
+                                    val baseStyle = inputTextStyle(element)
                                     androidx.compose.material3.Text(
                                         text = placeholder,
-                                        style = inputTextStyle(element).copy(
-                                            color = element.placeholderColor?.toColor()
-                                                ?: Color.Unspecified,
-                                        ),
+                                        style = element.placeholderColor?.toColor()?.let { color ->
+                                            baseStyle.copy(color = color)
+                                        } ?: baseStyle,
                                     )
                                 }
                             }
