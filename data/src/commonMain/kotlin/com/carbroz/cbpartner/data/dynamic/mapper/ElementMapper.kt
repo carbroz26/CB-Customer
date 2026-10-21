@@ -77,11 +77,8 @@ class ElementMapper(
     }
 
     private fun mapImage(dto: ImageElementDto): ImageElement {
-        val source = values.assetSource(dto.properties)
+        val source = values.checkedAssetSource(dto.properties, requirePrimary = true)
         val url = values.string(dto.properties, "url").orEmpty()
-        require(source != null || url.isNotBlank()) {
-            "ImageElement requires a typed source or non-blank url"
-        }
         return ImageElement(
             id = dto.id,
             semanticRole = semanticRole(dto.properties),
@@ -93,7 +90,7 @@ class ElementMapper(
             maxHeight = values.number(dto.properties, "maxHeight"),
             fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
             fillMaxHeight = values.boolean(dto.properties, "fillMaxHeight") ?: false,
-            contentScale = values.string(dto.properties, "contentScale"),
+            contentScale = values.assetContentScale(dto.properties),
             padding = values.padding(dto.properties),
             leadingContent = contentMapper.mapList(dto.properties, "leading"),
             trailingContent = contentMapper.mapList(dto.properties, "trailing"),
@@ -174,7 +171,7 @@ class ElementMapper(
             leadingContent = contentMapper.mapList(dto.properties, "leading"),
             trailingContent = contentMapper.mapList(dto.properties, "trailing"),
             actions = actionMapper.map(dto.actions),
-            source = values.assetSource(dto.properties),
+            source = values.checkedAssetSource(dto.properties),
             minWidth = values.number(dto.properties, "minWidth"),
             minHeight = values.number(dto.properties, "minHeight"),
             visibleWhenSelected = visibleWhen?.let {

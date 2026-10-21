@@ -104,13 +104,59 @@ class DynamicValueMapper {
     }
 
     fun assetSource(properties: JsonObject, key: String = "source"): DynamicAssetSource? {
-        val value = properties[key] as? JsonObject ?: return null
-        val sourceValue = value["value"] ?: error("Dynamic asset source value is required")
-        return when (string(value, "type")) {
-            "url" -> DynamicAssetSource.Url(toDynamicValue(sourceValue))
-            "resource" -> DynamicAssetSource.Resource(toDynamicValue(sourceValue))
-            else -> throw IllegalArgumentException("Unsupported dynamic asset source type: " + string(value, "type"))
+        val value = properties[key] ?: return null
+        require(value is JsonObject && value.keys == setOf("type", "value")) {
+            "Dynamic asset source requires type and value"
         }
+        val raw = value.getValue("value")
+        val reference = raw is JsonObject && raw.size == 1 &&
+            raw.keys.single() in setOf("\$binding", "\$context", "\$state", "\$literal", "\$item")
+        require((raw is JsonPrimitive && raw.isString && raw.content.isNotBlank()) || reference) {
+            "Dynamic asset value must be a nonblank string or a reference"
+        }
+        return when (string(value, "type")) {
+            "url" -> DynamicAssetSource.Url(toDynamicValue(raw))
+            "resource" -> DynamicAssetSource.Resource(toDynamicValue(raw))
+            else -> throw IllegalArgumentException("Unsupported dynamic asset source type")
+        }
+    }
+
+    fun checkedAssetSource(properties: JsonObject, requireTyped: Boolean = false, requirePrimary: Boolean = false): DynamicAssetSource? {
+        val source = assetSource(properties)
+        require(!("source" in properties && "url" in properties)) { "Typed source and legacy url cannot coexist" }
+        require(source !is DynamicAssetSource.Resource || "fallbackUrl" !in properties) {
+            "Resource source cannot have fallbackUrl"
+        }
+        listOf("url", "fallbackUrl").forEach { key ->
+            if (key in properties) {
+                val raw = properties.getValue(key)
+                require(raw is JsonPrimitive && raw.isString && raw.content.isNotBlank()) {
+                    "Asset URL must be a nonblank string"
+                }
+            }
+        }
+        require(!requireTyped || source != null) { "Typed asset source is required" }
+        require(!requirePrimary || source != null || "url" in properties) { "Asset source or legacy url is required" }
+        return source
+    }
+
+    fun assetContentScale(properties: JsonObject): String? {
+        val raw = properties["contentScale"] ?: return null
+        require(raw is JsonPrimitive && raw.isString &&
+            raw.content in setOf("fit", "crop", "fillBounds", "fillHeight", "fillWidth", "inside")) {
+            "Unsupported dynamic image contentScale"
+        }
+        return raw.content
+    }
+
+    fun assetDimension(properties: JsonObject, key: String): Double? {
+        if (key !in properties) return null
+        val raw = properties.getValue(key) as? JsonPrimitive
+        val dimension = raw?.takeUnless { it.isString }?.doubleOrNull
+        require(dimension != null && dimension.isFinite() && dimension > 0.0) {
+            "Dynamic image dimension must be positive and finite"
+        }
+        return dimension
     }
 
     fun spans(properties: JsonObject): List<DynamicTextSpan> = (properties["spans"] as? JsonArray).orEmpty().mapNotNull { item ->

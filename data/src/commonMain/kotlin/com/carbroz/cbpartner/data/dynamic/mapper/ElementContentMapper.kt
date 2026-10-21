@@ -40,17 +40,16 @@ class ElementContentMapper(
                 color = values.string(properties, "color"),
                 spacing = values.spacing(properties),
                 actions = actionMapper.map(actions),
-                source = values.assetSource(properties),
+                source = values.checkedAssetSource(properties),
             )
             "image" -> ImageContent(
                 id = values.string(element, "id"),
                 semanticRole = values.string(properties, "semanticRole"),
-                source = requireNotNull(values.assetSource(properties)) {
-                    "ImageContent requires a typed source"
-                },
-                width = values.number(properties, "width"),
-                height = values.number(properties, "height"),
-                contentScale = values.string(properties, "contentScale"),
+                source = requireNotNull(values.checkedAssetSource(properties, requireTyped = true)),
+                fallbackUrl = values.string(properties, "fallbackUrl"),
+                width = values.assetDimension(properties, "width"),
+                height = values.assetDimension(properties, "height"),
+                contentScale = values.assetContentScale(properties),
                 spacing = values.spacing(properties),
                 actions = actionMapper.map(actions),
             )

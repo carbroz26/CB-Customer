@@ -8,6 +8,7 @@ data class ImageContent(
     override val id: String? = null,
     override val semanticRole: String? = null,
     val source: DynamicAssetSource,
+    val fallbackUrl: String? = null,
     val width: Double? = null,
     val height: Double? = null,
     val contentScale: String? = null,
