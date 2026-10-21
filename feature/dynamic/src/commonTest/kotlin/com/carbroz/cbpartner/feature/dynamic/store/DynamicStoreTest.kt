@@ -7,12 +7,15 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonLoading
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicLoadingIndicator
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -35,12 +38,14 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DynamicStoreTest {
@@ -1302,5 +1307,262 @@ class DynamicStoreTest {
         )
         return DynamicResponse(200, "SUCCESS", "Loaded", screen, null)
     }
+
+    private fun pendingResponse(
+        validationRequired: Boolean = false,
+        withPresentation: Boolean = false,
+    ): Pair<DynamicResponse, DynamicAction> {
+        val request = DynamicAction(
+            "request",
+            mapOf(
+                "endpoint" to DynamicValue.StringValue("/submit"),
+                "validate" to DynamicValue.BooleanValue(validationRequired),
+            ),
+        )
+        val button = ButtonElement(
+            id = "shared",
+            text = "Submit",
+            actions = mapOf("onClick" to request),
+            loading = DynamicButtonLoading(
+                whileActionPending = true,
+                disableWhilePending = true,
+                replaceContent = true,
+                indicator = DynamicLoadingIndicator.Circular(20.0, "#FFFFFF"),
+            ),
+        )
+        val input = if (validationRequired) {
+            listOf(
+                InputElement(
+                    id = "input",
+                    binding = DynamicBinding("field"),
+                    validation = DynamicValidation(required = true, message = "Required"),
+                ),
+            )
+        } else emptyList()
+        val screen = DynamicScreen(
+            screenId = "root",
+            schemaVersion = "3.0.0",
+            targetApp = "PARTNER",
+            template = FormTemplate(
+                id = "tpl_root",
+                components = listOf(
+                    StackComponent(id = "main", elements = input + button),
+                ),
+            ),
+            theme = null,
+            presentations = if (withPresentation) {
+                listOf(
+                    BottomSheetPresentation(
+                        id = "picker",
+                        initialBindings = mapOf("search" to DynamicValue.StringValue("")),
+                        components = listOf(StackComponent(id = "sheet", elements = listOf(button))),
+                    ),
+                )
+            } else emptyList(),
+        )
+        return DynamicResponse(200, "SUCCESS", "OK", screen, null) to request
+    }
+
+    @Test
+    fun pendingBeginsAfterValidationAndBlocksRepeatedSubmitUntilSuccess() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val (response, requestAction) = pendingResponse()
+        val release = CompletableDeferred<Unit>()
+        var submits = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                if (request.endpoint == "/submit") {
+                    submits++
+                    release.await()
+                    Result.success(DynamicResponse(204, "NO_CONTENT", "OK", null, null))
+                } else {
+                    Result.success(response)
+                }
+        }
+        val store = store(DynamicNavigationEntry(destination("root")), repository, DynamicRuntimeState(), dispatcher)
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(requestAction, buttonId = "shared"))
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        runCurrent()
+        assertEquals(DynamicPendingButton("shared"), assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        assertEquals(1, submits)
+        store.accept(DynamicIntent.Action(requestAction, buttonId = "shared"))
+        runCurrent()
+        assertEquals(1, submits)
+        release.complete(Unit)
+        advanceUntilIdle()
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        store.close()
+    }
+
+    @Test
+    fun failedValidationOrUnrecognizedButtonOriginDoesNotStartPending() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val (response, requestAction) = pendingResponse(validationRequired = true)
+        var submits = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                if (request.endpoint == "/submit") {
+                    submits++
+                    Result.success(DynamicResponse(204, "NO_CONTENT", "OK", null, null))
+                } else Result.success(response)
+        }
+        val store = store(DynamicNavigationEntry(destination("root")), repository, DynamicRuntimeState(), dispatcher)
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(requestAction, buttonId = "unknown"))
+        store.accept(DynamicIntent.Action(requestAction.copy(type = "navigate"), buttonId = "shared"))
+        assertEquals(0, submits)
+        store.accept(DynamicIntent.Action(requestAction, buttonId = "shared"))
+        advanceUntilIdle()
+        assertEquals(0, submits)
+        val validated = assertIs<DynamicState.Success>(store.state.value).screen
+        assertNull(validated.pendingButton)
+        assertNotNull(validated.validationErrors["field"])
+        store.close()
+    }
+
+    @Test
+    fun pendingClearsAfterNetworkFailureAndRejectedResultCommit() = runTest {
+        for (failNetwork in listOf(true, false)) {
+            val dispatcher = UnconfinedTestDispatcher(testScheduler)
+            val (response, action) = pendingResponse()
+            val gate = CompletableDeferred<Unit>()
+            var accepted = 0
+            val repository = object : DynamicRepository {
+                override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                    if (request.endpoint == "/submit") {
+                        gate.await()
+                        if (failNetwork) Result.failure(IllegalStateException("private details"))
+                        else Result.success(DynamicResponse(204, "NO_CONTENT", "OK", null, null))
+                    } else Result.success(response)
+            }
+            val store = DynamicStore(
+                loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+                actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+                validator = DynamicFormValidator(),
+                entry = DynamicNavigationEntry(destination("root")),
+                runtimeState = DynamicRuntimeState(),
+                scope = CoroutineScope(dispatcher),
+                commitActionResult = { _, _, _ -> accepted++; false },
+            )
+            store.accept(DynamicIntent.Load)
+            advanceUntilIdle()
+            store.accept(DynamicIntent.Action(action, buttonId = "shared"))
+            assertEquals(DynamicPendingButton("shared"), assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+            gate.complete(Unit)
+            advanceUntilIdle()
+            val done = assertIs<DynamicState.Success>(store.state.value).screen
+            assertNull(done.pendingButton)
+            assertEquals("Unable to complete action", done.validationMessage)
+            assertEquals(if (failNetwork) 0 else 1, accepted)
+            store.close()
+        }
+    }
+
+    @Test
+    fun closingStoreCancelsPendingRequestAndPreventsItsCommit() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val (response, action) = pendingResponse()
+        val gate = CompletableDeferred<Unit>()
+        var effects = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                if (request.endpoint == "/submit") {
+                    gate.await()
+                    Result.success(DynamicResponse(204, "NO_CONTENT", "OK", null, null))
+                } else Result.success(response)
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("root")),
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+            commitActionResult = { _, _, _ -> effects++; true },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(action, buttonId = "shared"))
+        assertEquals(DynamicPendingButton("shared"), assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        store.close()
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        assertEquals(0, effects)
+        store.accept(DynamicIntent.Action(action, buttonId = "shared"))
+        assertEquals(0, effects)
+    }
+
+    @Test
+    fun presentationGenerationRejectsStaleCallbacksAfterDismissAndReopen() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val (response, action) = pendingResponse(withPresentation = true)
+        val gate = CompletableDeferred<Unit>()
+        var requestCalls = 0
+        var effectCount = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                if (request.endpoint == "/submit") {
+                    requestCalls++
+                    gate.await()
+                    Result.success(DynamicResponse(204, "NO_CONTENT", "OK", null, null))
+                } else Result.success(response)
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(PresentActionHandler(), RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("root")),
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+            commitActionResult = { _, _, _ -> effectCount++; true },
+        )
+        val presentAction = DynamicAction(
+            "present",
+            mapOf("presentationId" to DynamicValue.StringValue("picker")),
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(presentAction))
+        advanceUntilIdle()
+        val firstGeneration = assertIs<DynamicState.Success>(store.state.value).screen.presentationGeneration
+        assertEquals(1L, firstGeneration)
+        store.accept(DynamicIntent.Action(action, "picker", "shared", firstGeneration))
+        assertEquals(
+            DynamicPendingButton("shared", "picker", firstGeneration),
+            assertIs<DynamicState.Success>(store.state.value).screen.pendingButton,
+        )
+        store.accept(DynamicIntent.DismissPresentation("picker", firstGeneration))
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(0, effectCount)
+        store.accept(DynamicIntent.Action(presentAction))
+        advanceUntilIdle()
+        val current = assertIs<DynamicState.Success>(store.state.value).screen
+        val reopenedGeneration = current.presentationGeneration
+        assertEquals(firstGeneration + 1, reopenedGeneration)
+        store.accept(DynamicIntent.Action(action, "picker", "shared", firstGeneration))
+        store.accept(DynamicIntent.PresentationValueChanged(
+            "picker", "search", DynamicValue.StringValue("stale"), firstGeneration,
+        ))
+        store.accept(DynamicIntent.PresentationFocusChanged("picker", "search", true, firstGeneration))
+        store.accept(DynamicIntent.DismissPresentation("picker", firstGeneration))
+        val safe = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("picker", safe.activePresentationId)
+        assertEquals(DynamicValue.StringValue(""), safe.presentationBindings["search"])
+        assertNull(safe.presentationFocusedBinding)
+        assertNull(safe.pendingButton)
+        assertEquals(1, requestCalls)
+        store.accept(DynamicIntent.Action(action, "picker", "shared", reopenedGeneration))
+        advanceUntilIdle()
+        assertEquals(2, requestCalls)
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        store.close()
+    }
+
 
 }

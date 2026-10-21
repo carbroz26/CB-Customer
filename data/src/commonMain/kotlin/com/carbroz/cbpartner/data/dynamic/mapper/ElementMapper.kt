@@ -24,6 +24,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationStyle
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.doubleOrNull
 
 class ElementMapper(
