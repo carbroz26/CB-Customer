@@ -18,7 +18,7 @@ import com.carbroz.cbpartner.feature.dynamic.registry.ElementContentRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicSpacing
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.dynamicGestures
+import com.carbroz.cbpartner.feature.dynamic.sdui.dynamicGestures
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
 import org.jetbrains.compose.resources.painterResource

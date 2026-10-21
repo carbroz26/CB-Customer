@@ -22,6 +22,8 @@ import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
+import com.carbroz.cbpartner.feature.dynamic.sdui.dynamicGestures
+import com.carbroz.cbpartner.feature.dynamic.sdui.reportDynamicOrigin
 
 class TextElement : ElementRenderer<TextElementModel> {
     @Composable

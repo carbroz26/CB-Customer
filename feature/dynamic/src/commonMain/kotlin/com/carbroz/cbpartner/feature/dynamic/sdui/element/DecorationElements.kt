@@ -10,6 +10,7 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fa
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
+import com.carbroz.cbpartner.feature.dynamic.sdui.dynamicGestures
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DynamicAssetImage
 import org.jetbrains.compose.resources.painterResource
 

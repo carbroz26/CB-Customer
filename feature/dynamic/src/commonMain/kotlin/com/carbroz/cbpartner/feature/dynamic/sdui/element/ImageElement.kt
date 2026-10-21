@@ -10,7 +10,7 @@ import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyImageSize
-import com.carbroz.cbpartner.feature.dynamic.sdui.element.dynamicGestures
+import com.carbroz.cbpartner.feature.dynamic.sdui.dynamicGestures
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DynamicAssetImage
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_image_fallback

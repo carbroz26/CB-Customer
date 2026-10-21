@@ -16,6 +16,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicBackground
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
+import com.carbroz.cbpartner.feature.dynamic.sdui.dynamicGestures
 
 class ButtonElement : ElementRenderer<ButtonElementModel> {
     @Composable

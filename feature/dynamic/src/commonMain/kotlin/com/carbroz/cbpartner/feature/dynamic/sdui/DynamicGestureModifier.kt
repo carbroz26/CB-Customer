@@ -1,4 +1,4 @@
-package com.carbroz.cbpartner.feature.dynamic.sdui.element
+package com.carbroz.cbpartner.feature.dynamic.sdui
 
 import co.touchlab.kermit.Logger
 import androidx.compose.foundation.ExperimentalFoundationApi
