@@ -147,6 +147,8 @@ class DynamicStore(
 
         if (!local && current.validationErrors.isNotEmpty()) {
             next = revalidateScreen(next)
+            entry.updateValidationErrors(next.validationErrors)
+            entry.updateValidationMessage(next.validationMessage)
         }
         if (current.presentationValidationErrors.isNotEmpty()) {
             next = revalidatePresentation(next, presentation)
