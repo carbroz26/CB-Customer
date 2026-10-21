@@ -36,6 +36,8 @@ class DynamicAssetImageTest {
             "/assets\\logo.png",
             " /assets/logo.png",
             "assets/logo.png ",
+            "assets/a b.png",
+            "assets/\tlogo.png",
         )) assertNull(trustedAssetUrl(candidate, origin))
         assertNull(trustedAssetUrl("/assets/logo.png", null))
     }

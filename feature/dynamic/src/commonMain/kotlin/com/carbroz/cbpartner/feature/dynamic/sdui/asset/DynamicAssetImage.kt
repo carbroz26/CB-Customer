@@ -76,6 +76,13 @@ internal fun DynamicAssetImage(
     val fallback = fallbackUrl?.let { trustedAssetUrl(it, context.trustedAssetOrigin) }
         ?.takeIf { it != primary }
     var currentUrl by remember(primary, fallback) { mutableStateOf<String?>(primary) }
+    if (currentUrl == null) {
+        LaunchedEffect(primary, fallback) {
+            runCatching {
+                Logger.withTag("CBPartnerFlow").d { "event=asset.unavailable kind=remote" }
+            }
+        }
+    }
     currentUrl?.let { selected ->
         AsyncImage(
             model = selected,
@@ -97,7 +104,8 @@ internal fun trustedAssetUrl(raw: String, trustedOrigin: String?): String? {
         raw.startsWith("//") || raw.contains("://") -> return null
         else -> raw.removePrefix("/")
     }
-    if (path.isBlank() || path.split('/').any { part ->
+    if (path.isBlank() || !path.matches(Regex("^[A-Za-z0-9._/-]+$")) ||
+        path.split('/').any { part ->
             part.isBlank() || part == "." || part == ".." ||
                 part.any { it == '?' || it == '#' || it == '\\' || it == '%' || it == '@' || it == ':' }
         }) return null

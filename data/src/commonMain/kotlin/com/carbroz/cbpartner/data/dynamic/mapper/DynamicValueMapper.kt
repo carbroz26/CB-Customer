@@ -110,7 +110,10 @@ class DynamicValueMapper {
         }
         val raw = value.getValue("value")
         val reference = raw is JsonObject && raw.size == 1 &&
-            raw.keys.single() in setOf("\$binding", "\$context", "\$state", "\$literal", "\$item")
+            raw.keys.single() in setOf("\$binding", "\$context", "\$state", "\$literal", "\$item") &&
+            (raw.values.single() as? JsonPrimitive)?.let {
+                it.isString && it.content.isNotBlank()
+            } == true
         require((raw is JsonPrimitive && raw.isString && raw.content.isNotBlank()) || reference) {
             "Dynamic asset value must be a nonblank string or a reference"
         }
