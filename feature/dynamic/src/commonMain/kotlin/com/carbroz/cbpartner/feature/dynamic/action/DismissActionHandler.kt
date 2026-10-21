@@ -11,5 +11,9 @@ class DismissActionHandler : DynamicActionHandler {
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
-    ): DynamicActionResult = DynamicActionResult.Dismiss()
+    ): DynamicActionResult.Dismiss {
+        require(action.destination == null) { "Dynamic dismiss does not accept a destination" }
+        require(action.payload.isEmpty()) { "Dynamic dismiss does not accept a payload" }
+        return DynamicActionResult.Dismiss
+    }
 }

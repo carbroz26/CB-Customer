@@ -88,7 +88,7 @@ class DynamicSessionEffectsTest {
     fun startedButUnacknowledgedExternalUriIsNotReplayed() = runTest {
         val session = session()
         val external = DynamicActionEffect.ExternalUri("https://example.invalid/test")
-        val afterward = DynamicActionEffect.Dismiss
+        val afterward = DynamicActionEffect.ExternalUri("https://example.invalid/afterward")
         assertTrue(session.commit(emptyMap(), listOf(external, afterward)))
         val oldLease = session.attachConsumer()
         val claim = assertNotNull(session.claimNext(oldLease))
@@ -178,7 +178,7 @@ class DynamicSessionEffectsTest {
     @Test
     fun acceptedBatchesAreConsumedInCommitOrder() = runTest {
         val session = session()
-        val first = DynamicActionEffect.Dismiss
+        val first = DynamicActionEffect.ExternalUri("https://example.invalid/first")
         val second = DynamicActionEffect.ExternalUri("https://example.invalid/second")
         assertTrue(session.commit(emptyMap(), listOf(first)))
         assertTrue(session.commit(emptyMap(), listOf(second)))
@@ -271,8 +271,8 @@ class DynamicSessionEffectsTest {
         DynamicDestination(id, "template_$id", "form_template", "/$id")
 
     private fun effects(): List<DynamicActionEffect> = listOf(
-        DynamicActionEffect.Dismiss,
+        DynamicActionEffect.ExternalUri("https://example.invalid/first"),
         DynamicActionEffect.ExternalUri("https://example.invalid/placeholder"),
-        DynamicActionEffect.Dismiss,
+        DynamicActionEffect.ExternalUri("https://example.invalid/last"),
     )
 }

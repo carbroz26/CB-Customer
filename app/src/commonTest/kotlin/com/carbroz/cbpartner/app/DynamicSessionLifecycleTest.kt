@@ -30,15 +30,15 @@ class DynamicSessionLifecycleTest {
     @Test
     fun temporaryConsumerDetachPreservesSessionAndOnlyRetirementDiscardsWork() {
         val session = DynamicSession("bootstrap-a", destination("first"))
-        assertTrue(session.commit(emptyMap(), listOf(DynamicActionEffect.Dismiss)))
+        assertTrue(session.commit(emptyMap(), listOf(DynamicActionEffect.ExternalUri("https://example.invalid/pending"))))
         val first = session.attachConsumer()
         session.detachConsumer(first)
         val second = session.attachConsumer()
-        assertEquals(DynamicActionEffect.Dismiss, session.claimNext(second)?.effect)
+        assertEquals(DynamicActionEffect.ExternalUri("https://example.invalid/pending"), session.claimNext(second)?.effect)
         session.close()
         session.close()
         assertNull(session.claimNext(second))
-        assertFalse(session.commit(emptyMap(), listOf(DynamicActionEffect.Dismiss)))
+        assertFalse(session.commit(emptyMap(), listOf(DynamicActionEffect.ExternalUri("https://example.invalid/pending"))))
     }
 
     private fun destination(id: String) =

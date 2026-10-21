@@ -124,4 +124,13 @@ class DynamicActionExecutorTest {
                 .execute(DynamicAction("cancel"), emptyMap(), emptyMap(), emptyMap())
         }
     }
+
+    @Test
+    fun topLevelBackIsUnsupportedAndIsNotAliasedToDismiss() = runTest {
+        val result = DynamicActionExecutor(listOf(DismissActionHandler()))
+            .execute(DynamicAction("back"), emptyMap(), emptyMap(), emptyMap())
+
+        assertTrue(result.isFailure)
+    }
+
 }

@@ -3,11 +3,22 @@ package com.carbroz.cbpartner.feature.dynamic.store
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
+import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
+import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
+import com.carbroz.cbpartner.feature.dynamic.action.DismissActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionHandler
+import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
+import com.carbroz.cbpartner.feature.dynamic.action.PresentActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
@@ -734,4 +745,364 @@ class DynamicStoreTest {
 
     private fun ref(type: String, value: String) =
         DynamicValue.ObjectValue(mapOf(type to DynamicValue.StringValue(value)))
+
+
+    @Test
+    fun presentationLifecycleIsOwnedByScreenState() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val entry = DynamicNavigationEntry(destination("root"))
+        val store = presentationStore(entry, presentationRepository(), dispatcher)
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "present",
+                    mapOf("presentationId" to DynamicValue.StringValue("picker")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        var screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("picker", screen.activePresentationId)
+        assertEquals(DynamicValue.StringValue(""), screen.presentationBindings["search"])
+
+        store.accept(
+            DynamicIntent.PresentationValueChanged(
+                "picker",
+                "search",
+                DynamicValue.StringValue("india"),
+            ),
+        )
+        screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(DynamicValue.StringValue("india"), screen.presentationBindings["search"])
+        assertEquals(null, entry.bindings["search"])
+
+        store.accept(
+            DynamicIntent.PresentationValueChanged(
+                "picker",
+                "selectedId",
+                DynamicValue.StringValue("IN"),
+            ),
+        )
+        screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(DynamicValue.StringValue("IN"), screen.bindings["selectedId"])
+        assertEquals(DynamicValue.StringValue("IN"), entry.bindings["selectedId"])
+
+        store.accept(DynamicIntent.Action(DynamicAction("dismiss"), "picker"))
+        advanceUntilIdle()
+        screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(null, screen.activePresentationId)
+        assertTrue(screen.presentationBindings.isEmpty())
+
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "present",
+                    mapOf("presentationId" to DynamicValue.StringValue("picker")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+        screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(DynamicValue.StringValue(""), screen.presentationBindings["search"])
+        store.close()
+    }
+
+    @Test
+    fun invalidOrNestedPresentationIsRejectedWithoutNavigationEffect() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var committedEffects = 0
+        val entry = DynamicNavigationEntry(destination("root"))
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(presentationRepository()),
+            actionExecutor = DynamicActionExecutor(
+                listOf(PresentActionHandler(), DismissActionHandler()),
+            ),
+            validator = DynamicFormValidator(),
+            entry = entry,
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+            commitActionResult = { _, effects, _ ->
+                committedEffects += effects.size
+                true
+            },
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "present",
+                    mapOf("presentationId" to DynamicValue.StringValue("missing")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+        var screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(null, screen.activePresentationId)
+        assertEquals("Unable to complete action", screen.validationMessage)
+        assertEquals(0, committedEffects)
+
+        store.accept(DynamicIntent.ClearMessage)
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "present",
+                    mapOf("presentationId" to DynamicValue.StringValue("picker")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "present",
+                    mapOf("presentationId" to DynamicValue.StringValue("picker")),
+                ),
+                "picker",
+            ),
+        )
+        advanceUntilIdle()
+        screen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("picker", screen.activePresentationId)
+        assertEquals("Unable to complete action", screen.validationMessage)
+        assertEquals(0, committedEffects)
+        store.close()
+    }
+
+    @Test
+    fun stalePresentationOriginDoesNotExecuteAction() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var invoked = false
+        val capture = object : DynamicActionHandler {
+            override val type = "capture"
+
+            override suspend fun handle(
+                action: DynamicAction,
+                bindings: Map<String, DynamicValue>,
+                context: Map<String, DynamicValue>,
+                state: Map<String, DynamicValue>,
+            ): DynamicActionResult {
+                invoked = true
+                return DynamicActionResult.Completed
+            }
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(presentationRepository()),
+            actionExecutor = DynamicActionExecutor(
+                listOf(PresentActionHandler(), DismissActionHandler(), capture),
+            ),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(destination("root")),
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(DynamicAction("capture"), "picker"))
+        advanceUntilIdle()
+
+        assertEquals(false, invoked)
+        store.close()
+    }
+
+    @Test
+    fun presentationOriginUsesLocalBindingPrecedenceAndScopedValidation() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var observedBindings: Map<String, DynamicValue>? = null
+        var requestInvoked = false
+        val request = object : DynamicActionHandler {
+            override val type = "request"
+
+            override suspend fun handle(
+                action: DynamicAction,
+                bindings: Map<String, DynamicValue>,
+                context: Map<String, DynamicValue>,
+                state: Map<String, DynamicValue>,
+            ): DynamicActionResult {
+                observedBindings = bindings
+                requestInvoked = true
+                return DynamicActionResult.Completed
+            }
+        }
+        val entry = DynamicNavigationEntry(destination("root"))
+        entry.updateBindings(
+            mapOf(
+                "search" to DynamicValue.StringValue("screen"),
+                "parent" to DynamicValue.StringValue("kept"),
+            ),
+        )
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(
+                presentationRepository(withValidation = true),
+            ),
+            actionExecutor = DynamicActionExecutor(listOf(PresentActionHandler(), request)),
+            validator = DynamicFormValidator(),
+            entry = entry,
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "present",
+                    mapOf("presentationId" to DynamicValue.StringValue("picker")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.PresentationValueChanged(
+                "picker",
+                "modalValue",
+                DynamicValue.StringValue("valid"),
+            ),
+        )
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "request",
+                    mapOf("validate" to DynamicValue.BooleanValue(true)),
+                ),
+                "picker",
+            ),
+        )
+        advanceUntilIdle()
+
+        assertTrue(requestInvoked)
+        assertEquals(DynamicValue.StringValue(""), observedBindings?.get("search"))
+        assertEquals(DynamicValue.StringValue("kept"), observedBindings?.get("parent"))
+        assertEquals(DynamicValue.StringValue("valid"), observedBindings?.get("modalValue"))
+        assertEquals(
+            null,
+            assertIs<DynamicState.Success>(store.state.value).screen.validationMessage,
+        )
+        store.close()
+    }
+
+    @Test
+    fun systemDismissOnlyClosesMatchingActivePresentation() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val store = presentationStore(
+            DynamicNavigationEntry(destination("root")),
+            presentationRepository(),
+            dispatcher,
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "present",
+                    mapOf("presentationId" to DynamicValue.StringValue("picker")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+        store.accept(DynamicIntent.DismissPresentation("stale"))
+        assertEquals(
+            "picker",
+            assertIs<DynamicState.Success>(store.state.value).screen.activePresentationId,
+        )
+        store.accept(DynamicIntent.DismissPresentation("picker"))
+        assertEquals(
+            null,
+            assertIs<DynamicState.Success>(store.state.value).screen.activePresentationId,
+        )
+        store.close()
+    }
+
+    private fun presentationStore(
+        entry: DynamicNavigationEntry,
+        repository: DynamicRepository,
+        dispatcher: CoroutineDispatcher,
+    ) = DynamicStore(
+        loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+        actionExecutor = DynamicActionExecutor(
+            listOf(PresentActionHandler(), DismissActionHandler()),
+        ),
+        validator = DynamicFormValidator(),
+        entry = entry,
+        runtimeState = DynamicRuntimeState(),
+        scope = CoroutineScope(dispatcher),
+    )
+
+    private fun presentationRepository(withValidation: Boolean = false): DynamicRepository =
+        object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(presentationResponse(withValidation))
+        }
+
+    private fun presentationResponse(withValidation: Boolean = false): DynamicResponse {
+        val screenInput = if (withValidation) {
+            listOf(
+                InputElement(
+                    id = "screen_required",
+                    binding = DynamicBinding("screenRequired"),
+                    validation = DynamicValidation(
+                        required = true,
+                        pattern = null,
+                        message = "Screen should not validate",
+                    ),
+                ),
+            )
+        } else {
+            emptyList()
+        }
+        val presentationInput = if (withValidation) {
+            listOf(
+                InputElement(
+                    id = "modal_required",
+                    binding = DynamicBinding("modalValue"),
+                    validation = DynamicValidation(
+                        required = true,
+                        pattern = null,
+                        message = "Modal value required",
+                    ),
+                ),
+            )
+        } else {
+            emptyList()
+        }
+        val presentation = BottomSheetPresentation(
+            id = "picker",
+            initialBindings = mapOf(
+                "search" to DynamicValue.StringValue(""),
+                "modalValue" to DynamicValue.StringValue(""),
+            ),
+            components = listOf(
+                StackComponent(
+                    id = "picker_component",
+                    elements = presentationInput,
+                ),
+            ),
+        )
+        val screen = DynamicScreen(
+            screenId = "root",
+            schemaVersion = "3.0.0",
+            targetApp = "PARTNER",
+            template = FormTemplate(
+                id = "tpl_root",
+                components = listOf(
+                    StackComponent(
+                        id = "screen_component",
+                        elements = screenInput,
+                    ),
+                ),
+            ),
+            theme = null,
+            presentations = listOf(presentation),
+        )
+        return DynamicResponse(200, "SUCCESS", "Loaded", screen, null)
+    }
+
 }

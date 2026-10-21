@@ -22,17 +22,15 @@ sealed interface DynamicActionResult {
     }
 
     data class Present(
-        val destination: DynamicDestination,
-        override val stateChanges: Map<String, DynamicValue> = emptyMap(),
+        val presentationId: String,
     ) : DynamicActionResult {
-        override val effects: List<DynamicActionEffect>
-            get() = listOf(DynamicActionEffect.Present(destination))
+        override val stateChanges: Map<String, DynamicValue> = emptyMap()
+        override val effects: List<DynamicActionEffect> = emptyList()
     }
 
-    data class Dismiss(
-        override val stateChanges: Map<String, DynamicValue> = emptyMap(),
-    ) : DynamicActionResult {
-        override val effects: List<DynamicActionEffect> = listOf(DynamicActionEffect.Dismiss)
+    data object Dismiss : DynamicActionResult {
+        override val stateChanges: Map<String, DynamicValue> = emptyMap()
+        override val effects: List<DynamicActionEffect> = emptyList()
     }
 
     data class ExternalUri(
@@ -63,10 +61,6 @@ sealed interface DynamicActionEffect {
         val destination: DynamicDestination?,
         val operation: DynamicActionResult.NavigationOperation,
     ) : DynamicActionEffect
-
-    data class Present(val destination: DynamicDestination) : DynamicActionEffect
-
-    data object Dismiss : DynamicActionEffect
 
     data class ExternalUri(val uri: String) : DynamicActionEffect
 }

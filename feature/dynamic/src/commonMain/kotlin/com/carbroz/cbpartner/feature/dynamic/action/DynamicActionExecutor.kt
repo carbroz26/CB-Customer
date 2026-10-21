@@ -29,15 +29,15 @@ class DynamicActionExecutor(
         traceContext: TraceContext? = null,
     ): Result<DynamicActionResult> = runCatching {
         val normalizedType = action.type.trim().lowercase()
-        val handler = handlersByType[if (normalizedType == "back") "dismiss" else normalizedType]
+        val handler = handlersByType[normalizedType]
             ?: error("Unsupported dynamic action: " + action.type)
         runCatching {
             diagnosticLogger.d {
-                "event=handler.selected phase=user_action " +
-                    "sessionId=${safeDiagnosticId(traceContext?.sessionId)} " +
-                    "actionId=${safeDiagnosticId(traceContext?.actionId)} " +
-                    "parentActionId=${safeDiagnosticId(traceContext?.parentActionId)} " +
-                    "handler=${handler.type}"
+                "event=handler.selected phase=user_action sessionId=" +
+                    safeDiagnosticId(traceContext?.sessionId) +
+                    " actionId=" + safeDiagnosticId(traceContext?.actionId) +
+                    " parentActionId=" + safeDiagnosticId(traceContext?.parentActionId) +
+                    " handler=" + handler.type
             }
         }
         handler.handle(action, bindings, context, state, traceContext)

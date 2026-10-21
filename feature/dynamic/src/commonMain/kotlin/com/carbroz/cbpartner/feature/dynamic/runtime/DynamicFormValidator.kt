@@ -1,12 +1,23 @@
 package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
+import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 
 class DynamicFormValidator {
-    fun validate(screen: DynamicScreen, bindings: Map<String, DynamicValue>): String? {
-        screen.template.components.forEach { component ->
+    fun validate(screen: DynamicScreen, bindings: Map<String, DynamicValue>): String? =
+        validateComponents(screen.template.components, bindings)
+
+    fun validate(presentation: DynamicPresentation, bindings: Map<String, DynamicValue>): String? =
+        validateComponents(presentation.components, bindings)
+
+    private fun validateComponents(
+        components: List<DynamicComponent>,
+        bindings: Map<String, DynamicValue>,
+    ): String? {
+        components.forEach { component ->
             component.elements.forEach { element -> validateElement(element, bindings)?.let { return it } }
             component.sections.forEach { section ->
                 section.elements.forEach { element -> validateElement(element, bindings)?.let { return it } }

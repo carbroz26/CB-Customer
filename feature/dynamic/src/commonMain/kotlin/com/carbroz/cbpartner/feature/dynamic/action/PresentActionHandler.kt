@@ -12,7 +12,15 @@ class PresentActionHandler : DynamicActionHandler {
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
     ): DynamicActionResult.Present {
-        val destination = action.destination ?: error("Dynamic present destination is missing")
-        return DynamicActionResult.Present(destination)
+        require(action.destination == null) { "Dynamic present does not accept a destination" }
+        require(action.payload.keys == setOf("presentationId")) {
+            "Dynamic present requires only payload.presentationId"
+        }
+        val presentationId = (action.payload["presentationId"] as? DynamicValue.StringValue)
+            ?.value
+            ?.trim()
+            ?.takeIf(String::isNotEmpty)
+            ?: throw IllegalArgumentException("Dynamic present presentationId is missing")
+        return DynamicActionResult.Present(presentationId)
     }
 }

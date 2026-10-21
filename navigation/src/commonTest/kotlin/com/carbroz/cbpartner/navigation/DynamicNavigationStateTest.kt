@@ -13,7 +13,15 @@ class DynamicNavigationStateTest {
     fun entrySnapshotIsDiscardedWithRemovedNavigationEntry() {
         val state = DynamicNavigationState(destination("root"))
         val first = state.currentEntry
-        first.updateScreenResponse(com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse(200, "OK", "Loaded", null, null))
+        first.updateScreenResponse(
+            com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse(
+                200,
+                "OK",
+                "Loaded",
+                null,
+                null,
+            ),
+        )
         state.replace(destination("replacement"))
         assertTrue(first !== state.currentEntry)
         assertEquals(null, state.currentEntry.screenResponse)
@@ -41,23 +49,15 @@ class DynamicNavigationStateTest {
     }
 
     @Test
-    fun replaceAndPresentationStoreParentWithoutChangingUnderlyingEntry() {
+    fun replaceStoresParentWithoutChangingUnderlyingEntry() {
         val state = DynamicNavigationState(destination("root"), "session-id")
         val root = state.currentEntry
         state.push(destination("child"), "first-action")
         state.replace(destination("replacement"), "replace-action")
+
         assertEquals("replace-action", state.currentEntry.parentActionId)
         assertSame(root, state.backStack.first())
-
-        assertTrue(state.present(destination("modal"), "modal-action"))
-        assertEquals("modal-action", state.presentationEntry?.parentActionId)
-        assertEquals("session-id", state.presentationEntry?.diagnosticSessionId)
-        assertFalse(state.present(destination("other"), "unused-action"))
-        assertEquals("modal-action", state.presentationEntry?.parentActionId)
-        assertTrue(state.dismissPresentation())
-        assertEquals("replace-action", state.currentEntry.parentActionId)
     }
-
 
     @Test
     fun pushCreatesIndependentEntriesEvenForSameDestination() {
@@ -69,7 +69,7 @@ class DynamicNavigationStateTest {
         val second = state.currentEntry
 
         assertTrue(first !== second)
-        assertTrue(state.backStack.size == 2)
+        assertEquals(2, state.backStack.size)
         assertFalse(first === second)
         assertTrue(first.entryId != second.entryId)
     }
@@ -96,46 +96,7 @@ class DynamicNavigationStateTest {
 
         assertSame(first, state.backStack.first())
         assertEquals("replacement", state.currentDestination.screenId)
-        assertTrue(state.backStack.size == 2)
-    }
-
-    @Test
-    fun presentationIsDistinctAndDismissRestoresUnderlyingEntry() {
-        val state = DynamicNavigationState(destination("root"))
-        val underlying = state.currentEntry
-
-        state.present(destination("modal"))
-        val presentation = state.presentationEntry
-
-        assertTrue(presentation != null)
-        assertTrue(presentation !== underlying)
-        assertSame(underlying, state.currentEntry)
-        assertTrue(state.dismissPresentation())
-        assertEquals(null, state.presentationEntry)
-        assertSame(underlying, state.currentEntry)
-    }
-
-    @Test
-    fun secondActivePresentationIsRejected() {
-        val state = DynamicNavigationState(destination("root"))
-        state.present(destination("firstModal"))
-
-        assertFalse(state.present(destination("secondModal")))
-        assertEquals("firstModal", state.presentationEntry?.destination?.screenId)
-    }
-
-    @Test
-    fun backDismissesPresentationBeforePoppingNavigationStack() {
-        val state = DynamicNavigationState(destination("root"))
-        state.push(destination("next"))
-        val current = state.currentEntry
-        state.present(destination("modal"))
-
-        assertTrue(state.pop())
-        assertEquals(null, state.presentationEntry)
-        assertSame(current, state.currentEntry)
-        assertTrue(state.pop())
-        assertEquals("root", state.currentDestination.screenId)
+        assertEquals(2, state.backStack.size)
     }
 
     @Test
@@ -153,41 +114,6 @@ class DynamicNavigationStateTest {
         assertSame(root, state.currentEntry)
         assertEquals(DynamicValue.StringValue("123"), root.bindings["phone"])
         assertEquals(DynamicValue.StringValue("456"), other.bindings["phone"])
-    }
-
-
-    @Test
-    fun dismissPresentationWithoutModalDoesNotPopNonRootStack() {
-        val state = DynamicNavigationState(destination("root"))
-        state.push(destination("second"))
-        val current = state.currentEntry
-
-        assertFalse(state.dismissPresentation())
-        assertSame(current, state.currentEntry)
-        assertEquals(2, state.backStack.size)
-    }
-
-    @Test
-    fun dismissPresentationWithoutModalDoesNotPopRoot() {
-        val state = DynamicNavigationState(destination("root"))
-        val root = state.currentEntry
-
-        assertFalse(state.dismissPresentation())
-        assertSame(root, state.currentEntry)
-        assertEquals(1, state.backStack.size)
-    }
-
-    @Test
-    fun dismissPresentationWithModalKeepsUnderlyingStack() {
-        val state = DynamicNavigationState(destination("root"))
-        state.push(destination("second"))
-        val current = state.currentEntry
-        assertTrue(state.present(destination("modal")))
-
-        assertTrue(state.dismissPresentation())
-        assertEquals(null, state.presentationEntry)
-        assertSame(current, state.currentEntry)
-        assertEquals(2, state.backStack.size)
     }
 
     private fun destination(id: String) =

@@ -102,8 +102,6 @@ private fun DynamicContent(
                     val traceContext = claim.trace
                     val operation = when (effect) {
                         is DynamicActionEffect.Navigate -> effect.operation.name.lowercase()
-                        is DynamicActionEffect.Present -> "present"
-                        DynamicActionEffect.Dismiss -> "dismiss"
                         is DynamicActionEffect.ExternalUri -> "external_uri"
                     }
                     var applied = false
@@ -118,10 +116,6 @@ private fun DynamicContent(
                                 DynamicActionResult.NavigationOperation.Pop ->
                                     check(navigationState.pop()) { "Navigation unavailable" }
                             }
-                            is DynamicActionEffect.Present ->
-                                check(navigationState.present(effect.destination, traceContext?.actionId)) { "Presentation unavailable" }
-                            DynamicActionEffect.Dismiss ->
-                                check(navigationState.dismissPresentation()) { "Dismiss unavailable" }
                         }
                         applied = true
                     } catch (cancellation: CancellationException) {

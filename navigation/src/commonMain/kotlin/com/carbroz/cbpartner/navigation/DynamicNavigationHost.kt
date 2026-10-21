@@ -3,7 +3,6 @@ package com.carbroz.cbpartner.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import androidx.compose.ui.window.Dialog
 
 @Composable
 fun DynamicNavigationHost(
@@ -19,10 +18,4 @@ fun DynamicNavigationHost(
             }
         },
     )
-
-    state.presentationEntry?.let { presentation ->
-        Dialog(onDismissRequest = { state.dismissPresentation() }) {
-            content(presentation)
-        }
-    }
 }
