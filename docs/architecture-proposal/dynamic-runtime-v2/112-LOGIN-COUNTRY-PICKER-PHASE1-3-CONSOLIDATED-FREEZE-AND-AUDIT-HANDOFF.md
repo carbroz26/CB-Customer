@@ -857,15 +857,42 @@ Selected state is derived from existing screen binding; no duplicate selection-s
 
 `itemSeparator` belongs to ListSection rendering and appears only between visible rows.
 
-## 18. Theme and asset target used by Login
+## 18. Theme and asset target — B3b owner correction (22 October 2026)
 
-The target theme declares a resource-backed background image:
+**This correction supersedes only the background-image placement and source fields in the historical Login example below.** Theme is independent and retains its gradient styling; the image belongs to the **Template** properties, not `theme.properties`. No business screen name is interpreted by Dynamic Runtime.
 
-```text
-images/partner_login_hero
-contentScale = crop
-alignment = topCenter
+The Template receives a backend-owned image URL and draws it behind the **entire Template surface**, including Header, Body and Footer, subject to the backend-specified Template bounds. The `source`, `contentScale`, and `alignment` properties are backend-controlled; an optional `fallbackUrl` may be provided for another trusted backend URL. The existing trusted API-origin asset boundary applies.
+
+Illustrative contract only (the URL path is an example, **not** a confirmed backend endpoint):
+
+```json
+{
+  "template": {
+    "type": "form_template",
+    "properties": {
+      "fillMaxSize": true,
+      "backgroundImage": {
+        "source": { "type": "url", "value": "/assets/backgrounds/example.webp" },
+        "contentScale": "crop",
+        "alignment": "topCenter"
+      }
+    }
+  },
+  "theme": {
+    "properties": {
+      "gradient": {
+        "angle": 135,
+        "colors": [
+          { "color": "#123456", "stop": 0 },
+          { "color": "#654321", "stop": 1 }
+        ]
+      }
+    }
+  }
+}
 ```
+
+**Precedence:** The historical Appendix A still carries a `theme.properties.backgroundImage` resource-source candidate from an earlier discussion. That field is **obsolete**, not a valid current Template background-image payload. Future backend JSON must use `template.properties.backgroundImage` with URL source. The values in the illustrative JSON above do not prescribe a particular background image or gradient.
 
 Resource identifiers used by the target include examples such as:
 
