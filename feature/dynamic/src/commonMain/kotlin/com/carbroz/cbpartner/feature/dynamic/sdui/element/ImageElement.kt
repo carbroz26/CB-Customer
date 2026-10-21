@@ -3,7 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.sdui.element
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
+import com.carbroz.cbpartner.feature.dynamic.sdui.asset.dynamicImageContentScale
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement as ImageElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
@@ -11,10 +11,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyImageSize
 import com.carbroz.cbpartner.feature.dynamic.sdui.dynamicGestures
-import com.carbroz.cbpartner.feature.dynamic.sdui.content.DynamicAssetImage
-import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
-import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_image_fallback
-import org.jetbrains.compose.resources.painterResource
+import com.carbroz.cbpartner.feature.dynamic.sdui.asset.DynamicAssetImage
 
 class ImageElement : ElementRenderer<ImageElementModel> {
     @Composable
@@ -22,19 +19,13 @@ class ImageElement : ElementRenderer<ImageElementModel> {
         Row(modifier = Modifier.applyDynamicPadding(element.padding)) {
             context.renderContent(element.leadingContent)
             DynamicAssetImage(
-                url = element.url,
+                source = element.source,
+                legacyUrl = element.url,
                 fallbackUrl = element.fallbackUrl,
-                fallbackPainter = painterResource(Res.drawable.dynamic_image_fallback),
+                context = context,
                 contentDescription = element.semanticRole,
                 modifier = Modifier.applyImageSize(element).dynamicGestures(element.actions, context.onAction, element.id),
-                contentScale = when (element.contentScale) {
-                    "crop" -> ContentScale.Crop
-                    "fillBounds" -> ContentScale.FillBounds
-                    "fillHeight" -> ContentScale.FillHeight
-                    "fillWidth" -> ContentScale.FillWidth
-                    "inside" -> ContentScale.Inside
-                    else -> null
-                },
+                contentScale = dynamicImageContentScale(element.contentScale),
             )
             context.renderContent(element.trailingContent)
         }

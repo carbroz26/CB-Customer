@@ -12,6 +12,7 @@ import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 
 class DynamicRenderContext(
     val registry: DynamicRegistry,
+    val trustedAssetOrigin: String? = null,
     val bindings: Map<String, DynamicValue> = emptyMap(),
     val contextValues: Map<String, DynamicValue> = emptyMap(),
     val stateValues: Map<String, DynamicValue> = emptyMap(),

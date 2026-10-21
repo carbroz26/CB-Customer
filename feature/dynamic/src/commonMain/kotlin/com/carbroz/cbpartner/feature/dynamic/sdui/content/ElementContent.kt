@@ -19,9 +19,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicSpacing
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 import com.carbroz.cbpartner.feature.dynamic.sdui.dynamicGestures
-import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
-import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
-import org.jetbrains.compose.resources.painterResource
+import com.carbroz.cbpartner.feature.dynamic.sdui.asset.DynamicAssetImage
 
 private fun Modifier.contentClick(content: ElementContent, context: DynamicRenderContext): Modifier =
     dynamicGestures(content.actions, context.onAction, content.id)
@@ -39,9 +37,10 @@ class IconContent : ElementContentRenderer<IconContentModel> {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             DynamicAssetImage(
-                url = content.url,
+                source = content.source,
+                legacyUrl = content.url,
                 fallbackUrl = content.fallbackUrl,
-                fallbackPainter = painterResource(Res.drawable.dynamic_icon_fallback),
+                context = context,
                 contentDescription = content.semanticRole,
                 size = content.size,
                 color = content.color,

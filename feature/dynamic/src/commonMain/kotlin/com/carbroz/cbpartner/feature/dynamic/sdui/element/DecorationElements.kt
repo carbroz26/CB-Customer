@@ -5,14 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement as IconElementModel
-import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
-import com.carbroz.cbpartner.feature.dynamic.generated.resources.dynamic_icon_fallback
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.sdui.dynamicGestures
-import com.carbroz.cbpartner.feature.dynamic.sdui.content.DynamicAssetImage
-import org.jetbrains.compose.resources.painterResource
+import com.carbroz.cbpartner.feature.dynamic.sdui.asset.DynamicAssetImage
 
 class IconElement : ElementRenderer<IconElementModel> {
     @Composable
@@ -25,9 +22,10 @@ class IconElement : ElementRenderer<IconElementModel> {
         ) {
             context.renderContent(element.leadingContent)
             DynamicAssetImage(
-                url = element.url,
+                source = element.source,
+                legacyUrl = element.url,
                 fallbackUrl = element.fallbackUrl,
-                fallbackPainter = painterResource(Res.drawable.dynamic_icon_fallback),
+                context = context,
                 contentDescription = element.semanticRole,
                 size = element.size,
                 color = element.color,
