@@ -1335,7 +1335,7 @@ class DynamicStoreTest {
                 InputElement(
                     id = "input",
                     binding = DynamicBinding("field"),
-                    validation = DynamicValidation(required = true, message = "Required"),
+                    validation = DynamicValidation(required = true, pattern = null, message = "Required"),
                 ),
             )
         } else emptyList()

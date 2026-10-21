@@ -307,135 +307,138 @@ class DynamicStore(
 
         actionJob = scope.launch {
             try {
-            val current = currentScreen() ?: return@launch
-            if (!matchesPresentation(current, presentationId, acceptedGeneration)) return@launch
-            val traceContext = entry.diagnosticSessionId?.let { session ->
-                TraceContext(session, Uuid.random().toString(), entry.parentActionId)
-            }
-            reportAction(traceContext, "action.started", action.type)
+                val current = currentScreen() ?: return@launch
+                if (!matchesPresentation(current, presentationId, acceptedGeneration)) return@launch
+                val traceContext = entry.diagnosticSessionId?.let { session ->
+                    TraceContext(session, Uuid.random().toString(), entry.parentActionId)
+                }
+                reportAction(traceContext, "action.started", action.type)
 
-            val executionBindings = bindingsForOrigin(current, presentationId)
-            if (executionBindings == null) {
-                reportAction(traceContext, "action.completed", action.type, "rejected")
-                return@launch
-            }
+                val executionBindings = bindingsForOrigin(current, presentationId)
+                if (executionBindings == null) {
+                    reportAction(traceContext, "action.completed", action.type, "rejected")
+                    return@launch
+                }
 
-            val context = contextProvider()
-            val stateValues = runtimeState.values.value
-            val validateFlag = runCatching {
-                if (action.type.trim().equals("request", ignoreCase = true)) {
-                    val flag = action.payload["validate"]
-                    if (flag == null) {
-                        false
+                val context = contextProvider()
+                val stateValues = runtimeState.values.value
+                val validateFlag = runCatching {
+                    if (action.type.trim().equals("request", ignoreCase = true)) {
+                        val flag = action.payload["validate"]
+                        if (flag == null) {
+                            false
+                        } else {
+                            val resolved = DynamicReferenceResolver.resolve(
+                                flag,
+                                executionBindings,
+                                context,
+                                stateValues,
+                            )
+                            (resolved as? DynamicValue.BooleanValue)?.value
+                                ?: error("Invalid dynamic request validate flag")
+                        }
                     } else {
-                        val resolved = DynamicReferenceResolver.resolve(
-                            flag,
-                            executionBindings,
-                            context,
-                            stateValues,
-                        )
-                        (resolved as? DynamicValue.BooleanValue)?.value
-                            ?: error("Invalid dynamic request validate flag")
+                        false
                     }
-                } else {
-                    false
                 }
-            }
-            val validationFlagError = validateFlag.exceptionOrNull()
-            if (validationFlagError != null) {
-                if (validationFlagError is CancellationException) throw validationFlagError
-                reportAction(traceContext, "action.completed", action.type, "validation_rejected")
-                reduceForOrigin(
-                    current.copy(validationMessage = "Unable to process request"),
-                    presentationId,
-                )
-                return@launch
-            }
-
-            if (validateFlag.getOrThrow()) {
-                val validationResult = runCatching {
-                    validateScope(
-                        current = current,
-                        presentationId = presentationId,
-                        bindings = executionBindings,
-                        context = context,
-                        state = stateValues,
-                    )
-                }
-                val validationError = validationResult.exceptionOrNull()
-                if (validationError != null) {
-                    if (validationError is CancellationException) throw validationError
-                    reportAction(
-                        traceContext,
-                        "action.completed",
-                        action.type,
-                        "validation_rejected",
-                    )
+                val validationFlagError = validateFlag.exceptionOrNull()
+                if (validationFlagError != null) {
+                    if (validationFlagError is CancellationException) throw validationFlagError
+                    reportAction(traceContext, "action.completed", action.type, "validation_rejected")
                     reduceForOrigin(
-                        current.copy(validationMessage = "Unable to validate form"),
+                        current.copy(validationMessage = "Unable to process request"),
                         presentationId,
                     )
                     return@launch
                 }
 
-                val checked = validationResult.getOrThrow()
-                val validatedState = applyValidationResult(current, presentationId, checked)
-                reduceForOrigin(validatedState, presentationId)
-                if (!checked.isValid) {
+                if (validateFlag.getOrThrow()) {
+                    val validationResult = runCatching {
+                        validateScope(
+                            current = current,
+                            presentationId = presentationId,
+                            bindings = executionBindings,
+                            context = context,
+                            state = stateValues,
+                        )
+                    }
+                    val validationError = validationResult.exceptionOrNull()
+                    if (validationError != null) {
+                        if (validationError is CancellationException) throw validationError
+                        reportAction(
+                            traceContext,
+                            "action.completed",
+                            action.type,
+                            "validation_rejected",
+                        )
+                        reduceForOrigin(
+                            current.copy(validationMessage = "Unable to validate form"),
+                            presentationId,
+                        )
+                        return@launch
+                    }
+
+                    val checked = validationResult.getOrThrow()
+                    val validatedState = applyValidationResult(current, presentationId, checked)
+                    reduceForOrigin(validatedState, presentationId)
+                    if (!checked.isValid) {
+                        reportAction(
+                            traceContext,
+                            "action.completed",
+                            action.type,
+                            "validation_rejected",
+                        )
+                        return@launch
+                    }
+                } else {
+                    reduceForOrigin(current.copy(validationMessage = null), presentationId)
+                }
+
+                val latest = currentScreen() ?: return@launch
+                if (!matchesPresentation(latest, presentationId, acceptedGeneration)) return@launch
+                val latestBindings = bindingsForOrigin(latest, presentationId) ?: return@launch
+                if (origin != null) {
+                    val active = currentScreen() ?: return@launch
+                    if (!matchesPresentation(active, presentationId, acceptedGeneration)) return@launch
+                    reduceForOrigin(active.copy(pendingButton = origin), presentationId)
+                }
+
+                val result = actionExecutor.execute(
+                    action = action,
+                    bindings = latestBindings,
+                    context = context,
+                    state = stateValues,
+                    traceContext = traceContext,
+                )
+                if (result.isSuccess) {
+                    coroutineContext.ensureActive()
+                    if (!matchesPresentation(currentScreen(), presentationId, acceptedGeneration)) return@launch
+                    val accepted = applyActionResult(result.getOrThrow(), traceContext)
                     reportAction(
                         traceContext,
                         "action.completed",
                         action.type,
-                        "validation_rejected",
+                        if (accepted) "success" else "rejected",
                     )
-                    return@launch
-                }
-            } else {
-                reduceForOrigin(current.copy(validationMessage = null), presentationId)
-            }
-
-            val latest = currentScreen() ?: return@launch
-            val latestBindings = bindingsForOrigin(latest, presentationId) ?: return@launch
-            if (origin != null) {
-                val active = currentScreen() ?: return@launch
-                if (!matchesPresentation(active, presentationId, acceptedGeneration)) return@launch
-                reduceForOrigin(active.copy(pendingButton = origin), presentationId)
-            }
-
-            val result = actionExecutor.execute(
-                action = action,
-                bindings = latestBindings,
-                context = context,
-                state = stateValues,
-                traceContext = traceContext,
-            )
-            if (result.isSuccess) {
-                coroutineContext.ensureActive()
-                if (!matchesPresentation(currentScreen(), presentationId, acceptedGeneration)) return@launch
-                val accepted = applyActionResult(result.getOrThrow(), traceContext)
-                reportAction(
-                    traceContext,
-                    "action.completed",
-                    action.type,
-                    if (accepted) "success" else "rejected",
-                )
-                if (!accepted) {
+                    if (!accepted) {
+                        val screen = currentScreen() ?: latest
+                        reduceForOrigin(
+                            screen.copy(validationMessage = "Unable to complete action"),
+                            presentationId,
+                        )
+                    }
+                } else {
+                    val error = result.exceptionOrNull()
+                    if (error is CancellationException) throw error
+                    coroutineContext.ensureActive()
+                    if (!matchesPresentation(currentScreen(), presentationId, acceptedGeneration)) return@launch
+                    reportAction(traceContext, "action.completed", action.type, "failed")
                     val screen = currentScreen() ?: latest
                     reduceForOrigin(
                         screen.copy(validationMessage = "Unable to complete action"),
                         presentationId,
                     )
                 }
-            } else {
-                val error = result.exceptionOrNull()
-                if (error is CancellationException) throw error
-                reportAction(traceContext, "action.completed", action.type, "failed")
-                val screen = currentScreen() ?: latest
-                reduceForOrigin(
-                    screen.copy(validationMessage = "Unable to complete action"),
-                    presentationId,
-                )
-            }
             } finally {
                 if (requestPresentationId == presentationId &&
                     requestPresentationGeneration == acceptedGeneration) {

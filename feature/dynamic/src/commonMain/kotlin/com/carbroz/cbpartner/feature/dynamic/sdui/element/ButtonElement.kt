@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -34,7 +36,10 @@ class ButtonElement : ElementRenderer<ButtonElementModel> {
             .applyDynamicBackground(element.background, element.shape.toComposeShape())
         Box(
             modifier = modifier
-                .then(if (pending) Modifier.semantics { disabled() } else Modifier)
+                .then(if (pending) Modifier.semantics {
+                    role = Role.Button
+                    disabled()
+                } else Modifier)
                 .then(if (pending) Modifier else Modifier.dynamicGestures(
                     actions = element.actions,
                     dispatch = { action ->
