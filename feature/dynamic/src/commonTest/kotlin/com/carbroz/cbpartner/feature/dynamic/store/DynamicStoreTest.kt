@@ -1536,6 +1536,36 @@ class DynamicStoreTest {
     }
 
     @Test
+    fun directDomainDuplicateButtonIdsCannotReceiveAmbiguousPendingOrigin() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val (response, action) = pendingResponse()
+        val sourceScreen = assertNotNull(response.data)
+        val original = assertIs<FormTemplate>(sourceScreen.template)
+        val component = assertIs<StackComponent>(original.components.single())
+        val button = assertIs<ButtonElement>(component.elements.single())
+        val duplicated = response.copy(data = sourceScreen.copy(
+            template = original.copy(components = listOf(
+                component.copy(elements = listOf(button, button.copy(text = "Another"))),
+            )),
+        ))
+        var submits = 0
+        val repo = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/submit") submits++
+                return Result.success(duplicated)
+            }
+        }
+        val store = store(DynamicNavigationEntry(destination("root")), repo, DynamicRuntimeState(), dispatcher)
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.Action(action, buttonId = "shared"))
+        advanceUntilIdle()
+        assertEquals(0, submits)
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        store.close()
+    }
+
+    @Test
     fun presentationGenerationRejectsStaleCallbacksAfterDismissAndReopen() = runTest {
         val dispatcher = UnconfinedTestDispatcher(testScheduler)
         val (response, action) = pendingResponse(withPresentation = true)

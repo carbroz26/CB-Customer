@@ -469,16 +469,18 @@ class DynamicStore(
 
     /** Lookup for the supported static Button tree only; repeated ListSection rows are deferred. */
     private fun findButton(components: List<DynamicComponent>, id: String): ButtonElement? {
+        val matches = mutableListOf<ButtonElement>()
         components.forEach { component ->
-            component.elements.filterIsInstance<ButtonElement>().firstOrNull { it.id == id }?.let { return it }
+            matches += component.elements.filterIsInstance<ButtonElement>().filter { it.id == id }
             component.sections.forEach { section ->
-                section.elements.filterIsInstance<ButtonElement>().firstOrNull { it.id == id }?.let { return it }
+                matches += section.elements.filterIsInstance<ButtonElement>().filter { it.id == id }
                 section.groups.forEach { group ->
-                    group.elements.filterIsInstance<ButtonElement>().firstOrNull { it.id == id }?.let { return it }
+                    matches += group.elements.filterIsInstance<ButtonElement>().filter { it.id == id }
                 }
             }
         }
-        return null
+        // Defensive runtime guard for direct-domain callers that bypass DTO mapping.
+        return matches.singleOrNull()
     }
 
     private fun validateScope(
