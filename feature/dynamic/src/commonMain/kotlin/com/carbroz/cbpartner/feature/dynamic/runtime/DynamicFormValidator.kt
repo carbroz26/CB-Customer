@@ -48,19 +48,19 @@ class DynamicFormValidator(
         components.forEach { component ->
             component.elements.forEach { element ->
                 validateElement(element, bindings, context, state)?.let { (key, message) ->
-                    errors.putIfAbsent(key, message)
+                    if (key !in errors) errors[key] = message
                 }
             }
             component.sections.forEach { section ->
                 section.elements.forEach { element ->
                     validateElement(element, bindings, context, state)?.let { (key, message) ->
-                        errors.putIfAbsent(key, message)
+                        if (key !in errors) errors[key] = message
                     }
                 }
                 section.groups.forEach { group ->
                     group.elements.forEach { element ->
                         validateElement(element, bindings, context, state)?.let { (key, message) ->
-                            errors.putIfAbsent(key, message)
+                            if (key !in errors) errors[key] = message
                         }
                     }
                 }
