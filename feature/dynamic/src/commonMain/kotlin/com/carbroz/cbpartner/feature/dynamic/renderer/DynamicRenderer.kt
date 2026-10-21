@@ -25,6 +25,8 @@ class DynamicRenderer(
     private val registry: DynamicRegistry,
     private val trustedAssetOrigin: String? = null,
     private val onAction: (DynamicAction) -> Unit = {},
+    private val onButtonAction: (DynamicAction, String) -> Unit = { action, _ -> onAction(action) },
+    private val pendingButtonId: String? = null,
     private val onValueChange: (String, DynamicValue) -> Unit = { _, _ -> },
     private val onFocusChange: (String, Boolean) -> Unit = { _, _ -> },
     private val bindings: Map<String, DynamicValue> = emptyMap(),
@@ -68,6 +70,8 @@ class DynamicRenderer(
             validationErrors = validationErrors,
             focusedBinding = focusedBinding,
             onAction = onAction,
+            onButtonAction = onButtonAction,
+            pendingButtonId = pendingButtonId,
             onValueChange = onValueChange,
             onFocusChange = onFocusChange,
         )

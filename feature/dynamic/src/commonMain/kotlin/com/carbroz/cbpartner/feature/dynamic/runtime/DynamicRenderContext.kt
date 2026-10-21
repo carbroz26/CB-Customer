@@ -19,6 +19,8 @@ class DynamicRenderContext(
     val validationErrors: Map<String, String> = emptyMap(),
     val focusedBinding: String? = null,
     val onAction: (DynamicAction) -> Unit = {},
+    val onButtonAction: (DynamicAction, String) -> Unit = { action, _ -> onAction(action) },
+    val pendingButtonId: String? = null,
     val onValueChange: (String, DynamicValue) -> Unit = { _, _ -> },
     val onFocusChange: (String, Boolean) -> Unit = { _, _ -> },
 ) {

@@ -53,7 +53,12 @@ fun DynamicContainer(
         onDispose { store.close() }
     }
 
-    fun dispatchAction(action: DynamicAction, presentationId: String? = null) {
+    fun dispatchAction(
+        action: DynamicAction,
+        presentationId: String? = null,
+        buttonId: String? = null,
+        presentationGeneration: Long? = null,
+    ) {
         val safeType = when (action.type.trim().lowercase()) {
             "request", "navigate", "present", "dismiss", "external_uri", "state", "sequence" ->
                 action.type.trim().lowercase()
@@ -66,7 +71,7 @@ fun DynamicContainer(
                     " type=" + safeType
             }
         }
-        store.accept(DynamicIntent.Action(action, presentationId))
+        store.accept(DynamicIntent.Action(action, presentationId, buttonId, presentationGeneration))
     }
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -83,7 +88,13 @@ fun DynamicContainer(
                         stateValues = runtimeValues,
                         validationErrors = current.screen.validationErrors,
                         focusedBinding = current.screen.focusedBinding,
+                        pendingButtonId = current.screen.pendingButton?.takeIf {
+                            it.presentationId == null
+                        }?.id,
                         onAction = { action -> dispatchAction(action) },
+                        onButtonAction = { action, buttonId ->
+                            dispatchAction(action, buttonId = buttonId)
+                        },
                         onValueChange = { key, value ->
                             store.accept(DynamicIntent.ValueChanged(key, value))
                         },
@@ -114,7 +125,25 @@ fun DynamicContainer(
                             stateValues = runtimeValues,
                             validationErrors = current.screen.presentationValidationErrors,
                             focusedBinding = current.screen.presentationFocusedBinding,
-                            onAction = { action -> dispatchAction(action, presentation.id) },
+                            pendingButtonId = current.screen.pendingButton?.takeIf {
+                                it.presentationId == presentation.id &&
+                                    it.presentationGeneration == current.screen.presentationGeneration
+                            }?.id,
+                            onAction = { action ->
+                                dispatchAction(
+                                    action,
+                                    presentation.id,
+                                    presentationGeneration = current.screen.presentationGeneration,
+                                )
+                            },
+                            onButtonAction = { action, buttonId ->
+                                dispatchAction(
+                                    action,
+                                    presentation.id,
+                                    buttonId,
+                                    current.screen.presentationGeneration,
+                                )
+                            },
                             onValueChange = { key, value ->
                                 store.accept(
                                     DynamicIntent.PresentationValueChanged(

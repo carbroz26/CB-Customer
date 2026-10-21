@@ -39,6 +39,8 @@ fun DynamicPresentationHost(
     validationErrors: Map<String, String>,
     focusedBinding: String?,
     onAction: (DynamicAction) -> Unit,
+    onButtonAction: (DynamicAction, String) -> Unit = { action, _ -> onAction(action) },
+    pendingButtonId: String? = null,
     onValueChange: (String, DynamicValue) -> Unit,
     onFocusChange: (String, Boolean) -> Unit,
     onDismiss: () -> Unit,
@@ -52,6 +54,8 @@ fun DynamicPresentationHost(
         validationErrors = validationErrors,
         focusedBinding = focusedBinding,
         onAction = onAction,
+        onButtonAction = onButtonAction,
+        pendingButtonId = pendingButtonId,
         onValueChange = onValueChange,
         onFocusChange = onFocusChange,
     )
