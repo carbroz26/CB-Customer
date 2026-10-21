@@ -137,7 +137,7 @@ class DynamicFormValidatorTest {
                 arguments = mapOf(
                     "region" to DynamicValue.ObjectValue(
                         mapOf(
-                            "$binding" to DynamicValue.StringValue("countryId"),
+                            "\$binding" to DynamicValue.StringValue("countryId"),
                         ),
                     ),
                 ),

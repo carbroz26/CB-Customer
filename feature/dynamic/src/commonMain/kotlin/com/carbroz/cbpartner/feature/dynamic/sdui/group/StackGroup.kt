@@ -30,7 +30,7 @@ class StackGroup : GroupRenderer<StackGroupModel> {
         val validationMessage = validation?.binding?.let(context.validationErrors::get)
         val focused = group.focusPresentation?.binding == context.focusedBinding
         val activeBorder = when {
-            validationMessage != null -> validation?.errorBorder
+            validationMessage != null -> validation.errorBorder
             focused -> group.focusPresentation?.border
             else -> group.border
         }
@@ -81,7 +81,7 @@ class StackGroup : GroupRenderer<StackGroupModel> {
             }
 
             if (validationMessage != null) {
-                val style = validation?.messageStyle
+                val style = validation.messageStyle
                 Text(
                     text = validationMessage,
                     modifier = Modifier.applyDynamicSpacing(style?.spacing),
