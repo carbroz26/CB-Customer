@@ -63,6 +63,9 @@ class TextElement : ElementRenderer<TextElementModel> {
             }.toAnnotatedString()
         }
 
+        val maxLines = element.maxLines?.also {
+            require(it > 0) { "Dynamic text maxLines must be greater than zero" }
+        } ?: Int.MAX_VALUE
         val overflow = when (element.overflow) {
             null, "clip" -> TextOverflow.Clip
             "ellipsis" -> TextOverflow.Ellipsis
@@ -97,7 +100,7 @@ class TextElement : ElementRenderer<TextElementModel> {
                 },
                 letterSpacing = element.letterSpacing?.sp ?: TextUnit.Unspecified,
                 lineHeight = element.lineHeight?.sp ?: TextUnit.Unspecified,
-                maxLines = element.maxLines ?: Int.MAX_VALUE,
+                maxLines = maxLines,
                 overflow = overflow,
             )
             context.renderContent(element.trailingContent)
