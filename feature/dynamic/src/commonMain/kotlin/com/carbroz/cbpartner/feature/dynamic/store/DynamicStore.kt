@@ -47,13 +47,18 @@ sealed interface DynamicIntent {
         val presentationId: String,
         val key: String,
         val value: DynamicValue,
+        val presentationGeneration: Long? = null,
     ) : DynamicIntent
     data class PresentationFocusChanged(
         val presentationId: String,
         val key: String,
         val focused: Boolean,
+        val presentationGeneration: Long? = null,
     ) : DynamicIntent
-    data class DismissPresentation(val presentationId: String) : DynamicIntent
+    data class DismissPresentation(
+        val presentationId: String,
+        val presentationGeneration: Long? = null,
+    ) : DynamicIntent
 }
 
 sealed interface DynamicState {
@@ -103,10 +108,11 @@ class DynamicStore(
             is DynamicIntent.ValueChanged -> updateBinding(intent.key, intent.value)
             is DynamicIntent.FocusChanged -> updateFocus(intent.key, intent.focused)
             is DynamicIntent.PresentationValueChanged ->
-                updatePresentationBinding(intent.presentationId, intent.key, intent.value)
+                updatePresentationBinding(intent.presentationId, intent.key, intent.value, intent.presentationGeneration)
             is DynamicIntent.PresentationFocusChanged ->
-                updatePresentationFocus(intent.presentationId, intent.key, intent.focused)
-            is DynamicIntent.DismissPresentation -> dismissPresentation(intent.presentationId)
+                updatePresentationFocus(intent.presentationId, intent.key, intent.focused, intent.presentationGeneration)
+            is DynamicIntent.DismissPresentation ->
+                dismissPresentation(intent.presentationId, intent.presentationGeneration)
             is DynamicIntent.Action -> handleAction(
                 intent.action,
                 intent.presentationId,
@@ -142,9 +148,10 @@ class DynamicStore(
         presentationId: String,
         key: String,
         value: DynamicValue,
+        presentationGeneration: Long?,
     ) {
         val current = currentScreen() ?: return
-        if (current.activePresentationId != presentationId) return
+        if (!matchesCurrentPresentation(current, presentationId, presentationGeneration)) return
         val presentation = findPresentation(current, presentationId) ?: return
         val local = key in presentation.initialBindings
 
@@ -174,9 +181,10 @@ class DynamicStore(
         presentationId: String,
         key: String,
         focused: Boolean,
+        presentationGeneration: Long?,
     ) {
         val current = currentScreen() ?: return
-        if (current.activePresentationId != presentationId) return
+        if (!matchesCurrentPresentation(current, presentationId, presentationGeneration)) return
         val nextFocused = when {
             focused -> key
             current.presentationFocusedBinding == key -> null
@@ -188,11 +196,18 @@ class DynamicStore(
         )
     }
 
-    private fun dismissPresentation(presentationId: String) {
+    private fun dismissPresentation(presentationId: String, presentationGeneration: Long?) {
         val current = currentScreen() ?: return
-        if (current.activePresentationId != presentationId) return
+        if (!matchesCurrentPresentation(current, presentationId, presentationGeneration)) return
         closeActivePresentation()
     }
+
+    private fun matchesCurrentPresentation(
+        current: DynamicScreenState,
+        id: String,
+        generation: Long?,
+    ): Boolean = current.activePresentationId == id &&
+        (generation == null || current.presentationGeneration == generation)
 
     private fun load() {
         if (currentScreen()?.response != null || loadJob?.isActive == true) return

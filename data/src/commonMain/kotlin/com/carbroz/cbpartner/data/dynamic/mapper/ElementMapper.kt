@@ -266,8 +266,9 @@ class ElementMapper(
             "Dynamic button loading keys are invalid"
         }
         for (key in listOf("whileActionPending", "disableWhilePending", "replaceContent")) {
-            require(values.boolean(raw, key) == true) {
-                "Dynamic button loading $key must be true"
+            val declared = (raw[key] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull
+            require(declared == true) {
+                "Dynamic button loading $key must be a literal true boolean"
             }
         }
         val indicator = raw["indicator"] as? JsonObject

@@ -738,7 +738,7 @@ class DynamicResponseMapperTest {
             map(""""template":{"id":"t","type":"form_template","header":{"components":[$component]},"components":[$component]}""")
         }
         assertFailsWith<IllegalArgumentException> {
-            map(""""template":{"id":"t","type":"form_template","components":[$component],"footer":{"components":[$component]}""")
+            map(""""template":{"id":"t","type":"form_template","components":[$component],"footer":{"components":[$component]}}""")
         }
         assertFailsWith<IllegalArgumentException> {
             map(""""template":{"id":"t","type":"form_template","components":[{"id":"c","type":"stack_component","sections":[{"id":"s","type":"stack_section","elements":[$element],"groups":[{"id":"g","type":"stack_group","elements":[$element]}]}]}]}""")

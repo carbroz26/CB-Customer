@@ -150,6 +150,7 @@ fun DynamicContainer(
                                         presentationId = presentation.id,
                                         key = key,
                                         value = value,
+                                        presentationGeneration = current.screen.presentationGeneration,
                                     ),
                                 )
                             },
@@ -159,11 +160,17 @@ fun DynamicContainer(
                                         presentationId = presentation.id,
                                         key = key,
                                         focused = focused,
+                                        presentationGeneration = current.screen.presentationGeneration,
                                     ),
                                 )
                             },
                             onDismiss = {
-                                store.accept(DynamicIntent.DismissPresentation(presentation.id))
+                                store.accept(
+                                    DynamicIntent.DismissPresentation(
+                                        presentation.id,
+                                        current.screen.presentationGeneration,
+                                    ),
+                                )
                             },
                         )
                     }
