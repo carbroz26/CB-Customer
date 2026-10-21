@@ -46,5 +46,5 @@ fun App(
         onDispose { koin.close() }
     }
 
-    ApplicationContent(koin.koin, runtimeMetadataProvider, retainedSession, apiBaseUrl.url.toString())
+    ApplicationContent(koin.koin, runtimeMetadataProvider, retainedSession, apiBaseUrl.toString())
 }
