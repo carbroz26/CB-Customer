@@ -577,6 +577,64 @@ class DynamicResponseMapperTest {
     }
 
     @Test
+    fun mapsTypedImageContentAndRemoteImageElementWithoutLosingProperties() {
+        val mapper = ElementMapper(json, DynamicValueMapper())
+        val image = assertIs<ImageElement>(mapper.map(json.parseToJsonElement(
+            """{"id":"hero","type":"image","properties":{"source":{"type":"url","value":"/assets/hero.png"},"fallbackUrl":"/assets/backup.png","contentScale":"crop"}}"""
+        ).jsonObject))
+        assertIs<DynamicAssetSource.Url>(image.source)
+        assertEquals("", image.url)
+        assertEquals("/assets/backup.png", image.fallbackUrl)
+        assertEquals("crop", image.contentScale)
+
+        val label = assertIs<TextElement>(mapper.map(json.parseToJsonElement(
+            """{"id":"title","type":"text","properties":{"text":"Brand","leading":[{"id":"logo","type":"image","properties":{"source":{"type":"url","value":"/assets/logo.png"},"fallbackUrl":"/assets/logo2.png","width":24,"height":18,"contentScale":"fit","spacing":{"end":8}}}]}}"""
+        ).jsonObject))
+        val accessory = assertIs<ImageContent>(label.leadingContent.single())
+        assertIs<DynamicAssetSource.Url>(accessory.source)
+        assertEquals("/assets/logo2.png", accessory.fallbackUrl)
+        assertEquals(24.0, accessory.width)
+        assertEquals(18.0, accessory.height)
+        assertEquals(8.0, accessory.spacing?.end)
+    }
+
+    @Test
+    fun rejectsInvalidTypedAssetsAndConflictingLegacyKeys() {
+        val mapper = ElementMapper(json, DynamicValueMapper())
+        for (properties in listOf(
+            """{"source":{"type":"resource","value":"images/logo"},"url":""}""",
+            """{"source":{"type":"url","value":"/assets/image.png"},"url":"/assets/other.png"}""",
+            """{"source":null,"url":"/assets/image.png"}""",
+            """{"source":{"type":"resource","value":"images/logo"},"fallbackUrl":"/assets/no.png"}""",
+            """{"source":{"type":"url","value":123}}""",
+            """{"source":{"type":"url","value":""}}""",
+            """{"source":{"type":"url","value":"/assets/image.png"},"contentScale":"unknown"}""",
+            """{"fallbackUrl":"/assets/no.png"}""",
+        )) {
+            assertFailsWith<IllegalArgumentException> {
+                mapper.map(json.parseToJsonElement(
+                    """{"id":"hero","type":"image","properties":$properties}"""
+                ).jsonObject)
+            }
+        }
+
+        val contents = ElementContentMapper(json, DynamicValueMapper())
+        for (properties in listOf(
+            """{"url":"/assets/logo.png"}""",
+            """{"source":{"type":"resource","value":"images/logo"},"url":""}""",
+            """{"source":{"type":"resource","value":"images/logo"},"fallbackUrl":"/assets/no.png"}""",
+            """{"source":{"type":"url","value":"/assets/logo.png"},"height":-1}""",
+            """{"source":{"type":"url","value":"/assets/logo.png"},"contentScale":"not_supported"}""",
+        )) {
+            assertFailsWith<IllegalArgumentException> {
+                contents.map(json.parseToJsonElement(
+                    """{"type":"image","properties":$properties}"""
+                ).jsonObject)
+            }
+        }
+    }
+
+    @Test
     fun listSectionRequiresExactlyOneItemsSource() {
         fun response(properties: String): DynamicResponseDto = json.decodeFromString(
             """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"s","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"c","type":"stack_component","sections":[{"id":"list","type":"list_section","properties":$properties,"groups":[{"id":"row","type":"stack_group"}]}]}]}}}""",

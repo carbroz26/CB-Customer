@@ -5,6 +5,9 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent as St
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent as DividerContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.DividerElement as DividerElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconContentModel
+import com.carbroz.cbpartner.domain.model.dynamic.content.ImageContent as ImageContentModel
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicAssetSource
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup as StackGroupModel
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection as StackSectionModel
@@ -12,6 +15,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormT
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
+import com.carbroz.cbpartner.feature.dynamic.sdui.content.ImageContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.DividerElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.IconElement
@@ -60,6 +64,7 @@ class DynamicRegistryTest {
                 IconElement(),
             )
             .content(IconContentModel::class, IconContent())
+            .content(ImageContentModel::class, ImageContent())
             .content(DividerContentModel::class, DividerContent())
             .build()
 
@@ -97,6 +102,7 @@ class DynamicRegistryTest {
         )
         assertNotNull(registry.content(iconContent))
         assertNotNull(registry.content(dividerContent))
+        assertNotNull(registry.content(ImageContentModel(source = DynamicAssetSource.Resource(DynamicValue.StringValue("images/logo")))))
 
         val templateOnlyRegistry = DynamicRegistry.builder()
             .template(FormTemplateModel::class, FormTemplate())
@@ -106,6 +112,7 @@ class DynamicRegistryTest {
         assertNull(templateOnlyRegistry.element(textElement))
         assertNull(templateOnlyRegistry.content(iconContent))
         assertNull(templateOnlyRegistry.content(dividerContent))
+        assertNull(templateOnlyRegistry.content(ImageContentModel(source = DynamicAssetSource.Resource(DynamicValue.StringValue("images/logo")))))
     }
 
     @Test
@@ -120,6 +127,7 @@ class DynamicRegistryTest {
         )
         assertNotNull(registry.element(divider))
         assertNotNull(registry.content(DividerContentModel()))
+        assertNotNull(registry.content(ImageContentModel(source = DynamicAssetSource.Resource(DynamicValue.StringValue("images/logo")))))
     }
 
     @Test

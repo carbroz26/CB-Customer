@@ -1,0 +1,51 @@
+package com.carbroz.cbpartner.feature.dynamic.sdui.asset
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+class DynamicAssetImageTest {
+    private val origin = "https://api.example.com"
+
+    @Test
+    fun acceptsOnlySameOriginOrRelativeAssetPaths() {
+        assertEquals("https://api.example.com/assets/logo.png",
+            trustedAssetUrl("https://api.example.com/assets/logo.png", origin))
+        assertEquals("https://api.example.com/assets/logo.png",
+            trustedAssetUrl("/assets/logo.png", origin))
+        assertEquals("https://api.example.com/assets/logo.png",
+            trustedAssetUrl("assets/logo.png", origin))
+    }
+
+    @Test
+    fun rejectsUntrustedOriginsCredentialsAndUnsafePaths() {
+        for (candidate in listOf(
+            "https://external.example.com/assets/logo.png",
+            "https://api.example.com.attacker.example/img.png",
+            "http://api.example.com/assets/logo.png",
+            "//external.example.com/image.png",
+            "data:image/png;base64,ABCD",
+            "file:///private/secret.png",
+            "assets/../private.png",
+            "/assets//logo.png",
+            "/assets/%2e%2e/secret.png",
+            "/assets/logo.png?token=private",
+            "/assets/logo.png#fragment",
+            "/assets\\logo.png",
+            " /assets/logo.png",
+            "assets/logo.png ",
+        )) assertNull(trustedAssetUrl(candidate, origin))
+        assertNull(trustedAssetUrl("/assets/logo.png", null))
+    }
+
+    @Test
+    fun onlyExplicitPackagedResourcesAreEligible() {
+        assertTrue(validPackagedAssetId("flags/in"))
+        assertTrue(validPackagedAssetId("images/cb_partner_logo"))
+        assertFalse(validPackagedAssetId("../private"))
+        assertFalse(validPackagedAssetId("icons/close.png"))
+        assertNull(packagedAssetResource("images/cb_partner_logo"))
+    }
+}
