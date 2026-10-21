@@ -163,12 +163,57 @@ class DynamicResponseMapperTest {
     }
 
     @Test
+    fun mapsBackendUrlBackgroundForEntireFormTemplateWithoutChangingTheme() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"sample","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"form","type":"form_template","properties":{"fillMaxSize":true,"backgroundImage":{"source":{"type":"url","value":"/assets/background.webp"},"contentScale":"crop","alignment":"topCenter","fallbackUrl":"/assets/backup.webp"}},"header":{"components":[]},"components":[{"id":"body","type":"stack_component"}],"footer":{"components":[]}},"theme":{"theme":"light","statusBar":"transparent","properties":{"gradient":{"angle":135,"colors":[{"color":"#123456","stop":0},{"color":"#654321","stop":1}]}}}}}""",
+        )
+        val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
+        val template = assertIs<FormTemplate>(screen.template)
+        val background = assertNotNull(template.backgroundImage)
+        assertIs<DynamicAssetSource.Url>(background.source)
+        assertEquals(DynamicValue.StringValue("/assets/background.webp"), background.source.value)
+        assertEquals("crop", background.contentScale)
+        assertEquals("topCenter", background.alignment)
+        assertEquals("/assets/backup.webp", background.fallbackUrl)
+        assertEquals(true, template.fillMaxSize)
+        assertEquals(1, template.components.size)
+        assertNotNull(template.header)
+        assertNotNull(template.footer)
+        assertNotNull(screen.theme?.properties?.get("gradient"))
+        assertEquals(null, screen.theme?.properties?.get("backgroundImage"))
+    }
+
+    @Test
+    fun rejectsInvalidTemplateBackgroundConfigurations() {
+        fun response(raw: String): DynamicResponseDto = json.decodeFromString(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"sample","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"form","type":"form_template","properties":{"backgroundImage":$raw}}}}""",
+        )
+        val invalid = listOf(
+            "null", "123", """{}""",
+            """{"source":{"type":"resource","value":"images/sample"},"contentScale":"crop","alignment":"topCenter"}""",
+            """{"source":{"type":"url","value":"/asset"},"alignment":"topCenter"}""",
+            """{"source":{"type":"url","value":"/asset"},"contentScale":"crop"}""",
+            """{"source":{"type":"url","value":"/asset"},"contentScale":"unknown","alignment":"center"}""",
+            """{"source":{"type":"url","value":"/asset"},"contentScale":"crop","alignment":"wrong"}""",
+            """{"source":{"type":"url","value":"/asset"},"contentScale":"crop","alignment":5}""",
+            """{"source":{"type":"url","value":"/asset"},"contentScale":"crop","alignment":"center","fallbackUrl":null}""",
+            """{"source":{"type":"url","value":"/asset"},"contentScale":"crop","alignment":"center","unexpected":1}""",
+        )
+        invalid.forEach { value ->
+            assertFailsWith<IllegalArgumentException>(value) {
+                DynamicResponseMapper(json).map(response(value))
+            }
+        }
+    }
+
+    @Test
     fun existingBodyOnlyScreenHasNoHeaderOrFooterSlots() {
         val dto = json.decodeFromString<DynamicResponseDto>(DynamicContractFixtures.GENERIC_SCREEN_JSON)
         val template = assertIs<FormTemplate>(assertNotNull(DynamicResponseMapper(json).map(dto).data).template)
         assertEquals(null, template.header)
         assertEquals(null, template.footer)
         assertEquals(2, template.components.size)
+        assertEquals(null, template.backgroundImage)
     }
 
     @Test
