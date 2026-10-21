@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
@@ -86,7 +87,7 @@ class DynamicFormValidator(
     }
 
     private fun validateElement(
-        element: Any,
+        element: DynamicElement,
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
