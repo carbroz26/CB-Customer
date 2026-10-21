@@ -5,7 +5,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.*
 import kotlinx.serialization.json.*
 
 class DynamicValueMapper {
-    fun toDynamicValueMap(value: JsonObject): Map<String, DynamicValue> = value.entries.associate { (key, item) -> key to toDynamicValue(item) }
+    fun toDynamicValueMap(value: JsonObject): Map<String, DynamicValue> =
+        value.entries.associate { (key, item) -> key to toDynamicValue(item) }
 
     fun toDynamicValue(value: JsonElement): DynamicValue = when (value) {
         JsonNull -> DynamicValue.NullValue
@@ -85,15 +86,31 @@ class DynamicValueMapper {
         }
     }
 
-    fun border(properties: JsonObject): DynamicBorder? {
-        val value = properties["border"] as? JsonObject ?: return null
+    fun border(properties: JsonObject, key: String = "border"): DynamicBorder? {
+        val value = properties[key] as? JsonObject ?: return null
         return DynamicBorder(number(value, "width") ?: return null, string(value, "color") ?: return null)
     }
 
     fun shape(properties: JsonObject): DynamicShape? {
         val value = properties["shape"] as? JsonObject ?: return null
         if (string(value, "type") != "roundedCorner") return null
-        return DynamicShape.RoundedCorner(number(value, "cornerRadius") ?: 0.0)
+        return DynamicShape.RoundedCorner(
+            cornerRadius = number(value, "cornerRadius") ?: 0.0,
+            topStart = number(value, "topStart"),
+            topEnd = number(value, "topEnd"),
+            bottomStart = number(value, "bottomStart"),
+            bottomEnd = number(value, "bottomEnd"),
+        )
+    }
+
+    fun assetSource(properties: JsonObject, key: String = "source"): DynamicAssetSource? {
+        val value = properties[key] as? JsonObject ?: return null
+        val sourceValue = value["value"] ?: error("Dynamic asset source value is required")
+        return when (string(value, "type")) {
+            "url" -> DynamicAssetSource.Url(toDynamicValue(sourceValue))
+            "resource" -> DynamicAssetSource.Resource(toDynamicValue(sourceValue))
+            else -> throw IllegalArgumentException("Unsupported dynamic asset source type: " + string(value, "type"))
+        }
     }
 
     fun spans(properties: JsonObject): List<DynamicTextSpan> = (properties["spans"] as? JsonArray).orEmpty().mapNotNull { item ->
@@ -119,9 +136,7 @@ class DynamicValueMapper {
             background = background(value),
             border = border(value),
             shape = shape(value),
-            focusBorder = (value["focusBorder"] as? JsonObject)?.let { focus ->
-                DynamicBorder(number(focus, "width") ?: return@let null, string(focus, "color") ?: return@let null)
-            },
+            focusBorder = border(value, "focusBorder"),
         )
     }
 

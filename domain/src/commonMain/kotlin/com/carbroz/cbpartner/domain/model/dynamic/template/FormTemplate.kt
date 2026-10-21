@@ -18,4 +18,5 @@ data class FormTemplate(
     override val components: List<DynamicComponent> = emptyList(),
     override val header: TemplateSlot? = null,
     override val footer: TemplateSlot? = null,
+    val scrollable: Boolean = false,
 ) : DynamicTemplate

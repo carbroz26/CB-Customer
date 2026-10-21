@@ -1,19 +1,26 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.element.ButtonElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.DividerElementDto
 import com.carbroz.cbpartner.data.dynamic.model.element.IconElementDto
 import com.carbroz.cbpartner.data.dynamic.model.element.ImageElementDto
 import com.carbroz.cbpartner.data.dynamic.model.element.InputElementDto
 import com.carbroz.cbpartner.data.dynamic.model.element.TextElementDto
+import com.carbroz.cbpartner.data.dynamic.model.validation.DynamicValidationDto
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.DividerElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
+import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidatorSpec
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonLoading
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicLoadingIndicator
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicTextSpan
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationStyle
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
@@ -30,6 +37,7 @@ class ElementMapper(
         "input" -> mapInput(json.decodeFromJsonElement(InputElementDto.serializer(), element))
         "button" -> mapButton(json.decodeFromJsonElement(ButtonElementDto.serializer(), element))
         "icon" -> mapIcon(json.decodeFromJsonElement(IconElementDto.serializer(), element))
+        "divider" -> mapDivider(json.decodeFromJsonElement(DividerElementDto.serializer(), element))
         else -> error("Unsupported dynamic element type: " + values.string(element, "type"))
     }
 
@@ -58,28 +66,39 @@ class ElementMapper(
             leadingContent = contentMapper.mapList(dto.properties, "leading"),
             trailingContent = contentMapper.mapList(dto.properties, "trailing"),
             actions = actionMapper.map(dto.actions),
+            weight = values.number(dto.properties, "weight"),
+            minHeight = values.number(dto.properties, "minHeight"),
+            spacing = values.spacing(dto.properties),
+            maxLines = values.number(dto.properties, "maxLines")?.toInt(),
+            overflow = values.string(dto.properties, "overflow"),
         )
     }
 
-    private fun mapImage(dto: ImageElementDto) = ImageElement(
-        id = dto.id,
-        semanticRole = semanticRole(dto.properties),
-        url = requireNotNull(values.string(dto.properties, "url")?.takeIf(String::isNotBlank)) {
-            "ImageElement requires a non-blank url"
-        },
-        fallbackUrl = values.string(dto.properties, "fallbackUrl"),
-        width = values.number(dto.properties, "width"),
-        height = values.number(dto.properties, "height"),
-        maxWidth = values.number(dto.properties, "maxWidth"),
-        maxHeight = values.number(dto.properties, "maxHeight"),
-        fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
-        fillMaxHeight = values.boolean(dto.properties, "fillMaxHeight") ?: false,
-        contentScale = values.string(dto.properties, "contentScale"),
-        padding = values.padding(dto.properties),
-        leadingContent = contentMapper.mapList(dto.properties, "leading"),
-        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
-        actions = actionMapper.map(dto.actions),
-    )
+    private fun mapImage(dto: ImageElementDto): ImageElement {
+        val source = values.assetSource(dto.properties)
+        val url = values.string(dto.properties, "url").orEmpty()
+        require(source != null || url.isNotBlank()) {
+            "ImageElement requires a typed source or non-blank url"
+        }
+        return ImageElement(
+            id = dto.id,
+            semanticRole = semanticRole(dto.properties),
+            url = url,
+            fallbackUrl = values.string(dto.properties, "fallbackUrl"),
+            width = values.number(dto.properties, "width"),
+            height = values.number(dto.properties, "height"),
+            maxWidth = values.number(dto.properties, "maxWidth"),
+            maxHeight = values.number(dto.properties, "maxHeight"),
+            fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
+            fillMaxHeight = values.boolean(dto.properties, "fillMaxHeight") ?: false,
+            contentScale = values.string(dto.properties, "contentScale"),
+            padding = values.padding(dto.properties),
+            leadingContent = contentMapper.mapList(dto.properties, "leading"),
+            trailingContent = contentMapper.mapList(dto.properties, "trailing"),
+            actions = actionMapper.map(dto.actions),
+            source = source,
+        )
+    }
 
     private fun mapInput(dto: InputElementDto) = InputElement(
         id = dto.id,
@@ -96,12 +115,23 @@ class ElementMapper(
         maxWidth = values.number(dto.properties, "maxWidth"),
         fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
         padding = values.padding(dto.properties),
-        validation = dto.validation?.let { DynamicValidation(it.required, it.pattern, it.message) },
+        validation = mapValidation(dto.validation),
         binding = dto.binding?.let { DynamicBinding(it.key) },
         presentation = values.inputPresentation(dto.properties),
         leadingContent = contentMapper.mapList(dto.properties, "leading"),
         trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = actionMapper.map(dto.actions),
+        height = values.number(dto.properties, "height"),
+        singleLine = values.boolean(dto.properties, "singleLine"),
+        inputFilter = values.string(dto.properties, "inputFilter"),
+        placeholderColor = values.string(dto.properties, "placeholderColor"),
+        background = values.background(dto.properties),
+        border = values.border(dto.properties),
+        focusBorder = values.border(dto.properties, "focusBorder"),
+        shape = values.shape(dto.properties),
+        validationStyle = (dto.properties["validationStyle"] as? JsonObject)?.let {
+            DynamicValidationStyle(background = values.background(it))
+        },
     )
 
     private fun mapButton(dto: ButtonElementDto) = ButtonElement(
@@ -121,20 +151,89 @@ class ElementMapper(
         leadingContent = contentMapper.mapList(dto.properties, "leading"),
         trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = actionMapper.map(dto.actions),
+        loading = mapButtonLoading(dto.properties),
     )
 
-    private fun mapIcon(dto: IconElementDto) = IconElement(
+    private fun mapIcon(dto: IconElementDto): IconElement {
+        val visibleWhen = dto.properties["visibleWhen"] as? JsonObject
+        if (visibleWhen != null) {
+            require(visibleWhen.keys.all { it == "selected" }) {
+                "Dynamic IconElement visibleWhen only supports selected"
+            }
+        }
+        return IconElement(
+            id = dto.id,
+            semanticRole = semanticRole(dto.properties),
+            url = values.string(dto.properties, "url").orEmpty(),
+            fallbackUrl = values.string(dto.properties, "fallbackUrl"),
+            size = values.number(dto.properties, "size"),
+            color = values.string(dto.properties, "color"),
+            padding = values.padding(dto.properties),
+            leadingContent = contentMapper.mapList(dto.properties, "leading"),
+            trailingContent = contentMapper.mapList(dto.properties, "trailing"),
+            actions = actionMapper.map(dto.actions),
+            source = values.assetSource(dto.properties),
+            minWidth = values.number(dto.properties, "minWidth"),
+            minHeight = values.number(dto.properties, "minHeight"),
+            visibleWhenSelected = visibleWhen?.let {
+                values.boolean(it, "selected") ?: error("Dynamic IconElement visibleWhen.selected must be boolean")
+            },
+            reserveSpaceWhenHidden = values.boolean(dto.properties, "reserveSpaceWhenHidden"),
+        )
+    }
+
+    private fun mapDivider(dto: DividerElementDto) = DividerElement(
         id = dto.id,
-        semanticRole = semanticRole(dto.properties),
-        url = values.string(dto.properties, "url").orEmpty(),
-        fallbackUrl = values.string(dto.properties, "fallbackUrl"),
-        size = values.number(dto.properties, "size"),
+        orientation = values.string(dto.properties, "orientation") ?: "horizontal",
+        width = values.number(dto.properties, "width"),
+        height = values.number(dto.properties, "height"),
+        thickness = values.number(dto.properties, "thickness") ?: 1.0,
         color = values.string(dto.properties, "color"),
-        padding = values.padding(dto.properties),
-        leadingContent = contentMapper.mapList(dto.properties, "leading"),
-        trailingContent = contentMapper.mapList(dto.properties, "trailing"),
+        spacing = values.spacing(dto.properties),
         actions = actionMapper.map(dto.actions),
     )
+
+    private fun mapValidation(dto: DynamicValidationDto?): DynamicValidation? = dto?.let {
+        val validator = it.validator?.let { spec ->
+            require(spec.key.isNotBlank()) { "Dynamic validator key is required" }
+            DynamicValidatorSpec(
+                key = spec.key,
+                arguments = values.toDynamicValueMap(spec.arguments),
+            )
+        }
+        DynamicValidation(
+            required = it.required,
+            pattern = it.pattern,
+            message = it.message,
+            validator = validator,
+        )
+    }
+
+    private fun mapButtonLoading(properties: JsonObject): DynamicButtonLoading? {
+        val raw = properties["loading"] as? JsonObject ?: return null
+        val indicator = raw["indicator"] as? JsonObject
+            ?: error("Dynamic button loading indicator is required")
+        val type = values.string(indicator, "type")
+            ?: error("Dynamic button loading indicator type is required")
+        val mappedIndicator = when (type) {
+            "circular" -> DynamicLoadingIndicator.Circular(
+                size = values.number(indicator, "size")
+                    ?: error("Dynamic circular loading indicator size is required"),
+                color = values.string(indicator, "color")
+                    ?: error("Dynamic circular loading indicator color is required"),
+            )
+            else -> throw IllegalArgumentException("Unsupported dynamic loading indicator type: " + type)
+        }
+        return DynamicButtonLoading(
+            whileActionPending = values.boolean(raw, "whileActionPending")
+                ?: error("Dynamic button loading whileActionPending is required"),
+            disableWhilePending = values.boolean(raw, "disableWhilePending")
+                ?: error("Dynamic button loading disableWhilePending is required"),
+            replaceContent = values.boolean(raw, "replaceContent")
+                ?: error("Dynamic button loading replaceContent is required"),
+            indicator = mappedIndicator,
+        )
+    }
 
     private fun semanticRole(properties: JsonObject): String? =
         values.string(properties, "semanticRole")

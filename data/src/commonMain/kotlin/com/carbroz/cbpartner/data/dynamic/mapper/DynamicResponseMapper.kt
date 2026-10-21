@@ -18,6 +18,7 @@ class DynamicResponseMapper(private val json: Json) {
     private val sections = SectionMapper(json, elementMapper, groups, values)
     private val components = ComponentMapper(json, elementMapper, sections, values)
     private val templateMapper = TemplateMapper(json, components, values)
+    private val presentationMapper = PresentationMapper(components, values)
 
     fun map(dto: DynamicResponseDto): DynamicResponse {
         val data = dto.data
@@ -45,13 +46,21 @@ class DynamicResponseMapper(private val json: Json) {
         )
     }
 
-    private fun mapScreen(dto: DynamicScreenDto) = DynamicScreen(
-        screenId = dto.screenId,
-        schemaVersion = dto.schemaVersion,
-        targetApp = dto.targetApp,
-        template = templateMapper.map(dto.template),
-        theme = dto.theme?.let(::mapTheme),
-    )
+    private fun mapScreen(dto: DynamicScreenDto): DynamicScreen {
+        val presentations = dto.presentations.map(presentationMapper::map)
+        require(presentations.map { it.id }.distinct().size == presentations.size) {
+            "Dynamic presentation ids must be unique within a screen"
+        }
+        return DynamicScreen(
+            screenId = dto.screenId,
+            schemaVersion = dto.schemaVersion,
+            targetApp = dto.targetApp,
+            template = templateMapper.map(dto.template),
+            theme = dto.theme?.let(::mapTheme),
+            initialBindings = values.toDynamicValueMap(dto.initialBindings),
+            presentations = presentations,
+        )
+    }
 
     private fun mapDestination(dto: DynamicDestinationDto) = DynamicDestination(
         screenId = dto.screenId,

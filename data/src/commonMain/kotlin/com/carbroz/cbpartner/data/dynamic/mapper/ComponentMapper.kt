@@ -1,8 +1,8 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.component.StackComponentDto
-import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
+import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
@@ -30,6 +30,8 @@ class ComponentMapper(
             fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
             elements = dto.elements.map(elements::map),
             sections = dto.sections.map(sections::map),
+            background = values.background(dto.properties),
+            shape = values.shape(dto.properties),
         )
     }
 }

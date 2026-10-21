@@ -5,18 +5,25 @@ import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
+import com.carbroz.cbpartner.domain.model.dynamic.content.ImageContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.DividerElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicAssetSource
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicLoadingIndicator
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -377,4 +384,119 @@ class DynamicResponseMapperTest {
         assertEquals("first", assertIs<StackComponent>(screen.template.components[0]).id)
         assertEquals("second", assertIs<StackComponent>(screen.template.components[1]).id)
     }
+
+
+    @Test
+    fun mapsPhaseOneScreenContractWithoutRuntimeBehavior() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            DynamicContractFixtures.GENERIC_PHASE1_SCREEN_JSON,
+        )
+
+        val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
+        assertEquals(DynamicValue.StringValue(""), screen.initialBindings["query"])
+        assertEquals(DynamicValue.StringValue("IN"), screen.initialBindings["selectedId"])
+
+        val template = assertIs<FormTemplate>(screen.template)
+        assertEquals(true, template.scrollable)
+
+        val surface = assertIs<StackComponent>(template.components.single())
+        assertEquals(DynamicBackground.Solid("#FFFFFF"), surface.background)
+        assertEquals(
+            DynamicShape.RoundedCorner(
+                topStart = 24.0,
+                topEnd = 24.0,
+                bottomStart = 0.0,
+                bottomEnd = 0.0,
+            ),
+            surface.shape,
+        )
+
+        val input = assertIs<InputElement>(surface.elements[0])
+        assertEquals(true, input.singleLine)
+        assertEquals("digits", input.inputFilter)
+        assertEquals("#94A3B8", input.placeholderColor)
+        assertEquals(44.0, input.height)
+        assertEquals(DynamicBackground.Solid("#FFF1F2"), input.validationStyle?.background)
+        assertEquals("phone_number", input.validation?.validator?.key)
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("\$binding" to DynamicValue.StringValue("selectedId"))),
+            input.validation?.validator?.arguments?.get("region"),
+        )
+
+        val button = assertIs<ButtonElement>(surface.elements[1])
+        val loading = assertNotNull(button.loading)
+        assertEquals(true, loading.whileActionPending)
+        val indicator = assertIs<DynamicLoadingIndicator.Circular>(loading.indicator)
+        assertEquals(20.0, indicator.size)
+
+        val divider = assertIs<DividerElement>(surface.elements[2])
+        assertEquals("vertical", divider.orientation)
+        assertEquals(8.0, divider.spacing?.start)
+
+        val label = assertIs<TextElement>(surface.elements[3])
+        assertEquals(1.0, label.weight)
+        assertEquals(44.0, label.minHeight)
+        assertEquals(1, label.maxLines)
+        assertEquals("ellipsis", label.overflow)
+        assertIs<ImageContent>(label.leadingContent.single())
+
+        val list = assertIs<ListSection>(surface.sections.single())
+        assertEquals(1.0, list.weight)
+        assertEquals("countries", assertIs<com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListSource.Catalog>(list.source).key)
+        assertEquals("query", assertNotNull(list.filter).binding)
+        assertEquals("single", assertNotNull(list.selection).mode)
+        assertEquals("empty", assertIs<StackGroup>(assertNotNull(list.emptyGroup)).id)
+
+        val row = assertIs<StackGroup>(list.groups.single())
+        assertEquals(44.0, row.minHeight)
+        assertEquals(DynamicBackground.Solid("#DCEBFC"), row.selectedStyle?.background)
+        val image = assertIs<ImageElement>(row.elements[0])
+        val resource = assertIs<DynamicAssetSource.Resource>(image.source)
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("\$item" to DynamicValue.StringValue("asset"))),
+            resource.value,
+        )
+        val indicatorIcon = assertIs<IconElement>(row.elements[1])
+        assertEquals(true, indicatorIcon.visibleWhenSelected)
+        assertEquals(true, indicatorIcon.reserveSpaceWhenHidden)
+
+        val presentation = assertIs<BottomSheetPresentation>(screen.presentations.single())
+        assertEquals("picker", presentation.id)
+        assertEquals(true, presentation.dismissOnOutsideClick)
+        assertEquals(true, presentation.dismissOnBack)
+        assertEquals(true, presentation.showHandle)
+        assertEquals(36.0, presentation.handle?.width)
+        assertEquals(DynamicValue.StringValue(""), presentation.initialBindings["search"])
+        assertEquals(1, presentation.components.size)
+    }
+
+    @Test
+    fun rejectsDuplicateAndUnknownPresentations() {
+        val duplicate = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"s","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template"},"presentations":[{"id":"p","type":"dialog","components":[{"id":"c1","type":"stack_component"}]},{"id":"p","type":"dialog","components":[{"id":"c2","type":"stack_component"}]}]}}""",
+        )
+        assertFailsWith<IllegalArgumentException> { DynamicResponseMapper(json).map(duplicate) }
+
+        val unknown = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"s","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template"},"presentations":[{"id":"p","type":"popup","components":[{"id":"c","type":"stack_component"}]}]}}""",
+        )
+        assertFailsWith<IllegalArgumentException> { DynamicResponseMapper(json).map(unknown) }
+    }
+
+    @Test
+    fun listSectionRequiresExactlyOneItemsSource() {
+        fun response(properties: String): DynamicResponseDto = json.decodeFromString(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"s","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"c","type":"stack_component","sections":[{"id":"list","type":"list_section","properties":$properties,"groups":[{"id":"row","type":"stack_group"}]}]}]}}}""",
+        )
+
+        assertFailsWith<IllegalArgumentException> {
+            DynamicResponseMapper(json).map(response("""{}"""))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            DynamicResponseMapper(json).map(
+                response("""{"items":[],"source":{"type":"catalog","key":"countries"}}"""),
+            )
+        }
+    }
+
 }

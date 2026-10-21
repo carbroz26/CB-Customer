@@ -2,12 +2,13 @@ package com.carbroz.cbpartner.domain.model.dynamic.element
 
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicAssetSource
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 
 data class ImageElement(
     val id: String,
     val semanticRole: String? = null,
-    val url: String,
+    val url: String = "",
     val fallbackUrl: String? = null,
     val width: Double? = null,
     val height: Double? = null,
@@ -20,4 +21,5 @@ data class ImageElement(
     val leadingContent: List<ElementContent> = emptyList(),
     val trailingContent: List<ElementContent> = emptyList(),
     val actions: Map<String, DynamicAction> = emptyMap(),
+    val source: DynamicAssetSource? = null,
 ) : DynamicElement

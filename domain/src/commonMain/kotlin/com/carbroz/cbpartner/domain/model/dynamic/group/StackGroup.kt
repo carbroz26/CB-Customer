@@ -4,8 +4,11 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicFocusPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSelectedStyle
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresentation
 
 data class StackGroup(
     val id: String,
@@ -21,4 +24,8 @@ data class StackGroup(
     val border: DynamicBorder? = null,
     val shape: DynamicShape? = null,
     override val elements: List<DynamicElement> = emptyList(),
+    val minHeight: Double? = null,
+    val selectedStyle: DynamicSelectedStyle? = null,
+    val focusPresentation: DynamicFocusPresentation? = null,
+    val validationPresentation: DynamicValidationPresentation? = null,
 ) : DynamicGroup

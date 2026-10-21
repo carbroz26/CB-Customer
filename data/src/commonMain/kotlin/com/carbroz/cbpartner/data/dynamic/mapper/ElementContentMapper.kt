@@ -4,6 +4,7 @@ import com.carbroz.cbpartner.data.dynamic.model.action.DynamicActionsDto
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
+import com.carbroz.cbpartner.domain.model.dynamic.content.ImageContent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -37,6 +38,19 @@ class ElementContentMapper(
                 fallbackUrl = values.string(properties, "fallbackUrl"),
                 size = values.number(properties, "size"),
                 color = values.string(properties, "color"),
+                spacing = values.spacing(properties),
+                actions = actionMapper.map(actions),
+                source = values.assetSource(properties),
+            )
+            "image" -> ImageContent(
+                id = values.string(element, "id"),
+                semanticRole = values.string(properties, "semanticRole"),
+                source = requireNotNull(values.assetSource(properties)) {
+                    "ImageContent requires a typed source"
+                },
+                width = values.number(properties, "width"),
+                height = values.number(properties, "height"),
+                contentScale = values.string(properties, "contentScale"),
                 spacing = values.spacing(properties),
                 actions = actionMapper.map(actions),
             )

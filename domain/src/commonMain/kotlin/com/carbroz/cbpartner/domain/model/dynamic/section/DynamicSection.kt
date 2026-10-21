@@ -1,7 +1,7 @@
 package com.carbroz.cbpartner.domain.model.dynamic.section
 
-import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
 
 /**
  * Common domain contract for dynamic UI sections.
@@ -12,4 +12,6 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 interface DynamicSection {
     val elements: List<DynamicElement>
     val groups: List<DynamicGroup>
+    val weight: Double?
+        get() = null
 }
