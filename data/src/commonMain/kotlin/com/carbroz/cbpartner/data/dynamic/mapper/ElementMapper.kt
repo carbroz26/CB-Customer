@@ -133,7 +133,16 @@ class ElementMapper(
         },
     )
 
-    private fun mapButton(dto: ButtonElementDto) = ButtonElement(
+    private fun mapButton(dto: ButtonElementDto): ButtonElement {
+        val actions = actionMapper.map(dto.actions)
+        val loading = mapButtonLoading(dto.properties)
+        if (loading != null) {
+            require(actions["onClick"]?.type?.trim()?.lowercase() == "request" &&
+                "onLongClick" !in actions) {
+                "Dynamic Button loading requires onClick request without onLongClick"
+            }
+        }
+        return ButtonElement(
         id = dto.id,
         semanticRole = semanticRole(dto.properties),
         text = values.string(dto.properties, "text").orEmpty(),
@@ -149,9 +158,10 @@ class ElementMapper(
         padding = values.padding(dto.properties),
         leadingContent = contentMapper.mapList(dto.properties, "leading"),
         trailingContent = contentMapper.mapList(dto.properties, "trailing"),
-        actions = actionMapper.map(dto.actions),
-        loading = mapButtonLoading(dto.properties),
-    )
+        actions = actions,
+        loading = loading,
+        )
+    }
 
     private fun mapIcon(dto: IconElementDto): IconElement {
         val visibleWhen = dto.properties["visibleWhen"] as? JsonObject
@@ -249,28 +259,40 @@ class ElementMapper(
     }
 
     private fun mapButtonLoading(properties: JsonObject): DynamicButtonLoading? {
-        val raw = properties["loading"] as? JsonObject ?: return null
+        if ("loading" !in properties) return null
+        val raw = properties["loading"] as? JsonObject
+            ?: throw IllegalArgumentException("Dynamic button loading must be an object")
+        require(raw.keys == setOf("whileActionPending", "disableWhilePending", "replaceContent", "indicator")) {
+            "Dynamic button loading keys are invalid"
+        }
+        for (key in listOf("whileActionPending", "disableWhilePending", "replaceContent")) {
+            require(values.boolean(raw, key) == true) {
+                "Dynamic button loading $key must be true"
+            }
+        }
         val indicator = raw["indicator"] as? JsonObject
-            ?: error("Dynamic button loading indicator is required")
-        val type = values.string(indicator, "type")
-            ?: error("Dynamic button loading indicator type is required")
-        val mappedIndicator = when (type) {
-            "circular" -> DynamicLoadingIndicator.Circular(
-                size = values.number(indicator, "size")
-                    ?: error("Dynamic circular loading indicator size is required"),
-                color = values.string(indicator, "color")
-                    ?: error("Dynamic circular loading indicator color is required"),
-            )
-            else -> throw IllegalArgumentException("Unsupported dynamic loading indicator type: " + type)
+            ?: throw IllegalArgumentException("Dynamic button loading indicator is required")
+        require(indicator.keys == setOf("type", "size", "color")) {
+            "Dynamic circular loading indicator keys are invalid"
+        }
+        require(values.string(indicator, "type") == "circular") {
+            "Only circular dynamic loading indicator is supported"
+        }
+        val sizeValue = indicator["size"] as? JsonPrimitive
+        val size = sizeValue?.takeUnless { it.isString }?.doubleOrNull
+        require(size != null && size.isFinite() && size > 0.0) {
+            "Dynamic circular loading indicator size must be positive and finite"
+        }
+        val colorValue = indicator["color"] as? JsonPrimitive
+        val color = colorValue?.takeIf { it.isString }?.content
+        require(color != null && color.matches(Regex("^#[A-Fa-f0-9]{6}([A-Fa-f0-9]{2})?$"))) {
+            "Dynamic circular loading indicator color must be hexadecimal"
         }
         return DynamicButtonLoading(
-            whileActionPending = values.boolean(raw, "whileActionPending")
-                ?: error("Dynamic button loading whileActionPending is required"),
-            disableWhilePending = values.boolean(raw, "disableWhilePending")
-                ?: error("Dynamic button loading disableWhilePending is required"),
-            replaceContent = values.boolean(raw, "replaceContent")
-                ?: error("Dynamic button loading replaceContent is required"),
-            indicator = mappedIndicator,
+            whileActionPending = true,
+            disableWhilePending = true,
+            replaceContent = true,
+            indicator = DynamicLoadingIndicator.Circular(size, color),
         )
     }
 

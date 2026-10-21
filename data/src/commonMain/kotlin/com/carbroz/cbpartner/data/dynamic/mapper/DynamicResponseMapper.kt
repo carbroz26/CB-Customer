@@ -7,6 +7,9 @@ import com.carbroz.cbpartner.data.dynamic.model.theme.DynamicThemeDto
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
+import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
+import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.theme.DynamicTheme
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -51,15 +54,41 @@ class DynamicResponseMapper(private val json: Json) {
         require(presentations.map { it.id }.distinct().size == presentations.size) {
             "Dynamic presentation ids must be unique within a screen"
         }
+        val template = templateMapper.map(dto.template)
+        validateButtonIds(
+            template.header?.components.orEmpty() + template.components + template.footer?.components.orEmpty(),
+        )
+        presentations.forEach { presentation -> validateButtonIds(presentation.components) }
         return DynamicScreen(
             screenId = dto.screenId,
             schemaVersion = dto.schemaVersion,
             targetApp = dto.targetApp,
-            template = templateMapper.map(dto.template),
+            template = template,
             theme = dto.theme?.let(::mapTheme),
             initialBindings = values.toDynamicValueMap(dto.initialBindings),
             presentations = presentations,
         )
+    }
+
+    /** Validates only currently supported static Button nodes within one render scope. */
+    private fun validateButtonIds(components: List<DynamicComponent>) {
+        val ids = mutableSetOf<String>()
+        fun validate(element: DynamicElement) {
+            if (element is ButtonElement) {
+                require(element.id.isNotBlank() && ids.add(element.id)) {
+                    "Dynamic Button IDs must be nonblank and unique within their render scope"
+                }
+            }
+        }
+        components.forEach { component ->
+            component.elements.forEach(::validate)
+            component.sections.forEach { section ->
+                section.elements.forEach(::validate)
+                section.groups.forEach { group ->
+                    group.elements.forEach(::validate)
+                }
+            }
+        }
     }
 
     private fun mapDestination(dto: DynamicDestinationDto) = DynamicDestination(

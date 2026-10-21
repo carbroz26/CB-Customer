@@ -61,7 +61,8 @@ internal object DynamicContractFixtures {
                     "replaceContent":true,
                     "indicator":{"type":"circular","size":20,"color":"#FFFFFF"}
                   }
-                }
+                },
+                "actions":{"onClick":{"type":"request","payload":{"endpoint":"/submit"}}}
               },
               {
                 "id":"divider",

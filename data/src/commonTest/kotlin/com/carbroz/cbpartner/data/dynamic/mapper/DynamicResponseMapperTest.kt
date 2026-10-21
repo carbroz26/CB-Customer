@@ -680,6 +680,77 @@ class DynamicResponseMapperTest {
     }
 
     @Test
+    fun buttonLoadingRequiresStrictApprovedFlagsAndRequestClick() {
+        val mapper = ElementMapper(json, DynamicValueMapper())
+        fun parse(properties: String, actions: String = """{"onClick":{"type":"request"}}""") =
+            mapper.map(json.parseToJsonElement(
+                """{"id":"submit","type":"button","properties":$properties,"actions":$actions}"""
+            ).jsonObject)
+        val withoutLoading = assertIs<ButtonElement>(parse("""{"text":"Send"}""", "{}"))
+        assertEquals(null, withoutLoading.loading)
+        val valid = assertIs<ButtonElement>(parse(
+            """{"loading":{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":20,"color":"#FFFFFF"}}}"""
+        ))
+        val indicator = assertIs<DynamicLoadingIndicator.Circular>(assertNotNull(valid.loading).indicator)
+        assertEquals(20.0, indicator.size)
+        assertEquals("#FFFFFF", indicator.color)
+
+        for (value in listOf(
+            "null", "[]", "{}",
+            """{"whileActionPending":false,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":20,"color":"#FFFFFF"}}""",
+            """{"whileActionPending":true,"disableWhilePending":false,"replaceContent":true,"indicator":{"type":"circular","size":20,"color":"#FFFFFF"}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":false,"indicator":{"type":"circular","size":20,"color":"#FFFFFF"}}""",
+            """{"whileActionPending":true,"disableWhilePending":"true","replaceContent":true,"indicator":{"type":"circular","size":20,"color":"#FFFFFF"}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"linear","size":20,"color":"#FFFFFF"}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":0,"color":"#FFFFFF"}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":-1,"color":"#FFFFFF"}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":"20","color":"#FFFFFF"}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":20,"color":"red"}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":20,"color":123}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":20,"color":"#FFFFFF","extra":true}}""",
+            """{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":20,"color":"#FFFFFF"},"unexpected":1}""",
+        )) {
+            assertFailsWith<IllegalArgumentException>(value) {
+                parse("""{"loading":$value}""")
+            }
+        }
+        val config = """{"loading":{"whileActionPending":true,"disableWhilePending":true,"replaceContent":true,"indicator":{"type":"circular","size":20,"color":"#FFFFFF"}}}"""
+        for (invalidAction in listOf("{}", """{"onClick":{"type":"navigate"}}""",
+                """{"onLongClick":{"type":"request"}}""",
+                """{"onClick":{"type":"request"},"onLongClick":{"type":"dismiss"}}""")) {
+            assertFailsWith<IllegalArgumentException> { parse(config, invalidAction) }
+        }
+    }
+
+    @Test
+    fun buttonIdentityRejectsDuplicatesInsideOneScopeButAllowsDifferentScopes() {
+        fun map(parts: String) = DynamicResponseMapper(json).map(
+            json.decodeFromString<DynamicResponseDto>(
+                """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"generic","schemaVersion":"3.0.0","targetApp":"PARTNER",$parts}}"""
+            )
+        )
+        val element = """{"id":"submit","type":"button"}"""
+        val component = """{"id":"c1","type":"stack_component","elements":[$element]}"""
+        assertFailsWith<IllegalArgumentException> {
+            map(""""template":{"id":"t","type":"form_template","components":[$component,$component]}""")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            map(""""template":{"id":"t","type":"form_template","header":{"components":[$component]},"components":[$component]}""")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            map(""""template":{"id":"t","type":"form_template","components":[$component],"footer":{"components":[$component]}""")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            map(""""template":{"id":"t","type":"form_template","components":[{"id":"c","type":"stack_component","sections":[{"id":"s","type":"stack_section","elements":[$element],"groups":[{"id":"g","type":"stack_group","elements":[$element]}]}]}]}""")
+        }
+        val presentation = """{"id":"p","type":"dialog","components":[$component]}"""
+        assertNotNull(map(""""template":{"id":"t","type":"form_template","components":[$component]},"presentations":[$presentation]""").data)
+        assertFailsWith<IllegalArgumentException> {
+            map(""""template":{"id":"t","type":"form_template"},"presentations":[{"id":"p","type":"dialog","components":[$component,$component]}]""")
+        }
+    }
+
+    @Test
     fun listSectionRequiresExactlyOneItemsSource() {
         fun response(properties: String): DynamicResponseDto = json.decodeFromString(
             """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"s","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"c","type":"stack_component","sections":[{"id":"list","type":"list_section","properties":$properties,"groups":[{"id":"row","type":"stack_group"}]}]}]}}}""",
