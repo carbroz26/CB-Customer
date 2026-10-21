@@ -730,6 +730,9 @@ class DynamicResponseMapperTest {
             )
         )
         val element = """{"id":"submit","type":"button"}"""
+        assertFailsWith<IllegalArgumentException> {
+            map(""""template":{"id":"t","type":"form_template","components":[{"id":"blank_component","type":"stack_component","elements":[{"id":"","type":"button"}]}]}""")
+        }
         val component = """{"id":"c1","type":"stack_component","elements":[$element]}"""
         assertFailsWith<IllegalArgumentException> {
             map(""""template":{"id":"t","type":"form_template","components":[$component,$component]}""")

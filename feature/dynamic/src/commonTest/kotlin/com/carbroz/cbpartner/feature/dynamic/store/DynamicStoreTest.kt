@@ -1397,6 +1397,36 @@ class DynamicStoreTest {
     }
 
     @Test
+    fun validFormRequestUsesLatestBindingBeforeStartingPending() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val (response, action) = pendingResponse(validationRequired = true)
+        val gate = CompletableDeferred<Unit>()
+        var bodyObserved: DynamicValue? = null
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                if (request.endpoint == "/submit") {
+                    bodyObserved = request.body
+                    gate.await()
+                    Result.success(DynamicResponse(204, "NO_CONTENT", "OK", null, null))
+                } else Result.success(response)
+        }
+        val store = store(DynamicNavigationEntry(destination("root")), repository, DynamicRuntimeState(), dispatcher)
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.ValueChanged("field", DynamicValue.StringValue("ready")))
+        store.accept(DynamicIntent.Action(action, buttonId = "shared"))
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        runCurrent()
+        val pending = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(DynamicPendingButton("shared"), pending.pendingButton)
+        assertTrue(pending.validationErrors.isEmpty())
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
+        store.close()
+    }
+
+    @Test
     fun failedValidationOrUnrecognizedButtonOriginDoesNotStartPending() = runTest {
         val dispatcher = UnconfinedTestDispatcher(testScheduler)
         val (response, requestAction) = pendingResponse(validationRequired = true)
