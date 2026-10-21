@@ -70,26 +70,36 @@ class DynamicRenderContext(
 
     @Composable
     fun <T : DynamicComponent> renderComponents(components: List<T>) {
-        components.forEach(::renderComponent)
+        components.forEach { component ->
+            renderComponent(component)
+        }
     }
 
     @Composable
     fun <T : DynamicSection> renderSections(sections: List<T>) {
-        sections.forEach(::renderSection)
+        sections.forEach { section ->
+            renderSection(section)
+        }
     }
 
     @Composable
     fun <T : DynamicGroup> renderGroups(groups: List<T>) {
-        groups.forEach(::renderGroup)
+        groups.forEach { group ->
+            renderGroup(group)
+        }
     }
 
     @Composable
     fun renderElements(elements: List<DynamicElement>) {
-        elements.forEach(::renderElement)
+        elements.forEach { element ->
+            renderElement(element)
+        }
     }
 
     @Composable
     fun renderContent(contents: List<ElementContent>) {
-        contents.forEach(::renderContentItem)
+        contents.forEach { content ->
+            renderContentItem(content)
+        }
     }
 }
