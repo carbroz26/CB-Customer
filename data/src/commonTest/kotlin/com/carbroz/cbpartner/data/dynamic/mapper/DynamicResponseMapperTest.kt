@@ -484,6 +484,99 @@ class DynamicResponseMapperTest {
     }
 
     @Test
+    fun mapsStrictStandaloneDividersWithoutConflatingDividerContent() {
+        val mapper = ElementMapper(json, DynamicValueMapper())
+
+        fun map(properties: String, actions: String = ""): DividerElement =
+            assertIs<DividerElement>(mapper.map(json.parseToJsonElement(
+                """{"id":"phone_divider","type":"divider","properties":$properties$actions}"""
+            ).jsonObject))
+
+        val vertical = map(
+            """{"orientation":"vertical","height":28,"thickness":1,"color":"#D1D5DB","spacing":{"start":8,"end":12}}""",
+            ""","actions":{"onClick":{"type":"state","payload":{"key":"selected","value":true}}}""",
+        )
+        assertEquals("vertical", vertical.orientation)
+        assertEquals(null, vertical.width)
+        assertEquals(28.0, vertical.height)
+        assertEquals(1.0, vertical.thickness)
+        assertEquals("#D1D5DB", vertical.color)
+        assertEquals(DynamicSpacing(start = 8.0, end = 12.0), vertical.spacing)
+        assertEquals("state", vertical.actions["onClick"]?.type)
+
+        val horizontal = map(
+            """{"orientation":"horizontal","width":32,"thickness":2,"color":"#FF223344"}""",
+        )
+        assertEquals(32.0, horizontal.width)
+        assertEquals(null, horizontal.height)
+        assertEquals(2.0, horizontal.thickness)
+        assertEquals("#FF223344", horizontal.color)
+
+        val content = ElementContentMapper(json, DynamicValueMapper()).map(
+            json.parseToJsonElement(
+                """{"type":"divider","properties":{"orientation":"vertical","height":20,"thickness":1}}"""
+            ).jsonObject,
+        )
+        assertIs<DividerContent>(content)
+    }
+
+    @Test
+    fun rejectsInvalidStandaloneDividerPayloadsRatherThanApplyingDefaults() {
+        val mapper = ElementMapper(json, DynamicValueMapper())
+        val invalid = listOf(
+            """{}""",
+            """{"orientation":"vertical","height":28,"color":"#D1D5DB"}""",
+            """{"orientation":"vertical","height":28,"thickness":1}""",
+            """{"orientation":"diagonal","height":28,"thickness":1,"color":"#D1D5DB"}""",
+            """{"orientation":0,"height":28,"thickness":1,"color":"#D1D5DB"}""",
+            """{"orientation":"vertical","width":4,"height":28,"thickness":1,"color":"#D1D5DB"}""",
+            """{"orientation":"horizontal","width":32,"height":null,"thickness":1,"color":"#D1D5DB"}""",
+            """{"orientation":"horizontal","thickness":1,"color":"#D1D5DB"}""",
+            """{"orientation":"vertical","height":0,"thickness":1,"color":"#D1D5DB"}""",
+            """{"orientation":"vertical","height":-5,"thickness":1,"color":"#D1D5DB"}""",
+            """{"orientation":"vertical","height":"28","thickness":1,"color":"#D1D5DB"}""",
+            """{"orientation":"vertical","height":28,"thickness":0,"color":"#D1D5DB"}""",
+            """{"orientation":"vertical","height":28,"thickness":-1,"color":"#D1D5DB"}""",
+            """{"orientation":"vertical","height":28,"thickness":"1","color":"#D1D5DB"}""",
+            """{"orientation":"vertical","height":28,"thickness":1,"color":"red"}""",
+            """{"orientation":"vertical","height":28,"thickness":1,"color":"#XYZXYZ"}""",
+            """{"orientation":"vertical","height":28,"thickness":1,"color":123}""",
+            """{"orientation":"vertical","height":28,"thickness":1,"color":"#D1D5DB","spacing":null}""",
+            """{"orientation":"vertical","height":28,"thickness":1,"color":"#D1D5DB","spacing":{"start":-1}}""",
+            """{"orientation":"vertical","height":28,"thickness":1,"color":"#D1D5DB","spacing":{"end":"12"}}""",
+            """{"orientation":"vertical","height":28,"thickness":1,"color":"#D1D5DB","spacing":{"left":12}}""",
+        )
+        invalid.forEach { properties ->
+            assertFailsWith<IllegalArgumentException>(properties) {
+                mapper.map(json.parseToJsonElement(
+                    """{"id":"invalid_divider","type":"divider","properties":$properties}"""
+                ).jsonObject)
+            }
+        }
+    }
+
+    @Test
+    fun directDomainDividerConstructorEnforcesGeometryAndSpacing() {
+        assertFailsWith<IllegalArgumentException> {
+            DividerElement(id = "invalid", orientation = "vertical",
+                height = Double.POSITIVE_INFINITY, thickness = 1.0, color = "#D1D5DB")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            DividerElement(id = "invalid", orientation = "horizontal",
+                width = 28.0, thickness = Double.NaN, color = "#D1D5DB")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            DividerElement(id = "invalid", orientation = "vertical",
+                height = 28.0, thickness = 1.0, color = "#D1D5DB",
+                spacing = DynamicSpacing(bottom = Double.NEGATIVE_INFINITY))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            DividerElement(id = "invalid", orientation = "horizontal",
+                width = 28.0, height = 14.0, thickness = 1.0, color = "#D1D5DB")
+        }
+    }
+
+    @Test
     fun listSectionRequiresExactlyOneItemsSource() {
         fun response(properties: String): DynamicResponseDto = json.decodeFromString(
             """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"s","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl","type":"form_template","components":[{"id":"c","type":"stack_component","sections":[{"id":"list","type":"list_section","properties":$properties,"groups":[{"id":"row","type":"stack_group"}]}]}]}}}""",

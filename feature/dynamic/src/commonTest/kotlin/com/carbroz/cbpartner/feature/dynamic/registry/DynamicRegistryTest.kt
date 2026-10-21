@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.dynamic.registry
 
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent as StackComponentModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent as DividerContentModel
+import com.carbroz.cbpartner.domain.model.dynamic.element.DividerElement as DividerElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup as StackGroupModel
@@ -12,6 +13,7 @@ import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.DividerElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.IconElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ImageElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
@@ -40,6 +42,7 @@ class DynamicRegistryTest {
             .section(StackSectionModel::class, StackSection())
             .group(StackGroupModel::class, StackGroup())
             .element(TextElementModel::class, TextElement())
+            .element(DividerElementModel::class, DividerElement())
             .element(
                 com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement::class,
                 ImageElement(),
@@ -65,6 +68,7 @@ class DynamicRegistryTest {
         assertNotNull(registry.section(StackSectionModel(id = "section")))
         assertNotNull(registry.group(StackGroupModel(id = "group")))
         assertNotNull(registry.element(textElement))
+        assertNotNull(registry.element(DividerElementModel(id = "divider", orientation = "vertical", height = 28.0, thickness = 1.0, color = "#D1D5DB")))
         assertNotNull(
             registry.element(
                 com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement(
@@ -102,6 +106,20 @@ class DynamicRegistryTest {
         assertNull(templateOnlyRegistry.element(textElement))
         assertNull(templateOnlyRegistry.content(iconContent))
         assertNull(templateOnlyRegistry.content(dividerContent))
+    }
+
+    @Test
+    fun productionRegistryKeepsDividerElementAndDividerContentDistinct() {
+        val registry = dynamicRendererRegistry()
+        val divider = DividerElementModel(
+            id = "phone_divider",
+            orientation = "vertical",
+            height = 28.0,
+            thickness = 1.0,
+            color = "#D1D5DB",
+        )
+        assertNotNull(registry.element(divider))
+        assertNotNull(registry.content(DividerContentModel()))
     }
 
     @Test

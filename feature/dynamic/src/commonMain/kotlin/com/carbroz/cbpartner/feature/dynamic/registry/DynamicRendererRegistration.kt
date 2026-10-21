@@ -5,6 +5,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent as St
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent as DividerContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent as IconContentModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement as ButtonElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.element.DividerElement as DividerElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement as IconElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement as ImageElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement as InputElementModel
@@ -16,6 +17,7 @@ import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.IconContent
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ButtonElement
+import com.carbroz.cbpartner.feature.dynamic.sdui.element.DividerElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.IconElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.ImageElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
@@ -33,6 +35,7 @@ fun dynamicRendererRegistry(): DynamicRegistry = DynamicRegistry.builder()
     .element(ImageElementModel::class, ImageElement())
     .element(InputElementModel::class, InputElement())
     .element(ButtonElementModel::class, ButtonElement())
+    .element(DividerElementModel::class, DividerElement())
     .element(IconElementModel::class, IconElement())
     .content(DividerContentModel::class, DividerContent())
     .content(IconContentModel::class, IconContent())

@@ -23,6 +23,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicTextSpan
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationStyle
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.doubleOrNull
 
 class ElementMapper(
     private val json: Json,
@@ -182,16 +184,56 @@ class ElementMapper(
         )
     }
 
-    private fun mapDivider(dto: DividerElementDto) = DividerElement(
-        id = dto.id,
-        orientation = values.string(dto.properties, "orientation") ?: "horizontal",
-        width = values.number(dto.properties, "width"),
-        height = values.number(dto.properties, "height"),
-        thickness = values.number(dto.properties, "thickness") ?: 1.0,
-        color = values.string(dto.properties, "color"),
-        spacing = values.spacing(dto.properties),
-        actions = actionMapper.map(dto.actions),
-    )
+    private fun mapDivider(dto: DividerElementDto): DividerElement {
+        val properties = dto.properties
+        fun requiredString(key: String): String {
+            val raw = properties[key] as? JsonPrimitive
+            require(raw != null && raw.isString) { "Dynamic divider $key must be a string" }
+            return raw.content
+        }
+        fun requiredNumber(key: String): Double {
+            val raw = properties[key] as? JsonPrimitive
+            val number = raw?.takeUnless { it.isString }?.doubleOrNull
+            require(number != null && number.isFinite() && number > 0.0) {
+                "Dynamic divider $key must be a positive finite number"
+            }
+            return number
+        }
+
+        val orientation = requiredString("orientation")
+        require(orientation == "horizontal" || orientation == "vertical") {
+            "Unsupported dynamic divider orientation"
+        }
+        val spacing = properties["spacing"]?.let { value ->
+            require(value is JsonObject) { "Dynamic divider spacing must be an object" }
+            require(value.keys.all { it in setOf("start", "top", "end", "bottom") }) {
+                "Unsupported dynamic divider spacing field"
+            }
+            value.forEach { (key, entry) ->
+                val raw = entry as? JsonPrimitive
+                val number = raw?.takeUnless { it.isString }?.doubleOrNull
+                require(number != null && number.isFinite() && number >= 0.0) {
+                    "Dynamic divider spacing $key must be a finite nonnegative number"
+                }
+            }
+            values.spacing(properties)
+        }
+        if (orientation == "horizontal") {
+            require("height" !in properties) { "Horizontal dynamic divider cannot declare height" }
+        } else {
+            require("width" !in properties) { "Vertical dynamic divider cannot declare width" }
+        }
+        return DividerElement(
+            id = dto.id,
+            orientation = orientation,
+            width = if (orientation == "horizontal") requiredNumber("width") else null,
+            height = if (orientation == "vertical") requiredNumber("height") else null,
+            thickness = requiredNumber("thickness"),
+            color = requiredString("color"),
+            spacing = spacing,
+            actions = actionMapper.map(dto.actions),
+        )
+    }
 
     private fun mapValidation(dto: DynamicValidationDto?): DynamicValidation? = dto?.let {
         val validator = it.validator?.let { spec ->
