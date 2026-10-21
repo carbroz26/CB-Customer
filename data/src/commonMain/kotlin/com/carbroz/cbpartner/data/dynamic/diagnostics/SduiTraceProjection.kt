@@ -7,6 +7,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.content.DividerContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.content.IconContent
+import com.carbroz.cbpartner.domain.model.dynamic.content.ImageContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement
@@ -47,6 +48,7 @@ internal fun projectSduiStructure(screen: DynamicScreen, limit: Int = 100): List
             val type = when (node) {
                 is IconContent -> "icon"
                 is DividerContent -> "divider"
+                is ImageContent -> "image"
             }
             val actions = actionSummary(node.actions)
             add("$path[$i]", "content", type, if (actions.isEmpty()) "" else " actions=$actions")
