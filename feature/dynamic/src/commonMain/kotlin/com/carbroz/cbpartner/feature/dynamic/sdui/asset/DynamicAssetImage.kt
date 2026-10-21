@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ internal fun DynamicAssetImage(
     size: Double? = null,
     color: String? = null,
     contentScale: ContentScale = ContentScale.Fit,
+    alignment: Alignment = Alignment.Center,
 ) {
     val sourceValue = source?.let {
         (context.resolve(it.value) as? DynamicValue.StringValue)?.value
@@ -57,6 +59,7 @@ internal fun DynamicAssetImage(
                 contentDescription = contentDescription,
                 modifier = imageModifier,
                 contentScale = contentScale,
+                alignment = alignment,
                 colorFilter = colorFilter,
             )
         }
@@ -89,6 +92,7 @@ internal fun DynamicAssetImage(
             contentDescription = contentDescription,
             modifier = imageModifier,
             contentScale = contentScale,
+            alignment = alignment,
             colorFilter = colorFilter,
             onError = { currentUrl = if (selected == primary) fallback else null },
         )
