@@ -35,8 +35,11 @@ fun DynamicPresentationHost(
     bindings: Map<String, DynamicValue>,
     contextValues: Map<String, DynamicValue>,
     stateValues: Map<String, DynamicValue>,
+    validationErrors: Map<String, String>,
+    focusedBinding: String?,
     onAction: (DynamicAction) -> Unit,
     onValueChange: (String, DynamicValue) -> Unit,
+    onFocusChange: (String, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val context = DynamicRenderContext(
@@ -44,8 +47,11 @@ fun DynamicPresentationHost(
         bindings = bindings,
         contextValues = contextValues,
         stateValues = stateValues,
+        validationErrors = validationErrors,
+        focusedBinding = focusedBinding,
         onAction = onAction,
         onValueChange = onValueChange,
+        onFocusChange = onFocusChange,
     )
 
     when (presentation) {

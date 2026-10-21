@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.section
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -8,6 +9,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection as StackS
 import com.carbroz.cbpartner.feature.dynamic.registry.SectionRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
+import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeWeight
 import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalAlignment
 import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalArrangement
 import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalAlignment
@@ -22,7 +24,19 @@ class StackSection : SectionRenderer<StackSectionModel> {
                 horizontalArrangement = section.horizontalArrangement.toHorizontalArrangement(),
                 verticalAlignment = section.verticalAlignment.toVerticalAlignment(),
             ) {
-                context.renderElements(section.elements)
+                section.elements.forEach { element ->
+                    val weight = element.weight
+                    if (weight == null) {
+                        context.renderElement(element)
+                    } else {
+                        Box(
+                            modifier = Modifier.weight(weight.toComposeWeight()),
+                            propagateMinConstraints = true,
+                        ) {
+                            context.renderElement(element)
+                        }
+                    }
+                }
                 context.renderGroups(section.groups)
             }
         } else {
@@ -31,7 +45,19 @@ class StackSection : SectionRenderer<StackSectionModel> {
                 verticalArrangement = section.verticalArrangement.toVerticalArrangement(),
                 horizontalAlignment = section.horizontalAlignment.toHorizontalAlignment(),
             ) {
-                context.renderElements(section.elements)
+                section.elements.forEach { element ->
+                    val weight = element.weight
+                    if (weight == null) {
+                        context.renderElement(element)
+                    } else {
+                        Box(
+                            modifier = Modifier.weight(weight.toComposeWeight()),
+                            propagateMinConstraints = true,
+                        ) {
+                            context.renderElement(element)
+                        }
+                    }
+                }
                 context.renderGroups(section.groups)
             }
         }

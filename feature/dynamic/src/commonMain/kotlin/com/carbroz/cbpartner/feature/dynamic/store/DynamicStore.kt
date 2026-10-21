@@ -3,15 +3,17 @@ package com.carbroz.cbpartner.feature.dynamic.store
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
-import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicValidationResult
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
 import kotlinx.coroutines.CancellationException
@@ -36,10 +38,16 @@ sealed interface DynamicIntent {
         val presentationId: String? = null,
     ) : DynamicIntent
     data class ValueChanged(val key: String, val value: DynamicValue) : DynamicIntent
+    data class FocusChanged(val key: String, val focused: Boolean) : DynamicIntent
     data class PresentationValueChanged(
         val presentationId: String,
         val key: String,
         val value: DynamicValue,
+    ) : DynamicIntent
+    data class PresentationFocusChanged(
+        val presentationId: String,
+        val key: String,
+        val focused: Boolean,
     ) : DynamicIntent
     data class DismissPresentation(val presentationId: String) : DynamicIntent
 }
@@ -59,48 +67,37 @@ class DynamicStore(
     private val runtimeState: DynamicRuntimeState,
     private val contextProvider: () -> Map<String, DynamicValue> = { emptyMap() },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
-    private val commitActionResult: (Map<String, DynamicValue>, List<DynamicActionEffect>, TraceContext?) -> Boolean =
-        { changes, _, _ -> runtimeState.setAll(changes); true },
+    private val commitActionResult: (
+        Map<String, DynamicValue>,
+        List<DynamicActionEffect>,
+        TraceContext?,
+    ) -> Boolean = { changes, _, _ ->
+        runtimeState.setAll(changes)
+        true
+    },
 ) {
     private val _state = MutableStateFlow<DynamicState>(DynamicState.Initial)
     val state: StateFlow<DynamicState> = _state.asStateFlow()
 
     private val diagnosticLogger = Logger.withTag("CBPartnerFlow")
-
-    private fun reportAction(trace: TraceContext?, event: String, type: String, outcome: String? = null) {
-        val safeType = when (type.trim().lowercase()) {
-            "request", "navigate", "present", "dismiss", "external_uri", "state", "sequence" ->
-                type.trim().lowercase()
-            else -> "other"
-        }
-        val fields = "event=" + event +
-            " sessionId=" + safeDiagnosticId(trace?.sessionId) +
-            " actionId=" + safeDiagnosticId(trace?.actionId) +
-            " parentActionId=" + safeDiagnosticId(trace?.parentActionId) +
-            " type=" + safeType +
-            (outcome?.let { " outcome=" + it } ?: "")
-        runCatching { diagnosticLogger.i { fields } }
-    }
-
-    private fun reportScreenLoad(actionId: String, event: String, outcome: String? = null) {
-        val fields = "event=" + event +
-            " phase=screen_load sessionId=" + safeDiagnosticId(entry.diagnosticSessionId) +
-            " actionId=" + safeDiagnosticId(actionId) +
-            " parentActionId=" + safeDiagnosticId(entry.parentActionId) +
-            (outcome?.let { " outcome=" + it } ?: "")
-        runCatching { diagnosticLogger.d { fields } }
-    }
-
     private var loadJob: Job? = null
     private var actionJob: Job? = null
 
     fun accept(intent: DynamicIntent) {
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
-            DynamicIntent.ClearMessage -> currentScreen()?.let { reduce(it.copy(validationMessage = null)) }
+            DynamicIntent.ClearMessage -> currentScreen()?.let { current ->
+                reduce(
+                    current.copy(validationMessage = null),
+                    persistValidationMessage = current.activePresentationId == null,
+                )
+            }
             is DynamicIntent.ValueChanged -> updateBinding(intent.key, intent.value)
+            is DynamicIntent.FocusChanged -> updateFocus(intent.key, intent.focused)
             is DynamicIntent.PresentationValueChanged ->
                 updatePresentationBinding(intent.presentationId, intent.key, intent.value)
+            is DynamicIntent.PresentationFocusChanged ->
+                updatePresentationFocus(intent.presentationId, intent.key, intent.focused)
             is DynamicIntent.DismissPresentation -> dismissPresentation(intent.presentationId)
             is DynamicIntent.Action -> handleAction(intent.action, intent.presentationId)
         }
@@ -110,7 +107,22 @@ class DynamicStore(
         val current = currentScreen() ?: return
         val bindings = current.bindings + (key to value)
         entry.updateBindings(bindings)
-        reduce(current.copy(bindings = bindings))
+
+        var next = current.copy(bindings = bindings)
+        if (current.validationErrors.isNotEmpty()) {
+            next = revalidateScreen(next)
+        }
+        reduce(next)
+    }
+
+    private fun updateFocus(key: String, focused: Boolean) {
+        val current = currentScreen() ?: return
+        val nextFocused = when {
+            focused -> key
+            current.focusedBinding == key -> null
+            else -> current.focusedBinding
+        }
+        reduce(current.copy(focusedBinding = nextFocused))
     }
 
     private fun updatePresentationBinding(
@@ -121,31 +133,68 @@ class DynamicStore(
         val current = currentScreen() ?: return
         if (current.activePresentationId != presentationId) return
         val presentation = findPresentation(current, presentationId) ?: return
+        val local = key in presentation.initialBindings
 
-        if (key in presentation.initialBindings) {
-            reduce(current.copy(presentationBindings = current.presentationBindings + (key to value)))
+        var next = if (local) {
+            current.copy(
+                presentationBindings = current.presentationBindings + (key to value),
+            )
         } else {
-            updateBinding(key, value)
+            val bindings = current.bindings + (key to value)
+            entry.updateBindings(bindings)
+            current.copy(bindings = bindings)
         }
+
+        if (!local && current.validationErrors.isNotEmpty()) {
+            next = revalidateScreen(next)
+        }
+        if (current.presentationValidationErrors.isNotEmpty()) {
+            next = revalidatePresentation(next, presentation)
+        }
+
+        reduce(next, persistValidationMessage = false)
+    }
+
+    private fun updatePresentationFocus(
+        presentationId: String,
+        key: String,
+        focused: Boolean,
+    ) {
+        val current = currentScreen() ?: return
+        if (current.activePresentationId != presentationId) return
+        val nextFocused = when {
+            focused -> key
+            current.presentationFocusedBinding == key -> null
+            else -> current.presentationFocusedBinding
+        }
+        reduce(
+            current.copy(presentationFocusedBinding = nextFocused),
+            persistValidationMessage = false,
+        )
     }
 
     private fun dismissPresentation(presentationId: String) {
         val current = currentScreen() ?: return
         if (current.activePresentationId != presentationId) return
-        reduce(
-            current.copy(
-                activePresentationId = null,
-                presentationBindings = emptyMap(),
-            ),
-        )
+        closeActivePresentation()
     }
 
     private fun load() {
         if (currentScreen()?.response != null || loadJob?.isActive == true) return
         entry.screenResponse?.let { response ->
-            reduce(DynamicScreenState(response, entry.bindings, entry.validationMessage))
+            val bindings = seedInitialBindings(response, entry.bindings)
+            entry.updateBindings(bindings)
+            reduce(
+                DynamicScreenState(
+                    response = response,
+                    bindings = bindings,
+                    validationMessage = entry.validationMessage,
+                    validationErrors = entry.validationErrors,
+                ),
+            )
             return
         }
+
         _state.value = DynamicState.Loading
         loadJob = scope.launch {
             val actionId = Uuid.random().toString()
@@ -160,12 +209,12 @@ class DynamicStore(
                     coroutineContext.ensureActive()
                     reportScreenLoad(actionId, "screen_load.completed", "success")
                     entry.updateScreenResponse(response)
-                    val previous = currentScreen()
+                    val bindings = seedInitialBindings(response, entry.bindings)
+                    entry.updateBindings(bindings)
                     _state.value = DynamicState.Success(
                         DynamicScreenState(
                             response = response,
-                            bindings = previous?.bindings ?: entry.bindings,
-                            validationMessage = null,
+                            bindings = bindings,
                         ),
                     )
                 }
@@ -180,6 +229,12 @@ class DynamicStore(
                 }
         }
     }
+
+    private fun seedInitialBindings(
+        response: DynamicResponse,
+        existing: Map<String, DynamicValue>,
+    ): Map<String, DynamicValue> =
+        response.data?.initialBindings.orEmpty() + existing
 
     private fun handleAction(action: DynamicAction, presentationId: String?) {
         if (currentScreen() == null || actionJob?.isActive == true) return
@@ -199,10 +254,12 @@ class DynamicStore(
 
             val context = contextProvider()
             val stateValues = runtimeState.values.value
-            val validationResult = runCatching {
+            val validateFlag = runCatching {
                 if (action.type.trim().equals("request", ignoreCase = true)) {
                     val flag = action.payload["validate"]
-                    if (flag == null) false else {
+                    if (flag == null) {
+                        false
+                    } else {
                         val resolved = DynamicReferenceResolver.resolve(
                             flag,
                             executionBindings,
@@ -216,27 +273,64 @@ class DynamicStore(
                     false
                 }
             }
-            val validationError = validationResult.exceptionOrNull()
-            if (validationError != null) {
-                if (validationError is CancellationException) throw validationError
+            val validationFlagError = validateFlag.exceptionOrNull()
+            if (validationFlagError != null) {
+                if (validationFlagError is CancellationException) throw validationFlagError
                 reportAction(traceContext, "action.completed", action.type, "validation_rejected")
-                reduce(current.copy(validationMessage = "Unable to process request"))
+                reduceForOrigin(
+                    current.copy(validationMessage = "Unable to process request"),
+                    presentationId,
+                )
                 return@launch
             }
 
-            if (validationResult.getOrThrow()) {
-                val message = validationMessage(current, presentationId, executionBindings)
-                if (message != null) {
-                    reportAction(traceContext, "action.completed", action.type, "validation_rejected")
-                    reduce(current.copy(validationMessage = message))
+            if (validateFlag.getOrThrow()) {
+                val validationResult = runCatching {
+                    validateScope(
+                        current = current,
+                        presentationId = presentationId,
+                        bindings = executionBindings,
+                        context = context,
+                        state = stateValues,
+                    )
+                }
+                val validationError = validationResult.exceptionOrNull()
+                if (validationError != null) {
+                    if (validationError is CancellationException) throw validationError
+                    reportAction(
+                        traceContext,
+                        "action.completed",
+                        action.type,
+                        "validation_rejected",
+                    )
+                    reduceForOrigin(
+                        current.copy(validationMessage = "Unable to validate form"),
+                        presentationId,
+                    )
                     return@launch
                 }
+
+                val checked = validationResult.getOrThrow()
+                val validatedState = applyValidationResult(current, presentationId, checked)
+                reduceForOrigin(validatedState, presentationId)
+                if (!checked.isValid) {
+                    reportAction(
+                        traceContext,
+                        "action.completed",
+                        action.type,
+                        "validation_rejected",
+                    )
+                    return@launch
+                }
+            } else {
+                reduceForOrigin(current.copy(validationMessage = null), presentationId)
             }
 
-            reduce(current.copy(validationMessage = null))
+            val latest = currentScreen() ?: return@launch
+            val latestBindings = bindingsForOrigin(latest, presentationId) ?: return@launch
             val result = actionExecutor.execute(
                 action = action,
-                bindings = executionBindings,
+                bindings = latestBindings,
                 context = context,
                 state = stateValues,
                 traceContext = traceContext,
@@ -251,32 +345,103 @@ class DynamicStore(
                     if (accepted) "success" else "rejected",
                 )
                 if (!accepted) {
-                    val screen = currentScreen() ?: current
-                    reduce(screen.copy(validationMessage = "Unable to complete action"))
+                    val screen = currentScreen() ?: latest
+                    reduceForOrigin(
+                        screen.copy(validationMessage = "Unable to complete action"),
+                        presentationId,
+                    )
                 }
             } else {
                 val error = result.exceptionOrNull()
                 if (error is CancellationException) throw error
                 reportAction(traceContext, "action.completed", action.type, "failed")
-                val screen = currentScreen() ?: current
-                reduce(screen.copy(validationMessage = "Unable to complete action"))
+                val screen = currentScreen() ?: latest
+                reduceForOrigin(
+                    screen.copy(validationMessage = "Unable to complete action"),
+                    presentationId,
+                )
             }
         }
     }
 
-    private fun validationMessage(
+    private fun validateScope(
         current: DynamicScreenState,
         presentationId: String?,
         bindings: Map<String, DynamicValue>,
-    ): String? {
+        context: Map<String, DynamicValue>,
+        state: Map<String, DynamicValue>,
+    ): DynamicValidationResult {
         if (presentationId != null) {
             val presentation = findPresentation(current, presentationId)
-                ?: return "Unable to validate form"
-            return validator.validate(presentation, bindings)
+                ?: error("Unable to resolve Dynamic presentation")
+            return validator.validate(presentation, bindings, context, state)
         }
-        val screen = current.response?.data ?: return "Unable to validate form"
-        return validator.validate(screen, bindings)
+        val screen = current.response?.data
+            ?: error("Unable to resolve Dynamic screen")
+        return validator.validate(screen, bindings, context, state)
     }
+
+    private fun applyValidationResult(
+        current: DynamicScreenState,
+        presentationId: String?,
+        result: DynamicValidationResult,
+    ): DynamicScreenState =
+        if (presentationId == null) {
+            current.copy(
+                validationErrors = result.errors,
+                validationMessage = result.fallbackMessage,
+            )
+        } else {
+            current.copy(
+                presentationValidationErrors = result.errors,
+                validationMessage = result.fallbackMessage,
+            )
+        }
+
+    private fun revalidateScreen(current: DynamicScreenState): DynamicScreenState {
+        val screen = current.response?.data ?: return current
+        return runCatching {
+            validator.validate(
+                screen = screen,
+                bindings = current.bindings,
+                context = contextProvider(),
+                state = runtimeState.values.value,
+            )
+        }.fold(
+            onSuccess = { result ->
+                current.copy(
+                    validationErrors = result.errors,
+                    validationMessage = result.fallbackMessage,
+                )
+            },
+            onFailure = {
+                current.copy(validationMessage = "Unable to validate form")
+            },
+        )
+    }
+
+    private fun revalidatePresentation(
+        current: DynamicScreenState,
+        presentation: DynamicPresentation,
+    ): DynamicScreenState =
+        runCatching {
+            validator.validate(
+                presentation = presentation,
+                bindings = current.bindings + current.presentationBindings,
+                context = contextProvider(),
+                state = runtimeState.values.value,
+            )
+        }.fold(
+            onSuccess = { result ->
+                current.copy(
+                    presentationValidationErrors = result.errors,
+                    validationMessage = result.fallbackMessage,
+                )
+            },
+            onFailure = {
+                current.copy(validationMessage = "Unable to validate form")
+            },
+        )
 
     private fun bindingsForOrigin(
         current: DynamicScreenState,
@@ -304,7 +469,10 @@ class DynamicStore(
             current.copy(
                 activePresentationId = presentationId,
                 presentationBindings = presentation.initialBindings.toMap(),
+                presentationValidationErrors = emptyMap(),
+                presentationFocusedBinding = null,
             ),
+            persistValidationMessage = false,
         )
         return true
     }
@@ -314,9 +482,13 @@ class DynamicStore(
         if (current.activePresentationId == null) return false
         reduce(
             current.copy(
+                validationMessage = entry.validationMessage,
                 activePresentationId = null,
                 presentationBindings = emptyMap(),
+                presentationValidationErrors = emptyMap(),
+                presentationFocusedBinding = null,
             ),
+            persistValidationMessage = false,
         )
         return true
     }
@@ -333,9 +505,55 @@ class DynamicStore(
         is DynamicState.Failure -> value.screen
     }
 
-    private fun reduce(screen: DynamicScreenState) {
-        entry.updateValidationMessage(screen.validationMessage)
+    private fun reduceForOrigin(
+        screen: DynamicScreenState,
+        presentationId: String?,
+    ) {
+        reduce(screen, persistValidationMessage = presentationId == null)
+    }
+
+    private fun reduce(
+        screen: DynamicScreenState,
+        persistValidationMessage: Boolean = true,
+    ) {
+        if (persistValidationMessage) {
+            entry.updateValidationMessage(screen.validationMessage)
+        }
+        entry.updateValidationErrors(screen.validationErrors)
         _state.value = DynamicState.Success(screen)
+    }
+
+    private fun reportAction(
+        trace: TraceContext?,
+        event: String,
+        type: String,
+        outcome: String? = null,
+    ) {
+        val safeType = when (type.trim().lowercase()) {
+            "request", "navigate", "present", "dismiss", "external_uri", "state", "sequence" ->
+                type.trim().lowercase()
+            else -> "other"
+        }
+        val fields = "event=" + event +
+            " sessionId=" + safeDiagnosticId(trace?.sessionId) +
+            " actionId=" + safeDiagnosticId(trace?.actionId) +
+            " parentActionId=" + safeDiagnosticId(trace?.parentActionId) +
+            " type=" + safeType +
+            (outcome?.let { " outcome=" + it } ?: "")
+        runCatching { diagnosticLogger.i { fields } }
+    }
+
+    private fun reportScreenLoad(
+        actionId: String,
+        event: String,
+        outcome: String? = null,
+    ) {
+        val fields = "event=" + event +
+            " phase=screen_load sessionId=" + safeDiagnosticId(entry.diagnosticSessionId) +
+            " actionId=" + safeDiagnosticId(actionId) +
+            " parentActionId=" + safeDiagnosticId(entry.parentActionId) +
+            (outcome?.let { " outcome=" + it } ?: "")
+        runCatching { diagnosticLogger.d { fields } }
     }
 
     fun close() {

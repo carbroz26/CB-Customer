@@ -79,9 +79,14 @@ fun DynamicContainer(
                         bindings = current.screen.bindings,
                         contextValues = contextValues,
                         stateValues = runtimeValues,
+                        validationErrors = current.screen.validationErrors,
+                        focusedBinding = current.screen.focusedBinding,
                         onAction = { action -> dispatchAction(action) },
                         onValueChange = { key, value ->
                             store.accept(DynamicIntent.ValueChanged(key, value))
+                        },
+                        onFocusChange = { key, focused ->
+                            store.accept(DynamicIntent.FocusChanged(key, focused))
                         },
                     ).Render(response, entry.destination) {
                         runCatching {
@@ -104,6 +109,8 @@ fun DynamicContainer(
                             bindings = current.screen.bindings + current.screen.presentationBindings,
                             contextValues = contextValues,
                             stateValues = runtimeValues,
+                            validationErrors = current.screen.presentationValidationErrors,
+                            focusedBinding = current.screen.presentationFocusedBinding,
                             onAction = { action -> dispatchAction(action, presentation.id) },
                             onValueChange = { key, value ->
                                 store.accept(
@@ -111,6 +118,15 @@ fun DynamicContainer(
                                         presentationId = presentation.id,
                                         key = key,
                                         value = value,
+                                    ),
+                                )
+                            },
+                            onFocusChange = { key, focused ->
+                                store.accept(
+                                    DynamicIntent.PresentationFocusChanged(
+                                        presentationId = presentation.id,
+                                        key = key,
+                                        focused = focused,
                                     ),
                                 )
                             },

@@ -1,33 +1,36 @@
 package com.carbroz.cbpartner.feature.dynamic.renderer
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
-import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLinearGradient
+import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
 class DynamicRenderer(
     private val registry: DynamicRegistry,
     private val onAction: (DynamicAction) -> Unit = {},
     private val onValueChange: (String, DynamicValue) -> Unit = { _, _ -> },
+    private val onFocusChange: (String, Boolean) -> Unit = { _, _ -> },
     private val bindings: Map<String, DynamicValue> = emptyMap(),
     private val contextValues: Map<String, DynamicValue> = emptyMap(),
     private val stateValues: Map<String, DynamicValue> = emptyMap(),
+    private val validationErrors: Map<String, String> = emptyMap(),
+    private val focusedBinding: String? = null,
 ) {
     @Composable
     fun Render(
@@ -60,8 +63,11 @@ class DynamicRenderer(
             bindings = bindings,
             contextValues = contextValues,
             stateValues = stateValues,
+            validationErrors = validationErrors,
+            focusedBinding = focusedBinding,
             onAction = onAction,
             onValueChange = onValueChange,
+            onFocusChange = onFocusChange,
         )
 
         val focusManager = LocalFocusManager.current
@@ -70,7 +76,6 @@ class DynamicRenderer(
                 .fillMaxSize()
                 .screenTheme(screen.theme?.properties)
                 .pointerInput(focusManager) {
-                    // Child controls consume their own taps; blank screen taps clear focus.
                     detectTapGestures(onTap = { focusManager.clearFocus() })
                 },
         ) {

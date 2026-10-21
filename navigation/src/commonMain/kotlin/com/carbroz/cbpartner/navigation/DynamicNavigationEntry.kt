@@ -7,7 +7,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 /**
  * Identity of one item in the Dynamic navigation back stack.
  *
- * Input bindings survive temporary NavEntry composition disposal while this entry remains in the stack.
+ * Input bindings and screen validation errors survive temporary NavEntry composition disposal
+ * while this entry remains in the stack. Focus and presentation-local state do not.
  */
 class DynamicNavigationEntry(
     val destination: DynamicDestination,
@@ -25,13 +26,21 @@ class DynamicNavigationEntry(
     var validationMessage: String? = null
         private set
 
+    var validationErrors: Map<String, String> = emptyMap()
+        private set
+
     fun updateScreenResponse(response: DynamicResponse) {
         screenResponse = response
         validationMessage = null
+        validationErrors = emptyMap()
     }
 
     fun updateValidationMessage(message: String?) {
         validationMessage = message
+    }
+
+    fun updateValidationErrors(errors: Map<String, String>) {
+        validationErrors = errors
     }
 
     fun updateBindings(values: Map<String, DynamicValue>) {

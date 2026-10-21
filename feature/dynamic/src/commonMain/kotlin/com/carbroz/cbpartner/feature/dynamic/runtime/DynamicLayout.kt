@@ -2,9 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.runtime
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.border
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,14 +12,16 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement
@@ -35,30 +35,38 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
-import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
 
 internal fun Modifier.applyLayout(template: FormTemplate): Modifier =
     applyDynamicPadding(template.padding).thenIf(template.fillMaxSize) { fillMaxSize() }
 
 internal fun Modifier.applyLayout(component: StackComponent): Modifier =
-    applyDynamicPadding(component.padding).thenIf(component.fillMaxWidth) { fillMaxWidth() }
+    thenIf(component.fillMaxWidth) { fillMaxWidth() }
+        .applyDynamicBackground(component.background, component.shape.toComposeShape())
+        .applyDynamicPadding(component.padding)
 
 internal fun Modifier.applyLayout(section: StackSection): Modifier =
     applyDynamicPadding(section.padding).thenIf(section.fillMaxWidth) { fillMaxWidth() }
 
-internal fun Modifier.applyLayout(group: StackGroup): Modifier =
+internal fun Modifier.applyLayout(
+    group: StackGroup,
+    borderOverride: DynamicBorder? = group.border,
+): Modifier =
     Modifier
         .thenIf(group.height != null) { height(group.height!!.dp) }
+        .thenIf(group.minHeight != null) { heightIn(min = group.minHeight!!.dp) }
         .thenIf(group.fillMaxWidth) { fillMaxWidth() }
-        .applyBackground(group.background)
-        .applyBorder(group.border, group.shape)
+        .applyDynamicBackground(group.background, group.shape.toComposeShape())
+        .applyBorder(borderOverride, group.shape)
         .applyDynamicPadding(group.padding)
 
 internal fun Modifier.applyLayout(element: TextElement): Modifier =
-    applyDynamicPadding(element.padding)
+    applyDynamicSpacing(element.spacing)
+        .applyDynamicPadding(element.padding)
         .thenIf(element.width != null) { width(element.width!!.dp) }
         .thenIf(element.maxWidth != null) { widthIn(max = element.maxWidth!!.dp) }
+        .thenIf(element.minHeight != null) { heightIn(min = element.minHeight!!.dp) }
         .thenIf(element.fillMaxWidth) { fillMaxWidth() }
 
 internal fun Modifier.applyLayout(element: ImageElement): Modifier =
@@ -76,6 +84,7 @@ internal fun Modifier.applyLayout(element: InputElement): Modifier =
     applyDynamicPadding(element.padding)
         .thenIf(element.width != null) { width(element.width!!.dp) }
         .thenIf(element.maxWidth != null) { widthIn(max = element.maxWidth!!.dp) }
+        .thenIf(element.height != null) { height(element.height!!.dp) }
         .thenIf(element.fillMaxWidth) { fillMaxWidth() }
 
 internal fun Modifier.applyLayout(element: ButtonElement): Modifier =
@@ -88,6 +97,8 @@ internal fun Modifier.applyLayout(element: ButtonElement): Modifier =
 internal fun Modifier.applyLayout(element: IconElement): Modifier =
     applyDynamicPadding(element.padding)
         .thenIf(element.size != null) { width(element.size!!.dp).height(element.size!!.dp) }
+        .thenIf(element.minWidth != null) { widthIn(min = element.minWidth!!.dp) }
+        .thenIf(element.minHeight != null) { heightIn(min = element.minHeight!!.dp) }
 
 internal fun Modifier.applyDynamicPadding(padding: DynamicPadding?): Modifier =
     padding?.let {
@@ -141,7 +152,10 @@ internal fun DynamicArrangement.toVerticalAlignment(): Alignment.Vertical = when
     else -> Alignment.CenterVertically
 }
 
-internal fun Modifier.applyLinearGradient(angle: Double, stops: List<Pair<Double?, Color>>): Modifier {
+internal fun Modifier.applyLinearGradient(
+    angle: Double,
+    stops: List<Pair<Double?, Color>>,
+): Modifier {
     if (stops.size < 2) return this
     val positions = stops.mapIndexed { index, (stop, color) ->
         val position = stop ?: index.toDouble() / (stops.size - 1)
@@ -167,8 +181,10 @@ internal fun Modifier.applyLinearGradient(angle: Double, stops: List<Pair<Double
     }
 }
 
-/** Applies background using the same stop-aware angle conversion as screen gradients. */
-internal fun Modifier.applyDynamicBackground(background: DynamicBackground?, shape: Shape = RectangleShape): Modifier =
+internal fun Modifier.applyDynamicBackground(
+    background: DynamicBackground?,
+    shape: Shape = RectangleShape,
+): Modifier =
     when (background) {
         is DynamicBackground.LinearGradient -> {
             clip(shape).applyLinearGradient(
@@ -178,7 +194,8 @@ internal fun Modifier.applyDynamicBackground(background: DynamicBackground?, sha
                 },
             )
         }
-        is DynamicBackground.Solid -> background.color.toColor()?.let { background(it, shape) } ?: this
+        is DynamicBackground.Solid ->
+            background.color.toColor()?.let { background(it, shape) } ?: this
         null -> this
     }
 
@@ -187,20 +204,36 @@ internal fun DynamicBackground?.color(): Color? = when (this) {
     else -> null
 }
 
-private fun Modifier.applyBackground(background: DynamicBackground?): Modifier =
-    applyDynamicBackground(background)
-
-private fun Modifier.applyBorder(border: DynamicBorder?, shape: DynamicShape?): Modifier {
+internal fun Modifier.applyBorder(
+    border: DynamicBorder?,
+    shape: DynamicShape?,
+): Modifier {
     if (border == null) return this
     return border(
-        BorderStroke(border.width.dp, border.color.toColor() ?: error("Invalid dynamic border color")),
+        BorderStroke(
+            border.width.dp,
+            border.color.toColor() ?: error("Invalid dynamic border color"),
+        ),
         shape.toComposeShape(),
     )
 }
 
 internal fun DynamicShape?.toComposeShape(): Shape = when (this) {
-    is DynamicShape.RoundedCorner -> RoundedCornerShape(cornerRadius.dp)
+    is DynamicShape.RoundedCorner -> {
+        val fallback = cornerRadius
+        RoundedCornerShape(
+            topStart = (topStart ?: fallback).dp,
+            topEnd = (topEnd ?: fallback).dp,
+            bottomEnd = (bottomEnd ?: fallback).dp,
+            bottomStart = (bottomStart ?: fallback).dp,
+        )
+    }
     null -> RectangleShape
+}
+
+internal fun Double.toComposeWeight(): Float {
+    require(isFinite() && this > 0.0) { "Dynamic weight must be finite and greater than zero" }
+    return toFloat()
 }
 
 internal fun String.toColor(): Color? = runCatching {

@@ -8,8 +8,12 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
@@ -1101,6 +1105,200 @@ class DynamicStoreTest {
             ),
             theme = null,
             presentations = listOf(presentation),
+        )
+        return DynamicResponse(200, "SUCCESS", "Loaded", screen, null)
+    }
+
+
+
+    @Test
+    fun screenInitialBindingsSeedEntryAndExistingEntryValuesWin() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var fetches = 0
+        val screen = DynamicScreen(
+            screenId = "root",
+            schemaVersion = "3.0.0",
+            targetApp = "PARTNER",
+            template = FormTemplate(id = "tpl_root"),
+            theme = null,
+            initialBindings = mapOf(
+                "countryId" to DynamicValue.StringValue("IN"),
+                "mobileNumber" to DynamicValue.StringValue(""),
+            ),
+        )
+        val response = DynamicResponse(200, "SUCCESS", "Loaded", screen, null)
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                fetches++
+                return Result.success(response)
+            }
+        }
+        val entry = DynamicNavigationEntry(destination("root"))
+        entry.updateBindings(
+            mapOf("mobileNumber" to DynamicValue.StringValue("9876543210")),
+        )
+
+        val first = store(entry, repository, DynamicRuntimeState(), dispatcher)
+        first.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        val loaded = assertIs<DynamicState.Success>(first.state.value).screen
+        assertEquals(DynamicValue.StringValue("IN"), loaded.bindings["countryId"])
+        assertEquals(
+            DynamicValue.StringValue("9876543210"),
+            loaded.bindings["mobileNumber"],
+        )
+        assertEquals(loaded.bindings, entry.bindings)
+        assertEquals(1, fetches)
+        first.close()
+
+        val second = store(entry, repository, DynamicRuntimeState(), dispatcher)
+        second.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        assertEquals(1, fetches)
+        assertEquals(
+            DynamicValue.StringValue("9876543210"),
+            assertIs<DynamicState.Success>(second.state.value)
+                .screen.bindings["mobileNumber"],
+        )
+        second.close()
+    }
+
+    @Test
+    fun validationErrorsAreRetainedAndRevalidatedOnEdit() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var submitCalls = 0
+        val response = validationResponse()
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/root") return Result.success(response)
+                submitCalls++
+                return Result.success(DynamicResponse(200, "SUCCESS", "Done", null, null))
+            }
+        }
+        val entry = DynamicNavigationEntry(destination("root"))
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = entry,
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "request",
+                    mapOf(
+                        "endpoint" to DynamicValue.StringValue("/submit"),
+                        "responseMode" to DynamicValue.StringValue("none"),
+                        "validate" to DynamicValue.BooleanValue(true),
+                    ),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        var current = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("Phone required", current.validationErrors["phone"])
+        assertEquals(null, current.validationMessage)
+        assertEquals(current.validationErrors, entry.validationErrors)
+        assertEquals(0, submitCalls)
+
+        store.accept(
+            DynamicIntent.ValueChanged(
+                "phone",
+                DynamicValue.StringValue("1234567890"),
+            ),
+        )
+        current = assertIs<DynamicState.Success>(store.state.value).screen
+        assertTrue(current.validationErrors.isEmpty())
+        assertTrue(entry.validationErrors.isEmpty())
+        store.close()
+    }
+
+    @Test
+    fun focusStateIsScopedBetweenScreenAndPresentation() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val store = presentationStore(
+            DynamicNavigationEntry(destination("root")),
+            presentationRepository(),
+            dispatcher,
+        )
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.FocusChanged("screenField", true))
+        assertEquals(
+            "screenField",
+            assertIs<DynamicState.Success>(store.state.value).screen.focusedBinding,
+        )
+
+        store.accept(
+            DynamicIntent.Action(
+                DynamicAction(
+                    "present",
+                    mapOf("presentationId" to DynamicValue.StringValue("picker")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+        store.accept(DynamicIntent.PresentationFocusChanged("picker", "search", true))
+
+        var current = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("screenField", current.focusedBinding)
+        assertEquals("search", current.presentationFocusedBinding)
+
+        store.accept(DynamicIntent.PresentationFocusChanged("stale", "other", true))
+        current = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("search", current.presentationFocusedBinding)
+
+        store.accept(DynamicIntent.DismissPresentation("picker"))
+        current = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals(null, current.presentationFocusedBinding)
+        assertEquals("screenField", current.focusedBinding)
+        store.close()
+    }
+
+    private fun validationResponse(): DynamicResponse {
+        val input = InputElement(
+            id = "phone",
+            binding = DynamicBinding("phone"),
+            validation = DynamicValidation(
+                required = true,
+                pattern = "^[0-9]{10}$",
+                message = "Phone required",
+            ),
+        )
+        val group = StackGroup(
+            id = "phone_group",
+            elements = listOf(input),
+            validationPresentation = DynamicValidationPresentation(
+                binding = "phone",
+                errorBorder = DynamicBorder(1.0, "#FF0000"),
+            ),
+        )
+        val screen = DynamicScreen(
+            screenId = "root",
+            schemaVersion = "3.0.0",
+            targetApp = "PARTNER",
+            template = FormTemplate(
+                id = "tpl_root",
+                components = listOf(
+                    StackComponent(
+                        id = "component",
+                        sections = listOf(
+                            StackSection(
+                                id = "section",
+                                groups = listOf(group),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            theme = null,
         )
         return DynamicResponse(200, "SUCCESS", "Loaded", screen, null)
     }

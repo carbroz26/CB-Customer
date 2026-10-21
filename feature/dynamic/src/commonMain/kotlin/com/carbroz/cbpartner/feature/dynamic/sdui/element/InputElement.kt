@@ -1,17 +1,13 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.element
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,12 +16,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -35,18 +31,25 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
-import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
-import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyBorder
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicBackground
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
+import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
 
 class InputElement : ElementRenderer<InputElementModel> {
     @Composable
     override fun render(element: InputElementModel, context: DynamicRenderContext) {
         val binding = element.binding?.key ?: return
+        require(element.inputFilter == null || element.inputFilter == "digits") {
+            "Unsupported Dynamic input filter: " + element.inputFilter
+        }
+
         val value = (context.bindings[binding] as? DynamicValue.StringValue)?.value.orEmpty()
+        val invalid = binding in context.validationErrors
+        val focused = context.focusedBinding == binding
         val keyboardType = when (element.keyboardType) {
             "phone" -> androidx.compose.ui.text.input.KeyboardType.Phone
             "number" -> androidx.compose.ui.text.input.KeyboardType.Number
@@ -54,7 +57,12 @@ class InputElement : ElementRenderer<InputElementModel> {
         }
 
         fun changed(newValue: String) {
-            val limited = newValue.take(element.maxLength ?: Int.MAX_VALUE)
+            val filtered = when (element.inputFilter) {
+                "digits" -> newValue.filter { it in '0'..'9' }
+                null -> newValue
+                else -> error("Unsupported Dynamic input filter: " + element.inputFilter)
+            }
+            val limited = filtered.take(element.maxLength ?: Int.MAX_VALUE)
             context.onValueChange(binding, DynamicValue.StringValue(limited))
             element.actions["onValueChange"]?.let {
                 reportDynamicOrigin(element.id, "onValueChange", it.type)
@@ -64,6 +72,7 @@ class InputElement : ElementRenderer<InputElementModel> {
 
         var hadFocus by remember(element.id) { mutableStateOf(false) }
         val focusModifier = Modifier.onFocusChanged { state ->
+            context.onFocusChange(binding, state.isFocused)
             if (state.isFocused && !hadFocus) {
                 element.actions["onFocus"]?.let {
                     reportDynamicOrigin(element.id, "onFocus", it.type)
@@ -72,6 +81,7 @@ class InputElement : ElementRenderer<InputElementModel> {
             }
             hadFocus = state.isFocused
         }
+
         val focusManager = LocalFocusManager.current
         val keyboardController = LocalSoftwareKeyboardController.current
         val submit: () -> Unit = {
@@ -87,11 +97,8 @@ class InputElement : ElementRenderer<InputElementModel> {
             onGo = { submit() },
             onSend = { submit() },
         )
-        val submitIme = if (element.actions.containsKey("onSubmit")) ImeAction.Done else ImeAction.Default
-
-        val width = element.width
-        val maxWidth = element.maxWidth
-        val placeholder = element.placeholder
+        val submitIme =
+            if (element.actions.containsKey("onSubmit")) ImeAction.Done else ImeAction.Default
 
         Row(
             modifier = Modifier.applyLayout(element),
@@ -114,10 +121,16 @@ class InputElement : ElementRenderer<InputElementModel> {
                     segmentHeight = requireNotNull(presentation.segmentHeight) {
                         "Segmented input height is required for element " + element.id
                     }.dp,
-                    background = presentation.background,
+                    background = if (invalid) {
+                        element.validationStyle?.background ?: presentation.background
+                    } else {
+                        presentation.background
+                    },
                     border = presentation.border,
                     shape = presentation.shape,
                     focusBorder = presentation.focusBorder,
+                    focused = focused,
+                    invalid = invalid,
                     textStyle = inputTextStyle(element),
                     onValueChange = ::changed,
                     focusModifier = focusModifier,
@@ -125,24 +138,45 @@ class InputElement : ElementRenderer<InputElementModel> {
                     imeAction = submitIme,
                 )
             } else {
+                val activeBackground =
+                    if (invalid) element.validationStyle?.background ?: element.background
+                    else element.background
+                val activeBorder = when {
+                    invalid -> element.border
+                    focused -> element.focusBorder ?: element.border
+                    else -> element.border
+                }
+                var fieldModifier = focusModifier
+                    .weight(1f)
+                    .applyDynamicBackground(activeBackground, element.shape.toComposeShape())
+                    .applyBorder(activeBorder, element.shape)
+                if (element.height != null) {
+                    fieldModifier = fieldModifier.fillMaxHeight()
+                }
+
                 BasicTextField(
-                    modifier = focusModifier
-                        .then(element.weight?.let { Modifier.weight(it.toFloat()) } ?: Modifier)
-                        .then(width?.let { Modifier.width(it.dp) } ?: Modifier)
-                        .then(maxWidth?.let { Modifier.widthIn(max = it.dp) } ?: Modifier),
+                    modifier = fieldModifier,
                     value = value,
                     onValueChange = ::changed,
                     textStyle = inputTextStyle(element),
-                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = submitIme),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = keyboardType,
+                        imeAction = submitIme,
+                    ),
                     keyboardActions = keyboardActions,
-                    singleLine = true,
+                    singleLine = element.singleLine ?: true,
                     decorationBox = { innerTextField ->
-                        Box {
+                        Box(
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
                             if (value.isEmpty()) {
-                                placeholder?.let {
+                                element.placeholder?.let { placeholder ->
                                     androidx.compose.material3.Text(
-                                        text = it,
-                                        style = inputTextStyle(element),
+                                        text = placeholder,
+                                        style = inputTextStyle(element).copy(
+                                            color = element.placeholderColor?.toColor()
+                                                ?: Color.Unspecified,
+                                        ),
                                     )
                                 }
                             }
@@ -173,37 +207,48 @@ class InputElement : ElementRenderer<InputElementModel> {
         border: DynamicBorder?,
         shape: DynamicShape?,
         focusBorder: DynamicBorder?,
+        focused: Boolean,
+        invalid: Boolean,
         textStyle: TextStyle,
         onValueChange: (String) -> Unit,
         focusModifier: Modifier,
         keyboardActions: KeyboardActions,
         imeAction: ImeAction,
     ) {
-        var focused by remember { mutableStateOf(false) }
+        val activeBorder = if (invalid) border else if (focused) focusBorder ?: border else border
 
         BasicTextField(
-            modifier = focusModifier
-                .fillMaxWidth()
-                .onFocusChanged { focused = it.isFocused },
+            modifier = focusModifier.fillMaxWidth(),
             value = value,
             onValueChange = onValueChange,
-            keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, imeAction = imeAction),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                imeAction = imeAction,
+            ),
             keyboardActions = keyboardActions,
             singleLine = true,
             textStyle = textStyle,
             decorationBox = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        spacing,
+                        Alignment.CenterHorizontally,
+                    ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     repeat(count) { index ->
                         Box(
                             modifier = Modifier
-                                .width(segmentWidth)
-                                .height(segmentHeight)
-                                .applyBackground(background, shape)
-                                .applyInputBorder(if (focused) focusBorder ?: border else border, shape),
+                                .then(
+                                    Modifier
+                                        .fillMaxHeight()
+                                        .applyDynamicBackground(
+                                            background,
+                                            shape.toComposeShape(),
+                                        )
+                                        .applyBorder(activeBorder, shape),
+                                ),
                             contentAlignment = Alignment.Center,
                         ) {
                             androidx.compose.material3.Text(
@@ -218,29 +263,6 @@ class InputElement : ElementRenderer<InputElementModel> {
             },
         )
     }
-}
-
-private fun Modifier.applyBackground(
-    background: DynamicBackground?,
-    shape: DynamicShape?,
-): Modifier = applyDynamicBackground(background, shape.toComposeShape())
-
-private fun Modifier.applyInputBorder(
-    border: DynamicBorder?,
-    shape: DynamicShape?,
-): Modifier = if (border == null) {
-    this
-} else {
-    border(
-        width = border.width.dp,
-        color = border.color.toColor() ?: error("Invalid dynamic input border color"),
-        shape = shape.toComposeShape(),
-    )
-}
-
-private fun DynamicShape?.toComposeShape() = when (this) {
-    is DynamicShape.RoundedCorner -> RoundedCornerShape(cornerRadius.dp)
-    null -> androidx.compose.ui.graphics.RectangleShape
 }
 
 private fun String?.toTextAlign(): TextAlign = when (this) {
