@@ -5,6 +5,8 @@ import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
+import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
@@ -36,6 +38,8 @@ sealed interface DynamicIntent {
     data class Action(
         val action: DynamicAction,
         val presentationId: String? = null,
+        val buttonId: String? = null,
+        val presentationGeneration: Long? = null,
     ) : DynamicIntent
     data class ValueChanged(val key: String, val value: DynamicValue) : DynamicIntent
     data class FocusChanged(val key: String, val focused: Boolean) : DynamicIntent
@@ -82,8 +86,12 @@ class DynamicStore(
     private val diagnosticLogger = Logger.withTag("CBPartnerFlow")
     private var loadJob: Job? = null
     private var actionJob: Job? = null
+    private var requestPresentationId: String? = null
+    private var requestPresentationGeneration: Long? = null
+    private var closed = false
 
     fun accept(intent: DynamicIntent) {
+        if (closed) return
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
             DynamicIntent.ClearMessage -> currentScreen()?.let { current ->
@@ -99,7 +107,12 @@ class DynamicStore(
             is DynamicIntent.PresentationFocusChanged ->
                 updatePresentationFocus(intent.presentationId, intent.key, intent.focused)
             is DynamicIntent.DismissPresentation -> dismissPresentation(intent.presentationId)
-            is DynamicIntent.Action -> handleAction(intent.action, intent.presentationId)
+            is DynamicIntent.Action -> handleAction(
+                intent.action,
+                intent.presentationId,
+                intent.buttonId,
+                intent.presentationGeneration,
+            )
         }
     }
 
@@ -238,11 +251,49 @@ class DynamicStore(
     ): Map<String, DynamicValue> =
         response.data?.initialBindings.orEmpty() + existing
 
-    private fun handleAction(action: DynamicAction, presentationId: String?) {
-        if (currentScreen() == null || actionJob?.isActive == true) return
+    private fun handleAction(
+        action: DynamicAction,
+        presentationId: String?,
+        buttonId: String?,
+        presentationGeneration: Long?,
+    ) {
+        val acceptedScreen = currentScreen() ?: return
+        if (actionJob?.isActive == true) return
+        if (presentationId != null &&
+            (acceptedScreen.activePresentationId != presentationId ||
+                (presentationGeneration != null &&
+                    acceptedScreen.presentationGeneration != presentationGeneration))
+        ) return
+        if (presentationId == null && presentationGeneration != null) return
+
+        val origin = if (buttonId != null) {
+            if (buttonId.isBlank() || action.type.trim().lowercase() != "request") return
+            if (presentationId != null && presentationGeneration == null) return
+            val components = if (presentationId == null) {
+                val template = acceptedScreen.response?.data?.template ?: return
+                template.header?.components.orEmpty() +
+                    template.components + template.footer?.components.orEmpty()
+            } else {
+                findPresentation(acceptedScreen, presentationId)?.components ?: return
+            }
+            val button = findButton(components, buttonId)
+            if (button?.loading == null || button.actions["onClick"] != action) return
+            DynamicPendingButton(buttonId, presentationId, presentationGeneration)
+        } else {
+            null
+        }
+
+        // Capture Presentation-open identity before scheduling on any dispatcher.
+        val acceptedGeneration = if (presentationId != null) acceptedScreen.presentationGeneration else null
+        if (presentationId != null && action.type.trim().lowercase() == "request") {
+            requestPresentationId = presentationId
+            requestPresentationGeneration = acceptedGeneration
+        }
 
         actionJob = scope.launch {
+            try {
             val current = currentScreen() ?: return@launch
+            if (!matchesPresentation(current, presentationId, acceptedGeneration)) return@launch
             val traceContext = entry.diagnosticSessionId?.let { session ->
                 TraceContext(session, Uuid.random().toString(), entry.parentActionId)
             }
@@ -330,6 +381,12 @@ class DynamicStore(
 
             val latest = currentScreen() ?: return@launch
             val latestBindings = bindingsForOrigin(latest, presentationId) ?: return@launch
+            if (origin != null) {
+                val active = currentScreen() ?: return@launch
+                if (!matchesPresentation(active, presentationId, acceptedGeneration)) return@launch
+                reduceForOrigin(active.copy(pendingButton = origin), presentationId)
+            }
+
             val result = actionExecutor.execute(
                 action = action,
                 bindings = latestBindings,
@@ -339,6 +396,7 @@ class DynamicStore(
             )
             if (result.isSuccess) {
                 coroutineContext.ensureActive()
+                if (!matchesPresentation(currentScreen(), presentationId, acceptedGeneration)) return@launch
                 val accepted = applyActionResult(result.getOrThrow(), traceContext)
                 reportAction(
                     traceContext,
@@ -363,7 +421,46 @@ class DynamicStore(
                     presentationId,
                 )
             }
+            } finally {
+                if (requestPresentationId == presentationId &&
+                    requestPresentationGeneration == acceptedGeneration) {
+                    requestPresentationId = null
+                    requestPresentationGeneration = null
+                }
+                if (!closed && origin != null) {
+                    val active = currentScreen()
+                    if (active?.pendingButton == origin &&
+                        matchesPresentation(active, presentationId, acceptedGeneration)) {
+                        reduceForOrigin(active.copy(pendingButton = null), presentationId)
+                    }
+                }
+            }
         }
+    }
+
+    private fun matchesPresentation(
+        current: DynamicScreenState?,
+        presentationId: String?,
+        generation: Long?,
+    ): Boolean {
+        if (current == null) return false
+        if (presentationId == null) return true
+        return current.activePresentationId == presentationId &&
+            current.presentationGeneration == generation
+    }
+
+    /** Lookup for the supported static Button tree only; repeated ListSection rows are deferred. */
+    private fun findButton(components: List<DynamicComponent>, id: String): ButtonElement? {
+        components.forEach { component ->
+            component.elements.filterIsInstance<ButtonElement>().firstOrNull { it.id == id }?.let { return it }
+            component.sections.forEach { section ->
+                section.elements.filterIsInstance<ButtonElement>().firstOrNull { it.id == id }?.let { return it }
+                section.groups.forEach { group ->
+                    group.elements.filterIsInstance<ButtonElement>().firstOrNull { it.id == id }?.let { return it }
+                }
+            }
+        }
+        return null
     }
 
     private fun validateScope(
@@ -470,6 +567,7 @@ class DynamicStore(
         reduce(
             current.copy(
                 activePresentationId = presentationId,
+                presentationGeneration = current.presentationGeneration + 1,
                 presentationBindings = presentation.initialBindings.toMap(),
                 presentationValidationErrors = emptyMap(),
                 presentationFocusedBinding = null,
@@ -482,10 +580,16 @@ class DynamicStore(
     private fun closeActivePresentation(): Boolean {
         val current = currentScreen() ?: return false
         if (current.activePresentationId == null) return false
+        if (requestPresentationId == current.activePresentationId &&
+            requestPresentationGeneration == current.presentationGeneration) {
+            // Cancelling request ownership prevents stale completion/effect commits.
+            actionJob?.cancel()
+        }
         reduce(
             current.copy(
                 validationMessage = entry.validationMessage,
                 activePresentationId = null,
+                pendingButton = if (current.pendingButton?.presentationId != null) null else current.pendingButton,
                 presentationBindings = emptyMap(),
                 presentationValidationErrors = emptyMap(),
                 presentationFocusedBinding = null,
@@ -559,8 +663,14 @@ class DynamicStore(
     }
 
     fun close() {
+        if (closed) return
+        closed = true
         loadJob?.cancel()
         actionJob?.cancel()
+        val current = currentScreen()
+        if (current?.pendingButton != null) {
+            _state.value = DynamicState.Success(current.copy(pendingButton = null))
+        }
         scope.cancel()
     }
 }
