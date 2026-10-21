@@ -1317,6 +1317,9 @@ class DynamicStoreTest {
             mapOf(
                 "endpoint" to DynamicValue.StringValue("/submit"),
                 "validate" to DynamicValue.BooleanValue(validationRequired),
+                "body" to DynamicValue.ObjectValue(
+                    mapOf("field" to ref("\$binding", "field")),
+                ),
             ),
         )
         val button = ButtonElement(
@@ -1420,6 +1423,12 @@ class DynamicStoreTest {
         val pending = assertIs<DynamicState.Success>(store.state.value).screen
         assertEquals(DynamicPendingButton("shared"), pending.pendingButton)
         assertTrue(pending.validationErrors.isEmpty())
+        assertEquals(
+            DynamicValue.ObjectValue(
+                mapOf("field" to DynamicValue.StringValue("ready")),
+            ),
+            bodyObserved,
+        )
         gate.complete(Unit)
         advanceUntilIdle()
         assertNull(assertIs<DynamicState.Success>(store.state.value).screen.pendingButton)
