@@ -148,14 +148,10 @@ internal fun VisualLoginPreview() {
                         .fillMaxWidth()
                         .height(56.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            if (attempted && !phoneValid) Color(0xFFFFF1F2) else Color.White,
-                        )
-                        .border(
-                            1.dp,
-                            if (attempted && !phoneValid) Color(0xFFDC2626) else Color(0xFFCBD5E1),
-                            RoundedCornerShape(12.dp),
-                        ),
+                        .background(Color.White)
+                        // The shared field outline and country selector remain neutral.
+                        // Only the editable phone segment owns the validation styling.
+                        .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp)),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Row(
@@ -185,12 +181,27 @@ internal fun VisualLoginPreview() {
                             .width(1.dp)
                             .background(Color(0xFFD1D5DB)),
                     )
-                    Spacer(Modifier.width(12.dp))
+                    val invalidNumber = attempted && !phoneValid
+                    val numberShape = RoundedCornerShape(
+                        topEnd = 12.dp,
+                        bottomEnd = 12.dp,
+                    )
                     BasicTextField(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .padding(end = 12.dp),
+                            .clip(numberShape)
+                            .background(
+                                if (invalidNumber) Color(0xFFFFF1F2) else Color.White,
+                            )
+                            .then(
+                                if (invalidNumber) {
+                                    Modifier.border(1.dp, Color(0xFFDC2626), numberShape)
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .padding(start = 12.dp, end = 12.dp),
                         value = phone,
                         onValueChange = { input ->
                             phone = input.filter { it in '0'..'9' }.take(15)
