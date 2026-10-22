@@ -11,6 +11,9 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListSelection
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListFilter
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
@@ -1633,5 +1636,135 @@ class DynamicStoreTest {
         store.close()
     }
 
+
+
+    @Test
+    fun listSelectionUpdatesAllDeclaredScreenBindingsAndDismissesOnlyCurrentPresentation() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val entry = DynamicNavigationEntry(destination("root"), entryId = 42L)
+        entry.updateScreenResponse(countryPickerResponse())
+        val repo = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                error("Navigation entry snapshot should not refetch")
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repo),
+            actionExecutor = DynamicActionExecutor(listOf(PresentActionHandler())),
+            validator = DynamicFormValidator(),
+            entry = entry,
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+        )
+        store.accept(DynamicIntent.Load)
+        store.accept(DynamicIntent.Action(
+            DynamicAction("present", mapOf("presentationId" to DynamicValue.StringValue("picker"))),
+        ))
+        advanceUntilIdle()
+        val generation = assertIs<DynamicState.Success>(store.state.value).screen.presentationGeneration
+        store.accept(DynamicIntent.ListItemSelected(42L, "picker", generation, "countries", "US"))
+        val result = assertIs<DynamicState.Success>(store.state.value).screen
+        assertNull(result.activePresentationId)
+        assertEquals(DynamicValue.StringValue("US"), result.bindings["countryId"])
+        assertEquals(DynamicValue.StringValue("+1"), result.bindings["countryCode"])
+        assertEquals(DynamicValue.StringValue("flags/us"), result.bindings["countryFlagAsset"])
+        assertEquals(result.bindings, entry.bindings)
+
+        store.accept(DynamicIntent.Action(
+            DynamicAction("present", mapOf("presentationId" to DynamicValue.StringValue("picker"))),
+        ))
+        advanceUntilIdle()
+        val reopened = assertIs<DynamicState.Success>(store.state.value).screen
+        store.accept(DynamicIntent.ListItemSelected(42L, "picker", generation, "countries", "IN"))
+        store.accept(DynamicIntent.ListItemSelected(11L, "picker", reopened.presentationGeneration, "countries", "IN"))
+        val stillOpen = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("picker", stillOpen.activePresentationId)
+        assertEquals(DynamicValue.StringValue("US"), stillOpen.bindings["countryId"])
+        store.close()
+    }
+
+    @Test
+    fun filteredOutAndInvalidListRowsCannotCausePartialUpdates() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val entry = DynamicNavigationEntry(destination("root"), entryId = 13L)
+        entry.updateScreenResponse(countryPickerResponse())
+        val repo = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                error("Navigation entry snapshot should not refetch")
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repo),
+            actionExecutor = DynamicActionExecutor(listOf(PresentActionHandler())),
+            validator = DynamicFormValidator(),
+            entry = entry,
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+        )
+        store.accept(DynamicIntent.Load)
+        store.accept(DynamicIntent.Action(
+            DynamicAction("present", mapOf("presentationId" to DynamicValue.StringValue("picker"))),
+        ))
+        advanceUntilIdle()
+        val generation = assertIs<DynamicState.Success>(store.state.value).screen.presentationGeneration
+        store.accept(DynamicIntent.PresentationValueChanged(
+            "picker", "countrySearch", DynamicValue.StringValue("India"), generation,
+        ))
+        store.accept(DynamicIntent.ListItemSelected(13L, "picker", generation, "countries", "US"))
+        val safe = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("picker", safe.activePresentationId)
+        assertEquals(DynamicValue.StringValue("IN"), entry.bindings["countryId"])
+        assertEquals(DynamicValue.StringValue("+91"), entry.bindings["countryCode"])
+        store.close()
+    }
+
+    private fun countryPickerResponse(): DynamicResponse {
+        fun item(id: String, name: String, code: String) = mapOf(
+            "id" to DynamicValue.StringValue(id),
+            "name" to DynamicValue.StringValue(name),
+            "dialCode" to DynamicValue.StringValue(code),
+            "flagAsset" to DynamicValue.StringValue("flags/" + id.lowercase()),
+        )
+        val list = ListSection(
+            id = "countries",
+            items = listOf(item("IN", "India", "+91"), item("US", "United States", "+1")),
+            filter = DynamicListFilter("countrySearch", listOf("name", "dialCode"), true),
+            selection = DynamicListSelection(
+                "single", "id", "countryId",
+                mapOf(
+                    "countryId" to "id",
+                    "countryCode" to "dialCode",
+                    "countryFlagAsset" to "flagAsset",
+                ),
+                true,
+            ),
+        )
+        return DynamicResponse(
+            200, "SUCCESS", "Loaded",
+            DynamicScreen(
+                screenId = "root",
+                schemaVersion = "3.0.0",
+                targetApp = "PARTNER",
+                template = FormTemplate(
+                    id = "template",
+                    components = listOf(StackComponent("screen")),
+                ),
+                theme = null,
+                initialBindings = mapOf(
+                    "countryId" to DynamicValue.StringValue("IN"),
+                    "countryCode" to DynamicValue.StringValue("+91"),
+                    "countryFlagAsset" to DynamicValue.StringValue("flags/in"),
+                ),
+                presentations = listOf(
+                    BottomSheetPresentation(
+                        id = "picker",
+                        initialBindings = mapOf("countrySearch" to DynamicValue.StringValue("")),
+                        components = listOf(
+                            StackComponent("picker_content", sections = listOf(list)),
+                        ),
+                    ),
+                ),
+            ),
+            null,
+        )
+    }
 
 }
