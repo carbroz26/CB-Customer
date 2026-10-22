@@ -26,9 +26,12 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 class StackGroup : GroupRenderer<StackGroupModel> {
     @Composable
     override fun render(group: StackGroupModel, context: DynamicRenderContext) {
-        val displayedGroup = if (context.rowSelected == true &&
-            group.selectedStyle?.background != null
-        ) group.copy(background = group.selectedStyle.background) else group
+        val selectedBackground = group.selectedStyle?.background
+        val displayedGroup = if (context.rowSelected == true && selectedBackground != null) {
+            group.copy(background = selectedBackground)
+        } else {
+            group
+        }
         val validation = group.validationPresentation
         val validationMessage = validation?.binding?.let(context.validationErrors::get)
         val focused = group.focusPresentation?.binding == context.focusedBinding
