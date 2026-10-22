@@ -77,7 +77,8 @@ internal fun VisualLoginPreview() {
                 ),
         ) {
             val sheetHeight = maxHeight * 0.70f
-            val contentWidth = maxWidth.coerceAtMost(430.dp)
+            // The brand can be constrained; sheet and white card span the viewport.
+            val brandingWidth = maxWidth.coerceAtMost(430.dp)
 
             // Abstract placeholder — an image/photo has intentionally not been fabricated.
             PreviewSkyline(
@@ -89,7 +90,7 @@ internal fun VisualLoginPreview() {
 
             Column(
                 modifier = Modifier
-                    .width(contentWidth)
+                    .width(brandingWidth)
                     .align(Alignment.TopCenter)
                     .padding(top = 48.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -123,7 +124,7 @@ internal fun VisualLoginPreview() {
 
             Column(
                 modifier = Modifier
-                    .width(contentWidth)
+                    .fillMaxWidth()
                     .align(Alignment.BottomCenter)
                     .clip(
                         RoundedCornerShape(
@@ -146,7 +147,9 @@ internal fun VisualLoginPreview() {
                         .fillMaxWidth()
                         .height(56.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White)
+                        .background(
+                            if (attempted && !phoneValid) Color(0xFFFFF1F2) else Color.White,
+                        )
                         .border(
                             1.dp,
                             if (attempted && !phoneValid) Color(0xFFDC2626) else Color(0xFFCBD5E1),
@@ -185,6 +188,7 @@ internal fun VisualLoginPreview() {
                     BasicTextField(
                         modifier = Modifier
                             .weight(1f)
+                            .fillMaxHeight()
                             .padding(end = 12.dp),
                         value = phone,
                         onValueChange = { input ->
@@ -199,7 +203,10 @@ internal fun VisualLoginPreview() {
                             color = Color(0xFF111827),
                         ),
                         decorationBox = { inner ->
-                            Box {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.CenterStart,
+                            ) {
                                 if (phone.isEmpty()) Text(
                                     "Enter mobile number",
                                     color = Color(0xFF94A3B8),
@@ -212,11 +219,34 @@ internal fun VisualLoginPreview() {
                 }
                 if (attempted && !phoneValid) {
                     Spacer(Modifier.height(6.dp))
-                    Text(
-                        "Enter a valid mobile number",
-                        color = Color(0xFFDC2626),
-                        fontSize = 12.sp,
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .background(Color(0xFFDC2626), CircleShape),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                "!",
+                                color = Color.White,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                        Text(
+                            text = when {
+                                phone.isEmpty() -> "Mobile number is required."
+                                phone.length in 6..9 || phone.length > 10 ->
+                                    "Mobile number must be 10 digits."
+                                else -> "Please enter a valid 10-digit mobile number."
+                            },
+                            color = Color(0xFFDC2626),
+                            fontSize = 12.sp,
+                        )
+                    }
                 }
                 Spacer(Modifier.height(24.dp))
                 Box(
@@ -224,7 +254,10 @@ internal fun VisualLoginPreview() {
                         .fillMaxWidth()
                         .height(56.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(Color(0xFF1769D2))
+                        .background(
+                            if (attempted && !phoneValid) Color(0xFFCBD5E1)
+                            else Color(0xFF1769D2),
+                        )
                         .clickable {
                             attempted = true
                             previewMessage = phoneValid
@@ -290,7 +323,7 @@ internal fun VisualLoginPreview() {
                 )
                 Column(
                     modifier = Modifier
-                        .width(contentWidth)
+                        .fillMaxWidth()
                         .height(sheetHeight)
                         .align(Alignment.BottomCenter)
                         .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
