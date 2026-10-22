@@ -23,6 +23,7 @@ import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.feature.dynamic.DynamicContainer
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
@@ -166,6 +167,7 @@ private fun DynamicContent(
                     loadDynamicScreen = koin.get(),
                     actionExecutor = koin.get<DynamicActionExecutor>(),
                     validator = koin.get<DynamicFormValidator>(),
+                    listCatalog = koin.get<DynamicListCatalog>(),
                     entry = entry,
                     runtimeState = session.runtimeState,
                     contextProvider = { contextValues },

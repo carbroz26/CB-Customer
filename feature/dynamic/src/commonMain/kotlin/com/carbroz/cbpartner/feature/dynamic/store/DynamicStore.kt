@@ -8,10 +8,13 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
+import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionEffect
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicListItems
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
@@ -55,6 +58,15 @@ sealed interface DynamicIntent {
         val focused: Boolean,
         val presentationGeneration: Long? = null,
     ) : DynamicIntent
+    /** The row identity is rechecked against the latest entry/presentation/catalog snapshot. */
+    data class ListItemSelected(
+        val entryId: Long,
+        val presentationId: String?,
+        val presentationGeneration: Long?,
+        val listSectionId: String,
+        val itemKey: String,
+    ) : DynamicIntent
+
     data class DismissPresentation(
         val presentationId: String,
         val presentationGeneration: Long? = null,
@@ -75,6 +87,7 @@ class DynamicStore(
     private val entry: DynamicNavigationEntry,
     private val runtimeState: DynamicRuntimeState,
     private val contextProvider: () -> Map<String, DynamicValue> = { emptyMap() },
+    private val listCatalog: DynamicListCatalog = DynamicListCatalog { null },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val commitActionResult: (
         Map<String, DynamicValue>,
@@ -89,6 +102,7 @@ class DynamicStore(
     val state: StateFlow<DynamicState> = _state.asStateFlow()
 
     private val diagnosticLogger = Logger.withTag("CBPartnerFlow")
+    private val listItems = DynamicListItems(listCatalog)
     private var loadJob: Job? = null
     private var actionJob: Job? = null
     private var requestPresentationId: String? = null
@@ -111,6 +125,7 @@ class DynamicStore(
                 updatePresentationBinding(intent.presentationId, intent.key, intent.value, intent.presentationGeneration)
             is DynamicIntent.PresentationFocusChanged ->
                 updatePresentationFocus(intent.presentationId, intent.key, intent.focused, intent.presentationGeneration)
+            is DynamicIntent.ListItemSelected -> selectListItem(intent)
             is DynamicIntent.DismissPresentation ->
                 dismissPresentation(intent.presentationId, intent.presentationGeneration)
             is DynamicIntent.Action -> handleAction(
@@ -120,6 +135,53 @@ class DynamicStore(
                 intent.presentationGeneration,
             )
         }
+    }
+
+    /** Atomic screen-binding selection; stale rows never mutate bindings or dismiss overlays. */
+    private fun selectListItem(intent: DynamicIntent.ListItemSelected) {
+        if (intent.entryId != entry.entryId || actionJob?.isActive == true) return
+        val current = currentScreen() ?: return
+        if (intent.presentationId == null) {
+            if (current.activePresentationId != null || intent.presentationGeneration != null) return
+        } else if (intent.presentationGeneration == null ||
+            !matchesCurrentPresentation(current, intent.presentationId, intent.presentationGeneration)
+        ) return
+
+        val components = if (intent.presentationId == null) {
+            val template = current.response?.data?.template ?: return
+            template.header?.components.orEmpty() +
+                template.components + template.footer?.components.orEmpty()
+        } else {
+            findPresentation(current, intent.presentationId)?.components ?: return
+        }
+        val sections = components.flatMap { component -> component.sections }
+        val list = sections.filterIsInstance<ListSection>()
+            .filter { it.id == intent.listSectionId }
+            .singleOrNull() ?: return
+        val selection = list.selection ?: return
+        val bindings = bindingsForOrigin(current, intent.presentationId) ?: return
+
+        // Evaluation performs required-field/duplicate-key checks for the complete source.
+        val changes = runCatching {
+            val row = listItems.evaluate(list, bindings).singleOrNull { it.key == intent.itemKey }
+                ?: return@runCatching null
+            selection.result.mapValues { (_, field) ->
+                requireNotNull(row.item[field]) { "Dynamic list result field missing" }
+            }
+        }.getOrNull() ?: return
+        val updatedBindings = current.bindings + changes
+        val dismiss = intent.presentationId != null && selection.dismissOnSelect
+        var next = current.copy(
+            bindings = updatedBindings,
+            activePresentationId = if (dismiss) null else current.activePresentationId,
+            presentationBindings = if (dismiss) emptyMap() else current.presentationBindings,
+            presentationValidationErrors = if (dismiss) emptyMap() else current.presentationValidationErrors,
+            presentationFocusedBinding = if (dismiss) null else current.presentationFocusedBinding,
+            validationMessage = if (dismiss) entry.validationMessage else current.validationMessage,
+        )
+        if (current.validationErrors.isNotEmpty()) next = revalidateScreen(next)
+        entry.updateBindings(updatedBindings)
+        reduce(next, persistValidationMessage = intent.presentationId == null)
     }
 
     private fun updateBinding(key: String, value: DynamicValue) {
