@@ -1,11 +1,11 @@
 # B5 / L-10 — ListSection emptySectionId Source Audit & Exact Implementation Plan
 
-**Date:** 2026-10-22  
-**State:** SOURCE-RECONCILED PLAN DRAFT — OWNER REVIEW PENDING — NOT FROZEN — NO IMPLEMENTATION AUTHORIZATION  
-**Frontend:** carbroz26/CB-Partner, branch `architecture/dynamic-runtime-v2-discussion-freeze`  
-**Reviewed HEAD:** `edcfbfe821aa164c3fbf4936f6f42e914c9b90af` (B4 compiled/JVM/Web owner verification; no B5 code changes)  
-**Backend:** carbroz26/carwash-backend, `feature/backend-migration` — read-only; no backend change in B5  
-**Authority:** V2 Document 112 §16.1, the owner-reviewed `LOGIN-JSON-L01-L15-REVIEWED-FROZEN-IMPLEMENTATION-PLAN.md` B5 table (attached planning reference), and the 21-Oct `partner_login_country_picker_PRESENT_FINAL_FROZEN(1).json`. Appendix A's `emptyGroup` is a historical superseded artifact.  
+**Date:** 2026-10-22
+**State:** SOURCE-RECONCILED PLAN DRAFT — OWNER REVIEW PENDING — NOT FROZEN — NO IMPLEMENTATION AUTHORIZATION
+**Frontend:** carbroz26/CB-Partner, branch `architecture/dynamic-runtime-v2-discussion-freeze`
+**Reviewed HEAD:** `edcfbfe821aa164c3fbf4936f6f42e914c9b90af` (B4 compiled/JVM/Web owner verification; no B5 code changes)
+**Backend:** carbroz26/carwash-backend, `feature/backend-migration` — read-only; no backend change in B5
+**Authority:** V2 Document 112 §16.1, the owner-reviewed `LOGIN-JSON-L01-L15-REVIEWED-FROZEN-IMPLEMENTATION-PLAN.md` B5 table (attached planning reference), and the 21-Oct `partner_login_country_picker_PRESENT_FINAL_FROZEN(1).json`. Appendix A's `emptyGroup` is a historical superseded artifact.
 **Scope:** **B5 = L-10 contract, DTO/domain/mapping, target-JSON, fixtures and data mapping tests ONLY.** Phase-4 ListSection rendering, fallback display, filtering/catalog/`$item`/selection remain deferred. B4 and later batches are untouched.
 
 ## 1. Source-level reconciliation (observed, not presumed)
