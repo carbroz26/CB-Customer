@@ -30,6 +30,10 @@ fun main() {
     configureLogging(environment)
     ComposeViewport(viewportContainerId = "webApp") {
         if (environment == AppEnvironment.Development &&
+            window.location.search.contains("cbpartnerVisualPreview=1")
+        ) {
+            VisualLoginPreview()
+        } else if (environment == AppEnvironment.Development &&
             window.location.search.contains("cbpartnerLoginPreview=1")
         ) {
             LoginOfflinePreview(WebRuntimeMetadataProvider(), apiBaseUrl)

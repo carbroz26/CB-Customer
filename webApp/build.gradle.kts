@@ -11,6 +11,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
             implementation(compose.material3)
+            implementation(compose.foundation)
             implementation(compose.runtime)
             implementation(compose.ui)
         }
