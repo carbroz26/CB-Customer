@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
@@ -24,6 +25,8 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 class DynamicRenderer(
     private val registry: DynamicRegistry,
     private val trustedAssetOrigin: String? = null,
+    private val listCatalog: DynamicListCatalog? = null,
+    private val onListItemSelected: (String, String) -> Unit = { _, _ -> },
     private val onAction: (DynamicAction) -> Unit = {},
     private val onButtonAction: (DynamicAction, String) -> Unit = { action, _ -> onAction(action) },
     private val pendingButtonId: String? = null,
@@ -74,6 +77,8 @@ class DynamicRenderer(
             pendingButtonId = pendingButtonId,
             onValueChange = onValueChange,
             onFocusChange = onFocusChange,
+            listCatalog = listCatalog,
+            onListItemSelected = onListItemSelected,
         )
 
         val focusManager = LocalFocusManager.current

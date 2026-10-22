@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
@@ -33,6 +34,8 @@ fun DynamicPresentationHost(
     presentation: DynamicPresentation,
     registry: DynamicRegistry,
     trustedAssetOrigin: String? = null,
+    listCatalog: DynamicListCatalog? = null,
+    onListItemSelected: (String, String) -> Unit = { _, _ -> },
     bindings: Map<String, DynamicValue>,
     contextValues: Map<String, DynamicValue>,
     stateValues: Map<String, DynamicValue>,
@@ -58,6 +61,8 @@ fun DynamicPresentationHost(
         pendingButtonId = pendingButtonId,
         onValueChange = onValueChange,
         onFocusChange = onFocusChange,
+        listCatalog = listCatalog,
+        onListItemSelected = onListItemSelected,
     )
 
     when (presentation) {

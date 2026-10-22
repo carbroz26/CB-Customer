@@ -13,6 +13,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement as InputE
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup as StackGroupModel
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection as StackSectionModel
+import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection as ListSectionModel
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormTemplateModel
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
@@ -26,12 +27,14 @@ import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
+import com.carbroz.cbpartner.feature.dynamic.sdui.section.ListSection
 import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplate
 
 fun dynamicRendererRegistry(): DynamicRegistry = DynamicRegistry.builder()
     .template(FormTemplateModel::class, FormTemplate())
     .component(StackComponentModel::class, StackComponent())
     .section(StackSectionModel::class, StackSection())
+    .section(ListSectionModel::class, ListSection())
     .group(StackGroupModel::class, StackGroup())
     .element(TextElementModel::class, TextElement())
     .element(ImageElementModel::class, ImageElement())

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.presentation.DynamicPresentationHost
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
@@ -36,6 +37,7 @@ fun DynamicContainer(
     runtimeState: DynamicRuntimeState,
     contextValues: Map<String, DynamicValue>,
     trustedAssetOrigin: String? = null,
+    listCatalog: DynamicListCatalog? = null,
     storeFactory: () -> DynamicStore,
     registry: DynamicRegistry,
     modifier: Modifier = Modifier,
@@ -83,6 +85,12 @@ fun DynamicContainer(
                     DynamicRenderer(
                         registry = registry,
                         trustedAssetOrigin = trustedAssetOrigin,
+                        listCatalog = listCatalog,
+                        onListItemSelected = { sectionId, itemKey ->
+                            store.accept(DynamicIntent.ListItemSelected(
+                                entry.entryId, null, null, sectionId, itemKey,
+                            ))
+                        },
                         bindings = current.screen.bindings,
                         contextValues = contextValues,
                         stateValues = runtimeValues,
@@ -120,6 +128,16 @@ fun DynamicContainer(
                             presentation = presentation,
                             registry = registry,
                             trustedAssetOrigin = trustedAssetOrigin,
+                            listCatalog = listCatalog,
+                            onListItemSelected = { sectionId, itemKey ->
+                                store.accept(DynamicIntent.ListItemSelected(
+                                    entry.entryId,
+                                    presentation.id,
+                                    current.screen.presentationGeneration,
+                                    sectionId,
+                                    itemKey,
+                                ))
+                            },
                             bindings = current.screen.bindings + current.screen.presentationBindings,
                             contextValues = contextValues,
                             stateValues = runtimeValues,

@@ -161,6 +161,7 @@ private fun DynamicContent(
             entry = entry,
             runtimeState = session.runtimeState,
             contextValues = contextValues,
+            listCatalog = koin.get<DynamicListCatalog>(),
             trustedAssetOrigin = trustedAssetOrigin,
             storeFactory = {
                 DynamicStore(
