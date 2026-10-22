@@ -66,25 +66,13 @@ class GroupMapper(
                 fontWeight = values.number(style, "fontWeight")?.toInt(),
                 color = values.string(style, "color"),
                 spacing = values.spacing(style),
-                reserveSpaceWhenHidden = values.boolean(style, "reserveSpaceWhenHidden") ?: false,
-                minHeight = values.number(style, "minHeight"),
             )
-        }
-        val minimumHeight = messageStyle?.minHeight
-        require(minimumHeight == null ||
-            (minimumHeight.isFinite() && minimumHeight >= 0.0)) {
-            "Validation message minHeight must be finite and nonnegative"
         }
         return DynamicValidationPresentation(
             binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
                 ?: error("Dynamic validation presentation binding is required"),
-            errorBorder = if ("errorBorder" in raw) {
-                requireNotNull(values.border(raw, "errorBorder")) {
-                    "Dynamic validation presentation errorBorder must be valid when declared"
-                }
-            } else {
-                null
-            },
+            errorBorder = values.border(raw, "errorBorder")
+                ?: error("Dynamic validation presentation errorBorder is required"),
             messageStyle = messageStyle,
         )
     }

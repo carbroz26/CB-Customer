@@ -42,11 +42,9 @@ fun App(
                         screenId = screen.screenId,
                         templateId = screen.template.id,
                         templateType = screen.template.type,
-                        endpoint = it.endpoint,
+                        endpoint = WEB_PREVIEW_LOGIN_ENDPOINT,
                     ),
-                ).also { session ->
-                    session.runtimeState.setAll(it.initialState)
-                }
+                )
             },
         )
     }
@@ -70,7 +68,7 @@ fun App(
                         object : DynamicRepository {
                             override suspend fun fetch(
                                 request: com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest,
-                            ) = if (request.endpoint == preview.endpoint) {
+                            ) = if (request.endpoint == WEB_PREVIEW_LOGIN_ENDPOINT) {
                                 Result.success(preview.response)
                             } else {
                                 Result.failure<com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse>(
@@ -98,3 +96,5 @@ fun App(
     ApplicationContent(koin.koin, runtimeMetadataProvider, retainedSession, apiBaseUrl.toString())
 }
 
+/** Preview-only destination; rejected by the offline repository for all mutations. */
+private const val WEB_PREVIEW_LOGIN_ENDPOINT = "/api/v1/partner/screen/auth_login"

@@ -20,5 +20,4 @@ data class DynamicInputPresentation(
     val border: DynamicBorder? = null,
     val shape: DynamicShape? = null,
     val focusBorder: DynamicBorder? = null,
-    val placeholder: String? = null,
 )

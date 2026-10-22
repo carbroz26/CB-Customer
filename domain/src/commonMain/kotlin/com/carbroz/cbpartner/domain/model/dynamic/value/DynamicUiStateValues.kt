@@ -11,7 +11,7 @@ data class DynamicFocusPresentation(
 
 data class DynamicValidationPresentation(
     val binding: String,
-    val errorBorder: DynamicBorder? = null,
+    val errorBorder: DynamicBorder,
     val messageStyle: DynamicValidationMessageStyle? = null,
 )
 
@@ -20,18 +20,10 @@ data class DynamicValidationMessageStyle(
     val fontWeight: Int? = null,
     val color: String? = null,
     val spacing: DynamicSpacing? = null,
-    val reserveSpaceWhenHidden: Boolean = false,
-    val minHeight: Double? = null,
 )
 
 data class DynamicValidationStyle(
     val background: DynamicBackground? = null,
-    val border: DynamicBorder? = null,
-)
-
-data class DynamicButtonEnabledWhen(
-    val binding: String,
-    val length: Int,
 )
 
 data class DynamicButtonLoading(

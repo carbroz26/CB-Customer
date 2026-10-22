@@ -10,6 +10,4 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 data class WebLoginPreview(
     val response: DynamicResponse,
     val countries: List<Map<String, DynamicValue>>,
-    val endpoint: String = "/api/v1/partner/screen/auth_login",
-    val initialState: Map<String, DynamicValue> = emptyMap(),
 )

@@ -149,7 +149,8 @@ internal fun VisualLoginPreview() {
                         .height(56.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color.White)
-                        // The whole row owns the error border; only the numeric area gets tinted.
+                        // The whole phone row owns the error border; only the editable
+                        // number background is tinted. Country selector stays white.
                         .border(
                             1.dp,
                             if (attempted && !phoneValid) Color(0xFFDC2626)

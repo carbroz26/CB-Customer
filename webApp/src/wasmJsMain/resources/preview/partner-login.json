@@ -207,9 +207,7 @@
                         "color": "#DC2626",
                         "spacing": {
                           "top": 6
-                        },
-                        "reserveSpaceWhenHidden": true,
-                        "minHeight": 24
+                        }
                       }
                     }
                   },
