@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +20,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusGroup
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -40,6 +52,7 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicBackground
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
+import com.carbroz.cbpartner.feature.dynamic.runtime.SegmentedInputSlots
 import com.carbroz.cbpartner.feature.dynamic.sdui.reportDynamicOrigin
 
 class InputElement : ElementRenderer<InputElementModel> {
@@ -60,7 +73,14 @@ class InputElement : ElementRenderer<InputElementModel> {
         }
 
         fun changed(newValue: String) {
-            val filtered = when (element.inputFilter) {
+            val filtered = if (element.presentation?.type == "segmented") {
+                // Slots are held in the ONE existing String binding. An underscore denotes
+                // a missing slot, preserving positional deletion without shifting later digits.
+                require(newValue.all { it == '_' || it in '0'..'9' }) {
+                    "Segmented input must contain ASCII digits or empty-slot sentinels"
+                }
+                newValue
+            } else when (element.inputFilter) {
                 "digits" -> newValue.filter { it in '0'..'9' }
                 null -> newValue
                 else -> error("Unsupported Dynamic input filter: " + element.inputFilter)
@@ -75,14 +95,15 @@ class InputElement : ElementRenderer<InputElementModel> {
 
         var hadFocus by remember(element.id) { mutableStateOf(false) }
         val focusModifier = Modifier.onFocusChanged { state ->
-            context.onFocusChange(binding, state.isFocused)
-            if (state.isFocused && !hadFocus) {
+            val active = if (element.presentation?.type == "segmented") state.hasFocus else state.isFocused
+            context.onFocusChange(binding, active)
+            if (active && !hadFocus) {
                 element.actions["onFocus"]?.let {
                     reportDynamicOrigin(element.id, "onFocus", it.type)
                     context.onAction(it)
                 }
             }
-            hadFocus = state.isFocused
+            hadFocus = active
         }
 
         val focusManager = LocalFocusManager.current
@@ -112,6 +133,7 @@ class InputElement : ElementRenderer<InputElementModel> {
             if (presentation?.type == "segmented") {
                 SegmentedInput(
                     value = value,
+                    elementId = element.id,
                     count = requireNotNull(presentation.count) {
                         "Segmented input count is required for element " + element.id
                     },
@@ -207,6 +229,7 @@ class InputElement : ElementRenderer<InputElementModel> {
     @Composable
     private fun SegmentedInput(
         value: String,
+        elementId: String,
         count: Int,
         spacing: androidx.compose.ui.unit.Dp,
         segmentWidth: androidx.compose.ui.unit.Dp,
@@ -224,52 +247,92 @@ class InputElement : ElementRenderer<InputElementModel> {
         keyboardActions: KeyboardActions,
         imeAction: ImeAction,
     ) {
-        val activeBorder = if (invalid) border else if (focused) focusBorder ?: border else border
-
-        BasicTextField(
-            modifier = focusModifier.fillMaxWidth(),
-            value = value,
-            onValueChange = onValueChange,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
-                imeAction = imeAction,
-            ),
-            keyboardActions = keyboardActions,
-            singleLine = true,
-            textStyle = textStyle,
-            decorationBox = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        spacing,
-                        Alignment.CenterHorizontally,
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    repeat(count) { index ->
-                        Box(
-                            modifier = Modifier
-                                .width(segmentWidth)
-                                .height(segmentHeight)
-                                .applyDynamicBackground(
-                                    background,
-                                    shape.toComposeShape(),
-                                )
-                                .applyBorder(activeBorder, shape),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            androidx.compose.material3.Text(
-                                text = value.getOrNull(index)?.toString() ?: placeholder.orEmpty(),
-                                modifier = Modifier.fillMaxWidth(),
-                                style = textStyle,
-                                textAlign = textStyle.textAlign,
-                            )
-                        }
+        val focusRequesters = remember(elementId, count) { List(count) { FocusRequester() } }
+        var focusedIndex by remember(elementId) { mutableStateOf(-1) }
+        // The presentation holds only focus/selection; digits and holes remain in
+        // the Screen's single retained binding, not in a second UI Store.
+        Row(
+            modifier = focusModifier.focusGroup().fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            repeat(count) { index ->
+                val cell = SegmentedInputSlots.display(value, count, index)
+                var field by remember(elementId, index) {
+                    mutableStateOf(TextFieldValue(cell))
+                }
+                LaunchedEffect(cell, focusedIndex) {
+                    if (field.text != cell || focusedIndex == index) {
+                        field = TextFieldValue(
+                            text = cell,
+                            selection = TextRange(0, cell.length),
+                        )
                     }
                 }
-            },
-        )
+                val cellBorder = when {
+                    invalid -> border
+                    focused && focusedIndex == index -> focusBorder ?: border
+                    else -> border
+                }
+                BasicTextField(
+                    modifier = Modifier
+                        .width(segmentWidth)
+                        .height(segmentHeight)
+                        .focusRequester(focusRequesters[index])
+                        .onFocusChanged { state ->
+                            if (state.isFocused) focusedIndex = index
+                        }
+                        .onPreviewKeyEvent { event ->
+                            if (event.type == KeyEventType.KeyDown &&
+                                event.key == Key.Backspace && cell.isEmpty()
+                            ) {
+                                val update = SegmentedInputSlots.backspaceOnEmpty(value, count, index)
+                                focusRequesters[update.focusIndex].requestFocus()
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        .applyDynamicBackground(background, shape.toComposeShape())
+                        .applyBorder(cellBorder, shape),
+                    value = field,
+                    onValueChange = { next ->
+                        field = next
+                        if (next.text != cell) {
+                            val edited = SegmentedInputSlots.edit(
+                                value, count, index, next.text,
+                            )
+                            onValueChange(edited.value)
+                            focusRequesters[edited.focusIndex].requestFocus()
+                        }
+                    },
+                    textStyle = textStyle,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                        imeAction = imeAction,
+                    ),
+                    keyboardActions = keyboardActions,
+                    decorationBox = { innerTextField ->
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(segmentHeight),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (cell.isEmpty() && focusedIndex != index) {
+                                androidx.compose.material3.Text(
+                                    text = placeholder.orEmpty(),
+                                    style = textStyle,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                            innerTextField()
+                        }
+                    },
+                )
+            }
+        }
     }
+
 }
 
 private fun String?.toTextAlign(): TextAlign = when (this) {

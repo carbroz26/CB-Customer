@@ -89,11 +89,12 @@ class StackGroup : GroupRenderer<StackGroupModel> {
             }
 
             val style = validation?.messageStyle
+            val minimumHeight = style?.minHeight
             if (validationMessage != null || style?.reserveSpaceWhenHidden == true) {
                 Box(
                     modifier = Modifier
-                        .then(if (style?.minHeight != null) {
-                            Modifier.heightIn(min = style.minHeight.dp)
+                        .then(if (minimumHeight != null) {
+                            Modifier.heightIn(min = minimumHeight.dp)
                         } else {
                             Modifier
                         }),
