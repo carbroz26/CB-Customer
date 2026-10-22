@@ -54,7 +54,7 @@ class StackComponent : ComponentRenderer<StackComponentModel> {
                             modifier = Modifier.weight(weight.toComposeWeight()),
                             propagateMinConstraints = true,
                         ) {
-                            context.renderSection(section)
+                            scoped.renderSection(section)
                         }
                     }
                 }
@@ -79,15 +79,16 @@ class StackComponent : ComponentRenderer<StackComponentModel> {
                     }
                 }
                 component.sections.forEach { section ->
+                    if (section is StackSection && section.id in fallbackIds) return@forEach
                     val weight = section.weight
                     if (weight == null) {
-                        context.renderSection(section)
+                        scoped.renderSection(section)
                     } else {
                         Box(
                             modifier = Modifier.weight(weight.toComposeWeight()),
                             propagateMinConstraints = true,
                         ) {
-                            context.renderSection(section)
+                            scoped.renderSection(section)
                         }
                     }
                 }
