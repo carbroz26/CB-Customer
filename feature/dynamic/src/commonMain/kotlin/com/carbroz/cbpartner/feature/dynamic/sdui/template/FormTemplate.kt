@@ -1,6 +1,9 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.template
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
@@ -62,12 +65,28 @@ class FormTemplate : TemplateRenderer<FormTemplateModel> {
         context: DynamicRenderContext,
         modifier: Modifier,
     ) {
+        // A verticalScroll child receives unbounded height. Preserve at least the
+        // viewport height so an authored spaceBetween arrangement can keep the
+        // last Component at the bottom when content is shorter than the screen.
+        if (template.orientation != "horizontal" && template.scrollable && template.fillMaxSize) {
+            BoxWithConstraints(modifier = modifier) {
+                RenderVertical(
+                    template,
+                    context,
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .heightIn(min = maxHeight),
+                )
+            }
+            return
+        }
+
         val bodyModifier = if (template.scrollable) {
             modifier.verticalScroll(rememberScrollState())
         } else {
             modifier
         }
-
         if (template.orientation == "horizontal") {
             Row(
                 modifier = bodyModifier,
@@ -77,13 +96,22 @@ class FormTemplate : TemplateRenderer<FormTemplateModel> {
                 context.renderComponents(template.components)
             }
         } else {
-            Column(
-                modifier = bodyModifier,
-                verticalArrangement = template.verticalArrangement.toVerticalArrangement(),
-                horizontalAlignment = template.horizontalAlignment.toHorizontalAlignment(),
-            ) {
-                context.renderComponents(template.components)
-            }
+            RenderVertical(template, context, bodyModifier)
+        }
+    }
+
+    @Composable
+    private fun RenderVertical(
+        template: FormTemplateModel,
+        context: DynamicRenderContext,
+        modifier: Modifier,
+    ) {
+        Column(
+            modifier = modifier,
+            verticalArrangement = template.verticalArrangement.toVerticalArrangement(),
+            horizontalAlignment = template.horizontalAlignment.toHorizontalAlignment(),
+        ) {
+            context.renderComponents(template.components)
         }
     }
 }
