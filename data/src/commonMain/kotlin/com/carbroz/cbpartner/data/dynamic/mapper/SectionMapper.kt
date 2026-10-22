@@ -23,7 +23,11 @@ class SectionMapper(
 ) {
     fun map(node: JsonObject): DynamicSection = when (values.string(node, "type")) {
         "stack_section" -> map(json.decodeFromJsonElement(StackSectionDto.serializer(), node))
-        "list_section" -> map(json.decodeFromJsonElement(ListSectionDto.serializer(), node))
+        "list_section" -> {
+            require("emptyGroup" !in node) { "Legacy ListSection emptyGroup is not supported" }
+            require("emptySectionId" !in node) { "ListSection emptySectionId belongs in properties" }
+            map(json.decodeFromJsonElement(ListSectionDto.serializer(), node))
+        }
         else -> throw IllegalArgumentException("Unsupported dynamic section type: " + values.string(node, "type"))
     }
 
@@ -63,8 +67,18 @@ class SectionMapper(
             selection = mapSelection(dto.properties),
             itemSeparator = mapSeparator(dto.properties),
             groups = mappedGroups,
-            emptyGroup = dto.emptyGroup?.let(groups::map),
+            emptySectionId = mapEmptySectionId(dto.properties),
         )
+    }
+
+    /** Parse the optional typed reference; ComponentMapper verifies its sibling identity. */
+    private fun mapEmptySectionId(properties: JsonObject): String? {
+        if ("emptySectionId" !in properties) return null
+        val value = properties["emptySectionId"] as? JsonPrimitive
+        require(value != null && value.isString && value.content.isNotBlank()) {
+            "ListSection properties.emptySectionId must be a nonblank string"
+        }
+        return value.content
     }
 
     private fun mapItems(properties: JsonObject): List<Map<String, com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue>>? {
