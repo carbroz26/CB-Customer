@@ -1839,3 +1839,9 @@ Backend
   }
 }
 ```
+
+## 23. B5 / L-10 — Typed empty-section reference (2026-10-22)
+
+B5 follows the owner-frozen [Document 115](115-B5-L10-EMPTY-SECTION-REFERENCE-PLAN-FROZEN.md) and reconciled [Document 114](114-B5-L10-EMPTY-SECTION-REFERENCE-SOURCE-AUDIT-AND-EXACT-PLAN-DRAFT.md). The canonical target JSON, [partner-login-country-picker-current-target.json](partner-login-country-picker-current-target.json), was migrated from the exact user-provided 21 October `partner_login_country_picker_PRESENT_FINAL_FROZEN(1).json` by **only** replacing embedded `emptyGroup` with `ListSection.properties.emptySectionId` and moving the original Group unchanged into a sibling `StackSection`.
+
+The historical Appendix A remains an audit snapshot, not a current mapping contract; its `emptyGroup` is obsolete. B5 implements DTO/domain/mapping/reference validation only. The ListSection renderer, row filtering/selection and conditional fallback visibility remain **Phase 4 pending**. The canonical JSON is a target contract, **not** a claim that the ListSection renders today. Existing unrelated Theme background-image values remain governed by the later B3b correction; B5 does not change them.
