@@ -480,6 +480,17 @@
               "top": 8,
               "bottom": 12
             }
+          },
+          "heightFraction": 0.7,
+          "background": {
+            "color": "#FFFFFF"
+          },
+          "shape": {
+            "type": "roundedCorner",
+            "topStart": 24,
+            "topEnd": 24,
+            "bottomStart": 0,
+            "bottomEnd": 0
           }
         },
         "initialBindings": {
@@ -501,7 +512,8 @@
                 "topEnd": 24,
                 "bottomStart": 0,
                 "bottomEnd": 0
-              }
+              },
+              "fillMaxHeight": true
             },
             "sections": [
               {
