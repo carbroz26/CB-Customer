@@ -46,22 +46,19 @@ internal fun LoginOfflinePreview(
             )
         }
     }
-    when (val result = loaded) {
-        null -> CircularProgressIndicator()
-        else -> result.fold(
-            onSuccess = { preview ->
-                App(
-                    runtimeMetadataProvider = metadata,
-                    apiBaseUrl = apiBaseUrl,
-                    environment = AppEnvironment.Development,
-                    webLoginPreview = preview,
-                )
-            },
-            onFailure = {
-                // Deliberately avoid echoing raw JSON or exception contents to the UI.
-                Text("Offline Login preview could not load. Check the browser Console.")
-            },
+    val preview = loaded?.getOrNull()
+    when {
+        loaded == null -> CircularProgressIndicator()
+        preview != null -> App(
+            runtimeMetadataProvider = metadata,
+            apiBaseUrl = apiBaseUrl,
+            environment = AppEnvironment.Development,
+            webLoginPreview = preview,
         )
+        else -> {
+            // Deliberately avoid echoing raw JSON or exception contents to the UI.
+            Text("Offline Login preview could not load. Check the browser Console.")
+        }
     }
 }
 
