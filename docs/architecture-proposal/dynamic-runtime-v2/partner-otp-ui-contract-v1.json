@@ -453,7 +453,6 @@
                         "authentication": "NONE",
                         "validate": true,
                         "responseMode": "destination",
-                        "mode": "replace",
                         "body": {
                           "challengeId": {
                             "$state": "challengeId"
