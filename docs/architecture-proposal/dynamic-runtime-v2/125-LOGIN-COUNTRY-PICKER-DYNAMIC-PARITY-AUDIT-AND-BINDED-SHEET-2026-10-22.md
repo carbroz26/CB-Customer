@@ -2,7 +2,7 @@
 
 **Date:** October 22, 2026  
 **Branch:** `architecture/dynamic-runtime-v2-discussion-freeze`  
-**Stage:** Source-confirmed audit + first narrowly scoped parity increment, **NOT** complete visual acceptance.
+**Stage:** Source-confirmed audit + initial bounded sheet, full-size form positioning and rounded-row clipping increments, **NOT** complete visual acceptance.
 
 ## Protected references
 
@@ -38,6 +38,8 @@ All unrelated Theme, Template background image, country search, selection mappin
 - `BottomSheetPresentation` owns typed size/surface properties, and `PresentationMapper` validates positive height fraction not exceeding 1.
 - `DynamicPresentationHost` applies backend surface color/rounding/height without any country-picker-specific code or default token.
 - `StackComponent` separately owns authored `fillMaxHeight`, allowing weighted `ListSection` to render within the bounded viewport.
+- `FormTemplate` preserves the available viewport as the minimum vertical scroll-content height for a full-size, scrollable form; this allows backend-authored `spaceBetween` to position the bottom Form at screen bottom when it fits.
+- `DynamicLayout.applyLayout(StackGroup)` clips children to its backend-authored shape, so the number-only error tint cannot bleed through the rounded whole-row border. The validation message remains outside the clipped row.
 - Source changes are generic to future forms/sheets and preserve existing defaults when these optional properties are absent.
 
 ## Verification gates and stop conditions
