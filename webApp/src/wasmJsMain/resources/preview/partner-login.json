@@ -27,6 +27,14 @@
           "top": 0,
           "end": 0,
           "bottom": 0
+        },
+        "backgroundImage": {
+          "source": {
+            "type": "url",
+            "value": "/images/partner_login_hero.jpg"
+          },
+          "contentScale": "crop",
+          "alignment": "topCenter"
         }
       },
       "components": [
@@ -817,13 +825,27 @@
       "theme": "light",
       "statusBar": "transparent",
       "properties": {
-        "backgroundImage": {
-          "source": {
-            "type": "resource",
-            "value": "images/partner_login_hero"
-          },
-          "contentScale": "crop",
-          "alignment": "topCenter"
+        "gradient": {
+          "type": "linear",
+          "angle": 135,
+          "colors": [
+            {
+              "color": "#DDF8F6",
+              "stop": 0
+            },
+            {
+              "color": "#F7FEFD",
+              "stop": 0.28
+            },
+            {
+              "color": "#FFFFFF",
+              "stop": 0.55
+            },
+            {
+              "color": "#D9F7F4",
+              "stop": 1
+            }
+          ]
         }
       }
     }
