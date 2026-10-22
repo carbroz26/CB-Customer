@@ -15,7 +15,7 @@ data class ListSection(
     val selection: DynamicListSelection? = null,
     val itemSeparator: DynamicListSeparator? = null,
     override val groups: List<DynamicGroup> = emptyList(),
-    val emptyGroup: DynamicGroup? = null,
+    val emptySectionId: String? = null,
 ) : DynamicSection {
     override val elements: List<DynamicElement> = emptyList()
 }
