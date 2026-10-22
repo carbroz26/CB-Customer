@@ -43,6 +43,7 @@ internal fun Modifier.applyLayout(template: FormTemplate): Modifier =
 
 internal fun Modifier.applyLayout(component: StackComponent): Modifier =
     thenIf(component.fillMaxWidth) { fillMaxWidth() }
+        .thenIf(component.fillMaxHeight) { fillMaxHeight() }
         .applyDynamicBackground(component.background, component.shape.toComposeShape())
         .applyDynamicPadding(component.padding)
 

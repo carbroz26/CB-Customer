@@ -30,12 +30,20 @@ class PresentationMapper(
                 if (showHandle == true) {
                     requireNotNull(handle) { "Dynamic bottom_sheet handle is required when showHandle is true" }
                 }
+                val heightFraction = values.number(dto.properties, "heightFraction")
+                require(heightFraction == null ||
+                    (heightFraction.isFinite() && heightFraction > 0.0 && heightFraction <= 1.0)) {
+                    "Bottom sheet heightFraction must be within (0, 1]"
+                }
                 BottomSheetPresentation(
                     id = dto.id,
                     dismissOnOutsideClick = values.boolean(dto.properties, "dismissOnOutsideClick"),
                     dismissOnBack = values.boolean(dto.properties, "dismissOnBack"),
                     showHandle = showHandle,
                     handle = handle,
+                    heightFraction = heightFraction,
+                    background = values.background(dto.properties),
+                    shape = values.shape(dto.properties),
                     initialBindings = values.toDynamicValueMap(dto.initialBindings),
                     components = mappedComponents,
                 )

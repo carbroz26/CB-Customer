@@ -2,6 +2,8 @@ package com.carbroz.cbpartner.domain.model.dynamic.presentation
 
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 
 sealed interface DynamicPresentation {
@@ -24,6 +26,9 @@ data class BottomSheetPresentation(
     val dismissOnBack: Boolean? = null,
     val showHandle: Boolean? = null,
     val handle: DynamicPresentationHandle? = null,
+    val heightFraction: Double? = null,
+    val background: DynamicBackground? = null,
+    val shape: DynamicShape? = null,
     override val initialBindings: Map<String, DynamicValue> = emptyMap(),
     override val components: List<DynamicComponent> = emptyList(),
 ) : DynamicPresentation

@@ -44,6 +44,7 @@ class ComponentMapper(
             verticalAlignment = values.verticalAlignment(dto.properties),
             padding = values.padding(dto.properties),
             fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
+            fillMaxHeight = values.boolean(dto.properties, "fillMaxHeight") ?: false,
             elements = dto.elements.map(elements::map),
             sections = mappedSections,
             background = values.background(dto.properties),

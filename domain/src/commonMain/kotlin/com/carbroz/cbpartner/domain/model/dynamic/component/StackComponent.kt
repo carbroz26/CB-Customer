@@ -16,6 +16,7 @@ data class StackComponent(
     val verticalAlignment: DynamicArrangement = DynamicArrangement.Center,
     val padding: DynamicPadding? = null,
     val fillMaxWidth: Boolean = false,
+    val fillMaxHeight: Boolean = false,
     override val elements: List<DynamicElement> = emptyList(),
     override val sections: List<DynamicSection> = emptyList(),
     val background: DynamicBackground? = null,

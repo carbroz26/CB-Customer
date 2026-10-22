@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -27,6 +29,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicSpacing
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicBackground
+import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
 
 @Composable
@@ -98,9 +102,15 @@ fun DynamicPresentationHost(
                     },
                 contentAlignment = Alignment.BottomCenter,
             ) {
+                val surfaceShape = presentation.shape.toComposeShape()
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .then(presentation.heightFraction?.let {
+                            Modifier.fillMaxHeight(it.toFloat())
+                        } ?: Modifier)
+                        .clip(surfaceShape)
+                        .applyDynamicBackground(presentation.background, surfaceShape)
                         .pointerInput(presentation.id) {
                             detectTapGestures(onTap = {})
                         },
