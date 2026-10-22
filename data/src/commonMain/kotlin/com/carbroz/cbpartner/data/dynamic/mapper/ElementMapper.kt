@@ -167,8 +167,11 @@ class ElementMapper(
         actions = actions,
         loading = loading,
         enabledWhen = mapButtonEnabledWhen(dto.properties),
-        disabledBackground = (dto.properties["disabledBackground"] as? JsonObject)?.let {
-            values.background(JsonObject(mapOf("background" to it)))
+        disabledBackground = dto.properties["disabledBackground"]?.let { raw ->
+            require(raw is JsonObject) { "Button disabledBackground must be an object" }
+            requireNotNull(values.background(JsonObject(mapOf("background" to raw)))) {
+                "Button disabledBackground requires a supported background"
+            }
         },
         disabledTextColor = values.string(dto.properties, "disabledTextColor"),
         )
@@ -270,7 +273,9 @@ class ElementMapper(
     }
 
     private fun mapButtonEnabledWhen(properties: JsonObject): DynamicButtonEnabledWhen? {
-        val raw = properties["enabledWhen"] as? JsonObject ?: return null
+        val declared = properties["enabledWhen"] ?: return null
+        require(declared is JsonObject) { "Button enabledWhen must be an object" }
+        val raw = declared
         require(raw.keys == setOf("binding", "length")) {
             "Button enabledWhen requires only binding and length"
         }

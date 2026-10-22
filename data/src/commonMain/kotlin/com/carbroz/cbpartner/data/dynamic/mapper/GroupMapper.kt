@@ -70,14 +70,21 @@ class GroupMapper(
                 minHeight = values.number(style, "minHeight"),
             )
         }
-        require(messageStyle?.minHeight == null ||
-            (messageStyle.minHeight.isFinite() && messageStyle.minHeight >= 0.0)) {
+        val minimumHeight = messageStyle?.minHeight
+        require(minimumHeight == null ||
+            (minimumHeight.isFinite() && minimumHeight >= 0.0)) {
             "Validation message minHeight must be finite and nonnegative"
         }
         return DynamicValidationPresentation(
             binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
                 ?: error("Dynamic validation presentation binding is required"),
-            errorBorder = values.border(raw, "errorBorder"),
+            errorBorder = if ("errorBorder" in raw) {
+                requireNotNull(values.border(raw, "errorBorder")) {
+                    "Dynamic validation presentation errorBorder must be valid when declared"
+                }
+            } else {
+                null
+            },
             messageStyle = messageStyle,
         )
     }
