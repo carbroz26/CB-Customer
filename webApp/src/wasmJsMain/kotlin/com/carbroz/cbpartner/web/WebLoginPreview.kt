@@ -76,5 +76,9 @@ private fun previewCountries(): List<Map<String, DynamicValue>> {
         country("US", "United States", "+1", "flags/us"),
         country("GB", "United Kingdom", "+44", "flags/gb"),
         country("AE", "United Arab Emirates", "+971", "flags/ae"),
+        country("SA", "Saudi Arabia", "+966", "flags/sa"),
+        country("QA", "Qatar", "+974", "flags/qa"),
+        country("KW", "Kuwait", "+965", "flags/kw"),
+        country("OM", "Oman", "+968", "flags/om"),
     )
 }
