@@ -485,12 +485,18 @@ class DynamicResponseMapperTest {
         assertEquals("ellipsis", label.overflow)
         assertIs<ImageContent>(label.leadingContent.single())
 
-        val list = assertIs<ListSection>(surface.sections.single())
+        assertEquals(2, surface.sections.size)
+        val list = assertIs<ListSection>(surface.sections[0])
         assertEquals(1.0, list.weight)
         assertEquals("countries", assertIs<com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListSource.Catalog>(list.source).key)
         assertEquals("query", assertNotNull(list.filter).binding)
         assertEquals("single", assertNotNull(list.selection).mode)
-        assertEquals("empty", assertIs<StackGroup>(assertNotNull(list.emptyGroup)).id)
+        assertEquals("list_empty", list.emptySectionId)
+        val emptySection = assertIs<StackSection>(surface.sections[1])
+        assertEquals("list_empty", emptySection.id)
+        val empty = assertIs<StackGroup>(emptySection.groups.single())
+        assertEquals("empty", empty.id)
+        assertEquals("empty_text", assertIs<TextElement>(empty.elements.single()).id)
 
         val row = assertIs<StackGroup>(list.groups.single())
         assertEquals(44.0, row.minHeight)
@@ -768,5 +774,93 @@ class DynamicResponseMapperTest {
             )
         }
     }
+
+
+    /** Runs the same generic DTO -> Domain mapper used by Template and Presentation components. */
+    private fun b5List(reference: String? = null, extra: String = ""): String {
+        val value = reference?.let { ""","emptySectionId":$it""" }.orEmpty()
+        return """{"id":"rows","type":"list_section","properties":{"items":[]$value},"groups":[{"id":"row","type":"stack_group"}]$extra}"""
+    }
+
+    private fun b5Stack(id: String = "fallback"): String =
+        """{"id":"$id","type":"stack_section","groups":[{"id":"empty_group","type":"stack_group","elements":[{"id":"notice","type":"text","properties":{"text":"No results"}}]}]}"""
+
+    private fun b5Component(sections: String, id: String = "main"): String =
+        """{"id":"$id","type":"stack_component","sections":[$sections]}"""
+
+    private fun b5Map(components: String, extraScreen: String = "") =
+        DynamicResponseMapper(json).map(
+            json.decodeFromString<DynamicResponseDto>(
+                """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"sample","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"template","type":"form_template","components":[$components]}$extraScreen}}""",
+            ),
+        )
+
+    @Test
+    fun b5ValidSiblingFallbackBeforeAfterAndOptionalReference() {
+        val list = b5List("\"fallback\"")
+        val stack = b5Stack()
+        for (sections in listOf("$list,$stack", "$stack,$list")) {
+            val screen = assertNotNull(b5Map(b5Component(sections)).data)
+            val component = assertIs<StackComponent>(assertIs<FormTemplate>(screen.template).components.single())
+            val mappedList = assertIs<ListSection>(component.sections.first { it is ListSection })
+            assertEquals("fallback", mappedList.emptySectionId)
+            val target = assertIs<StackSection>(component.sections.first { it is StackSection })
+            assertEquals("fallback", target.id)
+            assertEquals("empty_group", assertIs<StackGroup>(target.groups.single()).id)
+            assertEquals("No results", assertIs<TextElement>(target.groups.single().elements.single()).text)
+        }
+        val noReference = assertNotNull(b5Map(b5Component(b5List())).data)
+        val unmapped = assertIs<StackComponent>(assertIs<FormTemplate>(noReference.template).components.single())
+        assertEquals(null, assertIs<ListSection>(unmapped.sections.single()).emptySectionId)
+    }
+
+    @Test
+    fun b5InvalidReferenceTypesAndLegacyEmbeddedFallbackAreRejected() {
+        for (invalid in listOf("null", "true", "0", "\"\"", "\"  \"", "{}", "[]")) {
+            assertFailsWith<IllegalArgumentException>(invalid) {
+                b5Map(b5Component("${b5List(invalid)},${b5Stack()}"))
+            }
+        }
+        for (legacy in listOf(
+            ""","emptyGroup":null""",
+            ""","emptyGroup":{"id":"old","type":"stack_group"}""",
+            ""","emptySectionId":"fallback"""",
+        )) {
+            assertFailsWith<IllegalArgumentException>(legacy) {
+                b5Map(b5Component("${b5List("\"fallback\"", legacy)},${b5Stack()}"))
+            }
+        }
+        assertFailsWith<IllegalArgumentException> {
+            b5Map(b5Component("${b5List("\"fallback\"", ""","emptyGroup":{}""")},${b5Stack()}"))
+        }
+    }
+
+    @Test
+    fun b5ReferenceMustResolveExactlyOneStackSectionInSameComponent() {
+        val list = b5List("\"fallback\"")
+        val target = b5Stack()
+        assertFailsWith<IllegalArgumentException> { b5Map(b5Component(list)) }
+        assertFailsWith<IllegalArgumentException> { b5Map(b5Component("$list,$target,$target")) }
+        assertFailsWith<IllegalArgumentException> {
+            b5Map("${b5Component(list)},${b5Component(target, "other")}")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            b5Map(b5Component(b5List("\"rows\"")))
+        }
+        val wrongType = b5List().replace(""""id":"rows" """.trim(), """"id":"fallback" """.trim())
+        assertFailsWith<IllegalArgumentException> {
+            b5Map(b5Component("$list,$wrongType"))
+        }
+        val presentation = ""","presentations":[{"id":"popup","type":"dialog","components":[${b5Component("$list,$target", "modal")}]}]"""
+        assertNotNull(b5Map(b5Component("$list,$target"), presentation).data)
+        assertFailsWith<IllegalArgumentException> {
+            b5Map(b5Component(list), presentation)
+        }
+        val invalidModal = ""","presentations":[{"id":"popup","type":"dialog","components":[${b5Component(list, "modal")}]}]"""
+        assertFailsWith<IllegalArgumentException> {
+            b5Map(b5Component("$list,$target"), invalidModal)
+        }
+    }
+
 
 }
