@@ -1,0 +1,529 @@
+{
+  "status": 200,
+  "code": "SUCCESS",
+  "message": "Partner OTP screen fetched successfully",
+  "data": {
+    "screenId": "partner_otp",
+    "schemaVersion": "3.0.0",
+    "targetApp": "PARTNER",
+    "initialBindings": {
+      "otp": ""
+    },
+    "template": {
+      "id": "tpl_P102O",
+      "type": "form_template",
+      "properties": {
+        "orientation": "vertical",
+        "fillMaxSize": true,
+        "scrollable": true,
+        "verticalArrangement": {
+          "type": "spaceBetween"
+        },
+        "padding": {
+          "start": 0,
+          "top": 0,
+          "end": 0,
+          "bottom": 0
+        },
+        "backgroundImage": {
+          "source": {
+            "type": "url",
+            "value": "/images/partner_login_hero.jpg"
+          },
+          "contentScale": "crop",
+          "alignment": "topCenter"
+        }
+      },
+      "components": [
+        {
+          "id": "otp_branding",
+          "type": "stack_component",
+          "properties": {
+            "orientation": "vertical",
+            "fillMaxWidth": true,
+            "horizontalAlignment": "start",
+            "padding": {
+              "start": 24,
+              "top": 48,
+              "end": 24,
+              "bottom": 32
+            }
+          },
+          "elements": [
+            {
+              "id": "otp_brand_name",
+              "type": "text",
+              "properties": {
+                "text": "CB-Partner",
+                "fontSize": 20,
+                "fontWeight": 700,
+                "color": "#0A3A8D",
+                "textAlign": "center",
+                "leading": [
+                  {
+                    "type": "image",
+                    "properties": {
+                      "source": {
+                        "type": "resource",
+                        "value": "images/cb_partner_logo"
+                      },
+                      "width": 28,
+                      "height": 28,
+                      "contentScale": "fit",
+                      "spacing": {
+                        "end": 8
+                      }
+                    }
+                  }
+                ],
+                "spacing": {
+                  "bottom": 32
+                },
+                "fillMaxWidth": true
+              }
+            },
+            {
+              "id": "otp_screen_title",
+              "type": "text",
+              "properties": {
+                "text": "Verify your number",
+                "fontSize": 32,
+                "fontWeight": 700,
+                "color": "#0A3A8D",
+                "textAlign": "start",
+                "spacing": {
+                  "bottom": 12
+                },
+                "fillMaxWidth": true
+              }
+            },
+            {
+              "id": "otp_screen_subtitle",
+              "type": "text",
+              "properties": {
+                "text": "We've sent a 6-digit OTP to",
+                "fontSize": 16,
+                "fontWeight": 400,
+                "color": "#6B7280",
+                "textAlign": "start",
+                "fillMaxWidth": true,
+                "spacing": {
+                  "bottom": 4
+                }
+              }
+            },
+            {
+              "id": "otp_target_phone",
+              "type": "text",
+              "properties": {
+                "spans": [
+                  {
+                    "text": {
+                      "$state": "phoneNumber"
+                    },
+                    "fontWeight": 700
+                  }
+                ],
+                "fontSize": 16,
+                "fontWeight": 700,
+                "color": "#0A3A8D",
+                "textAlign": "start",
+                "fillMaxWidth": true,
+                "spacing": {
+                  "bottom": 12
+                }
+              }
+            },
+            {
+              "id": "otp_change_number",
+              "type": "text",
+              "properties": {
+                "text": "Change phone number",
+                "fontSize": 14,
+                "fontWeight": 600,
+                "color": "#007AFF",
+                "textAlign": "start",
+                "fillMaxWidth": true
+              },
+              "actions": {
+                "onClick": {
+                  "type": "navigate",
+                  "payload": {
+                    "mode": "pop"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "otp_form",
+          "type": "stack_component",
+          "properties": {
+            "orientation": "vertical",
+            "fillMaxWidth": true,
+            "background": {
+              "color": "#FFFFFF"
+            },
+            "shape": {
+              "type": "roundedCorner",
+              "topStart": 24,
+              "topEnd": 24,
+              "bottomStart": 0,
+              "bottomEnd": 0
+            },
+            "padding": {
+              "start": 24,
+              "top": 24,
+              "end": 24,
+              "bottom": 24
+            }
+          },
+          "sections": [
+            {
+              "id": "otp_field_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "padding": {
+                  "bottom": 0
+                }
+              },
+              "groups": [
+                {
+                  "id": "otp_fields_group",
+                  "type": "stack_group",
+                  "properties": {
+                    "orientation": "horizontal",
+                    "fillMaxWidth": true,
+                    "verticalAlignment": "center",
+                    "validationPresentation": {
+                      "binding": "otp",
+                      "messageStyle": {
+                        "fontSize": 12,
+                        "fontWeight": 400,
+                        "color": "#DC2626",
+                        "spacing": {
+                          "top": 8
+                        },
+                        "reserveSpaceWhenHidden": true,
+                        "minHeight": 24
+                      }
+                    }
+                  },
+                  "elements": [
+                    {
+                      "id": "otp_code_input",
+                      "type": "input",
+                      "properties": {
+                        "semanticRole": "input",
+                        "keyboardType": "number",
+                        "inputFilter": "digits",
+                        "maxLength": 6,
+                        "fontSize": 24,
+                        "fontWeight": 600,
+                        "textColor": "#0A3A8D",
+                        "textAlign": "center",
+                        "fillMaxWidth": true,
+                        "presentation": {
+                          "type": "segmented",
+                          "count": 6,
+                          "spacing": 5,
+                          "segmentWidth": 56,
+                          "segmentHeight": 56,
+                          "placeholder": "—",
+                          "background": {
+                            "color": "#FFFFFF"
+                          },
+                          "border": {
+                            "width": 1.5,
+                            "color": "#D1D5DB"
+                          },
+                          "focusBorder": {
+                            "width": 1.5,
+                            "color": "#3B82F6"
+                          },
+                          "shape": {
+                            "type": "roundedCorner",
+                            "cornerRadius": 16
+                          }
+                        },
+                        "validationStyle": {
+                          "background": {
+                            "color": "#FFF1F2"
+                          },
+                          "border": {
+                            "width": 1.5,
+                            "color": "#DC2626"
+                          }
+                        }
+                      },
+                      "binding": {
+                        "key": "otp"
+                      },
+                      "validation": {
+                        "required": true,
+                        "pattern": "^[0-9]{6}$",
+                        "message": "Please enter the 6-digit OTP."
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "otp_timer_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "padding": {
+                  "top": 16,
+                  "bottom": 14
+                }
+              },
+              "elements": [
+                {
+                  "id": "otp_timer_text",
+                  "type": "text",
+                  "properties": {
+                    "text": "Resend OTP in 00:30",
+                    "fontSize": 14,
+                    "fontWeight": 500,
+                    "color": "#6B82AD",
+                    "textAlign": "center",
+                    "fillMaxWidth": true,
+                    "leading": [
+                      {
+                        "type": "icon",
+                        "properties": {
+                          "source": {
+                            "type": "resource",
+                            "value": "icons/clock"
+                          },
+                          "size": 18,
+                          "color": "#007AFF",
+                          "spacing": {
+                            "end": 8
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "id": "otp_separator_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "padding": {
+                  "bottom": 12
+                }
+              },
+              "elements": [
+                {
+                  "id": "otp_or_separator",
+                  "type": "text",
+                  "properties": {
+                    "text": "OR",
+                    "fontSize": 12,
+                    "fontWeight": 400,
+                    "color": "#6B7280",
+                    "textAlign": "center",
+                    "fillMaxWidth": true,
+                    "leading": [
+                      {
+                        "type": "divider",
+                        "properties": {
+                          "orientation": "horizontal",
+                          "width": 132,
+                          "thickness": 1,
+                          "color": "#E2E8F0",
+                          "spacing": {
+                            "end": 12
+                          }
+                        }
+                      }
+                    ],
+                    "trailing": [
+                      {
+                        "type": "divider",
+                        "properties": {
+                          "orientation": "horizontal",
+                          "width": 132,
+                          "thickness": 1,
+                          "color": "#E2E8F0",
+                          "spacing": {
+                            "start": 12
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "id": "otp_resend_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "padding": {
+                  "bottom": 20
+                }
+              },
+              "elements": [
+                {
+                  "id": "otp_resend_control",
+                  "type": "text",
+                  "properties": {
+                    "text": "Resend OTP",
+                    "fontSize": 14,
+                    "fontWeight": 600,
+                    "color": "#93B4E8",
+                    "textAlign": "center",
+                    "fillMaxWidth": true,
+                    "minHeight": 32
+                  }
+                }
+              ]
+            },
+            {
+              "id": "otp_verify_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "padding": {
+                  "bottom": 12
+                }
+              },
+              "elements": [
+                {
+                  "id": "otp_verify_button",
+                  "type": "button",
+                  "properties": {
+                    "text": "Verify & Continue",
+                    "height": 56,
+                    "fillMaxWidth": true,
+                    "fontSize": 18,
+                    "fontWeight": 600,
+                    "textColor": "#FFFFFF",
+                    "background": {
+                      "color": "#007AFF"
+                    },
+                    "shape": {
+                      "type": "roundedCorner",
+                      "cornerRadius": 16
+                    },
+                    "enabledWhen": {
+                      "binding": "otp",
+                      "length": 6
+                    },
+                    "disabledBackground": {
+                      "color": "#BFDBFE"
+                    },
+                    "disabledTextColor": "#FFFFFF",
+                    "loading": {
+                      "whileActionPending": true,
+                      "disableWhilePending": true,
+                      "replaceContent": true,
+                      "indicator": {
+                        "type": "circular",
+                        "size": 20,
+                        "color": "#FFFFFF"
+                      }
+                    }
+                  },
+                  "actions": {
+                    "onClick": {
+                      "type": "request",
+                      "payload": {
+                        "method": "POST",
+                        "endpoint": "/api/v1/auth/verify",
+                        "authentication": "NONE",
+                        "validate": true,
+                        "responseMode": "destination",
+                        "body": {
+                          "challengeId": {
+                            "$state": "challengeId"
+                          },
+                          "phoneNumber": {
+                            "$state": "phoneNumber"
+                          },
+                          "deviceId": {
+                            "$context": "deviceId"
+                          },
+                          "code": {
+                            "$binding": "otp"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "otp_help_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "padding": {}
+              },
+              "elements": [
+                {
+                  "id": "otp_help_text",
+                  "type": "text",
+                  "properties": {
+                    "text": "Didn't receive the code? Check your SMS or try again in a few minutes.",
+                    "fontSize": 12,
+                    "fontWeight": 400,
+                    "lineHeight": 18,
+                    "color": "#6B82AD",
+                    "textAlign": "center",
+                    "fillMaxWidth": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "theme": {
+      "theme": "light",
+      "statusBar": "transparent",
+      "properties": {
+        "gradient": {
+          "type": "linear",
+          "angle": 135,
+          "colors": [
+            {
+              "color": "#DDF8F6",
+              "stop": 0
+            },
+            {
+              "color": "#F7FEFD",
+              "stop": 0.28
+            },
+            {
+              "color": "#FFFFFF",
+              "stop": 0.55
+            },
+            {
+              "color": "#D9F7F4",
+              "stop": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}
