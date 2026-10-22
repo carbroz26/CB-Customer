@@ -18,6 +18,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidatorSpec
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonLoading
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonEnabledWhen
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicLoadingIndicator
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicTextSpan
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationStyle
@@ -26,6 +27,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.intOrNull
 
 class ElementMapper(
     private val json: Json,
@@ -164,6 +166,11 @@ class ElementMapper(
         trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = actions,
         loading = loading,
+        enabledWhen = mapButtonEnabledWhen(dto.properties),
+        disabledBackground = (dto.properties["disabledBackground"] as? JsonObject)?.let {
+            values.background(JsonObject(mapOf("background" to it)))
+        },
+        disabledTextColor = values.string(dto.properties, "disabledTextColor"),
         )
     }
 
@@ -260,6 +267,20 @@ class ElementMapper(
             message = it.message,
             validator = validator,
         )
+    }
+
+    private fun mapButtonEnabledWhen(properties: JsonObject): DynamicButtonEnabledWhen? {
+        val raw = properties["enabledWhen"] as? JsonObject ?: return null
+        require(raw.keys == setOf("binding", "length")) {
+            "Button enabledWhen requires only binding and length"
+        }
+        val binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
+            ?: error("Button enabledWhen.binding is required")
+        val length = (raw["length"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull
+        require(length != null && length > 0) {
+            "Button enabledWhen.length must be a positive integer"
+        }
+        return DynamicButtonEnabledWhen(binding, length)
     }
 
     private fun mapButtonLoading(properties: JsonObject): DynamicButtonLoading? {

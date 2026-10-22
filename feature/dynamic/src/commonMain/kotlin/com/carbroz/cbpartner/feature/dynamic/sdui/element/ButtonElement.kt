@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement as ButtonElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicLoadingIndicator
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.feature.dynamic.runtime.SegmentedInputSlots
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
@@ -32,15 +34,21 @@ class ButtonElement : ElementRenderer<ButtonElementModel> {
     @Composable
     override fun render(element: ButtonElementModel, context: DynamicRenderContext) {
         val pending = element.loading != null && context.pendingButtonId == element.id
+        val gate = element.enabledWhen
+        val ready = gate == null || (context.bindings[gate.binding] as? DynamicValue.StringValue)
+            ?.value?.let { SegmentedInputSlots.complete(it, gate.length) } == true
+        val disabled = pending || !ready
+        val background = if (!ready) element.disabledBackground ?: element.background
+            else element.background
         val modifier = Modifier.applyLayout(element)
-            .applyDynamicBackground(element.background, element.shape.toComposeShape())
+            .applyDynamicBackground(background, element.shape.toComposeShape())
         Box(
             modifier = modifier
-                .then(if (pending) Modifier.semantics {
+                .then(if (disabled) Modifier.semantics {
                     role = Role.Button
                     disabled()
                 } else Modifier)
-                .then(if (pending) Modifier else Modifier.dynamicGestures(
+                .then(if (disabled) Modifier else Modifier.dynamicGestures(
                     actions = element.actions,
                     dispatch = { action ->
                         if (element.loading != null) {
@@ -67,7 +75,8 @@ class ButtonElement : ElementRenderer<ButtonElementModel> {
                     context.renderContent(element.leadingContent)
                     Text(
                         text = element.text,
-                        color = element.textColor?.toColor() ?: Color.Unspecified,
+                        color = (if (!ready) element.disabledTextColor else null)
+                            ?.toColor() ?: element.textColor?.toColor() ?: Color.Unspecified,
                         fontSize = element.fontSize?.sp ?: TextUnit.Unspecified,
                         fontWeight = element.fontWeight?.let(::FontWeight),
                     )

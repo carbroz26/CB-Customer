@@ -29,6 +29,11 @@ data class DynamicValidationStyle(
     val border: DynamicBorder? = null,
 )
 
+data class DynamicButtonEnabledWhen(
+    val binding: String,
+    val length: Int,
+)
+
 data class DynamicButtonLoading(
     val whileActionPending: Boolean,
     val disableWhilePending: Boolean,

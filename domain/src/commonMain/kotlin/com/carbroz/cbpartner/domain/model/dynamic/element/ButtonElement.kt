@@ -4,6 +4,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonLoading
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonEnabledWhen
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 
@@ -25,4 +26,7 @@ data class ButtonElement(
     val trailingContent: List<ElementContent> = emptyList(),
     val actions: Map<String, DynamicAction> = emptyMap(),
     val loading: DynamicButtonLoading? = null,
+    val enabledWhen: DynamicButtonEnabledWhen? = null,
+    val disabledBackground: DynamicBackground? = null,
+    val disabledTextColor: String? = null,
 ) : DynamicElement
