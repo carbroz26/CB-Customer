@@ -129,7 +129,12 @@ class InputElement : ElementRenderer<InputElementModel> {
                     } else {
                         presentation.background
                     },
-                    border = presentation.border,
+                    border = if (invalid) {
+                        element.validationStyle?.border ?: presentation.border
+                    } else {
+                        presentation.border
+                    },
+                    placeholder = presentation.placeholder,
                     shape = presentation.shape,
                     focusBorder = presentation.focusBorder,
                     focused = focused,
@@ -208,6 +213,7 @@ class InputElement : ElementRenderer<InputElementModel> {
         segmentHeight: androidx.compose.ui.unit.Dp,
         background: DynamicBackground?,
         border: DynamicBorder?,
+        placeholder: String?,
         shape: DynamicShape?,
         focusBorder: DynamicBorder?,
         focused: Boolean,
@@ -253,7 +259,7 @@ class InputElement : ElementRenderer<InputElementModel> {
                             contentAlignment = Alignment.Center,
                         ) {
                             androidx.compose.material3.Text(
-                                text = value.getOrNull(index)?.toString().orEmpty(),
+                                text = value.getOrNull(index)?.toString() ?: placeholder.orEmpty(),
                                 modifier = Modifier.fillMaxWidth(),
                                 style = textStyle,
                                 textAlign = textStyle.textAlign,

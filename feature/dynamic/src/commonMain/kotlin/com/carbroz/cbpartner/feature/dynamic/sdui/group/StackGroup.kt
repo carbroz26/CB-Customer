@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup as StackGroupModel
 import com.carbroz.cbpartner.feature.dynamic.registry.GroupRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
@@ -36,7 +38,7 @@ class StackGroup : GroupRenderer<StackGroupModel> {
         val validationMessage = validation?.binding?.let(context.validationErrors::get)
         val focused = group.focusPresentation?.binding == context.focusedBinding
         val activeBorder = when {
-            validationMessage != null -> validation.errorBorder
+            validationMessage != null -> validation.errorBorder ?: group.border
             focused -> group.focusPresentation?.border
             else -> group.border
         }
@@ -86,15 +88,26 @@ class StackGroup : GroupRenderer<StackGroupModel> {
                 }
             }
 
-            if (validationMessage != null) {
-                val style = validation.messageStyle
-                Text(
-                    text = validationMessage,
-                    modifier = Modifier.applyDynamicSpacing(style?.spacing),
-                    color = style?.color?.toColor() ?: Color.Unspecified,
-                    fontSize = style?.fontSize?.sp ?: TextUnit.Unspecified,
-                    fontWeight = style?.fontWeight?.let(::FontWeight),
-                )
+            val style = validation?.messageStyle
+            if (validationMessage != null || style?.reserveSpaceWhenHidden == true) {
+                Box(
+                    modifier = Modifier
+                        .then(if (style?.minHeight != null) {
+                            Modifier.heightIn(min = style.minHeight.dp)
+                        } else {
+                            Modifier
+                        }),
+                ) {
+                    if (validationMessage != null) {
+                        Text(
+                            text = validationMessage,
+                            modifier = Modifier.applyDynamicSpacing(style?.spacing),
+                            color = style?.color?.toColor() ?: Color.Unspecified,
+                            fontSize = style?.fontSize?.sp ?: TextUnit.Unspecified,
+                            fontWeight = style?.fontWeight?.let(::FontWeight),
+                        )
+                    }
+                }
             }
         }
     }

@@ -186,6 +186,7 @@ class DynamicValueMapper {
             border = border(value),
             shape = shape(value),
             focusBorder = border(value, "focusBorder"),
+            placeholder = string(value, "placeholder"),
         )
     }
 
