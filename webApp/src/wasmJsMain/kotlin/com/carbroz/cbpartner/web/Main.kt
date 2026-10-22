@@ -5,6 +5,7 @@ import androidx.compose.ui.window.ComposeViewport
 import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.configureLogging
 import com.carbroz.cbpartner.app.RetainCompatibilityProbe
+import com.carbroz.cbpartner.web.LoginOfflinePreview
 import com.carbroz.cbpartner.network.ApiBaseUrl
 import com.carbroz.cbpartner.network.AppEnvironment
 import kotlinx.browser.window
@@ -28,7 +29,11 @@ fun main() {
     val apiBaseUrl = ApiBaseUrl(url, environment)
     configureLogging(environment)
     ComposeViewport(viewportContainerId = "webApp") {
-        if (window.location.search.contains("cbpartnerRetentionProbe=1")) {
+        if (environment == AppEnvironment.Development &&
+            window.location.search.contains("cbpartnerLoginPreview=1")
+        ) {
+            LoginOfflinePreview(WebRuntimeMetadataProvider(), apiBaseUrl)
+        } else if (window.location.search.contains("cbpartnerRetentionProbe=1")) {
             RetainCompatibilityProbe()
         } else {
             App(WebRuntimeMetadataProvider(), apiBaseUrl, environment)

@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.retain.RetainedEffect
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
+import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.app.validation.PartnerPhoneNumberValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicValidator
 import com.carbroz.cbpartner.data.di.bootstrapModule
@@ -25,12 +28,30 @@ fun App(
     runtimeMetadataProvider: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
     environment: AppEnvironment = AppEnvironment.Development,
+    webLoginPreview: WebLoginPreview? = null,
 ) {
-    val retainedSession = retain { mutableStateOf<DynamicSession?>(null) }
+    // Preview is impossible to enable outside the development environment.
+    val preview = webLoginPreview?.takeIf { environment == AppEnvironment.Development }
+    val retainedSession = retain {
+        mutableStateOf<DynamicSession?>(
+            preview?.let {
+                val screen = requireNotNull(it.response.data) { "Web preview requires a Dynamic screen" }
+                DynamicSession(
+                    diagnosticSessionId = "web-login-preview",
+                    initialDestination = DynamicDestination(
+                        screenId = screen.screenId,
+                        templateId = screen.template.id,
+                        templateType = screen.template.type,
+                        endpoint = WEB_PREVIEW_LOGIN_ENDPOINT,
+                    ),
+                )
+            },
+        )
+    }
     RetainedEffect(retainedSession) {
         onRetire { retainedSession.value?.close() }
     }
-    val koin = remember(runtimeMetadataProvider, apiBaseUrl, environment) {
+    val koin = remember(runtimeMetadataProvider, apiBaseUrl, environment, preview) {
         koinApplication {
             modules(
                 module {
@@ -40,7 +61,28 @@ fun App(
                 networkModule(apiBaseUrl),
                 serializationModule,
                 bootstrapModule,
-                dynamicDataModule,
+                // In offline preview, preserve the same Store, mapper, use case, renderer and
+                // action executor; replace only their network-backed repository and catalog.
+                if (preview == null) dynamicDataModule else module {
+                    single<DynamicRepository> {
+                        object : DynamicRepository {
+                            override suspend fun fetch(
+                                request: com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest,
+                            ) = if (request.endpoint == WEB_PREVIEW_LOGIN_ENDPOINT) {
+                                Result.success(preview.response)
+                            } else {
+                                Result.failure<com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse>(
+                                    IllegalStateException("Offline preview cannot send network requests"),
+                                )
+                            }
+                        }
+                    }
+                    single<DynamicListCatalog> {
+                        DynamicListCatalog { key ->
+                            if (key == "countries") preview.countries.map { it.toMap() } else null
+                        }
+                    }
+                },
                 dynamicModule,
                 splashModule,
             )
@@ -53,3 +95,6 @@ fun App(
 
     ApplicationContent(koin.koin, runtimeMetadataProvider, retainedSession, apiBaseUrl.toString())
 }
+
+/** Preview-only destination; rejected by the offline repository for all mutations. */
+private const val WEB_PREVIEW_LOGIN_ENDPOINT = "/api/v1/partner/screen/auth_login"

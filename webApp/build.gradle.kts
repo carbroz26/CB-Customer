@@ -6,6 +6,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":app"))
+            implementation(project(":domain"))
+            implementation(project(":data"))
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(compose.material3)
             implementation(compose.runtime)
             implementation(compose.ui)
         }
