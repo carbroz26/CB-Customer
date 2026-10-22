@@ -13,270 +13,151 @@ internal object DynamicContractFixtures {
 
 
     val GENERIC_PHASE1_SCREEN_JSON = """{
-  "status": 200,
-  "code": "SUCCESS",
-  "message": "OK",
-  "data": {
-    "screenId": "phase1_generic",
-    "schemaVersion": "3.0.0",
-    "targetApp": "PARTNER",
-    "initialBindings": {
-      "query": "",
-      "selectedId": "IN"
-    },
-    "template": {
-      "id": "tpl_phase1",
-      "type": "form_template",
-      "properties": {
-        "scrollable": true
-      },
-      "components": [
-        {
-          "id": "surface",
-          "type": "stack_component",
-          "properties": {
-            "background": {
-              "color": "#FFFFFF"
+      "status":200,
+      "code":"SUCCESS",
+      "message":"OK",
+      "data":{
+        "screenId":"phase1_generic",
+        "schemaVersion":"3.0.0",
+        "targetApp":"PARTNER",
+        "initialBindings":{"query":"","selectedId":"IN"},
+        "template":{
+          "id":"tpl_phase1",
+          "type":"form_template",
+          "properties":{"scrollable":true},
+          "components":[{
+            "id":"surface",
+            "type":"stack_component",
+            "properties":{
+              "background":{"color":"#FFFFFF"},
+              "shape":{"type":"roundedCorner","topStart":24,"topEnd":24,"bottomStart":0,"bottomEnd":0}
             },
-            "shape": {
-              "type": "roundedCorner",
-              "topStart": 24,
-              "topEnd": 24,
-              "bottomStart": 0,
-              "bottomEnd": 0
-            }
-          },
-          "elements": [
-            {
-              "id": "input",
-              "type": "input",
-              "properties": {
-                "singleLine": true,
-                "inputFilter": "digits",
-                "placeholderColor": "#94A3B8",
-                "height": 44,
-                "validationStyle": {
-                  "background": {
-                    "color": "#FFF1F2"
-                  }
+            "elements":[
+              {
+                "id":"input",
+                "type":"input",
+                "properties":{
+                  "singleLine":true,
+                  "inputFilter":"digits",
+                  "placeholderColor":"#94A3B8",
+                  "height":44,
+                  "validationStyle":{"background":{"color":"#FFF1F2"}}
+                },
+                "binding":{"key":"phone"},
+                "validation":{
+                  "required":true,
+                  "validator":{"key":"phone_number","arguments":{"region":{"${DOLLAR}binding":"selectedId"}}},
+                  "message":"Invalid"
                 }
               },
-              "binding": {
-                "key": "phone"
-              },
-              "validation": {
-                "required": true,
-                "validator": {
-                  "key": "phone_number",
-                  "arguments": {
-                    "region": {
-                      "${DOLLAR}binding": "selectedId"
-                    }
+              {
+                "id":"button",
+                "type":"button",
+                "properties":{
+                  "text":"Continue",
+                  "loading":{
+                    "whileActionPending":true,
+                    "disableWhilePending":true,
+                    "replaceContent":true,
+                    "indicator":{"type":"circular","size":20,"color":"#FFFFFF"}
                   }
                 },
-                "message": "Invalid"
-              }
-            },
-            {
-              "id": "button",
-              "type": "button",
-              "properties": {
-                "text": "Continue",
-                "loading": {
-                  "whileActionPending": true,
-                  "disableWhilePending": true,
-                  "replaceContent": true,
-                  "indicator": {
-                    "type": "circular",
-                    "size": 20,
-                    "color": "#FFFFFF"
-                  }
-                }
+                "actions":{"onClick":{"type":"request","payload":{"endpoint":"/submit"}}}
               },
-              "actions": {
-                "onClick": {
-                  "type": "request",
-                  "payload": {
-                    "endpoint": "/submit"
-                  }
+              {
+                "id":"divider",
+                "type":"divider",
+                "properties":{"orientation":"vertical","height":28,"thickness":1,"color":"#D1D5DB","spacing":{"start":8}}
+              },
+              {
+                "id":"label",
+                "type":"text",
+                "properties":{
+                  "text":"Label",
+                  "weight":1,
+                  "minHeight":44,
+                  "maxLines":1,
+                  "overflow":"ellipsis",
+                  "leading":[{
+                    "type":"image",
+                    "properties":{
+                      "source":{"type":"resource","value":"images/logo"},
+                      "width":24,
+                      "height":18,
+                      "contentScale":"fit",
+                      "spacing":{"end":8}
+                    }
+                  }]
                 }
               }
-            },
-            {
-              "id": "divider",
-              "type": "divider",
-              "properties": {
-                "orientation": "vertical",
-                "height": 28,
-                "thickness": 1,
-                "color": "#D1D5DB",
-                "spacing": {
-                  "start": 8
-                }
-              }
-            },
-            {
-              "id": "label",
-              "type": "text",
-              "properties": {
-                "text": "Label",
-                "weight": 1,
-                "minHeight": 44,
-                "maxLines": 1,
-                "overflow": "ellipsis",
-                "leading": [
+            ],
+            "sections":[{
+              "id":"list",
+              "type":"list_section",
+              "properties":{
+                "fillMaxWidth":true,
+                "weight":1,
+                "source":{"type":"catalog","key":"countries"},
+                "filter":{"binding":"query","fields":["name","dialCode"],"caseInsensitive":true},
+                "selection":{
+                  "mode":"single",
+                  "itemKey":"id",
+                  "selectedBinding":"selectedId",
+                  "result":{"selectedId":"id"},
+                  "dismissOnSelect":true
+                },
+                "itemSeparator":{"type":"divider","orientation":"horizontal","thickness":1,"color":"#EDF1F5"},
+                "emptySectionId":"list_empty"
+              },
+              "groups":[{
+                "id":"row",
+                "type":"stack_group",
+                "properties":{
+                  "minHeight":44,
+                  "selectedStyle":{"background":{"color":"#DCEBFC"}}
+                },
+                "elements":[
                   {
-                    "type": "image",
-                    "properties": {
-                      "source": {
-                        "type": "resource",
-                        "value": "images/logo"
-                      },
-                      "width": 24,
-                      "height": 18,
-                      "contentScale": "fit",
-                      "spacing": {
-                        "end": 8
-                      }
+                    "id":"asset",
+                    "type":"image",
+                    "properties":{"source":{"type":"resource","value":{"${DOLLAR}item":"asset"}}}
+                  },
+                  {
+                    "id":"selected",
+                    "type":"icon",
+                    "properties":{
+                      "source":{"type":"resource","value":"icons/check"},
+                      "visibleWhen":{"selected":true},
+                      "reserveSpaceWhenHidden":true
                     }
                   }
                 ]
-              }
-            }
-          ],
-          "sections": [
-            {
-              "id": "list",
-              "type": "list_section",
-              "properties": {
-                "fillMaxWidth": true,
-                "weight": 1,
-                "source": {
-                  "type": "catalog",
-                  "key": "countries"
-                },
-                "filter": {
-                  "binding": "query",
-                  "fields": [
-                    "name",
-                    "dialCode"
-                  ],
-                  "caseInsensitive": true
-                },
-                "selection": {
-                  "mode": "single",
-                  "itemKey": "id",
-                  "selectedBinding": "selectedId",
-                  "result": {
-                    "selectedId": "id"
-                  },
-                  "dismissOnSelect": true
-                },
-                "itemSeparator": {
-                  "type": "divider",
-                  "orientation": "horizontal",
-                  "thickness": 1,
-                  "color": "#EDF1F5"
-                },
-                "emptySectionId": "list_empty"
-              },
-              "groups": [
-                {
-                  "id": "row",
-                  "type": "stack_group",
-                  "properties": {
-                    "minHeight": 44,
-                    "selectedStyle": {
-                      "background": {
-                        "color": "#DCEBFC"
-                      }
-                    }
-                  },
-                  "elements": [
-                    {
-                      "id": "asset",
-                      "type": "image",
-                      "properties": {
-                        "source": {
-                          "type": "resource",
-                          "value": {
-                            "${DOLLAR}item": "asset"
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "id": "selected",
-                      "type": "icon",
-                      "properties": {
-                        "source": {
-                          "type": "resource",
-                          "value": "icons/check"
-                        },
-                        "visibleWhen": {
-                          "selected": true
-                        },
-                        "reserveSpaceWhenHidden": true
-                      }
-                    }
-                  ]
-                }
-              ]
+              }]
             },
             {
-              "id": "list_empty",
-              "type": "stack_section",
-              "groups": [
-                {
-                  "id": "empty",
-                  "type": "stack_group",
-                  "elements": [
-                    {
-                      "id": "empty_text",
-                      "type": "text",
-                      "properties": {
-                        "text": "Empty"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "presentations": [
-      {
-        "id": "picker",
-        "type": "bottom_sheet",
-        "properties": {
-          "dismissOnOutsideClick": true,
-          "dismissOnBack": true,
-          "showHandle": true,
-          "handle": {
-            "width": 36,
-            "height": 4,
-            "color": "#D1D5DB",
-            "cornerRadius": 2,
-            "alignment": "center",
-            "spacing": {
-              "top": 8
-            }
-          }
+              "id":"list_empty",
+              "type":"stack_section",
+              "groups":[{
+                "id":"empty",
+                "type":"stack_group",
+                "elements":[{"id":"empty_text","type":"text","properties":{"text":"Empty"}}]
+              }]
+            }]
+          }]
         },
-        "initialBindings": {
-          "search": ""
-        },
-        "components": [
-          {
-            "id": "picker_content",
-            "type": "stack_component"
-          }
-        ]
+        "presentations":[{
+          "id":"picker",
+          "type":"bottom_sheet",
+          "properties":{
+            "dismissOnOutsideClick":true,
+            "dismissOnBack":true,
+            "showHandle":true,
+            "handle":{"width":36,"height":4,"color":"#D1D5DB","cornerRadius":2,"alignment":"center","spacing":{"top":8}}
+          },
+          "initialBindings":{"search":""},
+          "components":[{"id":"picker_content","type":"stack_component"}]
+        }]
       }
-    ]
-  }
-}"""
+    }"""
 
 }
