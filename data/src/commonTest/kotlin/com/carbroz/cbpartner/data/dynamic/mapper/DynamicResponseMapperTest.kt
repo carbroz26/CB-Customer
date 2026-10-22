@@ -847,7 +847,7 @@ class DynamicResponseMapperTest {
         assertFailsWith<IllegalArgumentException> {
             b5Map(b5Component(b5List("\"rows\"")))
         }
-        val wrongType = b5List().replace(""""id":"rows" """.trim(), """"id":"fallback" """.trim())
+        val wrongType = b5List().replace("\"id\":\"rows\"", "\"id\":\"fallback\"")
         assertFailsWith<IllegalArgumentException> {
             b5Map(b5Component("$list,$wrongType"))
         }
@@ -856,9 +856,26 @@ class DynamicResponseMapperTest {
         assertFailsWith<IllegalArgumentException> {
             b5Map(b5Component(list), presentation)
         }
+        assertNotNull(b5Map(
+            "${b5Component("$list,$target", "first")},${b5Component("$list,$target", "second")}",
+        ).data)
         val invalidModal = ""","presentations":[{"id":"popup","type":"dialog","components":[${b5Component(list, "modal")}]}]"""
         assertFailsWith<IllegalArgumentException> {
             b5Map(b5Component("$list,$target"), invalidModal)
+        }
+    }
+
+
+
+    @Test
+    fun b5ReferenceDoesNotCrossHeaderOrFooterComponentBoundaries() {
+        val list = b5List("\"fallback\"")
+        for (slotName in listOf("header", "footer")) {
+            val slot = """\"$slotName\":{\"components\":[${b5Component(b5Stack(), "slot_component")}]}"""
+            val payload = """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"s","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"t","type":"form_template","components":[${b5Component(list)}],$slot}}}"""
+            assertFailsWith<IllegalArgumentException>(slotName) {
+                DynamicResponseMapper(json).map(json.decodeFromString<DynamicResponseDto>(payload))
+            }
         }
     }
 
