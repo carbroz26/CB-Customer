@@ -58,6 +58,9 @@ internal fun Modifier.applyLayout(
         .thenIf(group.height != null) { height(group.height!!.dp) }
         .thenIf(group.minHeight != null) { heightIn(min = group.minHeight!!.dp) }
         .thenIf(group.fillMaxWidth) { fillMaxWidth() }
+        // Clip child backgrounds to the authored Group shape; the validation message
+        // is rendered by the outer Group Column and is not clipped.
+        .thenIf(group.shape != null) { clip(group.shape.toComposeShape()) }
         .applyDynamicBackground(group.background, group.shape.toComposeShape())
         .applyBorder(borderOverride, group.shape)
         .applyDynamicPadding(group.padding)
