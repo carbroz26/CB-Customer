@@ -157,6 +157,7 @@ class InputElement : ElementRenderer<InputElementModel> {
                         presentation.border
                     },
                     placeholder = presentation.placeholder,
+                    placeholderColor = element.placeholderColor?.toColor(),
                     shape = presentation.shape,
                     focusBorder = presentation.focusBorder,
                     focused = focused,
@@ -237,6 +238,7 @@ class InputElement : ElementRenderer<InputElementModel> {
         background: DynamicBackground?,
         border: DynamicBorder?,
         placeholder: String?,
+        placeholderColor: Color?,
         shape: DynamicShape?,
         focusBorder: DynamicBorder?,
         focused: Boolean,
@@ -321,7 +323,11 @@ class InputElement : ElementRenderer<InputElementModel> {
                             if (cell.isEmpty() && focusedIndex != index) {
                                 androidx.compose.material3.Text(
                                     text = placeholder.orEmpty(),
-                                    style = textStyle,
+                                    style = if (placeholderColor != null) {
+                                        textStyle.copy(color = placeholderColor)
+                                    } else {
+                                        textStyle
+                                    },
                                     textAlign = TextAlign.Center,
                                 )
                             }

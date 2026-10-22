@@ -34,6 +34,10 @@ fun main() {
         ) {
             VisualLoginPreview()
         } else if (environment == AppEnvironment.Development &&
+            window.location.search.contains("cbpartnerOtpPreview=1")
+        ) {
+            OtpOfflinePreview(WebRuntimeMetadataProvider(), apiBaseUrl)
+        } else if (environment == AppEnvironment.Development &&
             window.location.search.contains("cbpartnerLoginPreview=1")
         ) {
             LoginOfflinePreview(WebRuntimeMetadataProvider(), apiBaseUrl)

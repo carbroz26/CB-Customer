@@ -29,13 +29,44 @@ import kotlinx.serialization.json.Json
 internal fun LoginOfflinePreview(
     metadata: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
+) = OfflineDynamicPreview(
+    metadata = metadata,
+    apiBaseUrl = apiBaseUrl,
+    resource = "/preview/partner-login.json",
+    endpoint = "/api/v1/partner/screen/auth_login",
+    initialState = emptyMap(),
+)
+
+/** Opt-in Web OTP rendering using the same DTO/Store/renderer and no backend. */
+@Composable
+internal fun OtpOfflinePreview(
+    metadata: RuntimeMetadataProvider,
+    apiBaseUrl: ApiBaseUrl,
+) = OfflineDynamicPreview(
+    metadata = metadata,
+    apiBaseUrl = apiBaseUrl,
+    resource = "/preview/partner-otp.json",
+    endpoint = "/preview/partner_otp",
+    initialState = mapOf(
+        "phoneNumber" to DynamicValue.StringValue("+91 98765 43210"),
+    ),
+)
+
+/** One offline fixture loader shared by Login/OTP; zero screen-specific renderers. */
+@Composable
+private fun OfflineDynamicPreview(
+    metadata: RuntimeMetadataProvider,
+    apiBaseUrl: ApiBaseUrl,
+    resource: String,
+    endpoint: String,
+    initialState: Map<String, DynamicValue>,
 ) {
     var loaded by remember { mutableStateOf<Result<WebLoginPreview>?>(null) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(resource) {
         loaded = runCatching {
             // Same-origin static build resource: no external API, CORS preflight or mock server.
-            val response = window.fetch("/preview/partner-login.json").await()
-            require(response.ok) { "Web Login preview JSON is not served by the Web app" }
+            val response = window.fetch(resource).await()
+            require(response.ok) { "Web Dynamic preview JSON is not served by the Web app" }
             // Kotlin/Wasm browser Response.text() yields JsString; decode from Kotlin String.
             val raw = response.text().await().toString()
             val json = Json { ignoreUnknownKeys = true; isLenient = true }
@@ -44,6 +75,8 @@ internal fun LoginOfflinePreview(
             WebLoginPreview(
                 response = mapped,
                 countries = previewCountries(),
+                endpoint = endpoint,
+                initialState = initialState,
             )
         }
     }
