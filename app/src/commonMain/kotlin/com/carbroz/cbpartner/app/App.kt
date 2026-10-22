@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.retain.RetainedEffect
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
+import com.carbroz.cbpartner.app.validation.PartnerPhoneNumberValidator
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicValidator
 import com.carbroz.cbpartner.data.di.bootstrapModule
 import com.carbroz.cbpartner.data.di.dynamicDataModule
 import com.carbroz.cbpartner.data.di.serializationModule
@@ -31,7 +33,10 @@ fun App(
     val koin = remember(runtimeMetadataProvider, apiBaseUrl, environment) {
         koinApplication {
             modules(
-                module { single<RuntimeMetadataProvider> { runtimeMetadataProvider } },
+                module {
+                    single<RuntimeMetadataProvider> { runtimeMetadataProvider }
+                    factory<DynamicValidator> { PartnerPhoneNumberValidator() }
+                },
                 networkModule(apiBaseUrl),
                 serializationModule,
                 bootstrapModule,
