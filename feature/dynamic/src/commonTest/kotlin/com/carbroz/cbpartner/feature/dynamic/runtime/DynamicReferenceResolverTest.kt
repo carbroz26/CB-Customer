@@ -199,4 +199,65 @@ class DynamicReferenceResolverTest {
         assertEquals(DynamicValue.NullValue, DynamicReferenceResolver.resolvePath(root, "data.missing"))
     }
 
+    @Test
+    fun itemReferenceIsScopedToOneRowAndSupportsNestedTypedFields() {
+        val ref = ref("\$item", "meta.id")
+        assertEquals(
+            DynamicValue.NumberValue(7.0),
+            DynamicReferenceResolver.resolve(
+                ref,
+                emptyMap(),
+                emptyMap(),
+                emptyMap(),
+                item = mapOf(
+                    "meta" to DynamicValue.ObjectValue(
+                        mapOf("id" to DynamicValue.NumberValue(7.0)),
+                    ),
+                ),
+            ),
+        )
+        assertFailsWith<IllegalStateException> {
+            DynamicReferenceResolver.resolve(ref, emptyMap(), emptyMap(), emptyMap())
+        }
+        assertFailsWith<IllegalStateException> {
+            DynamicReferenceResolver.resolve(
+                ref("\$item", "missing"),
+                emptyMap(), emptyMap(), emptyMap(),
+                item = mapOf("name" to DynamicValue.StringValue("India")),
+            )
+        }
+    }
+
+    @Test
+    fun configReferencesRequireTrustedSnapshotAllowlistedPathAndTypedValue() {
+        val uri = ref("\$config", "legal.termsUrl")
+        val config = mapOf(
+            "legal" to DynamicValue.ObjectValue(
+                mapOf("termsUrl" to DynamicValue.StringValue("https://legal.example.test/terms")),
+            ),
+        )
+        assertEquals(
+            DynamicValue.StringValue("https://legal.example.test/terms"),
+            DynamicReferenceResolver.resolve(
+                uri, emptyMap(), emptyMap(), emptyMap(),
+                trustedConfig = config,
+            ),
+        )
+        assertFailsWith<IllegalStateException> {
+            DynamicReferenceResolver.resolve(uri, emptyMap(), emptyMap(), emptyMap())
+        }
+        assertFailsWith<IllegalStateException> {
+            DynamicReferenceResolver.resolve(
+                ref("\$config", "deviceId"), emptyMap(), emptyMap(), emptyMap(),
+                trustedConfig = config,
+            )
+        }
+        assertFailsWith<IllegalStateException> {
+            DynamicReferenceResolver.resolve(
+                ref("\$config", "legal.privacyUrl"), emptyMap(), emptyMap(), emptyMap(),
+                trustedConfig = config,
+            )
+        }
+    }
+
 }
