@@ -871,7 +871,7 @@ class DynamicResponseMapperTest {
     fun b5ReferenceDoesNotCrossHeaderOrFooterComponentBoundaries() {
         val list = b5List("\"fallback\"")
         for (slotName in listOf("header", "footer")) {
-            val slot = """\"$slotName\":{\"components\":[${b5Component(b5Stack(), "slot_component")}]}"""
+            val slot = "\"$slotName\":{\"components\":[${b5Component(b5Stack(), "slot_component")}]}"
             val payload = """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"s","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"t","type":"form_template","components":[${b5Component(list)}],$slot}}}"""
             assertFailsWith<IllegalArgumentException>(slotName) {
                 DynamicResponseMapper(json).map(json.decodeFromString<DynamicResponseDto>(payload))
