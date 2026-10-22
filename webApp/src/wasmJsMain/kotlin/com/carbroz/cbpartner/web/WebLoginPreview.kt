@@ -36,7 +36,8 @@ internal fun LoginOfflinePreview(
             // Same-origin static build resource: no external API, CORS preflight or mock server.
             val response = window.fetch("/preview/partner-login.json").await()
             require(response.ok) { "Web Login preview JSON is not served by the Web app" }
-            val raw = response.text().await()
+            // Kotlin/Wasm browser Response.text() yields JsString; decode from Kotlin String.
+            val raw = response.text().await().toString()
             val json = Json { ignoreUnknownKeys = true; isLenient = true }
             val mapped = DynamicResponseMapper(json).map(json.decodeFromString<DynamicResponseDto>(raw))
             check(mapped.data != null) { "Web preview JSON did not map to a Dynamic screen" }
