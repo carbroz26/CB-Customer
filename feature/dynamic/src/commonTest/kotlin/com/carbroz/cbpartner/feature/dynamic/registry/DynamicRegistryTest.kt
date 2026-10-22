@@ -11,6 +11,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextElementModel
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup as StackGroupModel
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection as StackSectionModel
+import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection as ListSectionModel
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormTemplateModel
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
@@ -24,6 +25,7 @@ import com.carbroz.cbpartner.feature.dynamic.sdui.element.InputElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
+import com.carbroz.cbpartner.feature.dynamic.sdui.section.ListSection
 import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplate
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -128,6 +130,16 @@ class DynamicRegistryTest {
         assertNotNull(registry.element(divider))
         assertNotNull(registry.content(DividerContentModel()))
         assertNotNull(registry.content(ImageContentModel(source = DynamicAssetSource.Resource(DynamicValue.StringValue("images/logo")))))
+    }
+
+    @Test
+    fun productionRegistryIncludesExactlyOneGenericListSectionRenderer() {
+        val registry = dynamicRendererRegistry()
+        assertNotNull(registry.section(ListSectionModel(id = "country_list")))
+        val builder = DynamicRegistry.builder().section(ListSectionModel::class, ListSection())
+        assertFailsWith<IllegalStateException> {
+            builder.section(ListSectionModel::class, ListSection())
+        }
     }
 
     @Test
