@@ -9,5 +9,4 @@ data class ListSectionDto(
     val type: String,
     val properties: JsonObject = JsonObject(emptyMap()),
     val groups: List<JsonObject> = emptyList(),
-    val emptyGroup: JsonObject? = null,
 )
