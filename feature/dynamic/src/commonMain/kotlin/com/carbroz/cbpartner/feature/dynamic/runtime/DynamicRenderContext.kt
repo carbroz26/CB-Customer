@@ -7,6 +7,9 @@ import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 
@@ -23,9 +26,15 @@ class DynamicRenderContext(
     val pendingButtonId: String? = null,
     val onValueChange: (String, DynamicValue) -> Unit = { _, _ -> },
     val onFocusChange: (String, Boolean) -> Unit = { _, _ -> },
+    val listCatalog: DynamicListCatalog? = null,
+    val onListItemSelected: (String, String) -> Unit = { _, _ -> },
+    val listFallbackSections: Map<String, StackSection> = emptyMap(),
+    val rowItem: Map<String, DynamicValue>? = null,
+    val rowSelected: Boolean? = null,
+    val trustedConfig: Map<String, DynamicValue>? = null,
 ) {
     fun resolve(value: DynamicValue): DynamicValue =
-        DynamicReferenceResolver.resolve(value, bindings, contextValues, stateValues)
+        DynamicReferenceResolver.resolve(value, bindings, contextValues, stateValues, rowItem, trustedConfig)
 
     fun string(properties: Map<String, DynamicValue>, key: String): String? =
         (resolve(properties[key] ?: return null) as? DynamicValue.StringValue)?.value
@@ -35,6 +44,44 @@ class DynamicRenderContext(
 
     fun boolean(properties: Map<String, DynamicValue>, key: String): Boolean? =
         (resolve(properties[key] ?: return null) as? DynamicValue.BooleanValue)?.value
+
+    /** Resolve through the same pure evaluator used by Store selection validation. */
+    internal fun listRows(section: ListSection): List<DynamicListRow> =
+        DynamicListItems(requireNotNull(listCatalog) { "Dynamic list catalog provider is missing" })
+            .evaluate(section, bindings)
+
+    /** Scope sibling fallbacks to the concrete Component currently rendering. */
+    fun withListFallbacks(fallbacks: Map<String, StackSection>): DynamicRenderContext =
+        child(fallbacks = fallbacks)
+
+    /** A row-scoped immutable value snapshot; never stored in screen bindings. */
+    fun withListRow(item: Map<String, DynamicValue>, selected: Boolean): DynamicRenderContext =
+        child(item = item.toMap(), selected = selected)
+
+    private fun child(
+        fallbacks: Map<String, StackSection> = listFallbackSections,
+        item: Map<String, DynamicValue>? = rowItem,
+        selected: Boolean? = rowSelected,
+    ) = DynamicRenderContext(
+        registry = registry,
+        trustedAssetOrigin = trustedAssetOrigin,
+        bindings = bindings,
+        contextValues = contextValues,
+        stateValues = stateValues,
+        validationErrors = validationErrors,
+        focusedBinding = focusedBinding,
+        onAction = onAction,
+        onButtonAction = onButtonAction,
+        pendingButtonId = pendingButtonId,
+        onValueChange = onValueChange,
+        onFocusChange = onFocusChange,
+        listCatalog = listCatalog,
+        onListItemSelected = onListItemSelected,
+        listFallbackSections = fallbacks,
+        rowItem = item,
+        rowSelected = selected,
+        trustedConfig = trustedConfig,
+    )
 
     @Composable
     fun renderComponent(component: DynamicComponent) {

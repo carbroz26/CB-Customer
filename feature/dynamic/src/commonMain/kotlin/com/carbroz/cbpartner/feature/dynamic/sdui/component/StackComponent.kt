@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent as StackComponentModel
+import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.feature.dynamic.registry.ComponentRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
@@ -18,6 +20,11 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 class StackComponent : ComponentRenderer<StackComponentModel> {
     @Composable
     override fun render(component: StackComponentModel, context: DynamicRenderContext) {
+        val fallbackIds = component.sections.filterIsInstance<ListSection>()
+            .mapNotNull { it.emptySectionId }.toSet()
+        val fallbacks = component.sections.filterIsInstance<StackSection>()
+            .filter { it.id in fallbackIds }.associateBy { it.id }
+        val scoped = context.withListFallbacks(fallbacks)
         if (component.orientation == "horizontal") {
             Row(
                 modifier = Modifier.applyLayout(component),
@@ -38,9 +45,10 @@ class StackComponent : ComponentRenderer<StackComponentModel> {
                     }
                 }
                 component.sections.forEach { section ->
+                    if (section is StackSection && section.id in fallbackIds) return@forEach
                     val weight = section.weight
                     if (weight == null) {
-                        context.renderSection(section)
+                        scoped.renderSection(section)
                     } else {
                         Box(
                             modifier = Modifier.weight(weight.toComposeWeight()),
