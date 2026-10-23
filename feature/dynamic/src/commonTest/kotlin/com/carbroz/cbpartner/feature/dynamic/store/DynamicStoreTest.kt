@@ -1277,7 +1277,7 @@ class DynamicStoreTest {
         fun error() = assertIs<DynamicState.Success>(store.state.value).screen.validationErrors["phone"]
         fun edit(text: String) =
             store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue(text)))
-        suspend fun submit() {
+        fun submit() {
             store.accept(DynamicIntent.Action(DynamicAction(
                 "request",
                 mapOf(
@@ -1286,13 +1286,13 @@ class DynamicStoreTest {
                     "validate" to DynamicValue.BooleanValue(true),
                 ),
             )))
-            advanceUntilIdle()
         }
 
         store.accept(DynamicIntent.Load)
         advanceUntilIdle()
         edit("123456789012")
         submit()
+        advanceUntilIdle()
         assertEquals("Phone required", error())
         // The visual reference resets attempted state at the FIRST changed digit.
         edit("12345678901")
@@ -1301,10 +1301,12 @@ class DynamicStoreTest {
         edit("")
         assertNull(error())
         submit()
+        advanceUntilIdle()
         assertEquals("Phone required", error())
         edit("1")
         assertNull(error())
         submit()
+        advanceUntilIdle()
         assertEquals("Phone required", error())
         edit("1234567890")
         assertNull(error())
