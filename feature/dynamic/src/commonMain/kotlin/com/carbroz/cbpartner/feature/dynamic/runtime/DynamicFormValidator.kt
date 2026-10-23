@@ -4,7 +4,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
-import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -76,12 +76,10 @@ class DynamicFormValidator(
     ): Set<String> = buildSet {
         components.forEach { component ->
             component.sections.forEach { section ->
-                section.groups.forEach { group ->
-                    (group as? StackGroup)
-                        ?.validationPresentation
-                        ?.binding
-                        ?.let(::add)
-                }
+                (section as? FormFieldSection)
+                    ?.validationPresentation
+                    ?.binding
+                    ?.let(::add)
             }
         }
     }

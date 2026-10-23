@@ -1,5 +1,6 @@
 package com.carbroz.cbpartner.data.dynamic.mapper
 
+import com.carbroz.cbpartner.data.dynamic.model.section.FormFieldSectionDto
 import com.carbroz.cbpartner.data.dynamic.model.section.ListSectionDto
 import com.carbroz.cbpartner.data.dynamic.model.section.StackSectionDto
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListFilter
@@ -7,6 +8,14 @@ import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListSelection
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListSeparator
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListSource
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldControlSurface
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection
+import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
+import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicFocusPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationMessageStyle
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import kotlinx.serialization.json.Json
@@ -23,6 +32,7 @@ class SectionMapper(
 ) {
     fun map(node: JsonObject): DynamicSection = when (values.string(node, "type")) {
         "stack_section" -> map(json.decodeFromJsonElement(StackSectionDto.serializer(), node))
+        "form_field_section" -> map(json.decodeFromJsonElement(FormFieldSectionDto.serializer(), node))
         "list_section" -> {
             require("emptyGroup" !in node) { "Legacy ListSection emptyGroup is not supported" }
             require("emptySectionId" !in node) { "ListSection emptySectionId belongs in properties" }
@@ -44,6 +54,131 @@ class SectionMapper(
             fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
             elements = dto.elements.map(elements::map),
             groups = dto.groups.map(groups::map),
+        )
+    }
+
+
+    /** Strictly map a reusable field with one labelled, uniquely bound control. */
+    private fun map(dto: FormFieldSectionDto): FormFieldSection {
+        require(dto.type == "form_field_section") { "Unsupported FormFieldSection type" }
+        require(dto.elements.isNotEmpty()) { "FormFieldSection needs a label" }
+        val mapped = dto.elements.map(elements::map)
+        val label = mapped.firstOrNull() as? TextElement
+            ?: error("FormFieldSection first element must be a TextElement label")
+        val childGroup: StackGroup?
+        val control: InputElement?
+        when {
+            dto.groups.isEmpty() -> {
+                require(mapped.size == 2) { "Direct FormFieldSection requires exactly label and input" }
+                control = mapped[1] as? InputElement
+                    ?: error("Direct FormFieldSection control must be InputElement")
+                childGroup = null
+            }
+            dto.groups.size == 1 -> {
+                require(mapped.size == 1) { "Composite FormFieldSection requires only one label element" }
+                childGroup = groups.map(dto.groups.single()) as? StackGroup
+                    ?: error("Composite FormFieldSection control must be StackGroup")
+                require(childGroup.elements.filterIsInstance<InputElement>().size == 1) {
+                    "Composite FormFieldSection requires exactly one input"
+                }
+                control = null
+            }
+            else -> error("FormFieldSection accepts at most one control Group")
+        }
+        val input = control ?: requireNotNull(childGroup)
+            .elements.filterIsInstance<InputElement>().single()
+        val key = input.binding?.key?.takeIf(String::isNotBlank)
+            ?: error("FormFieldSection input must declare a nonblank binding")
+        require(input.border == null && input.focusBorder == null) {
+            "FormFieldSection input cannot own a competing outer border"
+        }
+        if (childGroup != null) {
+            val properties = dto.groups.single()["properties"] as? JsonObject ?: JsonObject(emptyMap())
+            require(setOf("height", "background", "border", "shape", "focusPresentation",
+                "validationPresentation").none { it in properties }) {
+                "FormFieldSection control Group cannot own outer surface or field state"
+            }
+        }
+
+        val props = dto.properties
+        require(props.keys.all { it in setOf("fillMaxWidth", "horizontalAlignment", "padding",
+            "controlSurface", "focusPresentation", "validationPresentation") }) {
+            "Unsupported FormFieldSection property"
+        }
+        val alignment = values.string(props, "horizontalAlignment")
+        require(alignment in setOf("start", "center", "end")) {
+            "FormFieldSection horizontalAlignment must be start, center, or end"
+        }
+        val fill = values.boolean(props, "fillMaxWidth")
+            ?: error("FormFieldSection fillMaxWidth must be authored")
+        val surface = props["controlSurface"] as? JsonObject
+            ?: error("FormFieldSection controlSurface is required")
+        require(surface.keys.all { it in setOf("height", "fillMaxWidth",
+            "background", "border", "shape") }) {
+            "Unsupported FormFieldSection controlSurface property"
+        }
+        val height = values.number(surface, "height")
+            ?: error("FormFieldSection controlSurface height is required")
+        val width = values.boolean(surface, "fillMaxWidth")
+            ?: error("FormFieldSection controlSurface fillMaxWidth is required")
+        val controlSurface = FormFieldControlSurface(
+            height = height,
+            fillMaxWidth = width,
+            background = values.background(surface),
+            border = values.border(surface),
+            shape = values.shape(surface),
+        )
+        val focus = (props["focusPresentation"] as? JsonObject)?.let { raw ->
+            require(raw.keys == setOf("binding", "border")) {
+                "FormFieldSection focusPresentation keys are invalid"
+            }
+            DynamicFocusPresentation(
+                binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
+                    ?: error("FormFieldSection focus binding is required"),
+                border = values.border(raw) ?: error("FormFieldSection focus border is required"),
+            )
+        }
+        val validation = (props["validationPresentation"] as? JsonObject)?.let { raw ->
+            require(raw.keys == setOf("binding", "errorBorder", "messageStyle")) {
+                "FormFieldSection validationPresentation keys are invalid"
+            }
+            val style = raw["messageStyle"] as? JsonObject
+                ?: error("FormFieldSection messageStyle is required")
+            require(style.keys.all { it in setOf("fontSize", "fontWeight", "color",
+                "spacing", "reserveHeight") }) {
+                "Unsupported FormFieldSection messageStyle property"
+            }
+            val reserveHeight = values.number(style, "reserveHeight")
+                ?: error("FormFieldSection reserveHeight must be numeric")
+            require(reserveHeight.isFinite() && reserveHeight > 0.0) {
+                "FormFieldSection reserveHeight must be positive and finite"
+            }
+            DynamicValidationPresentation(
+                binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
+                    ?: error("FormFieldSection validation binding is required"),
+                errorBorder = values.border(raw, "errorBorder")
+                    ?: error("FormFieldSection errorBorder is required"),
+                messageStyle = DynamicValidationMessageStyle(
+                    fontSize = values.number(style, "fontSize"),
+                    fontWeight = values.number(style, "fontWeight")?.toInt(),
+                    color = values.string(style, "color"),
+                    spacing = values.spacing(style),
+                    reserveHeight = reserveHeight,
+                ),
+            )
+        }
+        return FormFieldSection(
+            id = dto.id,
+            label = label,
+            controlInput = control,
+            controlGroup = childGroup,
+            inputBinding = key,
+            controlSurface = controlSurface,
+            horizontalAlignment = values.horizontalAlignment(props),
+            fillMaxWidth = fill,
+            padding = values.padding(props),
+            focusPresentation = focus,
+            validationPresentation = validation,
         )
     }
 

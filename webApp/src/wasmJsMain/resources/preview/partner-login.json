@@ -136,15 +136,49 @@
           },
           "sections": [
             {
-              "id": "phone_label_section",
-              "type": "stack_section",
+              "id": "mobile_field",
+              "type": "form_field_section",
               "properties": {
-                "orientation": "vertical",
                 "fillMaxWidth": true,
-                "padding": {
-                  "bottom": 8
+                "horizontalAlignment": "start",
+                "controlSurface": {
+                  "height": 56,
+                  "fillMaxWidth": true,
+                  "background": {
+                    "color": "#FFFFFF"
+                  },
+                  "border": {
+                    "width": 1,
+                    "color": "#CBD5E1"
+                  },
+                  "shape": {
+                    "type": "roundedCorner",
+                    "cornerRadius": 12
+                  }
                 },
-                "horizontalAlignment": "start"
+                "focusPresentation": {
+                  "binding": "mobileNumber",
+                  "border": {
+                    "width": 1,
+                    "color": "#0A3A8D"
+                  }
+                },
+                "validationPresentation": {
+                  "binding": "mobileNumber",
+                  "errorBorder": {
+                    "width": 1,
+                    "color": "#DC2626"
+                  },
+                  "messageStyle": {
+                    "fontSize": 12,
+                    "fontWeight": 400,
+                    "color": "#DC2626",
+                    "spacing": {
+                      "top": 6
+                    },
+                    "reserveHeight": 24
+                  }
+                }
               },
               "elements": [
                 {
@@ -154,21 +188,13 @@
                     "text": "Mobile number",
                     "fontSize": 14,
                     "fontWeight": 600,
-                    "color": "#18263B"
+                    "color": "#18263B",
+                    "spacing": {
+                      "bottom": 8
+                    }
                   }
                 }
-              ]
-            },
-            {
-              "id": "phone_field_section",
-              "type": "stack_section",
-              "properties": {
-                "orientation": "vertical",
-                "fillMaxWidth": true,
-                "padding": {
-                  "bottom": 24
-                }
-              },
+              ],
               "groups": [
                 {
                   "id": "phone_input_row",
@@ -176,42 +202,7 @@
                   "properties": {
                     "orientation": "horizontal",
                     "fillMaxWidth": true,
-                    "height": 56,
-                    "verticalAlignment": "center",
-                    "background": {
-                      "color": "#FFFFFF"
-                    },
-                    "border": {
-                      "width": 1,
-                      "color": "#CBD5E1"
-                    },
-                    "shape": {
-                      "type": "roundedCorner",
-                      "cornerRadius": 12
-                    },
-                    "focusPresentation": {
-                      "binding": "mobileNumber",
-                      "border": {
-                        "width": 1,
-                        "color": "#0A3A8D"
-                      }
-                    },
-                    "validationPresentation": {
-                      "binding": "mobileNumber",
-                      "errorBorder": {
-                        "width": 1,
-                        "color": "#DC2626"
-                      },
-                      "messageStyle": {
-                        "fontSize": 12,
-                        "fontWeight": 400,
-                        "color": "#DC2626",
-                        "spacing": {
-                          "top": 6
-                        },
-                        "reserveHeight": 24
-                      }
-                    }
+                    "verticalAlignment": "center"
                   },
                   "elements": [
                     {

@@ -3,10 +3,7 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 import com.carbroz.cbpartner.data.dynamic.model.group.StackGroupDto
 import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
-import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicFocusPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSelectedStyle
-import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationMessageStyle
-import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresentation
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
@@ -22,6 +19,9 @@ class GroupMapper(
 
     private fun map(dto: StackGroupDto): StackGroup {
         require(dto.type == "stack_group") { "Unsupported dynamic group type: " + dto.type }
+        require("focusPresentation" !in dto.properties && "validationPresentation" !in dto.properties) {
+            "StackGroup cannot own FormFieldSection focus or validation presentation"
+        }
         return StackGroup(
             id = dto.id,
             orientation = values.string(dto.properties, "orientation") ?: "vertical",
@@ -38,47 +38,11 @@ class GroupMapper(
             elements = dto.elements.map(elements::map),
             minHeight = values.number(dto.properties, "minHeight"),
             selectedStyle = mapSelectedStyle(dto.properties),
-            focusPresentation = mapFocusPresentation(dto.properties),
-            validationPresentation = mapValidationPresentation(dto.properties),
         )
     }
 
     private fun mapSelectedStyle(properties: JsonObject): DynamicSelectedStyle? {
         val raw = properties["selectedStyle"] as? JsonObject ?: return null
         return DynamicSelectedStyle(background = values.background(raw))
-    }
-
-    private fun mapFocusPresentation(properties: JsonObject): DynamicFocusPresentation? {
-        val raw = properties["focusPresentation"] as? JsonObject ?: return null
-        return DynamicFocusPresentation(
-            binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
-                ?: error("Dynamic focus presentation binding is required"),
-            border = values.border(raw)
-                ?: error("Dynamic focus presentation border is required"),
-        )
-    }
-
-    private fun mapValidationPresentation(properties: JsonObject): DynamicValidationPresentation? {
-        val raw = properties["validationPresentation"] as? JsonObject ?: return null
-        val messageStyle = (raw["messageStyle"] as? JsonObject)?.let { style ->
-            DynamicValidationMessageStyle(
-                fontSize = values.number(style, "fontSize"),
-                fontWeight = values.number(style, "fontWeight")?.toInt(),
-                color = values.string(style, "color"),
-                spacing = values.spacing(style),
-                reserveHeight = values.number(style, "reserveHeight")?.also { height ->
-                    require(height.isFinite() && height > 0.0) {
-                        "Validation message reserveHeight must be positive and finite"
-                    }
-                },
-            )
-        }
-        return DynamicValidationPresentation(
-            binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
-                ?: error("Dynamic validation presentation binding is required"),
-            errorBorder = values.border(raw, "errorBorder")
-                ?: error("Dynamic validation presentation errorBorder is required"),
-            messageStyle = messageStyle,
-        )
     }
 }

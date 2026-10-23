@@ -50,19 +50,15 @@ internal fun Modifier.applyLayout(component: StackComponent): Modifier =
 internal fun Modifier.applyLayout(section: StackSection): Modifier =
     applyDynamicPadding(section.padding).thenIf(section.fillMaxWidth) { fillMaxWidth() }
 
-internal fun Modifier.applyLayout(
-    group: StackGroup,
-    borderOverride: DynamicBorder? = group.border,
-): Modifier =
+internal fun Modifier.applyLayout(group: StackGroup): Modifier =
     Modifier
         .thenIf(group.height != null) { height(group.height!!.dp) }
         .thenIf(group.minHeight != null) { heightIn(min = group.minHeight!!.dp) }
         .thenIf(group.fillMaxWidth) { fillMaxWidth() }
-        // Clip child backgrounds to the authored Group shape; the validation message
-        // is rendered by the outer Group Column and is not clipped.
+        // Clip child backgrounds to the backend-authored Group surface.
         .thenIf(group.shape != null) { clip(group.shape.toComposeShape()) }
         .applyDynamicBackground(group.background, group.shape.toComposeShape())
-        .applyBorder(borderOverride, group.shape)
+        .applyBorder(group.border, group.shape)
         .applyDynamicPadding(group.padding)
 
 internal fun Modifier.applyLayout(element: TextElement): Modifier =
