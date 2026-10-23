@@ -9,6 +9,7 @@ import org.gradle.api.tasks.TaskAction
 
 plugins {
     id("cbpartner.android.application")
+    id("cbpartner.compose")
 }
 
 android {
@@ -24,6 +25,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":network"))
     implementation(libs.androidx.activity.compose)
+    implementation(compose.foundation)
 }
 
 /** Copies the canonical Web Login fixture into one generated Android asset directory. */

@@ -42,3 +42,9 @@ adb shell am start -S -W -n "com.carbroz.cbpartner.android.dev/com.carbroz.cbpar
 1. Compare actual native Login after inset against owner original reference for status-bar-to-logo, logo box/title baseline, welcome/subtitle alignment/fonts, card vertical geometry, and Hero worker+car+trees visible frame.
 2. Reconcile approved design board vs standalone image where palette/font/geometry conflict. Do not silently change those values.
 3. P1 other SRP cleanup remains outside scope.
+
+## 2026-10-23 owner build log: compilation dependency correction
+
+The owner built commit `445cfa7a986c9ed64f3f28acc25002310c6f215f` and `:androidApp:compileDevelopmentDebugKotlin` failed: `Unresolved reference 'foundation'`, `Box`, `fillMaxSize`. The root cause is that `androidApp` previously declared only `libs.androidx.activity.compose` and did not expose the Compose Foundation layout library needed by the activity's new `navigationBarsPadding`/Box imports. Downstream composables in `:app` or `:feature:dynamic` do not make these symbols directly available for `:androidApp` compilation.
+
+Narrow correction: apply the **existing** `cbpartner.compose` convention plugin in `androidApp/build.gradle.kts`, and declare `implementation(compose.foundation)`. Compose dependencies already use this convention in `:feature:dynamic`. No change to Android Activity UI, app behavior, other modules, JSON, validation, Country Picker, Hero or visual spacing. **Build remains unverified until the owner reruns the Gradle command.**
