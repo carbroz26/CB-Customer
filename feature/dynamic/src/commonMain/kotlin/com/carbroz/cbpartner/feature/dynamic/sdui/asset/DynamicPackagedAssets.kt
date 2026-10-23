@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.sdui.asset
 
 import org.jetbrains.compose.resources.DrawableResource
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero_06
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero_07
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_search_02
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_close_02
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_chevron_down_02
@@ -37,6 +38,7 @@ internal fun packagedAssetResource(key: String): DrawableResource? = when (key) 
     "images/partner_login_hero_04" -> Res.drawable.partner_login_hero_04
     "images/partner_login_hero_05" -> Res.drawable.partner_login_hero_05
     "images/partner_login_hero_06" -> Res.drawable.partner_login_hero_06
+    "images/partner_login_hero_07" -> Res.drawable.partner_login_hero_07
     "flags/in" -> Res.drawable.flag_in
     "flags/us" -> Res.drawable.flag_us
     "icons/chevron_down" -> Res.drawable.icon_chevron_down

@@ -51,7 +51,7 @@ class DynamicAssetImageTest {
         assertFalse(validPackagedAssetId("icons/close.png"))
         for (key in listOf(
             "images/cb_partner_logo", "images/cb_partner_logo_02", "images/cb_partner_logo_03",
-            "images/partner_login_hero", "images/partner_login_hero_02", "images/partner_login_hero_04", "images/partner_login_hero_05", "images/partner_login_hero_06",
+            "images/partner_login_hero", "images/partner_login_hero_02", "images/partner_login_hero_04", "images/partner_login_hero_05", "images/partner_login_hero_06", "images/partner_login_hero_07",
             "flags/in", "flags/us",
             "icons/chevron_down", "icons/search",
             "icons/close", "icons/check_circle_blue",
