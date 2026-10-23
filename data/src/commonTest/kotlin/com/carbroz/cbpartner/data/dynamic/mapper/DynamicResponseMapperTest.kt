@@ -144,6 +144,48 @@ class DynamicResponseMapperTest {
     }
 
 
+
+    @Test
+    fun mapsGenericAuthoredTextInputAndButtonLineHeightsWithoutDefaults() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{
+                "screenId":"typography","schemaVersion":"3.0.0","targetApp":"PARTNER",
+                "template":{"id":"form","type":"form_template","components":[{
+                    "id":"example","type":"stack_component","elements":[
+                        {"id":"heading","type":"text","properties":{
+                            "text":"Welcome","fontSize":32,"lineHeight":40}},
+                        {"id":"field","type":"input","binding":{"key":"field"},"properties":{
+                            "placeholder":"Enter","fontSize":16,"lineHeight":24}},
+                        {"id":"continue","type":"button","properties":{
+                            "text":"Continue","fontSize":16,"lineHeight":24}}
+                    ]
+                }]}}}""",
+        )
+        val form = assertIs<FormTemplate>(assertNotNull(DynamicResponseMapper(json).map(dto).data).template)
+        val elements = assertIs<StackComponent>(form.components.single()).elements
+        assertEquals(40.0, assertIs<TextElement>(elements[0]).lineHeight)
+        assertEquals(24.0, assertIs<InputElement>(elements[1]).lineHeight)
+        assertEquals(24.0, assertIs<ButtonElement>(elements[2]).lineHeight)
+    }
+
+    @Test
+    fun rejectsNonpositiveAuthoredLineHeightForTextInputAndButton() {
+        for (type in listOf("text", "input", "button")) {
+            val dto = json.decodeFromString<DynamicResponseDto>(
+                """{"status":200,"code":"SUCCESS","message":"OK","data":{
+                    "screenId":"negative_typography","schemaVersion":"3.0.0","targetApp":"PARTNER",
+                    "template":{"id":"form","type":"form_template","components":[{
+                        "id":"example","type":"stack_component","elements":[
+                            {"id":"field","type":"$type","properties":{"fontSize":16,"lineHeight":0}}
+                        ]
+                    }]}}}""",
+            )
+            assertFailsWith<IllegalArgumentException>("Invalid lineHeight for $type") {
+                DynamicResponseMapper(json).map(dto)
+            }
+        }
+    }
+
     @Test
     fun mapsOptionalHeaderFooterSlotsWithoutMovingBodyComponents() {
         val dto = json.decodeFromString<DynamicResponseDto>(

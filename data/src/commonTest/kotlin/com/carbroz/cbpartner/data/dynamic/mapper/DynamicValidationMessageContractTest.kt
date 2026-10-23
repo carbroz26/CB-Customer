@@ -28,7 +28,7 @@ class DynamicValidationMessageContractTest {
         "properties":{"fillMaxWidth":true,"height":56},
         "binding":{"key":"firstName"}}"""
     private val phoneInput = """{"id":"phone","type":"input",
-        "properties":{"height":56,"padding":{"start":12},
+        "properties":{"height":56,"lineHeight":24,"padding":{"start":12},
             "validationStyle":{"background":{"color":"#FFF1F2"}}},
         "binding":{"key":"phone"},
         "validation":{"required":true,"requiredMessage":"Required","message":"Invalid",
@@ -37,7 +37,7 @@ class DynamicValidationMessageContractTest {
             {"minLength":11,"message":"Wrong length"}]}}"""
     private val inlineValidation = """{"binding":"phone",
         "errorBorder":{"width":1,"color":"#DC2626"},
-        "messageStyle":{"fontSize":12,"spacing":{"top":6},"reserveHeight":24}}"""
+        "messageStyle":{"fontSize":12,"lineHeight":20,"spacing":{"top":6},"reserveHeight":24}}"""
 
     @Test
     fun directFieldsCanBeReusedForFirstAndLastNameWithoutGroup() {
@@ -65,6 +65,7 @@ class DynamicValidationMessageContractTest {
         assertNull(group.shape)
         assertEquals("phone", field.inputBinding)
         assertEquals(24.0, field.validationPresentation?.messageStyle?.reserveHeight)
+        assertEquals(20.0, field.validationPresentation?.messageStyle?.lineHeight)
         assertEquals(1.0, field.validationPresentation?.errorBorder?.width)
         val input = assertIs<InputElement>(group.elements.last())
         assertEquals("Required", input.validation?.requiredMessage)
@@ -73,6 +74,7 @@ class DynamicValidationMessageContractTest {
         assertEquals(true, input.validation?.clearOnEdit)
         assertEquals(24.0, field.padding?.bottom)
         assertEquals(12.0, input.padding?.start)
+        assertEquals(24.0, input.lineHeight)
         assertNotNull(input.validationStyle?.background)
     }
 
@@ -86,6 +88,7 @@ class DynamicValidationMessageContractTest {
             direct.replace("\"horizontalAlignment\":\"start\"", "\"horizontalAlignment\":\"baseline\""),
             direct.replace("\"height\":56", "\"height\":0"),
             compositeField().replace("\"reserveHeight\":24", "\"reserveHeight\":0"),
+            compositeField().replace("\"lineHeight\":20", "\"lineHeight\":0"),
             compositeField().replace("\"binding\":\"phone\"", "\"binding\":\"mismatch\""),
             compositeField().replace("\"orientation\":\"horizontal\"", "\"orientation\":\"horizontal\",\"border\":{\"width\":1,\"color\":\"#CCCCCC\"}"),
             compositeField().replace("\"orientation\":\"horizontal\"", "\"orientation\":\"horizontal\",\"validationPresentation\":$inlineValidation"),
