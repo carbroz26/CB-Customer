@@ -16,7 +16,6 @@ data class ButtonElement(
     val height: Double? = null,
     val fillMaxWidth: Boolean = false,
     val fontSize: Double? = null,
-    val lineHeight: Double? = null,
     val fontWeight: Int? = null,
     val textColor: String? = null,
     val background: DynamicBackground? = null,
@@ -26,4 +25,5 @@ data class ButtonElement(
     val trailingContent: List<ElementContent> = emptyList(),
     val actions: Map<String, DynamicAction> = emptyMap(),
     val loading: DynamicButtonLoading? = null,
+    val lineHeight: Double? = null,
 ) : DynamicElement
