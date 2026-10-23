@@ -10,6 +10,7 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_chevron_do
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_close
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_search
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero_02
 
 /** Only approved, genuinely bundled assets belong in this explicit lookup. */
 internal fun validPackagedAssetId(key: String): Boolean =
@@ -18,6 +19,7 @@ internal fun validPackagedAssetId(key: String): Boolean =
 internal fun packagedAssetResource(key: String): DrawableResource? = when (key) {
     "images/cb_partner_logo" -> Res.drawable.cb_partner_logo
     "images/partner_login_hero" -> Res.drawable.partner_login_hero
+    "images/partner_login_hero_02" -> Res.drawable.partner_login_hero_02
     "flags/in" -> Res.drawable.flag_in
     "flags/us" -> Res.drawable.flag_us
     "icons/chevron_down" -> Res.drawable.icon_chevron_down

@@ -31,7 +31,7 @@
         "backgroundImage": {
           "source": {
             "type": "resource",
-            "value": "images/partner_login_hero"
+            "value": "images/partner_login_hero_02"
           },
           "contentScale": "crop",
           "alignment": "topCenter"
