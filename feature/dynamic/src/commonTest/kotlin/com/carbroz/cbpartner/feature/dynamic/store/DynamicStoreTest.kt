@@ -11,6 +11,11 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldControlSurface
+import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationMessageStyle
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
 import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListSelection
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListFilter
@@ -1280,12 +1285,18 @@ class DynamicStoreTest {
                 message = "Phone required",
             ),
         )
-        val group = StackGroup(
-            id = "phone_group",
-            elements = listOf(input),
+        val field = FormFieldSection(
+            id = "phone_field",
+            label = TextElement(id = "label", text = "Phone"),
+            controlInput = input,
+            inputBinding = "phone",
+            controlSurface = FormFieldControlSurface(height = 56.0, fillMaxWidth = true),
+            horizontalAlignment = DynamicArrangement.Start,
+            fillMaxWidth = true,
             validationPresentation = DynamicValidationPresentation(
                 binding = "phone",
                 errorBorder = DynamicBorder(1.0, "#FF0000"),
+                messageStyle = DynamicValidationMessageStyle(reserveHeight = 24.0),
             ),
         )
         val screen = DynamicScreen(
@@ -1297,12 +1308,7 @@ class DynamicStoreTest {
                 components = listOf(
                     StackComponent(
                         id = "component",
-                        sections = listOf(
-                            StackSection(
-                                id = "section",
-                                groups = listOf(group),
-                            ),
-                        ),
+                        sections = listOf(field),
                     ),
                 ),
             ),

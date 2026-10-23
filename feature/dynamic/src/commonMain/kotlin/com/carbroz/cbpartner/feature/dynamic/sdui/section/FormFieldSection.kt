@@ -54,8 +54,8 @@ class FormFieldSection : SectionRenderer<FormFieldSectionModel> {
                     .applyDynamicBackground(surface.background, shape)
                     .applyBorder(border, surface.shape),
             ) {
-                section.controlInput?.let(context::renderElement)
-                section.controlGroup?.let(context::renderGroup)
+                section.controlInput?.let { context.renderElement(it) }
+                section.controlGroup?.let { context.renderGroup(it) }
             }
             val style = section.validationPresentation?.messageStyle
             val reserved = style?.reserveHeight

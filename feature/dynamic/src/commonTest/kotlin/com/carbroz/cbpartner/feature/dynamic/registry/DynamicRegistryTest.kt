@@ -12,6 +12,11 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement as TextEle
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup as StackGroupModel
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection as StackSectionModel
 import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection as ListSectionModel
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection as FormFieldSectionModel
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldControlSurface
+import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement as InputElementModel
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormTemplateModel
 import com.carbroz.cbpartner.feature.dynamic.sdui.component.StackComponent
 import com.carbroz.cbpartner.feature.dynamic.sdui.content.DividerContent
@@ -26,6 +31,7 @@ import com.carbroz.cbpartner.feature.dynamic.sdui.element.TextElement
 import com.carbroz.cbpartner.feature.dynamic.sdui.group.StackGroup
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.StackSection
 import com.carbroz.cbpartner.feature.dynamic.sdui.section.ListSection
+import com.carbroz.cbpartner.feature.dynamic.sdui.section.FormFieldSection
 import com.carbroz.cbpartner.feature.dynamic.sdui.template.FormTemplate
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -46,6 +52,7 @@ class DynamicRegistryTest {
             .template(FormTemplateModel::class, FormTemplate())
             .component(StackComponentModel::class, StackComponent())
             .section(StackSectionModel::class, StackSection())
+            .section(FormFieldSectionModel::class, FormFieldSection())
             .group(StackGroupModel::class, StackGroup())
             .element(TextElementModel::class, TextElement())
             .element(DividerElementModel::class, DividerElement())
@@ -73,6 +80,16 @@ class DynamicRegistryTest {
         assertNotNull(registry.template(template))
         assertNotNull(registry.component(StackComponentModel(id = "component")))
         assertNotNull(registry.section(StackSectionModel(id = "section")))
+        val field = FormFieldSectionModel(
+            id = "first_name",
+            label = TextElementModel(id = "label", text = "First name"),
+            controlInput = InputElementModel(id = "firstName", binding = DynamicBinding("firstName")),
+            inputBinding = "firstName",
+            controlSurface = FormFieldControlSurface(height = 56.0, fillMaxWidth = true),
+            horizontalAlignment = DynamicArrangement.Start,
+            fillMaxWidth = true,
+        )
+        assertNotNull(registry.section(field))
         assertNotNull(registry.group(StackGroupModel(id = "group")))
         assertNotNull(registry.element(textElement))
         assertNotNull(registry.element(DividerElementModel(id = "divider", orientation = "vertical", height = 28.0, thickness = 1.0, color = "#D1D5DB")))

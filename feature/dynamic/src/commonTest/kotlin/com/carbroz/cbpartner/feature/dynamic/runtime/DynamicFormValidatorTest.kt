@@ -4,8 +4,12 @@ import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
-import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldControlSurface
+import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationMessageStyle
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationLengthMessage
@@ -241,16 +245,29 @@ class DynamicFormValidatorTest {
         inputs: List<InputElement>,
         presentedBinding: String? = null,
     ): DynamicScreen {
-        val group = StackGroup(
-            id = "group",
-            elements = inputs,
-            validationPresentation = presentedBinding?.let {
-                DynamicValidationPresentation(
-                    binding = it,
-                    errorBorder = DynamicBorder(1.0, "#FF0000"),
-                )
-            },
-        )
+        val presented = inputs.singleOrNull { it.binding?.key == presentedBinding }
+        val others = inputs.filterNot { it === presented }
+        val sections = buildList {
+            if (presented != null) {
+                add(FormFieldSection(
+                    id = "field",
+                    label = TextElement(id = "label", text = "Test field"),
+                    controlInput = presented,
+                    inputBinding = requireNotNull(presentedBinding),
+                    controlSurface = FormFieldControlSurface(height = 56.0, fillMaxWidth = true),
+                    horizontalAlignment = DynamicArrangement.Start,
+                    fillMaxWidth = true,
+                    validationPresentation = DynamicValidationPresentation(
+                        binding = presentedBinding,
+                        errorBorder = DynamicBorder(1.0, "#FF0000"),
+                        messageStyle = DynamicValidationMessageStyle(reserveHeight = 24.0),
+                    ),
+                ))
+            }
+            if (others.isNotEmpty()) {
+                add(StackSection(id = "section", elements = others))
+            }
+        }
         return DynamicScreen(
             screenId = "screen",
             schemaVersion = "3.0.0",
@@ -260,12 +277,7 @@ class DynamicFormValidatorTest {
                 components = listOf(
                     StackComponent(
                         id = "component",
-                        sections = listOf(
-                            StackSection(
-                                id = "section",
-                                groups = listOf(group),
-                            ),
-                        ),
+                        sections = sections,
                     ),
                 ),
             ),
