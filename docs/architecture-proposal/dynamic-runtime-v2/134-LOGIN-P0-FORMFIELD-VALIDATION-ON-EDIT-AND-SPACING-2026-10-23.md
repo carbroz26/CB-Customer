@@ -4,7 +4,7 @@
 **Frontend branch:** `architecture/dynamic-runtime-v2-discussion-freeze`  
 **Owner evidence:** Actual Dynamic Login screenshot submitted 2026-10-23, showing red message touching Continue button and red input/error state persisting after all digits deleted.  
 **Supersedes:** Only the **edit-lifecycle expectation** and **no-extra-height assumption** in historical frozen document 132 and validation implementation document 133. Their FormFieldSection SRP ownership and all other contracts remain frozen.  
-**Status:** Source, tests and JSON committed; **new Gradle verification and browser screenshot acceptance pending**.
+**Status (owner-reported Windows execution, 2026-10-23):** Source, tests and JSON committed; **Gradle P0 verification PASSED. Browser visual regression and acceptance still pending.**
 
 ## Approved reference: exact VisualLoginPreview source
 
@@ -46,3 +46,17 @@ Login v9's `FormFieldSection.properties.padding.bottom:24` adds backend-authored
 9. Verify `:data:jvmTest :feature:dynamic:jvmTest :feature:dynamic:compileAndroidMain :webApp:wasmJsBrowserDevelopmentWebpack` and matched-viewport screenshots. **Do not claim completion until tests run and owner confirms UI.**
 
 Gray disabled/error Continue styling and red exclamation indicator present in isolated reference have separate unresolved contract/design ownership. They were intentionally **not** implemented in this targeted error-reset/spacing fix.
+
+## Execution evidence — 2026-10-23
+
+The owner pulled commit `257c396bcd155eee7e38ac52f166da363dfe2cf0` and executed:
+
+```powershell
+.\gradlew.bat :data:jvmTest :feature:dynamic:jvmTest :feature:dynamic:compileAndroidMain :webApp:wasmJsBrowserDevelopmentWebpack
+```
+
+Observed: **BUILD SUCCESSFUL in 4m 26s; 145 actionable tasks (44 executed, 101 up-to-date).** Four requested gates passed: `data:jvmTest`, `feature:dynamic:jvmTest`, `feature:dynamic:compileAndroidMain`, and `webApp:wasmJsBrowserDevelopmentWebpack`.
+
+Non-blocking warnings remain: `FormFieldSection.kt:59` always-true condition; WebLoginPreview experimental Wasm interop opt-in; Windows iOS simulator unavailable; Android host-test config warning; transitive `ws` selection; Webpack expression dependency warning. These warnings have not been modified or declared fixed.
+
+**Not yet proven:** Actual browser layout spacing, error reset after editing an invalid/empty number, stable form height, country picker, and approved VisualLoginPreview parity. Do not mark P0 acceptance frozen until screenshots or direct runtime checks support these claims. **No P1 source cleanup performed.**
