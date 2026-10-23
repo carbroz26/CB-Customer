@@ -81,3 +81,28 @@ If Gradle reports a different APK filename/path, use the `developmentDebug` APK 
 3. Relaunch **without** the extra and ensure normal Splash/Bootstrap path unchanged (backend needed for Login).
 4. Verify only the `developmentDebug` variant contains the local JSON fixture. Neither staging nor production uses preview routing.
 5. Keep source code and docs under V2; P0 visual acceptance remains open and P1 cleanup is not authorized yet.
+
+### 2026-10-23 correction 2: generated assets wired to Gradle task
+
+The user verified the installed developmentDebug APK again, and `jar tf ... | Select-String "partner-login.json"` produced **no result**. Launching the preview closed the app, consistent with the previously observed missing-asset crash. The prior variant `addStaticSourceDirectory` approach was **not effective in this project** and must not be counted as verified.
+
+Now `androidApp/build.gradle.kts` registers a dedicated `GenerateDevelopmentLoginPreviewAsset` Gradle task with annotated `@InputFile` and `@OutputDirectory`. The task copies the canonical, checked-in Web preview JSON file into `build/generated/assets/developmentLoginPreview/partner-login.json`. The `developmentDebug` variant alone registers that task's `DirectoryProperty` via `variant.sources.assets.addGeneratedSourceDirectory(task, Task::outputDirectory)`. This follows the Android Gradle Plugin's official generated-assets recipe; the task dependency is wired automatically by the variant Sources API. The source fixture is not duplicated in Git and staging/production are not targeted.
+
+**Status:** source committed; no local Gradle execution or device verification available from GitHub connector.
+
+**Mandatory two-stage verification before launch:**
+
+```powershell
+cd D:\CarBroz\CB-Partner
+git pull --ff-only origin architecture/dynamic-runtime-v2-discussion-freeze
+.\gradlew.bat :androidApp:installDevelopmentDebug '-Pcbpartner.api.baseUrl=http://127.0.0.1:3000'
+jar tf .\androidApp\build\outputs\apk\development\debug\androidApp-development-debug.apk | Select-String "assets/partner-login.json"
+```
+
+Only if the archive listing contains `assets/partner-login.json`, launch with:
+
+```powershell
+adb shell am start -S -W -n "com.carbroz.cbpartner.android.dev/com.carbroz.cbpartner.android.MainActivity" --ez cbpartner.login_preview true
+```
+
+If still empty, capture `./gradlew :androidApp:generateDevelopmentLoginPreviewAsset --info` and inspect `androidApp/build/generated/assets/developmentLoginPreview/partner-login.json` plus the APK listing. Do not claim success from `Status: ok` alone.
