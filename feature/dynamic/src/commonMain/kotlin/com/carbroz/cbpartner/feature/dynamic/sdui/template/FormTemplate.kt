@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -26,25 +27,29 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.toVerticalArrangement
 class FormTemplate : TemplateRenderer<FormTemplateModel> {
     @Composable
     override fun render(template: FormTemplateModel, context: DynamicRenderContext) {
-        val background = template.backgroundImage
-        if (background == null) {
-            RenderTemplateContent(template, context)
-            return
-        }
-
         Box(modifier = if (template.fillMaxSize) Modifier.fillMaxSize() else Modifier) {
-            // Match the whole Template, including Header and Footer, without affecting measurement.
-            DynamicAssetImage(
-                source = background.source,
-                legacyUrl = null,
-                fallbackUrl = background.fallbackUrl,
-                context = context,
-                contentDescription = null,
-                modifier = Modifier.matchParentSize(),
-                contentScale = dynamicImageContentScale(background.contentScale),
-                alignment = templateBackgroundAlignment(background.alignment),
-            )
-            RenderTemplateContent(template, context)
+            // The authored background fills the viewport, including system-bar areas.
+            template.backgroundImage?.let { background ->
+                DynamicAssetImage(
+                    source = background.source,
+                    legacyUrl = null,
+                    fallbackUrl = background.fallbackUrl,
+                    context = context,
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = dynamicImageContentScale(background.contentScale),
+                    alignment = templateBackgroundAlignment(background.alignment),
+                )
+            }
+
+            // Keep Header, Body and Footer inside safe drawing bounds without changing
+            // backend-authored layout properties or clipping the background.
+            Box(
+                modifier = (if (template.fillMaxSize) Modifier.fillMaxSize() else Modifier)
+                    .safeDrawingPadding(),
+            ) {
+                RenderTemplateContent(template, context)
+            }
         }
     }
 

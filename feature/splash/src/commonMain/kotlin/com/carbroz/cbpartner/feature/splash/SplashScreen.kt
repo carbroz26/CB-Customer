@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -140,6 +141,7 @@ fun SplashScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .safeDrawingPadding()
                     .padding(horizontal = 28.dp, vertical = if (compactHeight) 20.dp else 28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

@@ -25,7 +25,6 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":network"))
     implementation(libs.androidx.activity.compose)
-    implementation(compose.foundation)
 }
 
 /** Copies the canonical Web Login fixture into one generated Android asset directory. */
