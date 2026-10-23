@@ -28,21 +28,21 @@ fun App(
     runtimeMetadataProvider: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
     environment: AppEnvironment = AppEnvironment.Development,
-    webLoginPreview: WebLoginPreview? = null,
+    localLoginPreview: LocalLoginPreview? = null,
 ) {
     // Preview is impossible to enable outside the development environment.
-    val preview = webLoginPreview?.takeIf { environment == AppEnvironment.Development }
+    val preview = localLoginPreview?.takeIf { environment == AppEnvironment.Development }
     val retainedSession = retain {
         mutableStateOf<DynamicSession?>(
             preview?.let {
-                val screen = requireNotNull(it.response.data) { "Web preview requires a Dynamic screen" }
+                val screen = requireNotNull(it.response.data) { "Local preview requires a Dynamic screen" }
                 DynamicSession(
-                    diagnosticSessionId = "web-login-preview",
+                    diagnosticSessionId = "local-login-preview",
                     initialDestination = DynamicDestination(
                         screenId = screen.screenId,
                         templateId = screen.template.id,
                         templateType = screen.template.type,
-                        endpoint = WEB_PREVIEW_LOGIN_ENDPOINT,
+                        endpoint = LOCAL_PREVIEW_LOGIN_ENDPOINT,
                     ),
                 )
             },
@@ -68,7 +68,7 @@ fun App(
                         object : DynamicRepository {
                             override suspend fun fetch(
                                 request: com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest,
-                            ) = if (request.endpoint == WEB_PREVIEW_LOGIN_ENDPOINT) {
+                            ) = if (request.endpoint == LOCAL_PREVIEW_LOGIN_ENDPOINT) {
                                 Result.success(preview.response)
                             } else {
                                 Result.failure<com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse>(
@@ -97,4 +97,4 @@ fun App(
 }
 
 /** Preview-only destination; rejected by the offline repository for all mutations. */
-private const val WEB_PREVIEW_LOGIN_ENDPOINT = "/api/v1/partner/screen/auth_login"
+private const val LOCAL_PREVIEW_LOGIN_ENDPOINT = "/api/v1/partner/screen/auth_login"
