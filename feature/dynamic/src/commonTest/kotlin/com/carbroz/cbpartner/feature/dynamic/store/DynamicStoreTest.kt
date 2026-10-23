@@ -1253,6 +1253,65 @@ class DynamicStoreTest {
         store.close()
     }
 
+
+    @Test
+    fun authoredClearOnEditResetsErrorOnFirstEditIncludingBlankWhileSubmitStillValidates() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        var submitCalls = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                if (request.endpoint == "/root") return Result.success(validationResponse(clearOnEdit = true))
+                submitCalls++
+                return Result.success(DynamicResponse(200, "SUCCESS", "Done", null, null))
+            }
+        }
+        val entry = DynamicNavigationEntry(destination("root"))
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = entry,
+            runtimeState = DynamicRuntimeState(),
+            scope = CoroutineScope(dispatcher),
+        )
+        fun error() = assertIs<DynamicState.Success>(store.state.value).screen.validationErrors["phone"]
+        fun edit(text: String) =
+            store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue(text)))
+        suspend fun submit() {
+            store.accept(DynamicIntent.Action(DynamicAction(
+                "request",
+                mapOf(
+                    "endpoint" to DynamicValue.StringValue("/submit"),
+                    "responseMode" to DynamicValue.StringValue("none"),
+                    "validate" to DynamicValue.BooleanValue(true),
+                ),
+            )))
+            advanceUntilIdle()
+        }
+
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        edit("123456789012")
+        submit()
+        assertEquals("Phone required", error())
+        // The visual reference resets attempted state at the FIRST changed digit.
+        edit("12345678901")
+        assertNull(error())
+        assertTrue(entry.validationErrors.isEmpty())
+        edit("")
+        assertNull(error())
+        submit()
+        assertEquals("Phone required", error())
+        edit("1")
+        assertNull(error())
+        submit()
+        assertEquals("Phone required", error())
+        edit("1234567890")
+        assertNull(error())
+        assertEquals(0, submitCalls)
+        store.close()
+    }
+
     @Test
     fun focusStateIsScopedBetweenScreenAndPresentation() = runTest {
         val dispatcher = UnconfinedTestDispatcher(testScheduler)
@@ -1296,7 +1355,7 @@ class DynamicStoreTest {
         store.close()
     }
 
-    private fun validationResponse(): DynamicResponse {
+    private fun validationResponse(clearOnEdit: Boolean = false): DynamicResponse {
         val input = InputElement(
             id = "phone",
             binding = DynamicBinding("phone"),
@@ -1304,6 +1363,7 @@ class DynamicStoreTest {
                 required = true,
                 pattern = "^[0-9]{10}$",
                 message = "Phone required",
+                clearOnEdit = clearOnEdit,
             ),
         )
         val field = FormFieldSection(

@@ -32,6 +32,7 @@ class DynamicValidationMessageContractTest {
             "validationStyle":{"background":{"color":"#FFF1F2"}}},
         "binding":{"key":"phone"},
         "validation":{"required":true,"requiredMessage":"Required","message":"Invalid",
+            "clearOnEdit":true,
             "lengthMessages":[{"minLength":6,"maxLength":9,"message":"Wrong length"},
             {"minLength":11,"message":"Wrong length"}]}}"""
     private val inlineValidation = """{"binding":"phone",
@@ -47,6 +48,7 @@ class DynamicValidationMessageContractTest {
             assertNull(field.controlGroup)
             assertEquals(56.0, field.controlSurface.height)
             assertEquals(8.0, field.label.spacing?.bottom)
+            assertEquals(false, field.controlInput?.validation?.clearOnEdit ?: false)
             assertEquals(2, field.elements.size)
             assertEquals(0, field.groups.size)
         }
@@ -68,6 +70,8 @@ class DynamicValidationMessageContractTest {
         assertEquals("Required", input.validation?.requiredMessage)
         assertEquals("Invalid", input.validation?.message)
         assertEquals(2, input.validation?.lengthMessages?.size)
+        assertEquals(true, input.validation?.clearOnEdit)
+        assertEquals(24.0, field.padding?.bottom)
         assertEquals(12.0, input.padding?.start)
         assertNotNull(input.validationStyle?.background)
     }
@@ -107,6 +111,7 @@ class DynamicValidationMessageContractTest {
 
     private fun compositeField() = """{"id":"field","type":"form_field_section",
         "properties":{"horizontalAlignment":"start","fillMaxWidth":true,
+            "padding":{"bottom":24},
             "controlSurface":$surface,
             "focusPresentation":{"binding":"phone","border":{"width":1,"color":"#0A3A8D"}},
             "validationPresentation":$inlineValidation},

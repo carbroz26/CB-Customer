@@ -192,6 +192,38 @@ class DynamicFormValidatorTest {
         assertEquals("Please enter a valid 10-digit mobile number.", message("1234567890"))
     }
 
+
+    @Test
+    fun skippingEditedBindingDoesNotDisableSubmitOrOtherValidation() {
+        val validation = DynamicValidation(
+            required = true,
+            pattern = "^[0-9]{10}$",
+            message = "Invalid",
+            clearOnEdit = true,
+        )
+        val field = screen(
+            inputs = listOf(
+                input("phone", "phone", validation),
+                input("name", "name", DynamicValidation(required = true, pattern = null, message = "Name required")),
+            ),
+            presentedBinding = "phone",
+        )
+        val validator = DynamicFormValidator()
+        assertEquals(true, validator.clearsErrorOnEdit(field, "phone"))
+        assertEquals(false, validator.clearsErrorOnEdit(field, "name"))
+        val invalid = mapOf(
+            "phone" to DynamicValue.StringValue("123456789012"),
+            "name" to DynamicValue.StringValue(""),
+        )
+        assertEquals(
+            mapOf("phone" to "Invalid", "name" to "Name required"),
+            validator.validate(field, invalid).errors,
+        )
+        val edited = validator.validate(field, invalid, suppressedBinding = "phone")
+        assertEquals(mapOf("name" to "Name required"), edited.errors)
+        assertEquals("Name required", edited.fallbackMessage)
+    }
+
     @Test
     fun registryRejectsDuplicateAndUnknownValidators() {
         val first = validator("same")
