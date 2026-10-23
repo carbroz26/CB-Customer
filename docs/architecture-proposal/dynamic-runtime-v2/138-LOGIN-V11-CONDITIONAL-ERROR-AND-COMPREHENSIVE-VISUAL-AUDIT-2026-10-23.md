@@ -61,3 +61,7 @@ Acceptance: normal input-to-Continue gap ~16dp; submit empty -> red message/tint
 ## 2026-10-23 follow-up: test constructor compatibility correction
 
 The owner executed the v11 Gradle gate and `:feature:dynamic:compileTestKotlinJvm` failed at `DynamicFormValidatorTest.kt:296` because its old `DynamicValidationMessageStyle(reserveHeight = 24.0)` fixture was missed during the initial migration. The single test fixture is now changed to `DynamicValidationMessageStyle(fontSize = 14.0, lineHeight = 20.0)` with no slot reservation. No validator logic, Store, JSON, action, Country Picker, or rendering code is changed in this follow-up. **Compilation/tests must be rerun; this commit alone does not establish passing tests.**
+
+## 2026-10-23 owner-confirmed update (see Doc 140)
+
+After the v11 source/test fixture correction, the owner posted an actual Samsung native screenshot and explicitly confirmed that the always-reserved error space underneath the input is gone. **Normal-state space-removal visual acceptance is confirmed**. This does NOT separately prove focus/error/keyboard/Country Picker scenarios or a full Gradle test matrix. Latest safe-area platform build work and remaining font/logo/hero reference parity are covered by Doc140; do not reintroduce reserveHeight based on historical docs.

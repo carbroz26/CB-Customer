@@ -5,6 +5,18 @@
 **Branch:** `architecture/dynamic-runtime-v2-discussion-freeze`
 **Nature:** Greenfield reference architecture. No implementation has been authorized; this does not replace existing accepted/frozen architecture or feature status automatically.
 
+## 2026-10-23 latest owner handoff — READ FIRST
+
+**Latest current-source checkpoint before this addendum:** 21229a450e4c001554c70ffbdeef982d1bf415ab on architecture/dynamic-runtime-v2-discussion-freeze. Earlier top-of-file "no implementation authorized" and 2026-10-16 "next logging gate" prose are **historical only**, not the current work queue. Source and latest owner decisions govern present implementation status.
+
+- [140 — Complete 2026-10-23 Conversation Handoff, Common-First Validation & Login Parity](140-2026-10-23-COMPLETE-HANDOFF-COMMON-FIRST-VALIDATION-LOGIN-PARITY.md): **CURRENT status, verified vs pending, full module/six-category/action/validation runtime map, screenshot audit and exact next gates.**
+- [141 — Next Chat Starter Prompt](141-NEXT-CHAT-STARTER-PROMPT-COMMON-FIRST-SAFE-AREA-VALIDATION-LOGIN-PARITY-2026-10-23.md): self-contained prompt for full V2 and source reread and efficient continuation.
+- [138 — Login v11 Conditional Error](138-LOGIN-V11-CONDITIONAL-ERROR-AND-COMPREHENSIVE-VISUAL-AUDIT-2026-10-23.md): owner-confirmed removal of reserved input-error space; 16dp authored normal gap.
+- [139 — Android Safe-Area Host Fix (provisional)](139-ANDROID-NAVIGATION-BAR-SAFE-AREA-HOST-FIX-2026-10-23.md): navigation bar inset code and later compilation dependency fix; subsequent Samsung verification and cross-platform owner migration STILL OPEN.
+
+**Owner latest rule:** commonMain-first Kotlin/Compose Multiplatform Android/iOS/Web; platform-specific only for actual OS APIs, strict SRP/Clean Architecture, no duplication or screen-specific business validation in Dynamic runtime, no overengineering. The latest investigation is whether app/validation/PartnerPhoneNumberValidator and Android-only inset belong where they are; **audit, do not delete/move without backend/source reconciliation and scoped authorization**. Logo/header/hero/terms visual parity remains P0. OTP and P1 cleanup deferred.
+
+
 ## Frozen planning authority
 - [20 — PLAN FROZEN V2 Implementation Contract](20-PLAN-FROZEN-V2-IMPLEMENTATION-CONTRACT.md) — authoritative signed-off scope, exact schema, semantics, waves and test gates.
 - [19 — Backend Migration Independent Contract](19-BACKEND-MIGRATION-INDEPENDENT-CONTRACT.md) — old and new backend fixture compatibility.
