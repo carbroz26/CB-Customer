@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
@@ -14,10 +17,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent as StackComponentModel
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate as FormTemplateModel
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
 import com.carbroz.cbpartner.feature.dynamic.registry.TemplateRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicBackground
 import com.carbroz.cbpartner.feature.dynamic.sdui.asset.DynamicAssetImage
 import com.carbroz.cbpartner.feature.dynamic.sdui.asset.dynamicImageContentScale
 import com.carbroz.cbpartner.feature.dynamic.runtime.toHorizontalAlignment
@@ -40,6 +46,19 @@ class FormTemplate : TemplateRenderer<FormTemplateModel> {
                     modifier = Modifier.matchParentSize(),
                     contentScale = dynamicImageContentScale(background.contentScale),
                     alignment = templateBackgroundAlignment(background.alignment),
+                )
+            }
+
+            // Extend an authored bottom Component's surface behind the system
+            // navigation bar. The Hero remains full-bleed everywhere else.
+            // No fixed color or inset size is imposed by the renderer.
+            template.bottomSystemBarBackground()?.let { surface ->
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .windowInsetsBottomHeight(WindowInsets.navigationBars)
+                        .applyDynamicBackground(surface),
                 )
             }
 
@@ -135,4 +154,14 @@ internal fun templateBackgroundAlignment(value: String): Alignment = when (value
     "bottomCenter" -> Alignment.BottomCenter
     "bottomEnd" -> Alignment.BottomEnd
     else -> throw IllegalArgumentException("Unsupported Template backgroundImage alignment")
+}
+
+/**
+ * Derive a system-navigation backdrop from the last authored surface only.
+ * This does not change Component geometry, keyboard insets or the Hero crop.
+ */
+internal fun FormTemplateModel.bottomSystemBarBackground(): DynamicBackground? {
+    if (!fillMaxSize || orientation == "horizontal") return null
+    val bottomComponent = footer?.components?.lastOrNull() ?: components.lastOrNull()
+    return (bottomComponent as? StackComponentModel)?.background
 }
