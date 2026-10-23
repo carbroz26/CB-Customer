@@ -3,6 +3,10 @@ package com.carbroz.cbpartner.android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.Modifier
 import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.configureLogging
 import com.carbroz.cbpartner.app.parseLocalLoginPreview
@@ -29,15 +33,19 @@ class MainActivity : ComponentActivity() {
         } else null
 
         setContent {
-            if (BuildConfig.DEBUG && intent.getBooleanExtra("cbpartner.retention_probe", false)) {
-                RetainCompatibilityProbe()
-            } else {
-                App(
-                    runtimeMetadataProvider = runtimeMetadataProvider,
-                    apiBaseUrl = apiBaseUrl,
-                    environment = environment,
-                    localLoginPreview = preview,
-                )
+            // The Android host owns the system navigation-bar safe area. Keep the
+            // status-bar/top layout and backend-authored Dynamic spacing unchanged.
+            Box(Modifier.fillMaxSize().navigationBarsPadding()) {
+                if (BuildConfig.DEBUG && intent.getBooleanExtra("cbpartner.retention_probe", false)) {
+                    RetainCompatibilityProbe()
+                } else {
+                    App(
+                        runtimeMetadataProvider = runtimeMetadataProvider,
+                        apiBaseUrl = apiBaseUrl,
+                        environment = environment,
+                        localLoginPreview = preview,
+                    )
+                }
             }
         }
     }
