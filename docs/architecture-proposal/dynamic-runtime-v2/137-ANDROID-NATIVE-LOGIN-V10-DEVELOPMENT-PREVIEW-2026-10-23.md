@@ -14,6 +14,49 @@ Allow the user to inspect the exact JSON-driven Login v10 + packaged hero 02 on 
 - `App(localLoginPreview=...)` preserves existing development-only injection via the normal DynamicRepository, DynamicStore, DynamicFormValidator and dynamicRendererRegistry. The offline repository only serves the preview's initial Login destination; further network mutations intentionally fail. No backend integration or production behavior changed.
 - `androidApp/MainActivity` reads the bundled `partner-login.json` asset only if `BuildConfig.DEBUG`, `AppEnvironment.Development`, and explicit intent extra `cbpartner.login_preview=true` all agree. If not requested, it follows normal Splash→Backend Bootstrap. Retention probe remains separately supported.
 - `androidApp/build.gradle.kts` registers a **developmentDebug-only** assets root pointing directly to `webApp/src/wasmJsMain/resources/preview`, so the exact same v10 JSON file is bundled; **no duplicated JSON fixture**. Never bundle that fixture into staging or production.
+
+### 2026-10-23 physical device crash and narrow packaging correction
+
+On Samsung A35 with `androidApp:installDevelopmentDebug` successful, running the explicit preview command caused `java.io.FileNotFoundException: partner-login.json` in `MainActivity.onCreate(MainActivity.kt:27)`. This identifies an **APK asset packaging omission**, not a Dynamic UI or backend problem. The older `sourceSets.maybeCreate("developmentDebug").assets.srcDir(...)` registration was insufficient on this build despite successful compilation and installation.
+
+**Correction:** register the original Web fixture path through the Android Gradle Plugin variant Sources API:
+`androidComponents.onVariants(selector().withName("developmentDebug")) { variant -> variant.sources.assets!!.addStaticSourceDirectory(...) }`.
+The actual implementation uses `checkNotNull` for a descriptive build-time failure. The local fixture is still not duplicated, and the preview remains opt-in and debug+development gated.
+
+**Mandatory asset acceptance before launch:**
+
+```powershell
+.\gradlew.bat :androidApp:assembleDevelopmentDebug '-Pcbpartner.api.baseUrl=http://127.0.0.1:3000'
+jar tf .\androidApp\build\outputs\apk\development\debug\androidApp-development-debug.apk | Select-String '^assets/partner-login.json
+- No Android-specific screen visuals or hardcoded Login layout. Country flags are only bundled where present; no invented icons.
+- The user-supplied Hero 02 PNG continues to load from the already registered Compose resources.
+
+## Commands (PowerShell)
+
+```powershell
+cd D:\CarBroz\CB-Partner
+git pull --ff-only origin architecture/dynamic-runtime-v2-discussion-freeze
+.\gradlew.bat :app:jvmTest :androidApp:assembleDevelopmentDebug :webApp:wasmJsBrowserDevelopmentWebpack
+adb devices -l
+adb install -r .\androidApp\build\outputs\apk\development\debug\androidApp-development-debug.apk
+adb shell am force-stop com.carbroz.cbpartner.android.dev
+adb shell am start -n com.carbroz.cbpartner.android.dev/.MainActivity --ez cbpartner.login_preview true
+```
+
+If Gradle reports a different APK filename/path, use the `developmentDebug` APK from its output instead of guessing. On multiple ADB connections to the same physical phone, explicitly specify one serial using `adb -s`. No backend server, Web dev server or `adb reverse` is required in this local native mode.
+
+## Acceptance gates
+
+1. `app:jvmTest`, `androidApp:assembleDevelopmentDebug` and `webApp:wasmJsBrowserDevelopmentWebpack` must pass first.
+2. On Samsung device, launch with the extra and verify hero 02, colors, type, header/card positioning, validation and Country Picker.
+3. Relaunch **without** the extra and ensure normal Splash/Bootstrap path unchanged (backend needed for Login).
+4. Verify only the `developmentDebug` variant contains the local JSON fixture. Neither staging nor production uses preview routing.
+5. Keep source code and docs under V2; P0 visual acceptance remains open and P1 cleanup is not authorized yet.
+
+```
+
+If the APK does not contain `assets/partner-login.json`, **do not attempt to launch**; report the APK listing and diagnose packaging. An Android Gradle `BUILD SUCCESSFUL` alone is not sufficient to claim this bug fixed. This correction is **committed but not yet built or device-verified**.
+
 - No Android-specific screen visuals or hardcoded Login layout. Country flags are only bundled where present; no invented icons.
 - The user-supplied Hero 02 PNG continues to load from the already registered Compose resources.
 
