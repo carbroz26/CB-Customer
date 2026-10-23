@@ -30,8 +30,8 @@
         },
         "backgroundImage": {
           "source": {
-            "type": "url",
-            "value": "/images/partner_login_hero.jpg"
+            "type": "resource",
+            "value": "images/partner_login_hero"
           },
           "contentScale": "crop",
           "alignment": "topCenter"

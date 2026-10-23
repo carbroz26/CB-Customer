@@ -48,8 +48,8 @@ class TemplateMapper(
             "Unsupported Template backgroundImage property"
         }
         val source = values.checkedAssetSource(value, requireTyped = true)
-        require(source is DynamicAssetSource.Url) {
-            "Template backgroundImage must use a backend URL source"
+        require(source is DynamicAssetSource.Url || source is DynamicAssetSource.Resource) {
+            "Template backgroundImage must use a typed URL or packaged resource source"
         }
         val scale = values.assetContentScale(value)
         require(scale != null) { "Template backgroundImage contentScale is required" }

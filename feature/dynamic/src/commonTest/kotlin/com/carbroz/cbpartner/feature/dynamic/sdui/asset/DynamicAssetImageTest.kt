@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class DynamicAssetImageTest {
@@ -48,6 +49,13 @@ class DynamicAssetImageTest {
         assertTrue(validPackagedAssetId("images/cb_partner_logo"))
         assertFalse(validPackagedAssetId("../private"))
         assertFalse(validPackagedAssetId("icons/close.png"))
-        assertNull(packagedAssetResource("images/cb_partner_logo"))
+        for (key in listOf(
+            "images/cb_partner_logo", "images/partner_login_hero",
+            "flags/in", "flags/us",
+            "icons/chevron_down", "icons/search",
+            "icons/close", "icons/check_circle_blue",
+        )) assertNotNull(packagedAssetResource(key), "Missing explicit packaged asset: " + key)
+        assertNull(packagedAssetResource("flags/gb"))
+        assertNull(packagedAssetResource("icons/unapproved"))
     }
 }

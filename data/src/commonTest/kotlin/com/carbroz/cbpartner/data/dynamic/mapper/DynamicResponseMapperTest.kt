@@ -170,8 +170,8 @@ class DynamicResponseMapperTest {
         val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
         val template = assertIs<FormTemplate>(screen.template)
         val background = assertNotNull(template.backgroundImage)
-        assertIs<DynamicAssetSource.Url>(background.source)
-        assertEquals(DynamicValue.StringValue("/assets/background.webp"), background.source.value)
+        val urlSource = assertIs<DynamicAssetSource.Url>(background.source)
+        assertEquals(DynamicValue.StringValue("/assets/background.webp"), urlSource.value)
         assertEquals("crop", background.contentScale)
         assertEquals("topCenter", background.alignment)
         assertEquals("/assets/backup.webp", background.fallbackUrl)
@@ -184,13 +184,29 @@ class DynamicResponseMapperTest {
     }
 
     @Test
+    fun mapsPackagedTemplateHeroWithoutChangingThemeOrUrlSupport() {
+        val dto = json.decodeFromString<DynamicResponseDto>(
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"local_hero","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"hero","type":"form_template","properties":{"fillMaxSize":true,"backgroundImage":{"source":{"type":"resource","value":"images/partner_login_hero"},"contentScale":"crop","alignment":"topCenter"}},"components":[{"id":"form","type":"stack_component"}]},"theme":{"theme":"light","statusBar":"transparent","properties":{"gradient":{"angle":135,"colors":[{"color":"#FFFFFF","stop":0},{"color":"#D9F7F4","stop":1}]}}}}}""",
+        )
+        val screen = assertNotNull(DynamicResponseMapper(json).map(dto).data)
+        val template = assertIs<FormTemplate>(screen.template)
+        val background = assertNotNull(template.backgroundImage)
+        val resource = assertIs<DynamicAssetSource.Resource>(background.source)
+        assertEquals(DynamicValue.StringValue("images/partner_login_hero"), resource.value)
+        assertEquals("crop", background.contentScale)
+        assertEquals("topCenter", background.alignment)
+        assertEquals(null, background.fallbackUrl)
+        assertNotNull(screen.theme?.properties?.get("gradient"))
+    }
+
+    @Test
     fun rejectsInvalidTemplateBackgroundConfigurations() {
         fun response(raw: String): DynamicResponseDto = json.decodeFromString(
             """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"sample","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"form","type":"form_template","properties":{"backgroundImage":$raw}}}}""",
         )
         val invalid = listOf(
             "null", "123", """{}""",
-            """{"source":{"type":"resource","value":"images/sample"},"contentScale":"crop","alignment":"topCenter"}""",
+            """{"source":{"type":"resource","value":"images/sample"},"contentScale":"crop","alignment":"topCenter","fallbackUrl":"/assets/not-allowed.png"}""",
             """{"source":{"type":"url","value":"/asset"},"alignment":"topCenter"}""",
             """{"source":{"type":"url","value":"/asset"},"contentScale":"crop"}""",
             """{"source":{"type":"url","value":"/asset"},"contentScale":"unknown","alignment":"center"}""",
