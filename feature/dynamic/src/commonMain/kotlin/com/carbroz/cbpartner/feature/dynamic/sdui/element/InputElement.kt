@@ -36,6 +36,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.ElementRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyBorder
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicBackground
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyLayout
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
@@ -103,12 +104,32 @@ class InputElement : ElementRenderer<InputElementModel> {
         val submitIme =
             if (element.actions.containsKey("onSubmit")) ImeAction.Done else ImeAction.Default
 
+        val presentation = element.presentation
+        val surfaceModifier = if (presentation?.type == "segmented") {
+            // Segmented fields own their per-cell surfaces; keep their existing layout.
+            Modifier.applyLayout(element).applyDynamicPadding(element.padding)
+        } else {
+            val activeBackground =
+                if (invalid) element.validationStyle?.background ?: element.background
+                else element.background
+            val activeBorder = when {
+                invalid -> element.border
+                focused -> element.focusBorder ?: element.border
+                else -> element.border
+            }
+            // The authored border/background surround accessories and editable text.
+            // Padding is internal so tinted number fields have no white outer gutter.
+            Modifier.applyLayout(element)
+                .applyDynamicBackground(activeBackground, element.shape.toComposeShape())
+                .applyBorder(activeBorder, element.shape)
+                .applyDynamicPadding(element.padding)
+        }
+
         Row(
-            modifier = Modifier.applyLayout(element),
+            modifier = surfaceModifier,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             context.renderContent(element.leadingContent)
-            val presentation = element.presentation
             if (presentation?.type == "segmented") {
                 SegmentedInput(
                     value = value,
@@ -141,18 +162,7 @@ class InputElement : ElementRenderer<InputElementModel> {
                     imeAction = submitIme,
                 )
             } else {
-                val activeBackground =
-                    if (invalid) element.validationStyle?.background ?: element.background
-                    else element.background
-                val activeBorder = when {
-                    invalid -> element.border
-                    focused -> element.focusBorder ?: element.border
-                    else -> element.border
-                }
-                var fieldModifier = focusModifier
-                    .weight(1f)
-                    .applyDynamicBackground(activeBackground, element.shape.toComposeShape())
-                    .applyBorder(activeBorder, element.shape)
+                var fieldModifier = focusModifier.weight(1f)
                 if (element.height != null) {
                     fieldModifier = fieldModifier.fillMaxHeight()
                 }

@@ -84,9 +84,9 @@ internal fun Modifier.applyImageSize(element: ImageElement): Modifier =
         .thenIf(element.fillMaxWidth) { fillMaxWidth() }
         .thenIf(element.fillMaxHeight) { fillMaxHeight() }
 
+/** Input surface sizing; its renderer applies padding inside the authored surface. */
 internal fun Modifier.applyLayout(element: InputElement): Modifier =
-    applyDynamicPadding(element.padding)
-        .thenIf(element.width != null) { width(element.width!!.dp) }
+    thenIf(element.width != null) { width(element.width!!.dp) }
         .thenIf(element.maxWidth != null) { widthIn(max = element.maxWidth!!.dp) }
         .thenIf(element.height != null) { height(element.height!!.dp) }
         .thenIf(element.fillMaxWidth) { fillMaxWidth() }
