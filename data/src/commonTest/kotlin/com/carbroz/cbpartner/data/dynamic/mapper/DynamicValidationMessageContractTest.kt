@@ -43,7 +43,7 @@ class DynamicValidationMessageContractTest {
         "messageStyle":{"fontSize":12,"lineHeight":20,"spacing":{"top":6},
         "leading":[{"type":"image","properties":{
             "source":{"type":"resource","value":"icons/error_alert_icon_01"},
-            "width":16,"height":16,"contentScale":"fit","spacing":{"end":6}}]}}"""
+            "width":16,"height":16,"contentScale":"fit","spacing":{"end":6}}}]}}"""
 
     @Test
     fun directFieldsCanBeReusedForFirstAndLastNameWithoutGroup() {
