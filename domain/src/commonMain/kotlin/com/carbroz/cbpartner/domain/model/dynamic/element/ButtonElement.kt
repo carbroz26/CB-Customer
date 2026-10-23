@@ -16,6 +16,7 @@ data class ButtonElement(
     val height: Double? = null,
     val fillMaxWidth: Boolean = false,
     val fontSize: Double? = null,
+    val lineHeight: Double? = null,
     val fontWeight: Int? = null,
     val textColor: String? = null,
     val background: DynamicBackground? = null,

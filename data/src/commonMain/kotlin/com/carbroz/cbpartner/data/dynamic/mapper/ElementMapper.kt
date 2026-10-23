@@ -60,7 +60,7 @@ class ElementMapper(
             fontSize = values.number(dto.properties, "fontSize"),
             fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
             letterSpacing = values.number(dto.properties, "letterSpacing"),
-            lineHeight = values.number(dto.properties, "lineHeight"),
+            lineHeight = authoredLineHeight(dto.properties),
             color = values.string(dto.properties, "color"),
             textAlign = values.string(dto.properties, "textAlign"),
             width = values.number(dto.properties, "width"),
@@ -107,6 +107,7 @@ class ElementMapper(
         placeholder = values.string(dto.properties, "placeholder"),
         keyboardType = values.string(dto.properties, "keyboardType") ?: "text",
         fontSize = values.number(dto.properties, "fontSize"),
+        lineHeight = authoredLineHeight(dto.properties),
         fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
         textColor = values.string(dto.properties, "textColor"),
         textAlign = values.string(dto.properties, "textAlign"),
@@ -153,6 +154,7 @@ class ElementMapper(
         height = values.number(dto.properties, "height"),
         fillMaxWidth = values.boolean(dto.properties, "fillMaxWidth") ?: false,
         fontSize = values.number(dto.properties, "fontSize"),
+        lineHeight = authoredLineHeight(dto.properties),
         fontWeight = values.number(dto.properties, "fontWeight")?.toInt(),
         textColor = values.string(dto.properties, "textColor"),
         background = values.background(dto.properties),
@@ -243,6 +245,14 @@ class ElementMapper(
             actions = actionMapper.map(dto.actions),
         )
     }
+
+    /** Read only authored, positive line heights. The renderer supplies no font defaults. */
+    private fun authoredLineHeight(properties: JsonObject): Double? =
+        values.number(properties, "lineHeight")?.also {
+            require(it.isFinite() && it > 0.0) {
+                "Dynamic text lineHeight must be positive and finite"
+            }
+        }
 
     private fun mapValidation(dto: DynamicValidationDto?): DynamicValidation? = dto?.let {
         val validator = it.validator?.let { spec ->

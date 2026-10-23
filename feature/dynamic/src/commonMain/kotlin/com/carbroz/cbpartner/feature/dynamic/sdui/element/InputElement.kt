@@ -205,6 +205,7 @@ class InputElement : ElementRenderer<InputElementModel> {
     private fun inputTextStyle(element: InputElementModel): TextStyle = TextStyle(
         color = element.textColor?.toColor() ?: Color.Unspecified,
         fontSize = element.fontSize?.sp ?: TextUnit.Unspecified,
+        lineHeight = element.lineHeight?.sp ?: TextUnit.Unspecified,
         fontWeight = element.fontWeight?.let(::FontWeight),
         textAlign = element.textAlign.toTextAlign(),
     )

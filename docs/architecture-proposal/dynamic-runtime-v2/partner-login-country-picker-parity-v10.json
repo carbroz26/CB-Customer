@@ -1,0 +1,866 @@
+{
+  "status": 200,
+  "code": "SUCCESS",
+  "message": "Partner login screen fetched successfully",
+  "data": {
+    "screenId": "partner_login",
+    "schemaVersion": "3.0.0",
+    "targetApp": "PARTNER",
+    "initialBindings": {
+      "mobileNumber": "",
+      "countryId": "IN",
+      "countryCode": "+91",
+      "countryFlagAsset": "flags/in"
+    },
+    "template": {
+      "id": "tpl_7K2M9Q",
+      "type": "form_template",
+      "properties": {
+        "orientation": "vertical",
+        "fillMaxSize": true,
+        "scrollable": true,
+        "verticalArrangement": {
+          "type": "spaceBetween"
+        },
+        "padding": {
+          "start": 0,
+          "top": 0,
+          "end": 0,
+          "bottom": 0
+        },
+        "backgroundImage": {
+          "source": {
+            "type": "resource",
+            "value": "images/partner_login_hero"
+          },
+          "contentScale": "crop",
+          "alignment": "topCenter"
+        }
+      },
+      "components": [
+        {
+          "id": "login_branding",
+          "type": "stack_component",
+          "properties": {
+            "orientation": "vertical",
+            "fillMaxWidth": true,
+            "horizontalAlignment": "center",
+            "padding": {
+              "start": 24,
+              "top": 48,
+              "end": 24,
+              "bottom": 32
+            }
+          },
+          "elements": [
+            {
+              "id": "brand_name",
+              "type": "text",
+              "properties": {
+                "text": "CB-Partner",
+                "fontSize": 20,
+                "fontWeight": 700,
+                "color": "#0A3A8D",
+                "textAlign": "center",
+                "leading": [
+                  {
+                    "type": "image",
+                    "properties": {
+                      "source": {
+                        "type": "resource",
+                        "value": "images/cb_partner_logo"
+                      },
+                      "width": 32,
+                      "height": 32,
+                      "contentScale": "fit",
+                      "spacing": {
+                        "end": 9
+                      }
+                    }
+                  }
+                ],
+                "spacing": {
+                  "bottom": 12
+                },
+                "lineHeight": 28
+              }
+            },
+            {
+              "id": "welcome_title",
+              "type": "text",
+              "properties": {
+                "text": "Welcome back",
+                "fontSize": 32,
+                "fontWeight": 700,
+                "color": "#0A3A8D",
+                "textAlign": "center",
+                "spacing": {
+                  "bottom": 8
+                },
+                "lineHeight": 40
+              }
+            },
+            {
+              "id": "welcome_subtitle",
+              "type": "text",
+              "properties": {
+                "text": "Access your partner account",
+                "fontSize": 16,
+                "fontWeight": 400,
+                "color": "#6B7280",
+                "textAlign": "center",
+                "lineHeight": 24
+              }
+            }
+          ]
+        },
+        {
+          "id": "login_form",
+          "type": "stack_component",
+          "properties": {
+            "orientation": "vertical",
+            "fillMaxWidth": true,
+            "background": {
+              "color": "#FFFFFF"
+            },
+            "shape": {
+              "type": "roundedCorner",
+              "topStart": 24,
+              "topEnd": 24,
+              "bottomStart": 0,
+              "bottomEnd": 0
+            },
+            "padding": {
+              "start": 16,
+              "top": 16,
+              "end": 16,
+              "bottom": 24
+            }
+          },
+          "sections": [
+            {
+              "id": "mobile_field",
+              "type": "form_field_section",
+              "properties": {
+                "fillMaxWidth": true,
+                "horizontalAlignment": "start",
+                "controlSurface": {
+                  "height": 56,
+                  "fillMaxWidth": true,
+                  "background": {
+                    "color": "#FFFFFF"
+                  },
+                  "border": {
+                    "width": 1,
+                    "color": "#CBD5E1"
+                  },
+                  "shape": {
+                    "type": "roundedCorner",
+                    "cornerRadius": 16
+                  }
+                },
+                "focusPresentation": {
+                  "binding": "mobileNumber",
+                  "border": {
+                    "width": 1,
+                    "color": "#0A3A8D"
+                  }
+                },
+                "validationPresentation": {
+                  "binding": "mobileNumber",
+                  "errorBorder": {
+                    "width": 1,
+                    "color": "#EF4444"
+                  },
+                  "messageStyle": {
+                    "fontSize": 14,
+                    "fontWeight": 400,
+                    "color": "#EF4444",
+                    "spacing": {
+                      "top": 6
+                    },
+                    "reserveHeight": 32,
+                    "lineHeight": 20
+                  }
+                },
+                "padding": {
+                  "bottom": 16
+                }
+              },
+              "elements": [
+                {
+                  "id": "phone_label",
+                  "type": "text",
+                  "properties": {
+                    "text": "Mobile number",
+                    "fontSize": 14,
+                    "fontWeight": 600,
+                    "color": "#18263B",
+                    "spacing": {
+                      "bottom": 8
+                    }
+                  }
+                }
+              ],
+              "groups": [
+                {
+                  "id": "phone_input_row",
+                  "type": "stack_group",
+                  "properties": {
+                    "orientation": "horizontal",
+                    "fillMaxWidth": true,
+                    "verticalAlignment": "center"
+                  },
+                  "elements": [
+                    {
+                      "id": "country_selector",
+                      "type": "text",
+                      "properties": {
+                        "text": {
+                          "$binding": "countryCode"
+                        },
+                        "fontSize": 15,
+                        "fontWeight": 600,
+                        "color": "#18263B",
+                        "minHeight": 56,
+                        "padding": {
+                          "start": 12,
+                          "end": 8
+                        },
+                        "leading": [
+                          {
+                            "type": "image",
+                            "properties": {
+                              "source": {
+                                "type": "resource",
+                                "value": {
+                                  "$binding": "countryFlagAsset"
+                                }
+                              },
+                              "width": 24,
+                              "height": 18,
+                              "contentScale": "fit",
+                              "spacing": {
+                                "end": 8
+                              }
+                            }
+                          }
+                        ],
+                        "trailing": [
+                          {
+                            "type": "icon",
+                            "properties": {
+                              "source": {
+                                "type": "resource",
+                                "value": "icons/chevron_down"
+                              },
+                              "size": 12,
+                              "spacing": {
+                                "start": 5
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "onClick": {
+                          "type": "present",
+                          "payload": {
+                            "presentationId": "country_picker"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "id": "phone_divider",
+                      "type": "divider",
+                      "properties": {
+                        "orientation": "vertical",
+                        "height": 28,
+                        "thickness": 1,
+                        "color": "#D1D5DB",
+                        "spacing": {
+                          "start": 0,
+                          "end": 0
+                        }
+                      }
+                    },
+                    {
+                      "id": "mobile_number",
+                      "type": "input",
+                      "properties": {
+                        "placeholder": "Enter mobile number",
+                        "singleLine": true,
+                        "keyboardType": "phone",
+                        "inputFilter": "digits",
+                        "maxLength": 15,
+                        "fontSize": 16,
+                        "fontWeight": 400,
+                        "textColor": "#111827",
+                        "placeholderColor": "#9CA3AF",
+                        "weight": 1,
+                        "padding": {
+                          "start": 12,
+                          "top": 0,
+                          "end": 12,
+                          "bottom": 0
+                        },
+                        "validationStyle": {
+                          "background": {
+                            "color": "#FEE2E2"
+                          }
+                        },
+                        "height": 56,
+                        "textAlign": "start",
+                        "lineHeight": 24
+                      },
+                      "validation": {
+                        "required": true,
+                        "validator": {
+                          "key": "phone_number",
+                          "arguments": {
+                            "region": {
+                              "$binding": "countryId"
+                            }
+                          }
+                        },
+                        "message": "Please enter a valid 10-digit mobile number.",
+                        "requiredMessage": "Mobile number is required.",
+                        "lengthMessages": [
+                          {
+                            "minLength": 6,
+                            "maxLength": 9,
+                            "message": "Mobile number must be 10 digits."
+                          },
+                          {
+                            "minLength": 11,
+                            "message": "Mobile number must be 10 digits."
+                          }
+                        ],
+                        "clearOnEdit": true
+                      },
+                      "binding": {
+                        "key": "mobileNumber"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "continue_action_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "padding": {
+                  "bottom": 16
+                }
+              },
+              "elements": [
+                {
+                  "id": "continue_button",
+                  "type": "button",
+                  "properties": {
+                    "text": "Continue",
+                    "height": 56,
+                    "fillMaxWidth": true,
+                    "fontSize": 16,
+                    "fontWeight": 600,
+                    "textColor": "#FFFFFF",
+                    "background": {
+                      "color": "#007AFF"
+                    },
+                    "shape": {
+                      "type": "roundedCorner",
+                      "cornerRadius": 16
+                    },
+                    "loading": {
+                      "whileActionPending": true,
+                      "disableWhilePending": true,
+                      "replaceContent": true,
+                      "indicator": {
+                        "type": "circular",
+                        "size": 20,
+                        "color": "#FFFFFF"
+                      }
+                    },
+                    "lineHeight": 24
+                  },
+                  "actions": {
+                    "onClick": {
+                      "type": "request",
+                      "payload": {
+                        "method": "POST",
+                        "endpoint": "/api/v1/auth/send_otp",
+                        "authentication": "NONE",
+                        "validate": true,
+                        "body": {
+                          "countryCode": {
+                            "$binding": "countryCode"
+                          },
+                          "phoneNumber": {
+                            "$binding": "mobileNumber"
+                          },
+                          "deviceId": {
+                            "$context": "deviceId"
+                          }
+                        },
+                        "responseMode": "destination",
+                        "mode": "push",
+                        "retain": {
+                          "challengeId": "data.challengeId",
+                          "phoneNumber": "data.phoneNumber"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "legal_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true
+              },
+              "elements": [
+                {
+                  "id": "legal_text",
+                  "type": "text",
+                  "properties": {
+                    "text": "By continuing, you agree to our",
+                    "fontSize": 12,
+                    "fontWeight": 400,
+                    "color": "#6B7280",
+                    "textAlign": "center",
+                    "fillMaxWidth": true,
+                    "spacing": {
+                      "bottom": 4
+                    }
+                  }
+                },
+                {
+                  "id": "legal_links",
+                  "type": "text",
+                  "properties": {
+                    "fontSize": 14,
+                    "fontWeight": 500,
+                    "color": "#6B7280",
+                    "textAlign": "center",
+                    "fillMaxWidth": true,
+                    "spans": [
+                      {
+                        "text": "Terms & Conditions",
+                        "color": "#007AFF",
+                        "underline": true,
+                        "onClick": {
+                          "type": "external_uri",
+                          "payload": {
+                            "uri": {
+                              "$config": "legal.termsUrl"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "text": "   |   "
+                      },
+                      {
+                        "text": "Privacy Policy",
+                        "color": "#007AFF",
+                        "underline": true,
+                        "onClick": {
+                          "type": "external_uri",
+                          "payload": {
+                            "uri": {
+                              "$config": "legal.privacyUrl"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "lineHeight": 20
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "presentations": [
+      {
+        "id": "country_picker",
+        "type": "bottom_sheet",
+        "properties": {
+          "dismissOnOutsideClick": true,
+          "dismissOnBack": true,
+          "showHandle": true,
+          "handle": {
+            "width": 36,
+            "height": 4,
+            "color": "#D1D5DB",
+            "cornerRadius": 2,
+            "alignment": "center",
+            "spacing": {
+              "top": 8,
+              "bottom": 12
+            }
+          },
+          "heightFraction": 0.7,
+          "background": {
+            "color": "#FFFFFF"
+          },
+          "shape": {
+            "type": "roundedCorner",
+            "topStart": 24,
+            "topEnd": 24,
+            "bottomStart": 0,
+            "bottomEnd": 0
+          }
+        },
+        "initialBindings": {
+          "countrySearch": ""
+        },
+        "components": [
+          {
+            "id": "picker_content",
+            "type": "stack_component",
+            "properties": {
+              "orientation": "vertical",
+              "fillMaxWidth": true,
+              "background": {
+                "color": "#FFFFFF"
+              },
+              "shape": {
+                "type": "roundedCorner",
+                "topStart": 24,
+                "topEnd": 24,
+                "bottomStart": 0,
+                "bottomEnd": 0
+              },
+              "fillMaxHeight": true
+            },
+            "sections": [
+              {
+                "id": "picker_header",
+                "type": "stack_section",
+                "properties": {
+                  "orientation": "horizontal",
+                  "fillMaxWidth": true,
+                  "verticalAlignment": "center",
+                  "horizontalArrangement": {
+                    "type": "spaceBetween"
+                  },
+                  "padding": {
+                    "start": 20,
+                    "top": 8,
+                    "end": 16,
+                    "bottom": 16
+                  }
+                },
+                "elements": [
+                  {
+                    "id": "picker_title",
+                    "type": "text",
+                    "properties": {
+                      "text": "Select country code",
+                      "fontSize": 18,
+                      "fontWeight": 600,
+                      "color": "#0A3A8D",
+                      "maxLines": 1,
+                      "overflow": "ellipsis"
+                    }
+                  },
+                  {
+                    "id": "picker_close",
+                    "type": "icon",
+                    "properties": {
+                      "source": {
+                        "type": "resource",
+                        "value": "icons/close"
+                      },
+                      "size": 20,
+                      "minHeight": 32,
+                      "minWidth": 32
+                    },
+                    "actions": {
+                      "onClick": {
+                        "type": "dismiss"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "picker_search",
+                "type": "stack_section",
+                "properties": {
+                  "orientation": "vertical",
+                  "fillMaxWidth": true,
+                  "padding": {
+                    "start": 16,
+                    "top": 0,
+                    "end": 16,
+                    "bottom": 8
+                  }
+                },
+                "elements": [
+                  {
+                    "id": "country_search",
+                    "type": "input",
+                    "properties": {
+                      "placeholder": "Search country or code...",
+                      "singleLine": true,
+                      "keyboardType": "text",
+                      "fontSize": 13,
+                      "fontWeight": 400,
+                      "textColor": "#18263B",
+                      "placeholderColor": "#94A3B8",
+                      "height": 46,
+                      "fillMaxWidth": true,
+                      "border": {
+                        "width": 1,
+                        "color": "#D6E2F0"
+                      },
+                      "focusBorder": {
+                        "width": 1,
+                        "color": "#0A3A8D"
+                      },
+                      "shape": {
+                        "type": "roundedCorner",
+                        "cornerRadius": 9
+                      },
+                      "padding": {
+                        "start": 12,
+                        "top": 0,
+                        "end": 12,
+                        "bottom": 0
+                      },
+                      "leading": [
+                        {
+                          "type": "icon",
+                          "properties": {
+                            "source": {
+                              "type": "resource",
+                              "value": "icons/search"
+                            },
+                            "size": 16,
+                            "spacing": {
+                              "end": 9
+                            }
+                          }
+                        }
+                      ],
+                      "textAlign": "start"
+                    },
+                    "binding": {
+                      "key": "countrySearch"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "country_list",
+                "type": "list_section",
+                "properties": {
+                  "fillMaxWidth": true,
+                  "source": {
+                    "type": "catalog",
+                    "key": "countries"
+                  },
+                  "filter": {
+                    "binding": "countrySearch",
+                    "fields": [
+                      "name",
+                      "dialCode"
+                    ],
+                    "caseInsensitive": true
+                  },
+                  "selection": {
+                    "mode": "single",
+                    "itemKey": "id",
+                    "selectedBinding": "countryId",
+                    "result": {
+                      "countryId": "id",
+                      "countryCode": "dialCode",
+                      "countryFlagAsset": "flagAsset"
+                    },
+                    "dismissOnSelect": true
+                  },
+                  "itemSeparator": {
+                    "type": "divider",
+                    "orientation": "horizontal",
+                    "thickness": 1,
+                    "color": "#EDF1F5",
+                    "spacing": {
+                      "start": 16,
+                      "end": 16
+                    }
+                  },
+                  "weight": 1,
+                  "emptySectionId": "country_list_empty_state"
+                },
+                "groups": [
+                  {
+                    "id": "country_row",
+                    "type": "stack_group",
+                    "properties": {
+                      "orientation": "horizontal",
+                      "fillMaxWidth": true,
+                      "verticalAlignment": "center",
+                      "padding": {
+                        "start": 16,
+                        "top": 0,
+                        "end": 16,
+                        "bottom": 0
+                      },
+                      "background": {
+                        "color": "#FFFFFF"
+                      },
+                      "selectedStyle": {
+                        "background": {
+                          "color": "#DCEBFC"
+                        }
+                      },
+                      "horizontalArrangement": {
+                        "type": "spacedBy",
+                        "spacing": 12
+                      },
+                      "height": 49
+                    },
+                    "elements": [
+                      {
+                        "id": "country_flag",
+                        "type": "image",
+                        "properties": {
+                          "source": {
+                            "type": "resource",
+                            "value": {
+                              "$item": "flagAsset"
+                            }
+                          },
+                          "width": 24,
+                          "height": 18,
+                          "contentScale": "fit"
+                        }
+                      },
+                      {
+                        "id": "country_name",
+                        "type": "text",
+                        "properties": {
+                          "text": {
+                            "$item": "name"
+                          },
+                          "fontSize": 14,
+                          "fontWeight": 400,
+                          "color": "#18263B",
+                          "weight": 1,
+                          "maxLines": 1,
+                          "overflow": "ellipsis"
+                        }
+                      },
+                      {
+                        "id": "country_dial_code",
+                        "type": "text",
+                        "properties": {
+                          "text": {
+                            "$item": "dialCode"
+                          },
+                          "fontSize": 13,
+                          "fontWeight": 400,
+                          "color": "#64748B",
+                          "maxLines": 1,
+                          "overflow": "ellipsis"
+                        }
+                      },
+                      {
+                        "id": "selected_indicator",
+                        "type": "icon",
+                        "properties": {
+                          "source": {
+                            "type": "resource",
+                            "value": "icons/check_circle_blue"
+                          },
+                          "size": 18,
+                          "visibleWhen": {
+                            "selected": true
+                          },
+                          "reserveSpaceWhenHidden": true
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "country_list_empty_state",
+                "type": "stack_section",
+                "groups": [
+                  {
+                    "id": "empty_content",
+                    "type": "stack_group",
+                    "properties": {
+                      "orientation": "vertical",
+                      "fillMaxWidth": true,
+                      "horizontalAlignment": "center",
+                      "padding": {
+                        "start": 28,
+                        "top": 28,
+                        "end": 28,
+                        "bottom": 28
+                      }
+                    },
+                    "elements": [
+                      {
+                        "id": "empty_title",
+                        "type": "text",
+                        "properties": {
+                          "text": "No countries found",
+                          "fontSize": 14,
+                          "fontWeight": 400,
+                          "color": "#64748B",
+                          "textAlign": "center"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "theme": {
+      "theme": "light",
+      "statusBar": "transparent",
+      "properties": {
+        "gradient": {
+          "type": "linear",
+          "angle": 135,
+          "colors": [
+            {
+              "color": "#DDF8F6",
+              "stop": 0
+            },
+            {
+              "color": "#F7FEFD",
+              "stop": 0.28
+            },
+            {
+              "color": "#FFFFFF",
+              "stop": 0.55
+            },
+            {
+              "color": "#D9F7F4",
+              "stop": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

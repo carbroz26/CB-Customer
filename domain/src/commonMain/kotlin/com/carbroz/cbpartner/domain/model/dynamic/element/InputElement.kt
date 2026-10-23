@@ -17,6 +17,7 @@ data class InputElement(
     val placeholder: String? = null,
     val keyboardType: String = "text",
     val fontSize: Double? = null,
+    val lineHeight: Double? = null,
     val fontWeight: Int? = null,
     val textColor: String? = null,
     val textAlign: String? = null,

@@ -71,6 +71,7 @@ class FormFieldSection : SectionRenderer<FormFieldSectionModel> {
             modifier = Modifier.applyDynamicSpacing(style.spacing),
             color = style.color?.toColor() ?: Color.Unspecified,
             fontSize = style.fontSize?.sp ?: TextUnit.Unspecified,
+            lineHeight = style.lineHeight?.sp ?: TextUnit.Unspecified,
             fontWeight = style.fontWeight?.let(::FontWeight),
         )
     }

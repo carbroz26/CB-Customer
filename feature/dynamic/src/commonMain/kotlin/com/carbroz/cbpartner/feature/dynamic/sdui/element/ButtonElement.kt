@@ -69,6 +69,7 @@ class ButtonElement : ElementRenderer<ButtonElementModel> {
                         text = element.text,
                         color = element.textColor?.toColor() ?: Color.Unspecified,
                         fontSize = element.fontSize?.sp ?: TextUnit.Unspecified,
+                        lineHeight = element.lineHeight?.sp ?: TextUnit.Unspecified,
                         fontWeight = element.fontWeight?.let(::FontWeight),
                     )
                     context.renderContent(element.trailingContent)
