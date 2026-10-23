@@ -132,7 +132,9 @@ class DynamicFormValidator(
 
     private fun invalidMessage(validation: DynamicValidation, text: String): String =
         validation.lengthMessages.firstOrNull { rule ->
-            (rule.minLength == null || text.length >= rule.minLength) &&
-                (rule.maxLength == null || text.length <= rule.maxLength)
+            val minLength = rule.minLength
+            val maxLength = rule.maxLength
+            (minLength == null || text.length >= minLength) &&
+                (maxLength == null || text.length <= maxLength)
         }?.message ?: validation.message ?: "Invalid value"
 }
