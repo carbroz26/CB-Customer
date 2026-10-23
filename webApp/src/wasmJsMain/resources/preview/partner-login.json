@@ -70,11 +70,11 @@
                         "type": "resource",
                         "value": "images/cb_partner_logo"
                       },
-                      "width": 28,
-                      "height": 28,
+                      "width": 26,
+                      "height": 30,
                       "contentScale": "fit",
                       "spacing": {
-                        "end": 8
+                        "end": 9
                       }
                     }
                   }
@@ -105,7 +105,7 @@
                 "text": "Access your partner account",
                 "fontSize": 16,
                 "fontWeight": 400,
-                "color": "#6B7280",
+                "color": "#64748B",
                 "textAlign": "center"
               }
             }
@@ -222,7 +222,7 @@
                         "fontSize": 15,
                         "fontWeight": 600,
                         "color": "#18263B",
-                        "minHeight": 44,
+                        "minHeight": 56,
                         "padding": {
                           "start": 12,
                           "end": 8
@@ -254,9 +254,9 @@
                                 "type": "resource",
                                 "value": "icons/chevron_down"
                               },
-                              "size": 16,
+                              "size": 12,
                               "spacing": {
-                                "start": 4
+                                "start": 5
                               }
                             }
                           }
@@ -280,7 +280,7 @@
                         "thickness": 1,
                         "color": "#D1D5DB",
                         "spacing": {
-                          "start": 8,
+                          "start": 0,
                           "end": 12
                         }
                       }
@@ -339,7 +339,7 @@
                 "orientation": "vertical",
                 "fillMaxWidth": true,
                 "padding": {
-                  "bottom": 12
+                  "bottom": 16
                 }
               },
               "elements": [
@@ -350,15 +350,15 @@
                     "text": "Continue",
                     "height": 56,
                     "fillMaxWidth": true,
-                    "fontSize": 18,
+                    "fontSize": 16,
                     "fontWeight": 600,
                     "textColor": "#FFFFFF",
                     "background": {
-                      "color": "#0A3A8D"
+                      "color": "#1769D2"
                     },
                     "shape": {
                       "type": "roundedCorner",
-                      "cornerRadius": 16
+                      "cornerRadius": 14
                     },
                     "loading": {
                       "whileActionPending": true,
@@ -414,16 +414,27 @@
                   "id": "legal_text",
                   "type": "text",
                   "properties": {
-                    "fontSize": 13,
+                    "text": "By continuing, you agree to our",
+                    "fontSize": 12,
                     "fontWeight": 400,
-                    "lineHeight": 19,
+                    "color": "#6B7280",
+                    "textAlign": "center",
+                    "fillMaxWidth": true,
+                    "spacing": {
+                      "bottom": 4
+                    }
+                  }
+                },
+                {
+                  "id": "legal_links",
+                  "type": "text",
+                  "properties": {
+                    "fontSize": 12,
+                    "fontWeight": 400,
                     "color": "#6B7280",
                     "textAlign": "center",
                     "fillMaxWidth": true,
                     "spans": [
-                      {
-                        "text": "By continuing, you agree to our "
-                      },
                       {
                         "text": "Terms & Conditions",
                         "color": "#0A3A8D",
@@ -438,7 +449,7 @@
                         }
                       },
                       {
-                        "text": " and "
+                        "text": "   |   "
                       },
                       {
                         "text": "Privacy Policy",
@@ -527,8 +538,8 @@
                     "type": "spaceBetween"
                   },
                   "padding": {
-                    "start": 24,
-                    "top": 12,
+                    "start": 20,
+                    "top": 8,
                     "end": 16,
                     "bottom": 16
                   }
@@ -539,8 +550,8 @@
                     "type": "text",
                     "properties": {
                       "text": "Select country code",
-                      "fontSize": 20,
-                      "fontWeight": 700,
+                      "fontSize": 18,
+                      "fontWeight": 600,
                       "color": "#0A3A8D",
                       "maxLines": 1,
                       "overflow": "ellipsis"
@@ -555,8 +566,8 @@
                         "value": "icons/close"
                       },
                       "size": 20,
-                      "minHeight": 44,
-                      "minWidth": 44
+                      "minHeight": 32,
+                      "minWidth": 32
                     },
                     "actions": {
                       "onClick": {
@@ -574,7 +585,7 @@
                   "fillMaxWidth": true,
                   "padding": {
                     "start": 16,
-                    "top": 8,
+                    "top": 0,
                     "end": 16,
                     "bottom": 8
                   }
@@ -587,15 +598,15 @@
                       "placeholder": "Search country or code...",
                       "singleLine": true,
                       "keyboardType": "text",
-                      "fontSize": 14,
+                      "fontSize": 13,
                       "fontWeight": 400,
-                      "textColor": "#111827",
+                      "textColor": "#18263B",
                       "placeholderColor": "#94A3B8",
-                      "height": 44,
+                      "height": 46,
                       "fillMaxWidth": true,
                       "border": {
                         "width": 1,
-                        "color": "#DCE6F3"
+                        "color": "#D6E2F0"
                       },
                       "focusBorder": {
                         "width": 1,
@@ -603,7 +614,7 @@
                       },
                       "shape": {
                         "type": "roundedCorner",
-                        "cornerRadius": 10
+                        "cornerRadius": 9
                       },
                       "padding": {
                         "start": 12,
@@ -619,9 +630,9 @@
                               "type": "resource",
                               "value": "icons/search"
                             },
-                            "size": 18,
+                            "size": 16,
                             "spacing": {
-                              "end": 8
+                              "end": 9
                             }
                           }
                         }
@@ -682,12 +693,11 @@
                       "orientation": "horizontal",
                       "fillMaxWidth": true,
                       "verticalAlignment": "center",
-                      "minHeight": 44,
                       "padding": {
                         "start": 16,
-                        "top": 8,
+                        "top": 0,
                         "end": 16,
-                        "bottom": 8
+                        "bottom": 0
                       },
                       "background": {
                         "color": "#FFFFFF"
@@ -700,7 +710,8 @@
                       "horizontalArrangement": {
                         "type": "spacedBy",
                         "spacing": 12
-                      }
+                      },
+                      "height": 49
                     },
                     "elements": [
                       {
@@ -726,7 +737,7 @@
                             "$item": "name"
                           },
                           "fontSize": 14,
-                          "fontWeight": 500,
+                          "fontWeight": 400,
                           "color": "#18263B",
                           "weight": 1,
                           "maxLines": 1,
@@ -778,50 +789,22 @@
                       "fillMaxWidth": true,
                       "horizontalAlignment": "center",
                       "padding": {
-                        "start": 20,
-                        "top": 32,
-                        "end": 20,
-                        "bottom": 32
-                      },
-                      "verticalArrangement": {
-                        "type": "spacedBy",
-                        "spacing": 8
+                        "start": 28,
+                        "top": 28,
+                        "end": 28,
+                        "bottom": 28
                       }
                     },
                     "elements": [
-                      {
-                        "id": "empty_icon",
-                        "type": "icon",
-                        "properties": {
-                          "source": {
-                            "type": "resource",
-                            "value": "icons/search_empty"
-                          },
-                          "size": 40
-                        }
-                      },
                       {
                         "id": "empty_title",
                         "type": "text",
                         "properties": {
                           "text": "No countries found",
-                          "fontSize": 16,
-                          "fontWeight": 600,
-                          "color": "#111827",
-                          "textAlign": "center"
-                        }
-                      },
-                      {
-                        "id": "empty_description",
-                        "type": "text",
-                        "properties": {
-                          "text": "Try searching with a different name or dial code.",
-                          "fontSize": 13,
+                          "fontSize": 14,
                           "fontWeight": 400,
                           "color": "#64748B",
-                          "textAlign": "center",
-                          "maxLines": 3,
-                          "overflow": "ellipsis"
+                          "textAlign": "center"
                         }
                       }
                     ]
