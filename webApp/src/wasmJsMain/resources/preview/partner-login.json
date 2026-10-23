@@ -58,9 +58,9 @@
               "type": "text",
               "properties": {
                 "text": "CB-Partner",
-                "fontSize": 24,
+                "fontSize": 28,
                 "fontWeight": 700,
-                "color": "#092F74",
+                "color": "#0A337F",
                 "textAlign": "center",
                 "leading": [
                   {
@@ -82,7 +82,7 @@
                 "spacing": {
                   "bottom": 12
                 },
-                "lineHeight": 32
+                "lineHeight": 36
               }
             },
             {
@@ -90,15 +90,15 @@
               "type": "text",
               "properties": {
                 "text": "Welcome back",
-                "fontSize": 40,
+                "fontSize": 44,
                 "fontWeight": 800,
-                "color": "#092F74",
+                "color": "#0A337F",
                 "textAlign": "start",
                 "fillMaxWidth": true,
                 "spacing": {
                   "bottom": 8
                 },
-                "lineHeight": 48
+                "lineHeight": 52
               }
             },
             {
@@ -106,12 +106,12 @@
               "type": "text",
               "properties": {
                 "text": "Access your partner account",
-                "fontSize": 18,
+                "fontSize": 19,
                 "fontWeight": 500,
-                "color": "#52769F",
+                "color": "#5C79A3",
                 "textAlign": "start",
                 "fillMaxWidth": true,
-                "lineHeight": 27
+                "lineHeight": 28
               }
             }
           ]
@@ -196,7 +196,7 @@
                     "text": "Mobile number",
                     "fontSize": 16,
                     "fontWeight": 700,
-                    "color": "#0A3A8D",
+                    "color": "#0A337F",
                     "spacing": {
                       "bottom": 8
                     }
@@ -221,8 +221,8 @@
                           "$binding": "countryCode"
                         },
                         "fontSize": 16,
-                        "fontWeight": 600,
-                        "color": "#0A3A8D",
+                        "fontWeight": 700,
+                        "color": "#0A337F",
                         "minHeight": 56,
                         "padding": {
                           "start": 12,
@@ -295,10 +295,10 @@
                         "keyboardType": "phone",
                         "inputFilter": "digits",
                         "maxLength": 15,
-                        "fontSize": 17,
+                        "fontSize": 16,
                         "fontWeight": 400,
                         "textColor": "#111827",
-                        "placeholderColor": "#91A6C1",
+                        "placeholderColor": "#A5B6CC",
                         "weight": 1,
                         "padding": {
                           "start": 12,
@@ -434,7 +434,7 @@
                     "text": "By continuing, you agree to our",
                     "fontSize": 13,
                     "fontWeight": 400,
-                    "color": "#7B8EA9",
+                    "color": "#8798AE",
                     "textAlign": "center",
                     "fillMaxWidth": true,
                     "spacing": {
@@ -454,7 +454,7 @@
                     "spans": [
                       {
                         "text": "Terms & Conditions",
-                        "color": "#176AD6",
+                        "color": "#1A63CC",
                         "underline": true,
                         "onClick": {
                           "type": "external_uri",
@@ -470,7 +470,7 @@
                       },
                       {
                         "text": "Privacy Policy",
-                        "color": "#176AD6",
+                        "color": "#1A63CC",
                         "underline": true,
                         "onClick": {
                           "type": "external_uri",
