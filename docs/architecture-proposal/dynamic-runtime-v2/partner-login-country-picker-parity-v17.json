@@ -270,7 +270,7 @@
                             "properties": {
                               "source": {
                                 "type": "resource",
-                                "value": "icons/chevron_down"
+                                "value": "icons/chevron_down_02"
                               },
                               "size": 12,
                               "spacing": {
@@ -598,7 +598,7 @@
                     "properties": {
                       "source": {
                         "type": "resource",
-                        "value": "icons/close"
+                        "value": "icons/close_02"
                       },
                       "size": 20,
                       "minHeight": 32,
@@ -663,7 +663,7 @@
                           "properties": {
                             "source": {
                               "type": "resource",
-                              "value": "icons/search"
+                              "value": "icons/search_02"
                             },
                             "size": 16,
                             "spacing": {

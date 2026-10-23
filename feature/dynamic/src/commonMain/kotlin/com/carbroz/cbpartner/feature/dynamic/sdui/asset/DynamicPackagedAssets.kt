@@ -41,13 +41,13 @@ internal fun packagedAssetResource(key: String): DrawableResource? = when (key) 
     "flags/us" -> Res.drawable.flag_us
     "icons/chevron_down" -> Res.drawable.icon_chevron_down
     "icons/chevron_down_01" -> Res.drawable.icon_chevron_down_01
-    "icons/chevron_down" -> Res.drawable.icon_chevron_down_02
+    "icons/chevron_down_02" -> Res.drawable.icon_chevron_down_02
     "icons/search" -> Res.drawable.icon_search
     "icons/search_01" -> Res.drawable.icon_search_01
-    "icons/search" -> Res.drawable.icon_search_02
+    "icons/search_02" -> Res.drawable.icon_search_02
     "icons/close" -> Res.drawable.icon_close
     "icons/close_01" -> Res.drawable.icon_close_01
-    "icons/close" -> Res.drawable.icon_close_02
+    "icons/close_02" -> Res.drawable.icon_close_02
     "icons/check_circle_blue" -> Res.drawable.icon_check_circle_blue
     "icons/error_alert_icon_01" -> Res.drawable.error_alert_icon_01
     else -> null
