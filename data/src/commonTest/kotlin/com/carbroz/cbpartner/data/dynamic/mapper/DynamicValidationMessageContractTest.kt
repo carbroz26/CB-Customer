@@ -37,7 +37,7 @@ class DynamicValidationMessageContractTest {
             {"minLength":11,"message":"Wrong length"}]}}"""
     private val inlineValidation = """{"binding":"phone",
         "errorBorder":{"width":1,"color":"#DC2626"},
-        "messageStyle":{"fontSize":12,"lineHeight":20,"spacing":{"top":6},"reserveHeight":24}}"""
+        "messageStyle":{"fontSize":12,"lineHeight":20,"spacing":{"top":6}}}"""
 
     @Test
     fun directFieldsCanBeReusedForFirstAndLastNameWithoutGroup() {
@@ -55,7 +55,7 @@ class DynamicValidationMessageContractTest {
     }
 
     @Test
-    fun compositePhoneMapsOneBoundInputAndReservedMessageWithoutGroupValidation() {
+    fun compositePhoneMapsOneBoundInputAndConditionalMessageWithoutGroupValidation() {
         val field = parse(compositeField())
         assertNull(field.controlInput)
         val group = assertIs<StackGroup>(field.controlGroup)
@@ -64,7 +64,6 @@ class DynamicValidationMessageContractTest {
         assertNull(group.border)
         assertNull(group.shape)
         assertEquals("phone", field.inputBinding)
-        assertEquals(24.0, field.validationPresentation?.messageStyle?.reserveHeight)
         assertEquals(20.0, field.validationPresentation?.messageStyle?.lineHeight)
         assertEquals(1.0, field.validationPresentation?.errorBorder?.width)
         val input = assertIs<InputElement>(group.elements.last())
@@ -72,7 +71,7 @@ class DynamicValidationMessageContractTest {
         assertEquals("Invalid", input.validation?.message)
         assertEquals(2, input.validation?.lengthMessages?.size)
         assertEquals(true, input.validation?.clearOnEdit)
-        assertEquals(24.0, field.padding?.bottom)
+        assertEquals(16.0, field.padding?.bottom)
         assertEquals(12.0, input.padding?.start)
         assertEquals(24.0, input.lineHeight)
         assertNotNull(input.validationStyle?.background)
@@ -87,7 +86,7 @@ class DynamicValidationMessageContractTest {
             direct.replace("\"key\":\"firstName\"", "\"key\":\"\""),
             direct.replace("\"horizontalAlignment\":\"start\"", "\"horizontalAlignment\":\"baseline\""),
             direct.replace("\"height\":56", "\"height\":0"),
-            compositeField().replace("\"reserveHeight\":24", "\"reserveHeight\":0"),
+            compositeField().replace("\"fontSize\":12", "\"reserveHeight\":24,\"fontSize\":12"),
             compositeField().replace("\"lineHeight\":20", "\"lineHeight\":0"),
             compositeField().replace("\"binding\":\"phone\"", "\"binding\":\"mismatch\""),
             compositeField().replace("\"orientation\":\"horizontal\"", "\"orientation\":\"horizontal\",\"border\":{\"width\":1,\"color\":\"#CCCCCC\"}"),
@@ -114,7 +113,7 @@ class DynamicValidationMessageContractTest {
 
     private fun compositeField() = """{"id":"field","type":"form_field_section",
         "properties":{"horizontalAlignment":"start","fillMaxWidth":true,
-            "padding":{"bottom":24},
+            "padding":{"bottom":16},
             "controlSurface":$surface,
             "focusPresentation":{"binding":"phone","border":{"width":1,"color":"#0A3A8D"}},
             "validationPresentation":$inlineValidation},

@@ -54,12 +54,10 @@ class FormFieldSection : SectionRenderer<FormFieldSectionModel> {
                 section.controlInput?.let { context.renderElement(it) }
                 section.controlGroup?.let { context.renderGroup(it) }
             }
+            // No empty slot: inline message occupies space only while error is present.
             val style = section.validationPresentation?.messageStyle
-            val reserved = style?.reserveHeight
-            if (reserved != null && style != null) {
-                Box(modifier = Modifier.fillMaxWidth().height(reserved.dp)) {
-                    if (error != null) RenderMessage(error, style)
-                }
+            if (error != null && style != null) {
+                RenderMessage(error, style)
             }
         }
     }

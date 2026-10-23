@@ -13,7 +13,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/** Renderer-independent focus/error priority and invariant reserved-space sizing. */
+/** Renderer-independent border priority and error-style wiring. */
 class FormFieldSectionContractTest {
     @Test
     fun fieldBorderPriorityIsErrorThenFocusThenNormal() {
@@ -31,15 +31,15 @@ class FormFieldSectionContractTest {
             focusPresentation = DynamicFocusPresentation("field", focus),
             validationPresentation = DynamicValidationPresentation(
                 "field", error,
-                DynamicValidationMessageStyle(reserveHeight = 24.0),
+                DynamicValidationMessageStyle(fontSize = 14.0, lineHeight = 20.0),
             ),
         )
         assertEquals(normal, field.resolvedControlBorder(false, false))
         assertEquals(focus, field.resolvedControlBorder(true, false))
         assertEquals(error, field.resolvedControlBorder(false, true))
         assertEquals(error, field.resolvedControlBorder(true, true))
-        val reservedSlot = field.validationPresentation?.messageStyle?.reserveHeight
-        assertEquals(24.0, reservedSlot)
-        assertEquals(80.0, field.controlSurface.height + requireNotNull(reservedSlot))
+        assertEquals(56.0, field.controlSurface.height)
+        assertEquals(14.0, field.validationPresentation?.messageStyle?.fontSize)
+        assertEquals(20.0, field.validationPresentation?.messageStyle?.lineHeight)
     }
 }

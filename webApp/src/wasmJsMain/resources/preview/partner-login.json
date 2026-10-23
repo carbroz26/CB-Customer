@@ -179,8 +179,7 @@
                     "spacing": {
                       "top": 6
                     },
-                    "reserveHeight": 32,
-                    "lineHeight": 20
+                                        "lineHeight": 20
                   }
                 },
                 "padding": {

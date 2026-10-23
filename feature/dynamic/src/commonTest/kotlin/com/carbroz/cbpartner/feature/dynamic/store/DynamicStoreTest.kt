@@ -1379,7 +1379,7 @@ class DynamicStoreTest {
             validationPresentation = DynamicValidationPresentation(
                 binding = "phone",
                 errorBorder = DynamicBorder(1.0, "#FF0000"),
-                messageStyle = DynamicValidationMessageStyle(reserveHeight = 24.0),
+                messageStyle = DynamicValidationMessageStyle(fontSize = 14.0, lineHeight = 20.0),
             ),
         )
         val screen = DynamicScreen(

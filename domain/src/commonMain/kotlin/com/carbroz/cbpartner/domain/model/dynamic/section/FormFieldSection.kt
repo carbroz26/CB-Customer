@@ -28,7 +28,7 @@ data class FormFieldControlSurface(
 }
 
 /**
- * One reusable label + one bound input (direct or composite) + optional error slot.
+ * One reusable label + one bound input (direct or composite) + conditional error message.
  * Validation is calculated by DynamicFormValidator, never by this Section.
  */
 data class FormFieldSection(
@@ -62,12 +62,6 @@ data class FormFieldSection(
         require(input.binding?.key == inputBinding) { "Form field needs exactly one matching bound input" }
         require(input.validation == null || validationPresentation != null) {
             "Validated FormFieldSection requires inline validation presentation"
-        }
-        if (validationPresentation != null) {
-            val reserved = validationPresentation.messageStyle?.reserveHeight
-            require(reserved != null && reserved.isFinite() && reserved > 0.0) {
-                "Form field inline validation requires a positive reserved message height"
-            }
         }
     }
 

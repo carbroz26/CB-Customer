@@ -145,13 +145,8 @@ class SectionMapper(
             val style = raw["messageStyle"] as? JsonObject
                 ?: error("FormFieldSection messageStyle is required")
             require(style.keys.all { it in setOf("fontSize", "fontWeight", "color",
-                "spacing", "reserveHeight", "lineHeight") }) {
+                "spacing", "lineHeight") }) {
                 "Unsupported FormFieldSection messageStyle property"
-            }
-            val reserveHeight = values.number(style, "reserveHeight")
-                ?: error("FormFieldSection reserveHeight must be numeric")
-            require(reserveHeight.isFinite() && reserveHeight > 0.0) {
-                "FormFieldSection reserveHeight must be positive and finite"
             }
             DynamicValidationPresentation(
                 binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
@@ -168,7 +163,6 @@ class SectionMapper(
                     fontWeight = values.number(style, "fontWeight")?.toInt(),
                     color = values.string(style, "color"),
                     spacing = values.spacing(style),
-                    reserveHeight = reserveHeight,
                 ),
             )
         }
