@@ -68,24 +68,7 @@ class InputSurfaceLayoutContractTest {
     @Test
     fun mapsSearchInputSurfaceWithLeadingContentAndInternalInsets() {
         val response = parse(
-            """{"status":200,"code":"SUCCESS","message":"OK","data":{
-                "screenId":"search_surface","schemaVersion":"3.0.0","targetApp":"PARTNER",
-                "template":{"id":"tpl_search","type":"form_template"},
-                "presentations":[{"id":"search","type":"bottom_sheet",
-                    "components":[{"id":"picker","type":"stack_component",
-                        "sections":[{"id":"search_row","type":"stack_section","elements":[{
-                            "id":"search_input","type":"input","binding":{"key":"query"},
-                            "properties":{"height":46,"fillMaxWidth":true,"textAlign":"start",
-                                "padding":{"start":12,"end":12},
-                                "border":{"width":1,"color":"#D6E2F0"},
-                                "shape":{"type":"roundedCorner","cornerRadius":9},
-                                "leading":[{"type":"icon","properties":{
-                                    "source":{"type":"resource","value":"icons/search"},
-                                    "size":16,"spacing":{"end":9}}]}
-                            }
-                        }]}]}]
-                }]
-            }}""",
+            """{"status":200,"code":"SUCCESS","message":"OK","data":{"screenId":"search_surface","schemaVersion":"3.0.0","targetApp":"PARTNER","template":{"id":"tpl_search","type":"form_template"},"presentations":[{"id":"search","type":"bottom_sheet","components":[{"id":"picker","type":"stack_component","sections":[{"id":"search_row","type":"stack_section","elements":[{"id":"search_input","type":"input","binding":{"key":"query"},"properties":{"height":46,"fillMaxWidth":true,"textAlign":"start","padding":{"start":12,"end":12},"border":{"width":1,"color":"#D6E2F0"},"shape":{"type":"roundedCorner","cornerRadius":9},"leading":[{"type":"icon","properties":{"source":{"type":"resource","value":"icons/search"},"size":16,"spacing":{"end":9}}}]}}]}]}]}]}}""",
         )
         val screen = assertNotNull(response.data)
         val sheet = assertIs<BottomSheetPresentation>(screen.presentations.single())
