@@ -50,12 +50,13 @@ class DynamicAssetImageTest {
         assertFalse(validPackagedAssetId("../private"))
         assertFalse(validPackagedAssetId("icons/close.png"))
         for (key in listOf(
-            "images/cb_partner_logo", "images/cb_partner_logo_02",
-            "images/partner_login_hero", "images/partner_login_hero_02", "images/partner_login_hero_04",
+            "images/cb_partner_logo", "images/cb_partner_logo_02", "images/cb_partner_logo_03",
+            "images/partner_login_hero", "images/partner_login_hero_02", "images/partner_login_hero_04", "images/partner_login_hero_05", "images/partner_login_hero_06",
             "flags/in", "flags/us",
             "icons/chevron_down", "icons/search",
             "icons/close", "icons/check_circle_blue",
             "icons/chevron_down_01", "icons/search_01", "icons/close_01",
+            "icons/chevron_down_02", "icons/search_02", "icons/close_02",
             "icons/error_alert_icon_01",
         )) assertNotNull(packagedAssetResource(key), "Missing explicit packaged asset: " + key)
         assertNull(packagedAssetResource("flags/gb"))

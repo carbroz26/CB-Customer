@@ -1,6 +1,11 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.asset
 
 import org.jetbrains.compose.resources.DrawableResource
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero_06
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_search_02
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_close_02
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_chevron_down_02
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.cb_partner_logo_03
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero_04
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero_05
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_search_01
@@ -26,18 +31,23 @@ internal fun validPackagedAssetId(key: String): Boolean =
 internal fun packagedAssetResource(key: String): DrawableResource? = when (key) {
     "images/cb_partner_logo" -> Res.drawable.cb_partner_logo
     "images/cb_partner_logo_02" -> Res.drawable.cb_partner_logo_02
+    "images/cb_partner_logo_03" -> Res.drawable.cb_partner_logo_03
     "images/partner_login_hero" -> Res.drawable.partner_login_hero
     "images/partner_login_hero_02" -> Res.drawable.partner_login_hero_02
     "images/partner_login_hero_04" -> Res.drawable.partner_login_hero_04
     "images/partner_login_hero_05" -> Res.drawable.partner_login_hero_05
+    "images/partner_login_hero_06" -> Res.drawable.partner_login_hero_06
     "flags/in" -> Res.drawable.flag_in
     "flags/us" -> Res.drawable.flag_us
     "icons/chevron_down" -> Res.drawable.icon_chevron_down
     "icons/chevron_down_01" -> Res.drawable.icon_chevron_down_01
+    "icons/chevron_down" -> Res.drawable.icon_chevron_down_02
     "icons/search" -> Res.drawable.icon_search
     "icons/search_01" -> Res.drawable.icon_search_01
+    "icons/search" -> Res.drawable.icon_search_02
     "icons/close" -> Res.drawable.icon_close
     "icons/close_01" -> Res.drawable.icon_close_01
+    "icons/close" -> Res.drawable.icon_close_02
     "icons/check_circle_blue" -> Res.drawable.icon_check_circle_blue
     "icons/error_alert_icon_01" -> Res.drawable.error_alert_icon_01
     else -> null

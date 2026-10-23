@@ -31,7 +31,7 @@
         "backgroundImage": {
           "source": {
             "type": "resource",
-            "value": "images/partner_login_hero_05"
+            "value": "images/partner_login_hero_06"
           },
           "contentScale": "crop",
           "alignment": "center"
@@ -68,7 +68,7 @@
                     "properties": {
                       "source": {
                         "type": "resource",
-                        "value": "images/cb_partner_logo_02"
+                        "value": "images/cb_partner_logo_03"
                       },
                       "width": 44,
                       "height": 44,
@@ -270,7 +270,7 @@
                             "properties": {
                               "source": {
                                 "type": "resource",
-                                "value": "icons/chevron_down_01"
+                                "value": "icons/chevron_down"
                               },
                               "size": 12,
                               "spacing": {
@@ -598,7 +598,7 @@
                     "properties": {
                       "source": {
                         "type": "resource",
-                        "value": "icons/close_01"
+                        "value": "icons/close"
                       },
                       "size": 20,
                       "minHeight": 32,
@@ -663,7 +663,7 @@
                           "properties": {
                             "source": {
                               "type": "resource",
-                              "value": "icons/search_01"
+                              "value": "icons/search"
                             },
                             "size": 16,
                             "spacing": {
