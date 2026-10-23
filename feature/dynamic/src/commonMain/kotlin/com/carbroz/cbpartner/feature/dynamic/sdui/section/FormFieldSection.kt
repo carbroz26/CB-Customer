@@ -59,7 +59,7 @@ class FormFieldSection : SectionRenderer<FormFieldSectionModel> {
             }
             val style = section.validationPresentation?.messageStyle
             val reserved = style?.reserveHeight
-            if (reserved != null) {
+            if (reserved != null && style != null) {
                 Box(modifier = Modifier.fillMaxWidth().height(reserved.dp)) {
                     if (error != null) RenderMessage(error, style)
                 }

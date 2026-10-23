@@ -56,8 +56,10 @@ data class FormFieldSection(
         require(validationPresentation == null || validationPresentation.binding == inputBinding) {
             "Form field validation binding must match input binding"
         }
-        val input = controlInput ?: controlGroup?.elements?.filterIsInstance<InputElement>()?.singleOrNull()
-        require(input?.binding?.key == inputBinding) { "Form field needs exactly one matching bound input" }
+        val input = requireNotNull(
+            controlInput ?: controlGroup?.elements?.filterIsInstance<InputElement>()?.singleOrNull(),
+        ) { "Form field needs exactly one bound input" }
+        require(input.binding?.key == inputBinding) { "Form field needs exactly one matching bound input" }
         require(input.validation == null || validationPresentation != null) {
             "Validated FormFieldSection requires inline validation presentation"
         }
