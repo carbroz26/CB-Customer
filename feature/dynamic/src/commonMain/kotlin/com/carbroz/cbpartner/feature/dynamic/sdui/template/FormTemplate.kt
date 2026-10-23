@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -42,11 +43,12 @@ class FormTemplate : TemplateRenderer<FormTemplateModel> {
                 )
             }
 
-            // Keep Header, Body and Footer inside safe drawing bounds without changing
-            // backend-authored layout properties or clipping the background.
+            // Keep Header, Body and Footer above system bars and the keyboard.
+            // Insets are consumed by Compose; neither changes authored spacing or clips the hero.
             Box(
                 modifier = (if (template.fillMaxSize) Modifier.fillMaxSize() else Modifier)
-                    .safeDrawingPadding(),
+                    .safeDrawingPadding()
+                    .imePadding(),
             ) {
                 RenderTemplateContent(template, context)
             }
