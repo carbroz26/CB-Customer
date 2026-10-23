@@ -191,7 +191,10 @@ class DynamicStore(
 
         var next = current.copy(bindings = bindings)
         if (current.validationErrors.isNotEmpty()) {
-            next = revalidateScreen(next)
+            val clearEditedError = current.response?.data?.let {
+                validator.clearsErrorOnEdit(it, key)
+            } == true
+            next = revalidateScreen(next, suppressedBinding = key.takeIf { clearEditedError })
         }
         reduce(next)
     }
@@ -579,7 +582,10 @@ class DynamicStore(
             )
         }
 
-    private fun revalidateScreen(current: DynamicScreenState): DynamicScreenState {
+    private fun revalidateScreen(
+        current: DynamicScreenState,
+        suppressedBinding: String? = null,
+    ): DynamicScreenState {
         val screen = current.response?.data ?: return current
         return runCatching {
             validator.validate(
@@ -587,6 +593,7 @@ class DynamicStore(
                 bindings = current.bindings,
                 context = contextProvider(),
                 state = runtimeState.values.value,
+                suppressedBinding = suppressedBinding,
             )
         }.fold(
             onSuccess = { result ->

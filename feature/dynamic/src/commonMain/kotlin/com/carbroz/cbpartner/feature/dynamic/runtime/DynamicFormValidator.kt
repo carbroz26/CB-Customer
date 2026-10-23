@@ -25,8 +25,9 @@ class DynamicFormValidator(
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue> = emptyMap(),
         state: Map<String, DynamicValue> = emptyMap(),
+        suppressedBinding: String? = null,
     ): DynamicValidationResult =
-        validateComponents(screen.template.components, bindings, context, state)
+        validateComponents(screen.template.components, bindings, context, state, suppressedBinding)
 
     fun validate(
         presentation: DynamicPresentation,
@@ -36,39 +37,45 @@ class DynamicFormValidator(
     ): DynamicValidationResult =
         validateComponents(presentation.components, bindings, context, state)
 
+
+    /** Generic, backend-authored policy: only the edited Input's error may clear. */
+    fun clearsErrorOnEdit(screen: DynamicScreen, binding: String): Boolean =
+        elements(screen.template.components)
+            .filterIsInstance<InputElement>()
+            .any { it.binding?.key == binding && it.validation?.clearOnEdit == true }
+
     private fun validateComponents(
         components: List<DynamicComponent>,
         bindings: Map<String, DynamicValue>,
         context: Map<String, DynamicValue>,
         state: Map<String, DynamicValue>,
+        suppressedBinding: String? = null,
     ): DynamicValidationResult {
         val presentedBindings = validationPresentedBindings(components)
         val errors = linkedMapOf<String, String>()
 
-        components.forEach { component ->
-            component.elements.forEach { element ->
-                validateElement(element, bindings, context, state)?.let { (key, message) ->
-                    if (key !in errors) errors[key] = message
-                }
-            }
-            component.sections.forEach { section ->
-                section.elements.forEach { element ->
-                    validateElement(element, bindings, context, state)?.let { (key, message) ->
-                        if (key !in errors) errors[key] = message
-                    }
-                }
-                section.groups.forEach { group ->
-                    group.elements.forEach { element ->
-                        validateElement(element, bindings, context, state)?.let { (key, message) ->
-                            if (key !in errors) errors[key] = message
-                        }
-                    }
-                }
+        elements(components).forEach { element ->
+            if (element is InputElement && element.binding?.key == suppressedBinding &&
+                suppressedBinding != null
+            ) return@forEach
+            validateElement(element, bindings, context, state)?.let { (key, message) ->
+                if (key !in errors) errors[key] = message
             }
         }
 
         val fallback = errors.entries.firstOrNull { it.key !in presentedBindings }?.value
         return DynamicValidationResult(errors, fallback)
+    }
+
+    /** Common traversal for validation and authored on-edit behavior. */
+    private fun elements(components: List<DynamicComponent>): Sequence<DynamicElement> = sequence {
+        components.forEach { component ->
+            yieldAll(component.elements)
+            component.sections.forEach { section ->
+                yieldAll(section.elements)
+                section.groups.forEach { group -> yieldAll(group.elements) }
+            }
+        }
     }
 
     private fun validationPresentedBindings(

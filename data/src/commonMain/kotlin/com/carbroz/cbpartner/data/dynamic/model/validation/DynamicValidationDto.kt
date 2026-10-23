@@ -10,6 +10,7 @@ data class DynamicValidationDto(
     val message: String? = null,
     val requiredMessage: String? = null,
     val lengthMessages: List<DynamicValidationLengthMessageDto> = emptyList(),
+    val clearOnEdit: Boolean = false,
     val validator: DynamicValidatorDto? = null,
 )
 

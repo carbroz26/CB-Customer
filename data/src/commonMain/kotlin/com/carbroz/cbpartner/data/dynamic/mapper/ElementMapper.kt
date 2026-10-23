@@ -258,6 +258,7 @@ class ElementMapper(
             message = it.message,
             validator = validator,
             requiredMessage = it.requiredMessage,
+            clearOnEdit = it.clearOnEdit,
             lengthMessages = it.lengthMessages.map { rule ->
                 require(rule.minLength != null || rule.maxLength != null) {
                     "Validation length message must have a bound"

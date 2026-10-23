@@ -178,6 +178,9 @@
                     },
                     "reserveHeight": 24
                   }
+                },
+                "padding": {
+                  "bottom": 24
                 }
               },
               "elements": [
@@ -328,7 +331,8 @@
                             "minLength": 11,
                             "message": "Mobile number must be 10 digits."
                           }
-                        ]
+                        ],
+                        "clearOnEdit": true
                       },
                       "binding": {
                         "key": "mobileNumber"
