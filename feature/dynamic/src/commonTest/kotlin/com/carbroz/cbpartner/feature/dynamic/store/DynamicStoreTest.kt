@@ -1229,6 +1229,27 @@ class DynamicStoreTest {
         current = assertIs<DynamicState.Success>(store.state.value).screen
         assertTrue(current.validationErrors.isEmpty())
         assertTrue(entry.validationErrors.isEmpty())
+
+        // Once a submission has displayed an error, keep validating each edit.
+        store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("123456789012")))
+        store.accept(DynamicIntent.Action(DynamicAction(
+            "request",
+            mapOf(
+                "endpoint" to DynamicValue.StringValue("/submit"),
+                "responseMode" to DynamicValue.StringValue("none"),
+                "validate" to DynamicValue.BooleanValue(true),
+            ),
+        )))
+        advanceUntilIdle()
+        current = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("Phone required", current.validationErrors["phone"])
+        store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("12345678901")))
+        current = assertIs<DynamicState.Success>(store.state.value).screen
+        assertEquals("Phone required", current.validationErrors["phone"])
+        store.accept(DynamicIntent.ValueChanged("phone", DynamicValue.StringValue("1234567890")))
+        current = assertIs<DynamicState.Success>(store.state.value).screen
+        assertTrue(current.validationErrors.isEmpty())
+        assertEquals(0, submitCalls)
         store.close()
     }
 

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection as FormFieldSectionModel
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationMessageStyle
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.feature.dynamic.registry.SectionRenderer
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyBorder
@@ -31,11 +32,7 @@ class FormFieldSection : SectionRenderer<FormFieldSectionModel> {
     override fun render(section: FormFieldSectionModel, context: DynamicRenderContext) {
         val error = context.validationErrors[section.inputBinding]
         val focused = context.focusedBinding == section.inputBinding
-        val border = when {
-            error != null -> section.validationPresentation?.errorBorder ?: section.controlSurface.border
-            focused -> section.focusPresentation?.border ?: section.controlSurface.border
-            else -> section.controlSurface.border
-        }
+        val border = section.resolvedControlBorder(focused = focused, invalid = error != null)
         val surface = section.controlSurface
         val shape = surface.shape.toComposeShape()
 
@@ -77,4 +74,14 @@ class FormFieldSection : SectionRenderer<FormFieldSectionModel> {
             fontWeight = style.fontWeight?.let(::FontWeight),
         )
     }
+}
+
+/** Pure typed border precedence; no implicit visual tokens or screen-name checks. */
+internal fun FormFieldSectionModel.resolvedControlBorder(
+    focused: Boolean,
+    invalid: Boolean,
+): DynamicBorder? = when {
+    invalid -> validationPresentation?.errorBorder ?: controlSurface.border
+    focused -> focusPresentation?.border ?: controlSurface.border
+    else -> controlSurface.border
 }
