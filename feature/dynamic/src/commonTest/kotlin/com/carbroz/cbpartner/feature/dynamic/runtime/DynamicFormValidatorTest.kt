@@ -6,6 +6,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection
+import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicSection
 import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldControlSurface
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
@@ -247,7 +248,7 @@ class DynamicFormValidatorTest {
     ): DynamicScreen {
         val presented = inputs.singleOrNull { it.binding?.key == presentedBinding }
         val others = inputs.filterNot { it === presented }
-        val sections = buildList {
+        val sections = buildList<DynamicSection> {
             if (presented != null) {
                 add(FormFieldSection(
                     id = "field",
@@ -258,7 +259,7 @@ class DynamicFormValidatorTest {
                     horizontalAlignment = DynamicArrangement.Start,
                     fillMaxWidth = true,
                     validationPresentation = DynamicValidationPresentation(
-                        binding = presentedBinding,
+                        binding = requireNotNull(presentedBinding),
                         errorBorder = DynamicBorder(1.0, "#FF0000"),
                         messageStyle = DynamicValidationMessageStyle(reserveHeight = 24.0),
                     ),
