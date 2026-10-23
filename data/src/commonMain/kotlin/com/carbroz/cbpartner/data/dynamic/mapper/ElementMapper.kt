@@ -16,6 +16,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
+import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationLengthMessage
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidatorSpec
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonLoading
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicLoadingIndicator
@@ -256,6 +257,18 @@ class ElementMapper(
             pattern = it.pattern,
             message = it.message,
             validator = validator,
+            requiredMessage = it.requiredMessage,
+            lengthMessages = it.lengthMessages.map { rule ->
+                require(rule.minLength != null || rule.maxLength != null) {
+                    "Validation length message must have a bound"
+                }
+                require((rule.minLength ?: 0) >= 0 &&
+                    (rule.maxLength == null || rule.maxLength >= (rule.minLength ?: 0))) {
+                    "Invalid validation length range"
+                }
+                require(rule.message.isNotBlank()) { "Validation length message cannot be blank" }
+                DynamicValidationLengthMessage(rule.minLength, rule.maxLength, rule.message)
+            },
         )
     }
 

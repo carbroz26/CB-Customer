@@ -8,6 +8,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
+import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationLengthMessage
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidatorSpec
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresentation
@@ -154,6 +155,36 @@ class DynamicFormValidatorTest {
 
         assertEquals(DynamicValue.StringValue("IN"), region)
         assertEquals(emptyMap(), result.errors)
+    }
+
+    @Test
+    fun validationMessagesRemainUntilThePhoneBecomesValid() {
+        val named = object : DynamicValidator {
+            override val key = "phone"
+            override fun isValid(value: DynamicValue, arguments: Map<String, DynamicValue>): Boolean =
+                Regex("^[6-9][0-9]{9}$").matches((value as? DynamicValue.StringValue)?.value.orEmpty())
+        }
+        val phone = DynamicValidation(
+            required = true, pattern = null,
+            message = "Please enter a valid 10-digit mobile number.",
+            validator = DynamicValidatorSpec("phone"),
+            requiredMessage = "Mobile number is required.",
+            lengthMessages = listOf(
+                DynamicValidationLengthMessage(6, 9, "Mobile number must be 10 digits."),
+                DynamicValidationLengthMessage(minLength = 11, message = "Mobile number must be 10 digits."),
+            ),
+        )
+        val validator = DynamicFormValidator(DynamicValidatorRegistry(listOf(named)))
+        val screen = screen(listOf(input("phone", "phone", phone)))
+        fun message(value: String) =
+            validator.validate(screen, mapOf("phone" to DynamicValue.StringValue(value))).errors["phone"]
+        assertEquals("Mobile number is required.", message(""))
+        assertEquals("Please enter a valid 10-digit mobile number.", message("98765"))
+        assertEquals("Mobile number must be 10 digits.", message("987654321"))
+        assertEquals("Mobile number must be 10 digits.", message("987654321987"))
+        assertEquals("Mobile number must be 10 digits.", message("98765432198"))
+        assertNull(message("9876543219"))
+        assertEquals("Please enter a valid 10-digit mobile number.", message("1234567890"))
     }
 
     @Test

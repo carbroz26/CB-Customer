@@ -109,13 +109,13 @@ class DynamicFormValidator(
         val text = (value as? DynamicValue.StringValue)?.value.orEmpty()
 
         if (validation.required == true && text.isBlank()) {
-            return key to (validation.message ?: "This field is required")
+            return key to (validation.requiredMessage ?: validation.message ?: "This field is required")
         }
         if (text.isBlank()) return null
 
         validation.pattern?.let { pattern ->
             if (!Regex(pattern).matches(text)) {
-                return key to (validation.message ?: "Invalid value")
+                return key to (invalidMessage(validation, text))
             }
         }
 
@@ -125,10 +125,16 @@ class DynamicFormValidator(
             }
             val validator = validators.requireValidator(spec.key)
             if (!validator.isValid(value, arguments)) {
-                return key to (validation.message ?: "Invalid value")
+                return key to (invalidMessage(validation, text))
             }
         }
 
         return null
     }
+
+    private fun invalidMessage(validation: DynamicValidation, text: String): String =
+        validation.lengthMessages.firstOrNull { rule ->
+            (rule.minLength == null || text.length >= rule.minLength) &&
+                (rule.maxLength == null || text.length <= rule.maxLength)
+        }?.message ?: validation.message ?: "Invalid value"
 }

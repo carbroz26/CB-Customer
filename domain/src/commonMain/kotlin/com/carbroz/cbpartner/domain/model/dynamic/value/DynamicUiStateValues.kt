@@ -20,6 +20,7 @@ data class DynamicValidationMessageStyle(
     val fontWeight: Int? = null,
     val color: String? = null,
     val spacing: DynamicSpacing? = null,
+    val reserveHeight: Double? = null,
 )
 
 data class DynamicValidationStyle(

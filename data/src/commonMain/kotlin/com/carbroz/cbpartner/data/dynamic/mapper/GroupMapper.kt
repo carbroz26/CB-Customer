@@ -66,6 +66,11 @@ class GroupMapper(
                 fontWeight = values.number(style, "fontWeight")?.toInt(),
                 color = values.string(style, "color"),
                 spacing = values.spacing(style),
+                reserveHeight = values.number(style, "reserveHeight")?.also { height ->
+                    require(height.isFinite() && height > 0.0) {
+                        "Validation message reserveHeight must be positive and finite"
+                    }
+                },
             )
         }
         return DynamicValidationPresentation(

@@ -8,7 +8,17 @@ data class DynamicValidationDto(
     val required: Boolean? = null,
     val pattern: String? = null,
     val message: String? = null,
+    val requiredMessage: String? = null,
+    val lengthMessages: List<DynamicValidationLengthMessageDto> = emptyList(),
     val validator: DynamicValidatorDto? = null,
+)
+
+/** Inclusive length bounds for choosing copy after the validator fails. */
+@Serializable
+data class DynamicValidationLengthMessageDto(
+    val minLength: Int? = null,
+    val maxLength: Int? = null,
+    val message: String,
 )
 
 @Serializable

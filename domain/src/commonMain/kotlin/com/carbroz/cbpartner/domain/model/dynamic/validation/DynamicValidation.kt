@@ -7,6 +7,14 @@ data class DynamicValidation(
     val pattern: String?,
     val message: String?,
     val validator: DynamicValidatorSpec? = null,
+    val requiredMessage: String? = null,
+    val lengthMessages: List<DynamicValidationLengthMessage> = emptyList(),
+)
+
+data class DynamicValidationLengthMessage(
+    val minLength: Int? = null,
+    val maxLength: Int? = null,
+    val message: String,
 )
 
 data class DynamicValidatorSpec(

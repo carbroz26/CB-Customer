@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -86,16 +88,30 @@ class StackGroup : GroupRenderer<StackGroupModel> {
                 }
             }
 
-            if (validationMessage != null) {
-                val style = validation.messageStyle
-                Text(
-                    text = validationMessage,
-                    modifier = Modifier.applyDynamicSpacing(style?.spacing),
-                    color = style?.color?.toColor() ?: Color.Unspecified,
-                    fontSize = style?.fontSize?.sp ?: TextUnit.Unspecified,
-                    fontWeight = style?.fontWeight?.let(::FontWeight),
-                )
+            val style = validation?.messageStyle
+            val reserved = style?.reserveHeight
+            if (reserved != null) {
+                // Reserve space regardless of whether the current field is invalid.
+                Box(modifier = Modifier.fillMaxWidth().height(reserved.dp)) {
+                    validationMessage?.let { ValidationMessage(it, style) }
+                }
+            } else {
+                validationMessage?.let { ValidationMessage(it, style) }
             }
         }
+    }
+
+    @Composable
+    private fun ValidationMessage(
+        message: String,
+        style: com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationMessageStyle?,
+    ) {
+        Text(
+            text = message,
+            modifier = Modifier.applyDynamicSpacing(style?.spacing),
+            color = style?.color?.toColor() ?: Color.Unspecified,
+            fontSize = style?.fontSize?.sp ?: TextUnit.Unspecified,
+            fontWeight = style?.fontWeight?.let(::FontWeight),
+        )
     }
 }

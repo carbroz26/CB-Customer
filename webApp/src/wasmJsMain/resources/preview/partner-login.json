@@ -208,7 +208,8 @@
                         "color": "#DC2626",
                         "spacing": {
                           "top": 6
-                        }
+                        },
+                        "reserveHeight": 24
                       }
                     }
                   },
@@ -324,7 +325,19 @@
                             }
                           }
                         },
-                        "message": "Enter a valid mobile number"
+                        "message": "Please enter a valid 10-digit mobile number.",
+                        "requiredMessage": "Mobile number is required.",
+                        "lengthMessages": [
+                          {
+                            "minLength": 6,
+                            "maxLength": 9,
+                            "message": "Mobile number must be 10 digits."
+                          },
+                          {
+                            "minLength": 11,
+                            "message": "Mobile number must be 10 digits."
+                          }
+                        ]
                       },
                       "binding": {
                         "key": "mobileNumber"
