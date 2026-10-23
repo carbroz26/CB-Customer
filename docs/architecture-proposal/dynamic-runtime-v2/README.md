@@ -1,9 +1,9 @@
 # CB-Partner — Dynamic Runtime V2: Discussion Freeze
 
-**State:** PLAN FROZEN via [20-PLAN-FROZEN-V2-IMPLEMENTATION-CONTRACT.md](20-PLAN-FROZEN-V2-IMPLEMENTATION-CONTRACT.md); Kotlin implementation NOT YET AUTHORIZED. Historical earlier drafts are superseded wherever inconsistent with 19/20.
-**Source baseline:** `feature/dynamic-ui` at `f59577337ac78855da3f9cb474483f0211ed1f30`.
-**Branch:** `architecture/dynamic-runtime-v2-discussion-freeze`
-**Nature:** Greenfield reference architecture. No implementation has been authorized; this does not replace existing accepted/frozen architecture or feature status automatically.
+**Current status (2026-10-23):** V2 implementation is in progress. Login v11 dynamic rendering, Country Picker and native offline preview exist; owner accepted removal of fixed error space. Android safe-area ownership, Kotlin common-first migration, product-specific validator policy and remaining screenshot visual parity are OPEN. **Read Documents 140 and 141 first.**
+**Historical planning baseline:** Document 20 froze the original V2 plan before later authorized implementation waves. Its "implementation not authorized" and earlier `feature/dynamic-ui` commit `f59577337ac78855da3f9cb474483f0211ed1f30` are historical, not current status.
+**Active frontend branch:** `architecture/dynamic-runtime-v2-discussion-freeze`
+**Authority:** Current source + latest explicit owner decisions in this V2 folder, with time-ordered supersessions.
 
 ## 2026-10-23 latest owner handoff — READ FIRST
 
@@ -79,4 +79,6 @@ flowchart TD
 
 ## Latest handoff
 
-- [82 — Current State, Logging Discussion and Next Chat Handoff](82-LOGGING-DISCUSSION-AND-NEXT-CHAT-HANDOFF.md) — 2026-10-16 runtime evidence, source pointers, backend boundaries, pending observability discussion; not implementation authorization.
+- **[140 — 2026-10-23 Complete Current Project Handoff](140-2026-10-23-COMPLETE-HANDOFF-COMMON-FIRST-VALIDATION-LOGIN-PARITY.md)** — current truth, all six UI categories, validation ownership concern, cross-platform inset gate, precise pending UI parity and tests.
+- **[141 — Copy/Paste New Chat Prompt](141-NEXT-CHAT-STARTER-PROMPT-COMMON-FIRST-SAFE-AREA-VALIDATION-LOGIN-PARITY-2026-10-23.md)** — mandatory docs and line-by-line source reread; productive next steps.
+- [82 — Historical 2026-10-16 Logging Handoff](82-LOGGING-DISCUSSION-AND-NEXT-CHAT-HANDOFF.md) — older evidence; not the current next-work queue.
