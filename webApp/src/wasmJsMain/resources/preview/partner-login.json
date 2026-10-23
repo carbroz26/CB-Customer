@@ -31,7 +31,7 @@
         "backgroundImage": {
           "source": {
             "type": "resource",
-            "value": "images/partner_login_hero_02"
+            "value": "images/partner_login_hero_04"
           },
           "contentScale": "crop",
           "alignment": "center"
@@ -68,7 +68,7 @@
                     "properties": {
                       "source": {
                         "type": "resource",
-                        "value": "images/cb_partner_logo"
+                        "value": "images/cb_partner_logo_02"
                       },
                       "width": 44,
                       "height": 44,
@@ -96,7 +96,7 @@
                 "textAlign": "start",
                 "fillMaxWidth": true,
                 "spacing": {
-                  "bottom": 8
+                  "bottom": 4
                 },
                 "lineHeight": 52
               }
@@ -181,7 +181,24 @@
                     "spacing": {
                       "top": 6
                     },
-                                        "lineHeight": 20
+                                        "lineHeight": 20,
+                    "leading": [
+                      {
+                        "type": "image",
+                        "properties": {
+                          "source": {
+                            "type": "resource",
+                            "value": "icons/error_alert_icon_01"
+                          },
+                          "width": 16,
+                          "height": 16,
+                          "contentScale": "fit",
+                          "spacing": {
+                            "end": 6
+                          }
+                        }
+                      }
+                    ]
                   }
                 },
                 "padding": {
@@ -253,7 +270,7 @@
                             "properties": {
                               "source": {
                                 "type": "resource",
-                                "value": "icons/chevron_down"
+                                "value": "icons/chevron_down_01"
                               },
                               "size": 12,
                               "spacing": {
@@ -581,7 +598,7 @@
                     "properties": {
                       "source": {
                         "type": "resource",
-                        "value": "icons/close"
+                        "value": "icons/close_01"
                       },
                       "size": 20,
                       "minHeight": 32,
@@ -646,7 +663,7 @@
                           "properties": {
                             "source": {
                               "type": "resource",
-                              "value": "icons/search"
+                              "value": "icons/search_01"
                             },
                             "size": 16,
                             "spacing": {

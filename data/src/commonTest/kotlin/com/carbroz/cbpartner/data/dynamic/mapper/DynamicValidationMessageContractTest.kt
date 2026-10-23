@@ -2,6 +2,9 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import com.carbroz.cbpartner.domain.model.dynamic.content.ImageContent
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicAssetSource
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection
@@ -37,7 +40,10 @@ class DynamicValidationMessageContractTest {
             {"minLength":11,"message":"Wrong length"}]}}"""
     private val inlineValidation = """{"binding":"phone",
         "errorBorder":{"width":1,"color":"#DC2626"},
-        "messageStyle":{"fontSize":12,"lineHeight":20,"spacing":{"top":6}}}"""
+        "messageStyle":{"fontSize":12,"lineHeight":20,"spacing":{"top":6},
+        "leading":[{"type":"image","properties":{
+            "source":{"type":"resource","value":"icons/error_alert_icon_01"},
+            "width":16,"height":16,"contentScale":"fit","spacing":{"end":6}}]}}"""
 
     @Test
     fun directFieldsCanBeReusedForFirstAndLastNameWithoutGroup() {
@@ -65,6 +71,14 @@ class DynamicValidationMessageContractTest {
         assertNull(group.shape)
         assertEquals("phone", field.inputBinding)
         assertEquals(20.0, field.validationPresentation?.messageStyle?.lineHeight)
+        val icon = assertIs<ImageContent>(
+            field.validationPresentation?.messageStyle?.leadingContent?.single(),
+        )
+        val resource = assertIs<DynamicAssetSource.Resource>(icon.source)
+        assertEquals(DynamicValue.StringValue("icons/error_alert_icon_01"), resource.value)
+        assertEquals(16.0, icon.width)
+        assertEquals(16.0, icon.height)
+        assertEquals(6.0, icon.spacing?.end)
         assertEquals(1.0, field.validationPresentation?.errorBorder?.width)
         val input = assertIs<InputElement>(group.elements.last())
         assertEquals("Required", input.validation?.requiredMessage)
@@ -88,6 +102,9 @@ class DynamicValidationMessageContractTest {
             direct.replace("\"height\":56", "\"height\":0"),
             compositeField().replace("\"fontSize\":12", "\"reserveHeight\":24,\"fontSize\":12"),
             compositeField().replace("\"lineHeight\":20", "\"lineHeight\":0"),
+            compositeField().replace("\"width\":16", "\"width\":0"),
+            compositeField().replace("\"leading\":[", "\"unknown\":true,\"leading\":["),
+
             compositeField().replace("\"binding\":\"phone\"", "\"binding\":\"mismatch\""),
             compositeField().replace("\"orientation\":\"horizontal\"", "\"orientation\":\"horizontal\",\"border\":{\"width\":1,\"color\":\"#CCCCCC\"}"),
             compositeField().replace("\"orientation\":\"horizontal\"", "\"orientation\":\"horizontal\",\"validationPresentation\":$inlineValidation"),

@@ -30,6 +30,8 @@ class SectionMapper(
     private val groups: GroupMapper,
     private val values: DynamicValueMapper,
 ) {
+    private val contentMapper = ElementContentMapper(json, values)
+
     fun map(node: JsonObject): DynamicSection = when (values.string(node, "type")) {
         "stack_section" -> map(json.decodeFromJsonElement(StackSectionDto.serializer(), node))
         "form_field_section" -> map(json.decodeFromJsonElement(FormFieldSectionDto.serializer(), node))
@@ -145,7 +147,7 @@ class SectionMapper(
             val style = raw["messageStyle"] as? JsonObject
                 ?: error("FormFieldSection messageStyle is required")
             require(style.keys.all { it in setOf("fontSize", "fontWeight", "color",
-                "spacing", "lineHeight") }) {
+                "spacing", "lineHeight", "leading") }) {
                 "Unsupported FormFieldSection messageStyle property"
             }
             DynamicValidationPresentation(
@@ -154,6 +156,7 @@ class SectionMapper(
                 errorBorder = values.border(raw, "errorBorder")
                     ?: error("FormFieldSection errorBorder is required"),
                 messageStyle = DynamicValidationMessageStyle(
+                    leadingContent = contentMapper.mapList(style, "leading"),
                     fontSize = values.number(style, "fontSize"),
                     lineHeight = values.number(style, "lineHeight")?.also {
                         require(it.isFinite() && it > 0.0) {

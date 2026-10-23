@@ -2,8 +2,10 @@ package com.carbroz.cbpartner.feature.dynamic.sdui.section
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -57,21 +59,30 @@ class FormFieldSection : SectionRenderer<FormFieldSectionModel> {
             // No empty slot: inline message occupies space only while error is present.
             val style = section.validationPresentation?.messageStyle
             if (error != null && style != null) {
-                RenderMessage(error, style)
+                RenderMessage(error, style, context)
             }
         }
     }
 
     @Composable
-    private fun RenderMessage(message: String, style: DynamicValidationMessageStyle) {
-        Text(
-            text = message,
+    private fun RenderMessage(
+        message: String,
+        style: DynamicValidationMessageStyle,
+        context: DynamicRenderContext,
+    ) {
+        Row(
             modifier = Modifier.applyDynamicSpacing(style.spacing),
-            color = style.color?.toColor() ?: Color.Unspecified,
-            fontSize = style.fontSize?.sp ?: TextUnit.Unspecified,
-            lineHeight = style.lineHeight?.sp ?: TextUnit.Unspecified,
-            fontWeight = style.fontWeight?.let(::FontWeight),
-        )
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            context.renderContent(style.leadingContent)
+            Text(
+                text = message,
+                color = style.color?.toColor() ?: Color.Unspecified,
+                fontSize = style.fontSize?.sp ?: TextUnit.Unspecified,
+                lineHeight = style.lineHeight?.sp ?: TextUnit.Unspecified,
+                fontWeight = style.fontWeight?.let(::FontWeight),
+            )
+        }
     }
 }
 

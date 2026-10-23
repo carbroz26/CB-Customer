@@ -1,5 +1,7 @@
 package com.carbroz.cbpartner.domain.model.dynamic.value
 
+import com.carbroz.cbpartner.domain.model.dynamic.content.ElementContent
+
 data class DynamicSelectedStyle(
     val background: DynamicBackground? = null,
 )
@@ -16,6 +18,7 @@ data class DynamicValidationPresentation(
 )
 
 data class DynamicValidationMessageStyle(
+    val leadingContent: List<ElementContent> = emptyList(),
     val fontSize: Double? = null,
     val fontWeight: Int? = null,
     val color: String? = null,
