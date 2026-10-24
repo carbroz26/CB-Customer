@@ -13,7 +13,7 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_search_01
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_close_01
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_chevron_down_01
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.error_alert_icon_01
-import com.carbroz.cbpartner.feature.dynamic.generated.resources.clock_icon
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.clock_icon_01
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.cb_partner_logo_02
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.cb_partner_logo
@@ -53,6 +53,6 @@ internal fun packagedAssetResource(key: String): DrawableResource? = when (key) 
     "icons/close_02" -> Res.drawable.icon_close_02
     "icons/check_circle_blue" -> Res.drawable.icon_check_circle_blue
     "icons/error_alert_icon_01" -> Res.drawable.error_alert_icon_01
-    "icons/clock" -> Res.drawable.clock_icon
+    "icons/clock" -> Res.drawable.clock_icon_01
     else -> null
 }
