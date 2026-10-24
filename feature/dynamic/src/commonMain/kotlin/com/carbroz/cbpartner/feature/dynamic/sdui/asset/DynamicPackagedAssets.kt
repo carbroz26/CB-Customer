@@ -53,6 +53,6 @@ internal fun packagedAssetResource(key: String): DrawableResource? = when (key) 
     "icons/close_02" -> Res.drawable.icon_close_02
     "icons/check_circle_blue" -> Res.drawable.icon_check_circle_blue
     "icons/error_alert_icon_01" -> Res.drawable.error_alert_icon_01
-    "icons/clock" -> Res.drawable.clock_icon_01
+    "icons/clock" -> Res.drawable.clock_icon_02
     else -> null
 }
