@@ -62,8 +62,10 @@ class DynamicResponseMapper(private val json: Json) {
                 "Dynamic countdown id is invalid"
             }
             val source = countdown.durationSeconds
-            val reference = source["\$state"] as? JsonPrimitive
-            require(source.size == 1 && reference?.isString == true &&
+            val reference = requireNotNull(
+                (source["\$state"] as? JsonPrimitive)?.takeIf { it.isString },
+            ) { "Dynamic countdown durationSeconds must be a single \$state reference" }
+            require(source.size == 1 &&
                 reference.content.matches(Regex("^[a-zA-Z][a-zA-Z0-9_.]{0,127}$"))) {
                 "Dynamic countdown durationSeconds must be a single \$state reference"
             }
