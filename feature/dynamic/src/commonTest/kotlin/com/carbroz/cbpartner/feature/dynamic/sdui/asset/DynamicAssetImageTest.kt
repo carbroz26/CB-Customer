@@ -57,7 +57,7 @@ class DynamicAssetImageTest {
             "icons/close", "icons/check_circle_blue",
             "icons/chevron_down_01", "icons/search_01", "icons/close_01",
             "icons/chevron_down_02", "icons/search_02", "icons/close_02",
-            "icons/error_alert_icon_01",
+            "icons/error_alert_icon_01", "icons/clock",
         )) assertNotNull(packagedAssetResource(key), "Missing explicit packaged asset: " + key)
         assertNull(packagedAssetResource("flags/gb"))
         assertNull(packagedAssetResource("icons/unapproved"))

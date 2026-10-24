@@ -52,5 +52,7 @@ internal fun packagedAssetResource(key: String): DrawableResource? = when (key) 
     "icons/close_02" -> Res.drawable.icon_close_02
     "icons/check_circle_blue" -> Res.drawable.icon_check_circle_blue
     "icons/error_alert_icon_01" -> Res.drawable.error_alert_icon_01
+    // Temporary approved OTP timer artwork; keep the stable JSON key when the real clock PNG arrives.
+    "icons/clock" -> Res.drawable.error_alert_icon_01
     else -> null
 }
