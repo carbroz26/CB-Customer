@@ -14,6 +14,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationMessage
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationLengthMessage
+import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationEquality
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidatorSpec
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresentation
@@ -192,6 +193,71 @@ class DynamicFormValidatorTest {
         assertEquals("Please enter a valid 10-digit mobile number.", message("1234567890"))
     }
 
+
+    @Test
+    fun declarativeEqualityAndPatternPreserveIndiaOnlyRulesWithoutNamedValidators() {
+        val policy = DynamicValidation(
+            required = true,
+            pattern = "^[6-9][0-9]{9}$",
+            message = "Please enter a valid 10-digit mobile number.",
+            requiredMessage = "Mobile number is required.",
+            lengthMessages = listOf(
+                DynamicValidationLengthMessage(6, 9, "Mobile number must be 10 digits."),
+                DynamicValidationLengthMessage(minLength = 11, message = "Mobile number must be 10 digits."),
+            ),
+            clearOnEdit = true,
+            equals = DynamicValidationEquality(
+                DynamicValue.ObjectValue(mapOf("\$binding" to DynamicValue.StringValue("countryId"))),
+                DynamicValue.ObjectValue(mapOf("\$literal" to DynamicValue.StringValue("IN"))),
+            ),
+        )
+        val validator = DynamicFormValidator()
+        val rendered = screen(listOf(input("mobile", "mobileNumber", policy)))
+        fun error(phone: String, country: DynamicValue? = DynamicValue.StringValue("IN")): String? {
+            val bindings = mutableMapOf<String, DynamicValue>(
+                "mobileNumber" to DynamicValue.StringValue(phone),
+            )
+            if (country != null) bindings["countryId"] = country
+            return validator.validate(rendered, bindings).errors["mobileNumber"]
+        }
+        assertNull(error("9876543210"))
+        assertNull(error("6123456789"))
+        assertEquals("Mobile number is required.", error(""))
+        assertEquals("Please enter a valid 10-digit mobile number.", error("5123456789"))
+        assertEquals("Please enter a valid 10-digit mobile number.", error("98765"))
+        assertEquals("Mobile number must be 10 digits.", error("987654321"))
+        assertEquals("Mobile number must be 10 digits.", error("98765432101"))
+        assertEquals("Please enter a valid 10-digit mobile number.", error("98765 43210"))
+        assertEquals("Please enter a valid 10-digit mobile number.",
+            error("9876543210", DynamicValue.StringValue("US")))
+        assertEquals("Please enter a valid 10-digit mobile number.", error("9876543210", null))
+        assertEquals("Please enter a valid 10-digit mobile number.",
+            error("9876543210", DynamicValue.NullValue))
+        assertEquals(true, validator.clearsErrorOnEdit(rendered, "mobileNumber"))
+    }
+
+    @Test
+    fun equalityWorksOnArbitraryBindingsAndMissingValuesFailClosed() {
+        val policy = DynamicValidation(
+            required = false, pattern = null, message = "Values do not match",
+            equals = DynamicValidationEquality(
+                DynamicValue.ObjectValue(mapOf("\$binding" to DynamicValue.StringValue("first"))),
+                DynamicValue.ObjectValue(mapOf("\$binding" to DynamicValue.StringValue("second"))),
+            ),
+        )
+        val rendered = screen(listOf(input("confirm", "confirm", policy)))
+        val values = mapOf(
+            "confirm" to DynamicValue.StringValue("filled"),
+            "first" to DynamicValue.StringValue("equal"),
+            "second" to DynamicValue.StringValue("equal"),
+        )
+        assertEquals(emptyMap(), DynamicFormValidator().validate(rendered, values).errors)
+        assertEquals(mapOf("confirm" to "Values do not match"),
+            DynamicFormValidator().validate(rendered, values +
+                ("second" to DynamicValue.StringValue("different"))).errors)
+        assertEquals(mapOf("confirm" to "Values do not match"),
+            DynamicFormValidator().validate(rendered, values - "first" - "second").errors)
+    }
 
     @Test
     fun skippingEditedBindingDoesNotDisableSubmitOrOtherValidation() {

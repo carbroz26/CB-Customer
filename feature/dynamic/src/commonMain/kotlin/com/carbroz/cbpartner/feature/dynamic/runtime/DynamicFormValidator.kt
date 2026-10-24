@@ -124,6 +124,16 @@ class DynamicFormValidator(
             }
         }
 
+        validation.equals?.let { comparison ->
+            val actual = DynamicReferenceResolver.resolve(comparison.value, bindings, context, state)
+            val expected = DynamicReferenceResolver.resolve(comparison.expected, bindings, context, state)
+            if (actual == DynamicValue.NullValue || expected == DynamicValue.NullValue ||
+                actual != expected
+            ) {
+                return key to invalidMessage(validation, text)
+            }
+        }
+
         validation.validator?.let { spec ->
             val arguments = spec.arguments.mapValues { (_, argument) ->
                 DynamicReferenceResolver.resolve(argument, bindings, context, state)

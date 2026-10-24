@@ -17,6 +17,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationLengthMessage
+import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationEquality
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidatorSpec
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonLoading
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicLoadingIndicator
@@ -269,6 +270,12 @@ class ElementMapper(
             validator = validator,
             requiredMessage = it.requiredMessage,
             clearOnEdit = it.clearOnEdit,
+            equals = it.equals?.let { comparison ->
+                DynamicValidationEquality(
+                    value = validationReference(comparison.value),
+                    expected = validationReference(comparison.expected),
+                )
+            },
             lengthMessages = it.lengthMessages.map { rule ->
                 require(rule.minLength != null || rule.maxLength != null) {
                     "Validation length message must have a bound"
@@ -282,6 +289,21 @@ class ElementMapper(
             },
         )
     }
+
+    /** Reject ambiguous and unsupported references at the DTO boundary. */
+    private fun validationReference(reference: JsonObject) =
+        values.toDynamicValue(reference).also {
+            require(reference.size == 1) { "Validation equality requires one reference namespace" }
+            val (key, raw) = reference.entries.single()
+            require(key in setOf("\$binding", "\$context", "\$state", "\$literal")) {
+                "Unsupported validation equality namespace: $key"
+            }
+            if (key != "\$literal") {
+                require(raw is JsonPrimitive && raw.isString && raw.content.isNotBlank()) {
+                    "Validation equality path must be a nonblank string"
+                }
+            }
+        }
 
     private fun mapButtonLoading(properties: JsonObject): DynamicButtonLoading? {
         if ("loading" !in properties) return null

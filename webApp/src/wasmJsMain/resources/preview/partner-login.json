@@ -181,7 +181,7 @@
                     "spacing": {
                       "top": 6
                     },
-                                        "lineHeight": 20,
+                    "lineHeight": 20,
                     "leading": [
                       {
                         "type": "image",
@@ -334,14 +334,6 @@
                       },
                       "validation": {
                         "required": true,
-                        "validator": {
-                          "key": "phone_number",
-                          "arguments": {
-                            "region": {
-                              "$binding": "countryId"
-                            }
-                          }
-                        },
                         "message": "Please enter a valid 10-digit mobile number.",
                         "requiredMessage": "Mobile number is required.",
                         "lengthMessages": [
@@ -355,7 +347,16 @@
                             "message": "Mobile number must be 10 digits."
                           }
                         ],
-                        "clearOnEdit": true
+                        "clearOnEdit": true,
+                        "pattern": "^[6-9][0-9]{9}$",
+                        "equals": {
+                          "value": {
+                            "$binding": "countryId"
+                          },
+                          "expected": {
+                            "$literal": "IN"
+                          }
+                        }
                       },
                       "binding": {
                         "key": "mobileNumber"

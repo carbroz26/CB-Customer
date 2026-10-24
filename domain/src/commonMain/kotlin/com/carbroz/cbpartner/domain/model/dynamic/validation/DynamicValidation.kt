@@ -10,6 +10,13 @@ data class DynamicValidation(
     val requiredMessage: String? = null,
     val lengthMessages: List<DynamicValidationLengthMessage> = emptyList(),
     val clearOnEdit: Boolean = false,
+    val equals: DynamicValidationEquality? = null,
+)
+
+/** Backend-authored equality between two typed Dynamic references. */
+data class DynamicValidationEquality(
+    val value: DynamicValue,
+    val expected: DynamicValue,
 )
 
 data class DynamicValidationLengthMessage(

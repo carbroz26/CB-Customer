@@ -12,6 +12,14 @@ data class DynamicValidationDto(
     val lengthMessages: List<DynamicValidationLengthMessageDto> = emptyList(),
     val clearOnEdit: Boolean = false,
     val validator: DynamicValidatorDto? = null,
+    val equals: DynamicValidationEqualsDto? = null,
+)
+
+/** One typed, field-agnostic equality comparison. */
+@Serializable
+data class DynamicValidationEqualsDto(
+    val value: JsonObject,
+    val expected: JsonObject,
 )
 
 /** Inclusive length bounds for choosing copy after the validator fails. */

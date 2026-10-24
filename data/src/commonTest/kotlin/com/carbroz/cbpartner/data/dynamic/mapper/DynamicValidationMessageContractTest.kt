@@ -115,6 +115,39 @@ class DynamicValidationMessageContractTest {
     }
 
     @Test
+    fun declarativeEqualityMapsAndRejectsInvalidReferenceNamespaces() {
+        val comparison = """"equals":{"value":{"\$binding":"countryId"},
+            "expected":{"\$literal":"IN"}},"""
+        val withEquality = phoneInput.replace(
+            "\"clearOnEdit\":true,",
+            comparison + "\"clearOnEdit\":true,",
+        )
+        val field = parse(compositeField().replace(phoneInput, withEquality))
+        val input = assertIs<InputElement>(assertIs<StackGroup>(field.controlGroup).elements.last())
+        val equality = assertNotNull(input.validation?.equals)
+        assertEquals(DynamicValue.ObjectValue(mapOf(
+            "\$binding" to DynamicValue.StringValue("countryId"),
+        )), equality.value)
+        assertEquals(DynamicValue.ObjectValue(mapOf(
+            "\$literal" to DynamicValue.StringValue("IN"),
+        )), equality.expected)
+        val invalid = listOf(
+            comparison.replace("\$binding", "\$response"),
+            comparison.replace("countryId", ""),
+            comparison.replace("{\"\$binding\":\"countryId\"}",
+                "{\"\$binding\":\"countryId\",\"\$state\":\"x\"}"),
+            comparison.replace("\"expected\":{\"\$literal\":\"IN\"}",
+                "\"expected\":{\"\$config\":\"key\"}"),
+        )
+        invalid.forEach { malformed ->
+            assertFailsWith<IllegalArgumentException> {
+                parse(compositeField().replace(phoneInput,
+                    withEquality.replace(comparison, malformed)))
+            }
+        }
+    }
+
+    @Test
     fun fieldlessGroupRejectsHistoricalPresentationFields() {
         val historical = compositeField().replace(
             "\"orientation\":\"horizontal\"",
