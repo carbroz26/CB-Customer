@@ -202,6 +202,32 @@ class DynamicValidationMessageContractTest {
     }
 
     @Test
+    fun formFieldValidationPresentationRejectsUnknownFieldsWhileAllowingOptionalOuterBorder() {
+        val input = """{"id":"code","type":"input",
+            "properties":{"inputFilter":"digits","maxLength":6},
+            "binding":{"key":"code"},
+            "validation":{"required":true,"pattern":"^[0-9]{6}$"}}"""
+        val section = """{"id":"otp_field","type":"form_field_section",
+            "properties":{"fillMaxWidth":true,"horizontalAlignment":"center",
+                "controlSurface":{"height":56,"fillMaxWidth":true},
+                "validationPresentation":{"binding":"code","messageStyle":{"fontSize":14}}},
+            "elements":[$input]}"""
+        assertNull(parse(section).validationPresentation?.errorBorder)
+        val withOuterBorder = section.replace(
+            "\"messageStyle\":{\"fontSize\":14}",
+            "\"errorBorder\":{\"width\":1,\"color\":\"#EF4444\"},\"messageStyle\":{\"fontSize\":14}",
+        )
+        assertEquals("#EF4444", parse(withOuterBorder).validationPresentation?.errorBorder?.color)
+        assertFailsWith<IllegalArgumentException> {
+            parse(section.replace("\"binding\":\"code\",\"messageStyle\"",
+                "\"binding\":\"code\",\"unexpected\":true,\"messageStyle\""))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            parse(section.replace("\"binding\":\"code\",\"messageStyle\"", "\"messageStyle\""))
+        }
+    }
+
+    @Test
     fun fieldlessGroupRejectsHistoricalPresentationFields() {
         val historical = compositeField().replace(
             "\"orientation\":\"horizontal\"",

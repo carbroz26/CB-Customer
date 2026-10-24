@@ -143,8 +143,11 @@ class SectionMapper(
             )
         }
         val validation = (props["validationPresentation"] as? JsonObject)?.let { raw ->
-            require(raw.keys == setOf("binding", "errorBorder", "messageStyle")) {
-                "FormFieldSection validationPresentation keys are invalid"
+            require(
+                raw.keys.containsAll(setOf("binding", "messageStyle")) &&
+                    raw.keys.all { it in setOf("binding", "errorBorder", "messageStyle") }
+            ) {
+                "FormFieldSection validationPresentation requires binding/messageStyle and only optional errorBorder"
             }
             val style = raw["messageStyle"] as? JsonObject
                 ?: error("FormFieldSection messageStyle is required")
