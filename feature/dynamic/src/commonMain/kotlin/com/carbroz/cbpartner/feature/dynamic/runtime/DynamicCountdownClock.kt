@@ -27,7 +27,7 @@ internal fun countdownState(clocks: Map<String, DynamicCountdownClock?>): Map<St
         }
         DynamicValue.ObjectValue(mapOf(
             "remainingText" to DynamicValue.StringValue(label),
-            "ready" to DynamicValue.BooleanValue(remaining == 0L && clock != null),
+            "ready" to DynamicValue.BooleanValue(remaining == 0L),
         ))
     }
     return mapOf("countdowns" to DynamicValue.ObjectValue(entries))

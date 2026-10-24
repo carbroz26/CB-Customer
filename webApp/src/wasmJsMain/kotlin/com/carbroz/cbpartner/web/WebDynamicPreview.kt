@@ -12,7 +12,6 @@ import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.LocalDynamicPreview
 import com.carbroz.cbpartner.app.parseLocalDynamicPreview
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
-import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.network.ApiBaseUrl
 import com.carbroz.cbpartner.network.AppEnvironment
 import kotlinx.browser.window
@@ -27,14 +26,15 @@ internal fun DynamicOfflinePreview(
     metadata: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
     fixture: String,
-    initialState: Map<String, DynamicValue> = emptyMap(),
+    initialState: Map<String, String> = emptyMap(),
+    numericInitialState: Map<String, Double> = emptyMap(),
 ) {
     var loaded by remember(fixture) { mutableStateOf<Result<LocalDynamicPreview>?>(null) }
     LaunchedEffect(fixture) {
         loaded = runCatching {
             val response = window.fetch("/preview/$fixture").await()
             require(response.ok) { "Web Dynamic preview JSON is not served by the Web app" }
-            parseLocalDynamicPreview(response.text().await().toString(), initialState)
+            parseLocalDynamicPreview(response.text().await().toString(), initialState, numericInitialState)
         }
     }
     val preview = loaded?.getOrNull()

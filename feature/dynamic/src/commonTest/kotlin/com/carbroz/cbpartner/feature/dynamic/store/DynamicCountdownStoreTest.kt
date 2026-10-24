@@ -15,6 +15,8 @@ import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import com.carbroz.cbpartner.navigation.DynamicNavigationEntry
+import kotlin.time.TestTimeSource
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -29,6 +31,7 @@ import kotlin.test.assertIs
 class DynamicCountdownStoreTest {
     @Test
     fun guardsPrematureResendThenRetainsNewChallengeAndRestarts() = runTest {
+        val timeSource = TestTimeSource()
         val runtime = DynamicRuntimeState()
         runtime.setAll(mapOf(
             "resendAfterSeconds" to DynamicValue.NumberValue(10.0),
@@ -77,6 +80,7 @@ class DynamicCountdownStoreTest {
             )),
             runtimeState = runtime,
             scope = CoroutineScope(StandardTestDispatcher(testScheduler)),
+            timeSource = timeSource,
         )
         fun remaining(): String {
             val current = assertIs<DynamicState.Success>(store.state.value).screen
@@ -90,7 +94,12 @@ class DynamicCountdownStoreTest {
         store.accept(DynamicIntent.Action(resend))
         runCurrent()
         assertEquals(0, requests)
-        advanceTimeBy(10_000)
+        timeSource += 9.seconds
+        advanceTimeBy(9_000)
+        runCurrent()
+        assertEquals("00:01", remaining())
+        timeSource += 1.seconds
+        advanceTimeBy(1_000)
         runCurrent()
         assertEquals("00:00", remaining())
         store.accept(DynamicIntent.Action(resend))

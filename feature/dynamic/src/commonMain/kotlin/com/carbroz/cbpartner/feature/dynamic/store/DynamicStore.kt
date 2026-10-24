@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.coroutineContext
+import kotlin.time.TimeSource
 import kotlin.uuid.Uuid
 
 sealed interface DynamicIntent {
@@ -93,6 +94,7 @@ class DynamicStore(
     private val contextProvider: () -> Map<String, DynamicValue> = { emptyMap() },
     private val listCatalog: DynamicListCatalog = DynamicListCatalog { null },
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    private val timeSource: TimeSource = TimeSource.Monotonic,
     private val commitActionResult: (
         Map<String, DynamicValue>,
         List<DynamicActionEffect>,
@@ -343,7 +345,7 @@ class DynamicStore(
             val seconds = (raw as? DynamicValue.NumberValue)?.value
             val clock = seconds?.takeIf {
                 it.isFinite() && it >= 0.0 && it <= 86400.0 && it % 1.0 == 0.0
-            }?.toLong()?.let(::DynamicCountdownClock)
+            }?.toLong()?.let { DynamicCountdownClock(it, timeSource.markNow()) }
             definition.id to clock
         }
         fun publish() {

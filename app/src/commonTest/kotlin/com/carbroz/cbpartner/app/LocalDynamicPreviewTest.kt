@@ -24,6 +24,21 @@ class LocalDynamicPreviewTest {
     }
 
     @Test
+    fun developmentPreviewRetainsNumericCooldownWithoutExposingDomainTypeToPlatformHosts() {
+        val raw = """{"status":200,"code":"SUCCESS","message":"OK","data":{
+          "screenId":"partner_otp","schemaVersion":"3.0.0","targetApp":"PARTNER",
+          "template":{"id":"otp","type":"form_template","components":[
+            {"id":"form","type":"stack_component"}]}}}"""
+        val preview = parseLocalDynamicPreview(
+            raw,
+            initialState = mapOf("challengeId" to "local-test"),
+            numericInitialState = mapOf("resendAfterSeconds" to 10.0),
+        )
+        assertEquals(DynamicValue.StringValue("local-test"), preview.initialState["challengeId"])
+        assertEquals(DynamicValue.NumberValue(10.0), preview.initialState["resendAfterSeconds"])
+    }
+
+    @Test
     fun refusesMalformedOrMissingScreenFixtures() {
         assertFails { parseLocalDynamicPreview("{}") }
         assertFails { parseLocalDynamicPreview("{not valid json") }
