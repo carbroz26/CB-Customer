@@ -49,117 +49,140 @@
               "bottom": 32
             }
           },
-          "elements": [
+          "elements": [],
+          "sections": [
             {
-              "id": "otp_brand_name",
-              "type": "text",
+              "id": "otp_brand_center_section",
+              "type": "stack_section",
               "properties": {
-                "text": "CB-Partner",
-                "fontSize": 28,
-                "fontWeight": 700,
-                "color": "#0A337F",
-                "textAlign": "start",
-                "leading": [
-                  {
-                    "type": "image",
-                    "properties": {
-                      "source": {
-                        "type": "resource",
-                        "value": "images/cb_partner_logo_03"
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "horizontalAlignment": "center"
+              },
+              "elements": [
+                {
+                  "id": "otp_brand_name",
+                  "type": "text",
+                  "properties": {
+                    "text": "CB-Partner",
+                    "fontSize": 28,
+                    "fontWeight": 700,
+                    "color": "#0A337F",
+                    "textAlign": "start",
+                    "leading": [
+                      {
+                        "type": "image",
+                        "properties": {
+                          "source": {
+                            "type": "resource",
+                            "value": "images/cb_partner_logo_03"
+                          },
+                          "width": 44,
+                          "height": 44,
+                          "contentScale": "fit",
+                          "spacing": {
+                            "end": 11
+                          }
+                        }
+                      }
+                    ],
+                    "spacing": {
+                      "bottom": 12
+                    },
+                    "lineHeight": 36
+                  }
+                }
+              ]
+            },
+            {
+              "id": "otp_brand_details_section",
+              "type": "stack_section",
+              "properties": {
+                "orientation": "vertical",
+                "fillMaxWidth": true,
+                "horizontalAlignment": "start"
+              },
+              "elements": [
+                {
+                  "id": "otp_screen_title",
+                  "type": "text",
+                  "properties": {
+                    "text": "Verify your number",
+                    "fontSize": 32,
+                    "fontWeight": 800,
+                    "color": "#0A337F",
+                    "textAlign": "start",
+                    "fillMaxWidth": true,
+                    "spacing": {
+                      "bottom": 4
+                    },
+                    "lineHeight": 40
+                  }
+                },
+                {
+                  "id": "otp_screen_subtitle",
+                  "type": "text",
+                  "properties": {
+                    "text": "We've sent a 6-digit OTP to",
+                    "fontSize": 19,
+                    "fontWeight": 500,
+                    "color": "#5C79A3",
+                    "textAlign": "start",
+                    "fillMaxWidth": true,
+                    "lineHeight": 24,
+                    "spacing": {
+                      "bottom": 0
+                    }
+                  }
+                },
+                {
+                  "id": "otp_target_phone",
+                  "type": "text",
+                  "properties": {
+                    "fontSize": 19,
+                    "fontWeight": 700,
+                    "color": "#0A337F",
+                    "textAlign": "start",
+                    "fillMaxWidth": true,
+                    "lineHeight": 24,
+                    "spacing": {
+                      "bottom": 8
+                    },
+                    "spans": [
+                      {
+                        "text": "+91 "
                       },
-                      "width": 44,
-                      "height": 44,
-                      "contentScale": "fit",
-                      "spacing": {
-                        "end": 11
+                      {
+                        "text": {
+                          "$state": "phoneNumber"
+                        },
+                        "fontWeight": 700
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "otp_change_number",
+                  "type": "text",
+                  "properties": {
+                    "text": "Change phone number",
+                    "fontSize": 15,
+                    "fontWeight": 600,
+                    "color": "#1A63CC",
+                    "textAlign": "start",
+                    "fillMaxWidth": true,
+                    "lineHeight": 22
+                  },
+                  "actions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "payload": {
+                        "mode": "pop"
                       }
                     }
                   }
-                ],
-                "spacing": {
-                  "bottom": 12
-                },
-                "lineHeight": 36
-              }
-            },
-            {
-              "id": "otp_screen_title",
-              "type": "text",
-              "properties": {
-                "text": "Verify your number",
-                "fontSize": 32,
-                "fontWeight": 800,
-                "color": "#0A337F",
-                "textAlign": "start",
-                "fillMaxWidth": true,
-                "spacing": {
-                  "bottom": 4
-                },
-                "lineHeight": 40
-              }
-            },
-            {
-              "id": "otp_screen_subtitle",
-              "type": "text",
-              "properties": {
-                "text": "We've sent a 6-digit OTP to",
-                "fontSize": 19,
-                "fontWeight": 500,
-                "color": "#5C79A3",
-                "textAlign": "start",
-                "fillMaxWidth": true,
-                "lineHeight": 24,
-                "spacing": {
-                  "bottom": 0
                 }
-              }
-            },
-            {
-              "id": "otp_target_phone",
-              "type": "text",
-              "properties": {
-                "fontSize": 19,
-                "fontWeight": 700,
-                "color": "#0A337F",
-                "textAlign": "start",
-                "fillMaxWidth": true,
-                "lineHeight": 24,
-                "spacing": {
-                  "bottom": 8
-                },
-                "spans": [
-                  {
-                    "text": "+91 "
-                  },
-                  {
-                    "text": {
-                      "$state": "phoneNumber"
-                    },
-                    "fontWeight": 700
-                  }
-                ]
-              }
-            },
-            {
-              "id": "otp_change_number",
-              "type": "text",
-              "properties": {
-                "text": "Change phone number",
-                "fontSize": 15,
-                "fontWeight": 600,
-                "color": "#1A63CC",
-                "textAlign": "start",
-                "fillMaxWidth": true,
-                "lineHeight": 22
-              },
-              "actions": {
-                "onClick": {
-                  "type": "navigate",
-                  "payload": {
-                    "mode": "pop"
-                  }
-                }
-              }
+              ]
             }
           ]
         },
@@ -352,7 +375,6 @@
                     "fontWeight": 400,
                     "color": "#8798AE",
                     "textAlign": "center",
-                    "fillMaxWidth": true,
                     "leading": [
                       {
                         "type": "divider",
@@ -362,7 +384,7 @@
                           "thickness": 1,
                           "color": "#CBD5E1",
                           "spacing": {
-                            "end": 12
+                            "end": 6
                           }
                         }
                       }
@@ -376,7 +398,7 @@
                           "thickness": 1,
                           "color": "#CBD5E1",
                           "spacing": {
-                            "start": 12
+                            "start": 6
                           }
                         }
                       }
