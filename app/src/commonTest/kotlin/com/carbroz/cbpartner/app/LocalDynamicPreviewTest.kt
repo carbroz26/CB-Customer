@@ -7,14 +7,14 @@ import kotlin.test.assertFails
 import kotlin.test.assertNotNull
 
 /** Native and Web load the same JSON through this mapper and country catalog. */
-class LocalLoginPreviewTest {
+class LocalDynamicPreviewTest {
     @Test
     fun mapsTypedDynamicScreenAndSharesCountryCatalog() {
         val raw = """{"status":200,"code":"SUCCESS","message":"OK","data":{
           "screenId":"auth_login","schemaVersion":"3.0.0","targetApp":"PARTNER",
           "template":{"id":"login","type":"form_template","components":[
             {"id":"form","type":"stack_component"}]}}}"""
-        val preview = parseLocalLoginPreview(raw)
+        val preview = parseLocalDynamicPreview(raw)
         val screen = assertNotNull(preview.response.data)
         assertEquals("auth_login", screen.screenId)
         assertEquals("form_template", screen.template.type)
@@ -25,7 +25,7 @@ class LocalLoginPreviewTest {
 
     @Test
     fun refusesMalformedOrMissingScreenFixtures() {
-        assertFails { parseLocalLoginPreview("{}") }
-        assertFails { parseLocalLoginPreview("{not valid json") }
+        assertFails { parseLocalDynamicPreview("{}") }
+        assertFails { parseLocalDynamicPreview("{not valid json") }
     }
 }

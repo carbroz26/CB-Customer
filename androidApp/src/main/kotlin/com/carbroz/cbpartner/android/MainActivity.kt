@@ -5,12 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.configureLogging
-import com.carbroz.cbpartner.app.parseLocalLoginPreview
+import com.carbroz.cbpartner.app.parseLocalDynamicPreview
 import com.carbroz.cbpartner.app.RetainCompatibilityProbe
 import com.carbroz.cbpartner.network.ApiBaseUrl
 import com.carbroz.cbpartner.network.AppEnvironment
 
-/** Normal entry point; the local Login preview requires an explicit debug-only intent. */
+/** Normal entry point; the local Dynamic preview requires an explicit debug-only intent. */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,13 +19,21 @@ class MainActivity : ComponentActivity() {
         configureLogging(environment)
         val apiBaseUrl = ApiBaseUrl(BuildConfig.CBPARTNER_API_BASE_URL, environment)
 
-        // Never load a preview fixture in release or staging/production builds.
-        val previewRequested = BuildConfig.DEBUG &&
+        // Opt-in development-only fixture. Production always uses the real backend.
+        val loginRequested = BuildConfig.DEBUG &&
             environment == AppEnvironment.Development &&
             intent.getBooleanExtra("cbpartner.login_preview", false)
-        val preview = if (previewRequested) {
-            val raw = assets.open("partner-login.json").bufferedReader().use { it.readText() }
-            parseLocalLoginPreview(raw)
+        val otpRequested = BuildConfig.DEBUG &&
+            environment == AppEnvironment.Development &&
+            intent.getBooleanExtra("cbpartner.otp_preview", false)
+        val preview = if (otpRequested || loginRequested) {
+            val filename = if (otpRequested) "partner-otp.json" else "partner-login.json"
+            val raw = assets.open(filename).bufferedReader().use { it.readText() }
+            val initialState = if (otpRequested) mapOf(
+                "phoneNumber" to com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue.StringValue("9876543210"),
+                "challengeId" to com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue.StringValue("development-preview"),
+            ) else emptyMap()
+            parseLocalDynamicPreview(raw, initialState)
         } else null
 
         setContent {
@@ -36,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     runtimeMetadataProvider = runtimeMetadataProvider,
                     apiBaseUrl = apiBaseUrl,
                     environment = environment,
-                    localLoginPreview = preview,
+                    localDynamicPreview = preview,
                 )
             }
         }

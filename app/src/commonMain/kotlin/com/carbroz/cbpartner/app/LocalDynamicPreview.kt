@@ -7,23 +7,27 @@ import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlinx.serialization.json.Json
 
 /**
- * Opt-in, backend-free Login preview fixture reused by Web and native Android.
+ * Opt-in, backend-free Dynamic preview fixture reused by Web and native Android.
  * Only prepares a typed response and development countries; rendering, actions,
  * state and validation remain owned by the normal application composition.
  */
-data class LocalLoginPreview(
+data class LocalDynamicPreview(
     val response: DynamicResponse,
     val countries: List<Map<String, DynamicValue>>,
+    val initialState: Map<String, DynamicValue> = emptyMap(),
 )
 
 /** Both previews pass their platform-loaded bytes through this exact DTO mapper. */
-fun parseLocalLoginPreview(raw: String): LocalLoginPreview {
+fun parseLocalDynamicPreview(
+    raw: String,
+    initialState: Map<String, DynamicValue> = emptyMap(),
+): LocalDynamicPreview {
     val json = Json { ignoreUnknownKeys = true; isLenient = true }
     val response = DynamicResponseMapper(json).map(
         json.decodeFromString<DynamicResponseDto>(raw),
     )
-    requireNotNull(response.data) { "Local Login preview must contain a Dynamic screen" }
-    return LocalLoginPreview(response, previewCountries())
+    requireNotNull(response.data) { "Local Dynamic preview must contain a screen" }
+    return LocalDynamicPreview(response, previewCountries(), initialState)
 }
 
 /** UI-only development catalog, not a supported-region or backend country policy. */

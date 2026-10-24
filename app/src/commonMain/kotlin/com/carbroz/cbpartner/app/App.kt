@@ -26,23 +26,25 @@ fun App(
     runtimeMetadataProvider: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
     environment: AppEnvironment = AppEnvironment.Development,
-    localLoginPreview: LocalLoginPreview? = null,
+    localDynamicPreview: LocalDynamicPreview? = null,
 ) {
     // Preview is impossible to enable outside the development environment.
-    val preview = localLoginPreview?.takeIf { environment == AppEnvironment.Development }
+    val preview = localDynamicPreview?.takeIf { environment == AppEnvironment.Development }
     val retainedSession = retain {
         mutableStateOf<DynamicSession?>(
             preview?.let {
                 val screen = requireNotNull(it.response.data) { "Local preview requires a Dynamic screen" }
                 DynamicSession(
-                    diagnosticSessionId = "local-login-preview",
+                    diagnosticSessionId = "local-dynamic-preview",
                     initialDestination = DynamicDestination(
                         screenId = screen.screenId,
                         templateId = screen.template.id,
                         templateType = screen.template.type,
-                        endpoint = LOCAL_PREVIEW_LOGIN_ENDPOINT,
+                        endpoint = LOCAL_PREVIEW_DYNAMIC_ENDPOINT,
                     ),
-                )
+                ).also { session ->
+                    session.runtimeState.setAll(it.initialState)
+                }
             },
         )
     }
@@ -65,7 +67,7 @@ fun App(
                         object : DynamicRepository {
                             override suspend fun fetch(
                                 request: com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest,
-                            ) = if (request.endpoint == LOCAL_PREVIEW_LOGIN_ENDPOINT) {
+                            ) = if (request.endpoint == LOCAL_PREVIEW_DYNAMIC_ENDPOINT) {
                                 Result.success(preview.response)
                             } else {
                                 Result.failure<com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse>(
@@ -94,4 +96,4 @@ fun App(
 }
 
 /** Preview-only destination; rejected by the offline repository for all mutations. */
-private const val LOCAL_PREVIEW_LOGIN_ENDPOINT = "/api/v1/partner/screen/auth_login"
+private const val LOCAL_PREVIEW_DYNAMIC_ENDPOINT = "/api/v1/partner/screen/auth_login"

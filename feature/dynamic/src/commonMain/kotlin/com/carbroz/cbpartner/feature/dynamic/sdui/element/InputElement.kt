@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,10 +21,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -60,9 +72,11 @@ class InputElement : ElementRenderer<InputElementModel> {
             else -> androidx.compose.ui.text.input.KeyboardType.Text
         }
 
-        fun changed(newValue: String) {
+        fun changed(newValue: String, segmented: Boolean = false) {
+            // Segmented controls encode temporarily empty interior cells as spaces in
+            // their ONE binding. Such values fail authored full-match validation.
             val filtered = when (element.inputFilter) {
-                "digits" -> newValue.filter { it in '0'..'9' }
+                "digits" -> newValue.filter { it in '0'..'9' || (segmented && it == ' ') }
                 null -> newValue
                 else -> error("Unsupported Dynamic input filter: " + element.inputFilter)
             }
@@ -76,14 +90,14 @@ class InputElement : ElementRenderer<InputElementModel> {
 
         var hadFocus by remember(element.id) { mutableStateOf(false) }
         val focusModifier = Modifier.onFocusChanged { state ->
-            context.onFocusChange(binding, state.isFocused)
-            if (state.isFocused && !hadFocus) {
+            context.onFocusChange(binding, state.hasFocus)
+            if (state.hasFocus && !hadFocus) {
                 element.actions["onFocus"]?.let {
                     reportDynamicOrigin(element.id, "onFocus", it.type)
                     context.onAction(it)
                 }
             }
-            hadFocus = state.isFocused
+            hadFocus = state.hasFocus
         }
 
         val focusManager = LocalFocusManager.current
@@ -145,18 +159,19 @@ class InputElement : ElementRenderer<InputElementModel> {
                     segmentHeight = requireNotNull(presentation.segmentHeight) {
                         "Segmented input height is required for element " + element.id
                     }.dp,
+                    placeholder = presentation.placeholder,
                     background = if (invalid) {
                         element.validationStyle?.background ?: presentation.background
                     } else {
                         presentation.background
                     },
                     border = presentation.border,
+                    invalidBorder = element.validationStyle?.border,
                     shape = presentation.shape,
                     focusBorder = presentation.focusBorder,
-                    focused = focused,
                     invalid = invalid,
                     textStyle = inputTextStyle(element),
-                    onValueChange = ::changed,
+                    onValueChange = { changed(it, segmented = true) },
                     focusModifier = focusModifier,
                     keyboardActions = keyboardActions,
                     imeAction = submitIme,
@@ -210,6 +225,7 @@ class InputElement : ElementRenderer<InputElementModel> {
         textAlign = element.textAlign.toTextAlign(),
     )
 
+    /** Multiple native editing surfaces, but one authored InputElement and one binding. */
     @Composable
     private fun SegmentedInput(
         value: String,
@@ -217,11 +233,12 @@ class InputElement : ElementRenderer<InputElementModel> {
         spacing: androidx.compose.ui.unit.Dp,
         segmentWidth: androidx.compose.ui.unit.Dp,
         segmentHeight: androidx.compose.ui.unit.Dp,
+        placeholder: String?,
         background: DynamicBackground?,
         border: DynamicBorder?,
+        invalidBorder: DynamicBorder?,
         shape: DynamicShape?,
         focusBorder: DynamicBorder?,
-        focused: Boolean,
         invalid: Boolean,
         textStyle: TextStyle,
         onValueChange: (String) -> Unit,
@@ -229,52 +246,97 @@ class InputElement : ElementRenderer<InputElementModel> {
         keyboardActions: KeyboardActions,
         imeAction: ImeAction,
     ) {
-        val activeBorder = if (invalid) border else if (focused) focusBorder ?: border else border
+        require(count > 0) { "Segmented input needs at least one slot" }
+        val requesters = remember(count) { List(count) { FocusRequester() } }
+        var focusedSlot by remember(count) { mutableIntStateOf(-1) }
+        var targetFocus by remember(count) { mutableIntStateOf(-1) }
+        val slots = List(count) { index ->
+            value.getOrNull(index)?.takeUnless { it == ' ' }?.toString().orEmpty()
+        }
+        val nextEmpty = slots.indexOfFirst(String::isEmpty).let { if (it < 0) count else it }
+        LaunchedEffect(value, targetFocus) {
+            if (targetFocus in 0 until count &&
+                (targetFocus <= nextEmpty || slots[targetFocus].isNotEmpty())
+            ) {
+                requesters[targetFocus].requestFocus()
+                targetFocus = -1
+            }
+        }
 
-        BasicTextField(
-            modifier = focusModifier.fillMaxWidth(),
-            value = value,
-            onValueChange = onValueChange,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
-                imeAction = imeAction,
-            ),
-            keyboardActions = keyboardActions,
-            singleLine = true,
-            textStyle = textStyle,
-            decorationBox = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        spacing,
-                        Alignment.CenterHorizontally,
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    repeat(count) { index ->
-                        Box(
-                            modifier = Modifier
-                                .width(segmentWidth)
-                                .height(segmentHeight)
-                                .applyDynamicBackground(
-                                    background,
-                                    shape.toComposeShape(),
-                                )
-                                .applyBorder(activeBorder, shape),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            androidx.compose.material3.Text(
-                                text = value.getOrNull(index)?.toString().orEmpty(),
-                                modifier = Modifier.fillMaxWidth(),
-                                style = textStyle,
-                                textAlign = textStyle.textAlign,
-                            )
-                        }
-                    }
+        Row(
+            modifier = Modifier.fillMaxWidth().then(focusModifier),
+            horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            repeat(count) { index ->
+                val cell = slots[index]
+                val enabled = index <= nextEmpty || cell.isNotEmpty()
+                val activeBorder = when {
+                    invalid -> invalidBorder ?: border
+                    focusedSlot == index -> focusBorder ?: border
+                    else -> border
                 }
-            },
-        )
+                Box(
+                    modifier = Modifier
+                        .width(segmentWidth)
+                        .height(segmentHeight)
+                        .applyDynamicBackground(background, shape.toComposeShape())
+                        .applyBorder(activeBorder, shape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    BasicTextField(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .focusRequester(requesters[index])
+                            .onFocusChanged { state ->
+                                if (state.isFocused) focusedSlot = index
+                                else if (focusedSlot == index) focusedSlot = -1
+                            }
+                            .onPreviewKeyEvent { event ->
+                                if (event.key == Key.Backspace && event.type == KeyEventType.KeyDown &&
+                                    cell.isEmpty() && index > 0
+                                ) {
+                                    requesters[index - 1].requestFocus()
+                                    true
+                                } else false
+                            },
+                        value = TextFieldValue(cell, selection = TextRange(0, cell.length)),
+                        onValueChange = { input ->
+                            val update = editSegmentedValue(value, index, input.text, count)
+                            onValueChange(update.value)
+                            targetFocus = update.nextFocus
+                        },
+                        enabled = enabled,
+                        textStyle = textStyle.copy(textAlign = TextAlign.Center),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                            imeAction = imeAction,
+                        ),
+                        keyboardActions = keyboardActions,
+                        singleLine = true,
+                        decorationBox = { innerTextField ->
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                if (cell.isEmpty() && placeholder != null) {
+                                    androidx.compose.material3.Text(
+                                        text = placeholder,
+                                        style = textStyle.copy(
+                                            color = border?.color?.toColor() ?: Color.Unspecified,
+                                            textAlign = TextAlign.Center,
+                                        ),
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        },
+                    )
+                }
+            }
+        }
     }
+
 }
 
 private fun String?.toTextAlign(): TextAlign = when (this) {
@@ -284,4 +346,35 @@ private fun String?.toTextAlign(): TextAlign = when (this) {
     "right" -> TextAlign.Right
     "center" -> TextAlign.Center
     else -> TextAlign.Unspecified
+}
+
+/** Slot edits retain interior positions; whitespace represents an unfilled slot. */
+internal data class SegmentedEdit(val value: String, val nextFocus: Int)
+
+internal fun editSegmentedValue(
+    current: String,
+    index: Int,
+    incoming: String,
+    count: Int,
+): SegmentedEdit {
+    require(count > 0 && index in 0 until count)
+    val cells = MutableList(count) { current.getOrNull(it)?.takeUnless { char -> char == ' ' } }
+    if (incoming.isEmpty()) {
+        cells[index] = null
+        return SegmentedEdit(cells.joinToString("") { it?.toString() ?: " " }.trimEnd(), index)
+    }
+    // A single key appended to a selected occupied cell replaces that cell;
+    // paste distributes multiple digits starting at the selected position.
+    val replacement = if (incoming.length == 2 && incoming[0] == cells[index]) {
+        incoming.drop(1)
+    } else incoming
+    val characters = replacement.filter { it in '0'..'9' }
+    if (characters.isEmpty()) {
+        return SegmentedEdit(current, index)
+    }
+    characters.forEachIndexed { offset, char ->
+        if (index + offset < count) cells[index + offset] = char
+    }
+    val next = (index + characters.length).coerceAtMost(count - 1)
+    return SegmentedEdit(cells.joinToString("") { it?.toString() ?: " " }.trimEnd(), next)
 }

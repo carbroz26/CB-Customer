@@ -44,7 +44,7 @@ class FormFieldSection : SectionRenderer<FormFieldSectionModel> {
                 .applyDynamicPadding(section.padding),
             horizontalAlignment = section.horizontalAlignment.toHorizontalAlignment(),
         ) {
-            context.renderElement(section.label)
+            section.label?.let { context.renderElement(it) }
             Box(
                 modifier = Modifier
                     .then(if (surface.fillMaxWidth) Modifier.fillMaxWidth() else Modifier)

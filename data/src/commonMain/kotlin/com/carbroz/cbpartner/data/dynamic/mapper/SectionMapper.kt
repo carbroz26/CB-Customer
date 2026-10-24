@@ -63,21 +63,23 @@ class SectionMapper(
     /** Strictly map a reusable field with one labelled, uniquely bound control. */
     private fun map(dto: FormFieldSectionDto): FormFieldSection {
         require(dto.type == "form_field_section") { "Unsupported FormFieldSection type" }
-        require(dto.elements.isNotEmpty()) { "FormFieldSection needs a label" }
         val mapped = dto.elements.map(elements::map)
         val label = mapped.firstOrNull() as? TextElement
-            ?: error("FormFieldSection first element must be a TextElement label")
         val childGroup: StackGroup?
         val control: InputElement?
         when {
             dto.groups.isEmpty() -> {
-                require(mapped.size == 2) { "Direct FormFieldSection requires exactly label and input" }
-                control = mapped[1] as? InputElement
+                require(mapped.size == if (label == null) 1 else 2) {
+                    "Direct FormFieldSection requires one input and optional label"
+                }
+                control = mapped.last() as? InputElement
                     ?: error("Direct FormFieldSection control must be InputElement")
                 childGroup = null
             }
             dto.groups.size == 1 -> {
-                require(mapped.size == 1) { "Composite FormFieldSection requires only one label element" }
+                require(mapped.size == if (label == null) 0 else 1) {
+                    "Composite FormFieldSection allows only an optional label"
+                }
                 childGroup = groups.map(dto.groups.single()) as? StackGroup
                     ?: error("Composite FormFieldSection control must be StackGroup")
                 require(childGroup.elements.filterIsInstance<InputElement>().size == 1) {
@@ -153,8 +155,7 @@ class SectionMapper(
             DynamicValidationPresentation(
                 binding = values.string(raw, "binding")?.takeIf(String::isNotBlank)
                     ?: error("FormFieldSection validation binding is required"),
-                errorBorder = values.border(raw, "errorBorder")
-                    ?: error("FormFieldSection errorBorder is required"),
+                errorBorder = values.border(raw, "errorBorder"),
                 messageStyle = DynamicValidationMessageStyle(
                     leadingContent = contentMapper.mapList(style, "leading"),
                     fontSize = values.number(style, "fontSize"),

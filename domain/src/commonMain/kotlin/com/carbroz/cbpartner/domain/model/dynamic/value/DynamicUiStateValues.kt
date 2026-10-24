@@ -13,7 +13,7 @@ data class DynamicFocusPresentation(
 
 data class DynamicValidationPresentation(
     val binding: String,
-    val errorBorder: DynamicBorder,
+    val errorBorder: DynamicBorder? = null,
     val messageStyle: DynamicValidationMessageStyle? = null,
 )
 
@@ -28,6 +28,7 @@ data class DynamicValidationMessageStyle(
 
 data class DynamicValidationStyle(
     val background: DynamicBackground? = null,
+    val border: DynamicBorder? = null,
 )
 
 data class DynamicButtonLoading(

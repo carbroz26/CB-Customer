@@ -5,7 +5,6 @@ import androidx.compose.ui.window.ComposeViewport
 import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.configureLogging
 import com.carbroz.cbpartner.app.RetainCompatibilityProbe
-import com.carbroz.cbpartner.web.LoginOfflinePreview
 import com.carbroz.cbpartner.network.ApiBaseUrl
 import com.carbroz.cbpartner.network.AppEnvironment
 import kotlinx.browser.window
@@ -34,9 +33,21 @@ fun main() {
         ) {
             VisualLoginPreview()
         } else if (environment == AppEnvironment.Development &&
+            window.location.search.contains("cbpartnerOtpPreview=1")
+        ) {
+            DynamicOfflinePreview(
+                WebRuntimeMetadataProvider(),
+                apiBaseUrl,
+                fixture = "partner-otp.json",
+                initialState = mapOf(
+                    "phoneNumber" to com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue.StringValue("9876543210"),
+                    "challengeId" to com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue.StringValue("development-preview"),
+                ),
+            )
+        } else if (environment == AppEnvironment.Development &&
             window.location.search.contains("cbpartnerLoginPreview=1")
         ) {
-            LoginOfflinePreview(WebRuntimeMetadataProvider(), apiBaseUrl)
+            DynamicOfflinePreview(WebRuntimeMetadataProvider(), apiBaseUrl, fixture = "partner-login.json")
         } else if (window.location.search.contains("cbpartnerRetentionProbe=1")) {
             RetainCompatibilityProbe()
         } else {

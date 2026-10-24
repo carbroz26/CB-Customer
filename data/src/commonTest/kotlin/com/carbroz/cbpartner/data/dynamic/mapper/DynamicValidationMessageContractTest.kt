@@ -53,7 +53,7 @@ class DynamicValidationMessageContractTest {
             assertNotNull(field.controlInput)
             assertNull(field.controlGroup)
             assertEquals(56.0, field.controlSurface.height)
-            assertEquals(8.0, field.label.spacing?.bottom)
+            assertEquals(8.0, field.label?.spacing?.bottom)
             assertEquals(false, field.controlInput?.validation?.clearOnEdit ?: false)
             assertEquals(2, field.elements.size)
             assertEquals(0, field.groups.size)
@@ -163,6 +163,42 @@ class DynamicValidationMessageContractTest {
         assertFailsWith<IllegalArgumentException> {
             parse(compositeField().replace(phoneInput, malformed))
         }
+    }
+
+    @Test
+    fun otpLikeFieldMapsWithoutOptionalLabelOrOuterErrorBorder() {
+        val fieldInput = """{"id":"code","type":"input",
+            "properties":{"inputFilter":"digits","maxLength":6,"presentation":{
+                "type":"segmented","count":6,"spacing":6,"segmentWidth":48,"segmentHeight":56,
+                "placeholder":"—","background":{"color":"#FFFFFF"},
+                "border":{"width":1,"color":"#CBD5E1"},
+                "focusBorder":{"width":1,"color":"#0A3A8D"},
+                "shape":{"type":"roundedCorner","cornerRadius":16}},
+                "validationStyle":{"background":{"color":"#FEE2E2"},
+                    "border":{"width":1,"color":"#EF4444"}}},
+            "binding":{"key":"code"},
+            "validation":{"required":true,"pattern":"^[0-9]{6}$","clearOnEdit":true}}"""
+        val section = """{"id":"otp_field","type":"form_field_section",
+            "properties":{"fillMaxWidth":true,"horizontalAlignment":"center",
+                "controlSurface":{"height":56,"fillMaxWidth":true},
+                "validationPresentation":{"binding":"code","messageStyle":{
+                    "fontSize":14,"fontWeight":400,"color":"#EF4444","lineHeight":20,
+                    "spacing":{"top":6}}}},
+            "elements":[$fieldInput]}"""
+        val mapped = parse(section)
+        assertNull(mapped.label)
+        assertNull(mapped.validationPresentation?.errorBorder)
+        assertEquals(1, mapped.elements.size)
+        assertEquals("code", mapped.inputBinding)
+        val control = assertNotNull(mapped.controlInput)
+        assertEquals("segmented", control.presentation?.type)
+        assertEquals("—", control.presentation?.placeholder)
+        assertEquals(6, control.presentation?.count)
+        assertEquals(48.0, control.presentation?.segmentWidth)
+        assertEquals("#EF4444", control.validationStyle?.border?.color)
+        assertEquals("#FEE2E2",
+            (control.validationStyle?.background as? com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground.Solid)?.color)
+        assertEquals(14.0, mapped.validationPresentation?.messageStyle?.fontSize)
     }
 
     @Test

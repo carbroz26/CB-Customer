@@ -16,6 +16,23 @@ import kotlin.test.assertEquals
 /** Renderer-independent border priority and error-style wiring. */
 class FormFieldSectionContractTest {
     @Test
+    fun otpLikeUnlabeledFieldUsesOnlySegmentStyleWithoutOuterErrorBorder() {
+        val input = InputElement(id = "segments", binding = DynamicBinding("otp"))
+        val field = FormFieldSection(
+            id = "otp", label = null, controlInput = input, inputBinding = "otp",
+            controlSurface = FormFieldControlSurface(56.0, true),
+            horizontalAlignment = DynamicArrangement.Center, fillMaxWidth = true,
+            validationPresentation = DynamicValidationPresentation(
+                binding = "otp", errorBorder = null,
+                messageStyle = DynamicValidationMessageStyle(fontSize = 14.0),
+            ),
+        )
+        assertEquals(listOf(input), field.elements)
+        assertEquals(null, field.resolvedControlBorder(false, true))
+        assertEquals(null, field.resolvedControlBorder(true, true))
+    }
+
+    @Test
     fun fieldBorderPriorityIsErrorThenFocusThenNormal() {
         val normal = DynamicBorder(width = 1.0, color = "#CBD5E1")
         val focus = DynamicBorder(width = 1.0, color = "#0A3A8D")

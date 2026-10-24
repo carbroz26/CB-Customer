@@ -27,31 +27,43 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 }
 
-/** Copies the canonical Web Login fixture into one generated Android asset directory. */
-abstract class GenerateDevelopmentLoginPreviewAsset : DefaultTask() {
+/** Copies canonical Web fixtures into developmentDebug assets; no separate Android JSON. */
+abstract class GenerateDevelopmentPreviewAssets : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val jsonFile: RegularFileProperty
+    abstract val loginJsonFile: RegularFileProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val otpJsonFile: RegularFileProperty
 
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
 
     @TaskAction
     fun generate() {
-        val destination = outputDirectory.file("partner-login.json").get().asFile
-        destination.parentFile.mkdirs()
-        jsonFile.get().asFile.copyTo(destination, overwrite = true)
+        for (source in listOf(loginJsonFile, otpJsonFile)) {
+            val input = source.get().asFile
+            val destination = outputDirectory.file(input.name).get().asFile
+            destination.parentFile.mkdirs()
+            input.copyTo(destination, overwrite = true)
+        }
     }
 }
 
-val generateDevelopmentLoginPreviewAsset =
-    tasks.register<GenerateDevelopmentLoginPreviewAsset>("generateDevelopmentLoginPreviewAsset") {
-        jsonFile.set(
+val generateDevelopmentPreviewAssets =
+    tasks.register<GenerateDevelopmentPreviewAssets>("generateDevelopmentPreviewAssets") {
+        loginJsonFile.set(
             rootProject.layout.projectDirectory.file(
                 "webApp/src/wasmJsMain/resources/preview/partner-login.json",
             ),
         )
-        outputDirectory.set(layout.buildDirectory.dir("generated/assets/developmentLoginPreview"))
+        otpJsonFile.set(
+            rootProject.layout.projectDirectory.file(
+                "webApp/src/wasmJsMain/resources/preview/partner-otp.json",
+            ),
+        )
+        outputDirectory.set(layout.buildDirectory.dir("generated/assets/developmentPreview"))
     }
 
 /** No source fixture duplication; this generated directory belongs only to developmentDebug. */
@@ -60,7 +72,7 @@ androidComponents {
         checkNotNull(variant.sources.assets) {
             "Android developmentDebug assets source is unavailable"
         }.addGeneratedSourceDirectory(
-            generateDevelopmentLoginPreviewAsset,
+            generateDevelopmentPreviewAssets,
             GenerateDevelopmentLoginPreviewAsset::outputDirectory,
         )
     }

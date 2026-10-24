@@ -132,7 +132,10 @@ class ElementMapper(
         focusBorder = values.border(dto.properties, "focusBorder"),
         shape = values.shape(dto.properties),
         validationStyle = (dto.properties["validationStyle"] as? JsonObject)?.let {
-            DynamicValidationStyle(background = values.background(it))
+            DynamicValidationStyle(
+                background = values.background(it),
+                border = values.border(it),
+            )
         },
     )
 

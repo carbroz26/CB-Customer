@@ -182,6 +182,7 @@ class DynamicValueMapper {
             spacing = number(value, "spacing"),
             segmentWidth = number(value, "segmentWidth"),
             segmentHeight = number(value, "segmentHeight"),
+            placeholder = string(value, "placeholder"),
             background = background(value),
             border = border(value),
             shape = shape(value),

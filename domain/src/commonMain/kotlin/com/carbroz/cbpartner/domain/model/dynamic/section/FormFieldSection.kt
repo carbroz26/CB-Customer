@@ -28,12 +28,12 @@ data class FormFieldControlSurface(
 }
 
 /**
- * One reusable label + one bound input (direct or composite) + conditional error message.
+ * One reusable optional label + one bound input (direct or composite) + conditional error message.
  * Validation is calculated by DynamicFormValidator, never by this Section.
  */
 data class FormFieldSection(
     val id: String,
-    val label: TextElement,
+    val label: TextElement? = null,
     val controlInput: InputElement? = null,
     val controlGroup: DynamicGroup? = null,
     val inputBinding: String,
