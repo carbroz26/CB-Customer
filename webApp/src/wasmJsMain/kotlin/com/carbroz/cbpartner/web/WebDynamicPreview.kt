@@ -12,6 +12,7 @@ import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.LocalDynamicPreview
 import com.carbroz.cbpartner.app.parseLocalDynamicPreview
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.network.ApiBaseUrl
 import com.carbroz.cbpartner.network.AppEnvironment
 import kotlinx.browser.window
@@ -26,7 +27,7 @@ internal fun DynamicOfflinePreview(
     metadata: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
     fixture: String,
-    initialState: Map<String, String> = emptyMap(),
+    initialState: Map<String, DynamicValue> = emptyMap(),
 ) {
     var loaded by remember(fixture) { mutableStateOf<Result<LocalDynamicPreview>?>(null) }
     LaunchedEffect(fixture) {

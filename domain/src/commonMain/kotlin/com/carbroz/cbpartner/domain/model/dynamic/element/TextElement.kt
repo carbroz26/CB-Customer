@@ -29,4 +29,5 @@ data class TextElement(
     override val spacing: DynamicSpacing? = null,
     val maxLines: Int? = null,
     val overflow: String? = null,
+    val disabledColor: String? = null,
 ) : DynamicElement

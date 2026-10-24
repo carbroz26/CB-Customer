@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.configureLogging
 import com.carbroz.cbpartner.app.parseLocalDynamicPreview
+import com.carbroz.cbpartner.app.LOCAL_PREVIEW_RESEND_SECONDS
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.app.RetainCompatibilityProbe
 import com.carbroz.cbpartner.network.ApiBaseUrl
 import com.carbroz.cbpartner.network.AppEnvironment
@@ -29,9 +31,10 @@ class MainActivity : ComponentActivity() {
         val preview = if (otpRequested || loginRequested) {
             val filename = if (otpRequested) "partner-otp.json" else "partner-login.json"
             val raw = assets.open(filename).bufferedReader().use { it.readText() }
-            val initialState = if (otpRequested) mapOf(
-                "phoneNumber" to "9876543210",
-                "challengeId" to "development-preview",
+            val initialState: Map<String, DynamicValue> = if (otpRequested) mapOf(
+                "phoneNumber" to DynamicValue.StringValue("9876543210"),
+                "challengeId" to DynamicValue.StringValue("development-preview"),
+                "resendAfterSeconds" to DynamicValue.NumberValue(LOCAL_PREVIEW_RESEND_SECONDS),
             ) else emptyMap()
             parseLocalDynamicPreview(raw, initialState)
         } else null

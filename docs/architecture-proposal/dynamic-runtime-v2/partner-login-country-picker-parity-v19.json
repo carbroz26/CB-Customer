@@ -429,7 +429,8 @@
                         "mode": "push",
                         "retain": {
                           "challengeId": "data.challengeId",
-                          "phoneNumber": "data.phoneNumber"
+                          "phoneNumber": "data.phoneNumber",
+                          "resendAfterSeconds": "data.resendAfterSeconds"
                         }
                       }
                     }

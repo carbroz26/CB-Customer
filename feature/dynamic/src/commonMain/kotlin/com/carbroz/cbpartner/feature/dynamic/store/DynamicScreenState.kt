@@ -22,4 +22,5 @@ data class DynamicScreenState(
     val presentationFocusedBinding: String? = null,
     val presentationGeneration: Long = 0L,
     val pendingButton: DynamicPendingButton? = null,
+    val transientState: Map<String, DynamicValue> = emptyMap(),
 )

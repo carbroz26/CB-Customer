@@ -3,6 +3,8 @@ package com.carbroz.cbpartner.web
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import com.carbroz.cbpartner.app.App
+import com.carbroz.cbpartner.app.LOCAL_PREVIEW_RESEND_SECONDS
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.app.configureLogging
 import com.carbroz.cbpartner.app.RetainCompatibilityProbe
 import com.carbroz.cbpartner.network.ApiBaseUrl
@@ -40,8 +42,9 @@ fun main() {
                 apiBaseUrl,
                 fixture = "partner-otp.json",
                 initialState = mapOf(
-                    "phoneNumber" to "9876543210",
-                    "challengeId" to "development-preview",
+                    "phoneNumber" to DynamicValue.StringValue("9876543210"),
+                    "challengeId" to DynamicValue.StringValue("development-preview"),
+                    "resendAfterSeconds" to DynamicValue.NumberValue(LOCAL_PREVIEW_RESEND_SECONDS),
                 ),
             )
         } else if (environment == AppEnvironment.Development &&

@@ -17,6 +17,8 @@ import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionResult
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicListItems
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicReferenceResolver
+import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicCountdownClock
+import com.carbroz.cbpartner.feature.dynamic.runtime.countdownState
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRuntimeState
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicValidationResult
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
@@ -27,6 +29,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -104,6 +108,7 @@ class DynamicStore(
     private val diagnosticLogger = Logger.withTag("CBPartnerFlow")
     private val listItems = DynamicListItems(listCatalog)
     private var loadJob: Job? = null
+    private var countdownJob: Job? = null
     private var actionJob: Job? = null
     private var requestPresentationId: String? = null
     private var requestPresentationGeneration: Long? = null
@@ -287,6 +292,7 @@ class DynamicStore(
                     validationErrors = entry.validationErrors,
                 ),
             )
+            startCountdowns(response)
             return
         }
 
@@ -312,6 +318,7 @@ class DynamicStore(
                             bindings = bindings,
                         ),
                     )
+                    startCountdowns(response)
                 }
                 .onFailure { error ->
                     if (error is CancellationException) throw error
@@ -323,6 +330,53 @@ class DynamicStore(
                     )
                 }
         }
+    }
+
+    /** One countdown job per screen entry, based on retained backend seconds. */
+    private fun startCountdowns(response: DynamicResponse) {
+        countdownJob?.cancel()
+        val definitions = response.data?.countdowns.orEmpty()
+        if (definitions.isEmpty()) return
+        val retained = runtimeState.values.value
+        val clocks = definitions.associate { definition ->
+            val raw = DynamicReferenceResolver.resolvePath(retained, definition.durationStatePath)
+            val seconds = (raw as? DynamicValue.NumberValue)?.value
+            val clock = seconds?.takeIf {
+                it.isFinite() && it >= 0.0 && it <= 86400.0 && it % 1.0 == 0.0
+            }?.toLong()?.let(::DynamicCountdownClock)
+            definition.id to clock
+        }
+        fun publish() {
+            val current = _state.value as? DynamicState.Success ?: return
+            val values = countdownState(clocks)
+            if (current.screen.transientState != values) {
+                _state.value = DynamicState.Success(current.screen.copy(transientState = values))
+            }
+        }
+        publish()
+        if (clocks.values.all { it == null || it.remainingSeconds() == 0L }) return
+        countdownJob = scope.launch {
+            while (isActive) {
+                delay(250)
+                publish()
+                if (clocks.values.all { it == null || it.remainingSeconds() == 0L }) break
+            }
+        }
+    }
+
+    private fun resolvedState(screen: DynamicScreenState): Map<String, DynamicValue> =
+        runtimeState.values.value + screen.transientState
+
+    private fun actionEnabled(action: DynamicAction, screen: DynamicScreenState): Boolean {
+        val condition = action.payload["enabledWhen"] ?: return true
+        return runCatching {
+            (DynamicReferenceResolver.resolve(
+                condition,
+                screen.bindings,
+                contextProvider(),
+                resolvedState(screen),
+            ) as? DynamicValue.BooleanValue)?.value == true
+        }.getOrDefault(false)
     }
 
     private fun seedInitialBindings(
@@ -338,6 +392,7 @@ class DynamicStore(
         presentationGeneration: Long?,
     ) {
         val acceptedScreen = currentScreen() ?: return
+        if (!actionEnabled(action, acceptedScreen)) return
         if (actionJob?.isActive == true) return
         if (presentationId != null &&
             (acceptedScreen.activePresentationId != presentationId ||
@@ -374,6 +429,7 @@ class DynamicStore(
             try {
                 val current = currentScreen() ?: return@launch
                 if (!matchesPresentation(current, presentationId, acceptedGeneration)) return@launch
+                if (!actionEnabled(action, current)) return@launch
                 val traceContext = entry.diagnosticSessionId?.let { session ->
                     TraceContext(session, Uuid.random().toString(), entry.parentActionId)
                 }
@@ -386,7 +442,7 @@ class DynamicStore(
                 }
 
                 val context = contextProvider()
-                val stateValues = runtimeState.values.value
+                val stateValues = resolvedState(current)
                 val validateFlag = runCatching {
                     if (action.type.trim().equals("request", ignoreCase = true)) {
                         val flag = action.payload["validate"]
@@ -468,6 +524,7 @@ class DynamicStore(
                     reduceForOrigin(active.copy(pendingButton = origin), presentationId)
                 }
 
+                if (!actionEnabled(action, latest)) return@launch
                 val result = actionExecutor.execute(
                     action = action,
                     bindings = latestBindings,
@@ -592,7 +649,7 @@ class DynamicStore(
                 screen = screen,
                 bindings = current.bindings,
                 context = contextProvider(),
-                state = runtimeState.values.value,
+                state = resolvedState(current),
                 suppressedBinding = suppressedBinding,
             )
         }.fold(
@@ -646,7 +703,16 @@ class DynamicStore(
     ): Boolean = when (result) {
         is DynamicActionResult.Present -> openPresentation(result.presentationId)
         DynamicActionResult.Dismiss -> closeActivePresentation()
-        else -> commitActionResult(result.stateChanges, result.effects, traceContext)
+        else -> {
+            val accepted = commitActionResult(result.stateChanges, result.effects, traceContext)
+            if (accepted && result.stateChanges.isNotEmpty()) {
+                val response = currentScreen()?.response
+                if (response?.data?.countdowns?.any { it.durationStatePath in result.stateChanges } == true) {
+                    startCountdowns(response)
+                }
+            }
+            accepted
+        }
     }
 
     private fun openPresentation(presentationId: String): Boolean {
@@ -756,6 +822,7 @@ class DynamicStore(
         closed = true
         loadJob?.cancel()
         actionJob?.cancel()
+        countdownJob?.cancel()
         val current = currentScreen()
         if (current?.pendingButton != null) {
             _state.value = DynamicState.Success(current.copy(pendingButton = null))

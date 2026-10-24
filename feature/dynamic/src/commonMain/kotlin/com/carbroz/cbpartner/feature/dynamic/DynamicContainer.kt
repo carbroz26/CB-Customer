@@ -93,7 +93,7 @@ fun DynamicContainer(
                         },
                         bindings = current.screen.bindings,
                         contextValues = contextValues,
-                        stateValues = runtimeValues,
+                        stateValues = runtimeValues + current.screen.transientState,
                         validationErrors = current.screen.validationErrors,
                         focusedBinding = current.screen.focusedBinding,
                         pendingButtonId = current.screen.pendingButton?.takeIf {
@@ -140,7 +140,7 @@ fun DynamicContainer(
                             },
                             bindings = current.screen.bindings + current.screen.presentationBindings,
                             contextValues = contextValues,
-                            stateValues = runtimeValues,
+                            stateValues = runtimeValues + current.screen.transientState,
                             validationErrors = current.screen.presentationValidationErrors,
                             focusedBinding = current.screen.presentationFocusedBinding,
                             pendingButtonId = current.screen.pendingButton?.takeIf {

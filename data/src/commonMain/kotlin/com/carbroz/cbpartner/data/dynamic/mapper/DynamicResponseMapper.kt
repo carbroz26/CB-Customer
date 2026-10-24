@@ -7,12 +7,14 @@ import com.carbroz.cbpartner.data.dynamic.model.theme.DynamicThemeDto
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicScreen
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicCountdown
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.theme.DynamicTheme
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 class DynamicResponseMapper(private val json: Json) {
     private val values = DynamicValueMapper()
@@ -55,6 +57,21 @@ class DynamicResponseMapper(private val json: Json) {
             "Dynamic presentation ids must be unique within a screen"
         }
         val template = templateMapper.map(dto.template)
+        val countdowns = dto.countdowns.map { countdown ->
+            require(countdown.id.matches(Regex("^[a-zA-Z][a-zA-Z0-9_]{0,63}$"))) {
+                "Dynamic countdown id is invalid"
+            }
+            val source = countdown.durationSeconds
+            val reference = source["\$state"] as? JsonPrimitive
+            require(source.size == 1 && reference?.isString == true &&
+                reference.content.matches(Regex("^[a-zA-Z][a-zA-Z0-9_.]{0,127}$"))) {
+                "Dynamic countdown durationSeconds must be a single \$state reference"
+            }
+            DynamicCountdown(countdown.id, reference.content)
+        }
+        require(countdowns.map { it.id }.distinct().size == countdowns.size) {
+            "Dynamic countdown ids must be unique"
+        }
         validateButtonIds(
             template.header?.components.orEmpty() + template.components + template.footer?.components.orEmpty(),
         )
@@ -67,6 +84,7 @@ class DynamicResponseMapper(private val json: Json) {
             theme = dto.theme?.let(::mapTheme),
             initialBindings = values.toDynamicValueMap(dto.initialBindings),
             presentations = presentations,
+            countdowns = countdowns,
         )
     }
 

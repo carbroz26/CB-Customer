@@ -75,6 +75,7 @@ class ElementMapper(
             spacing = values.spacing(dto.properties),
             maxLines = values.number(dto.properties, "maxLines")?.toInt(),
             overflow = values.string(dto.properties, "overflow"),
+            disabledColor = values.string(dto.properties, "disabledColor"),
         )
     }
 

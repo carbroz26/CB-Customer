@@ -8,6 +8,8 @@ import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.retain.RetainedEffect
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
+import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.data.di.bootstrapModule
@@ -65,12 +67,44 @@ fun App(
                 if (preview == null) dynamicDataModule else module {
                     single<DynamicRepository> {
                         object : DynamicRepository {
+                            private var resendCount = 0
+
                             override suspend fun fetch(
                                 request: com.carbroz.cbpartner.domain.model.dynamic.DynamicRequest,
-                            ) = if (request.endpoint == LOCAL_PREVIEW_DYNAMIC_ENDPOINT) {
-                                Result.success(preview.response)
-                            } else {
-                                Result.failure<com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse>(
+                            ): Result<DynamicResponse> = when {
+                                request.endpoint == LOCAL_PREVIEW_DYNAMIC_ENDPOINT ->
+                                    Result.success(preview.response)
+
+                                // This is an offline OTP preview fixture, not a backend bypass.
+                                preview.response.data?.screenId == "partner_otp" &&
+                                    request.endpoint == "/api/v1/partner/auth/send_otp" &&
+                                    request.method.equals("POST", ignoreCase = true) -> {
+                                    val phone = (request.body as? DynamicValue.ObjectValue)
+                                        ?.value?.get("phoneNumber") as? DynamicValue.StringValue
+                                    if (phone == null) {
+                                        Result.failure(IllegalArgumentException("Missing preview phoneNumber"))
+                                    } else {
+                                        resendCount++
+                                        Result.success(DynamicResponse(
+                                            status = 200,
+                                            code = "SUCCESS",
+                                            message = "Development preview OTP sent",
+                                            data = null,
+                                            traceId = null,
+                                            dataPayload = DynamicValue.ObjectValue(mapOf(
+                                                "challengeId" to DynamicValue.StringValue(
+                                                    "development-resend-" + resendCount,
+                                                ),
+                                                "phoneNumber" to phone,
+                                                "resendAfterSeconds" to DynamicValue.NumberValue(
+                                                    LOCAL_PREVIEW_RESEND_SECONDS,
+                                                ),
+                                            )),
+                                        ))
+                                    }
+                                }
+
+                                else -> Result.failure(
                                     IllegalStateException("Offline preview cannot send network requests"),
                                 )
                             }

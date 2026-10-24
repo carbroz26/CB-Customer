@@ -11,6 +11,9 @@ import kotlinx.serialization.json.Json
  * Only prepares a typed response and development countries; rendering, actions,
  * state and validation remain owned by the normal application composition.
  */
+/** This value is used only by opt-in development fixtures, never by production policy. */
+const val LOCAL_PREVIEW_RESEND_SECONDS = 10.0
+
 data class LocalDynamicPreview(
     val response: DynamicResponse,
     val countries: List<Map<String, DynamicValue>>,
@@ -20,7 +23,7 @@ data class LocalDynamicPreview(
 /** Both previews pass their platform-loaded bytes through this exact DTO mapper. */
 fun parseLocalDynamicPreview(
     raw: String,
-    initialState: Map<String, String> = emptyMap(),
+    initialState: Map<String, DynamicValue> = emptyMap(),
 ): LocalDynamicPreview {
     val json = Json { ignoreUnknownKeys = true; isLenient = true }
     val response = DynamicResponseMapper(json).map(
@@ -30,7 +33,7 @@ fun parseLocalDynamicPreview(
     return LocalDynamicPreview(
         response,
         previewCountries(),
-        initialState.mapValues { (_, value) -> DynamicValue.StringValue(value) },
+        initialState.toMap(),
     )
 }
 

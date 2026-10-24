@@ -14,4 +14,5 @@ data class DynamicScreenDto(
     val theme: DynamicThemeDto? = null,
     val initialBindings: JsonObject = JsonObject(emptyMap()),
     val presentations: List<DynamicPresentationDto> = emptyList(),
+    val countdowns: List<DynamicCountdownDto> = emptyList(),
 )

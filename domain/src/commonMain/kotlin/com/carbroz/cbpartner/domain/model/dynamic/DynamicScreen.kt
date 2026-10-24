@@ -13,4 +13,5 @@ data class DynamicScreen(
     val theme: DynamicTheme?,
     val initialBindings: Map<String, DynamicValue> = emptyMap(),
     val presentations: List<DynamicPresentation> = emptyList(),
+    val countdowns: List<DynamicCountdown> = emptyList(),
 )

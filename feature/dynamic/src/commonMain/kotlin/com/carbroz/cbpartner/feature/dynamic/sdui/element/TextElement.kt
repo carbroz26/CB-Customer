@@ -28,7 +28,11 @@ import com.carbroz.cbpartner.feature.dynamic.sdui.reportDynamicOrigin
 class TextElement : ElementRenderer<TextElementModel> {
     @Composable
     override fun render(element: TextElementModel, context: DynamicRenderContext) {
-        val color = element.color?.toColor() ?: Color.Unspecified
+        val enabled = element.actions["onClick"]?.payload?.get("enabledWhen")?.let { condition ->
+            (context.resolve(condition) as? DynamicValue.BooleanValue)?.value == true
+        } ?: true
+        val color = (if (enabled) element.color else element.disabledColor ?: element.color)
+            ?.toColor() ?: Color.Unspecified
         val annotated = if (element.spans.isEmpty()) {
             AnnotatedString(element.text)
         } else {
@@ -45,7 +49,7 @@ class TextElement : ElementRenderer<TextElementModel> {
                     )
                     val spanText =
                         (context.resolve(span.text) as? DynamicValue.StringValue)?.value.orEmpty()
-                    val action = span.action
+                    val action = span.action?.takeIf { enabled }
                     if (action != null) {
                         val link = LinkAnnotation.Clickable(
                             tag = spanText,
@@ -80,7 +84,7 @@ class TextElement : ElementRenderer<TextElementModel> {
                 if (element.spans.any { it.action != null }) {
                     base
                 } else {
-                    base.dynamicGestures(element.actions, context.onAction, element.id)
+                    base.dynamicGestures(if (enabled) element.actions else emptyMap(), context.onAction, element.id)
                 }
             },
             verticalAlignment = Alignment.CenterVertically,

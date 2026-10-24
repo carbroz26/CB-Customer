@@ -307,7 +307,6 @@
                   "id": "otp_timer_text",
                   "type": "text",
                   "properties": {
-                    "text": "Resend OTP in 00:30",
                     "fontSize": 15,
                     "fontWeight": 600,
                     "color": "#6F8EC0",
@@ -328,7 +327,17 @@
                         }
                       }
                     ],
-                    "lineHeight": 22
+                    "lineHeight": 22,
+                    "spans": [
+                      {
+                        "text": "Resend OTP in "
+                      },
+                      {
+                        "text": {
+                          "$state": "countdowns.resend.remainingText"
+                        }
+                      }
+                    ]
                   }
                 }
               ]
@@ -408,7 +417,35 @@
                     "textAlign": "center",
                     "fillMaxWidth": true,
                     "minHeight": 28,
-                    "lineHeight": 22
+                    "lineHeight": 22,
+                    "disabledColor": "#9CA3AF"
+                  },
+                  "actions": {
+                    "onClick": {
+                      "type": "request",
+                      "payload": {
+                        "method": "POST",
+                        "endpoint": "/api/v1/partner/auth/send_otp",
+                        "authentication": "NONE",
+                        "validate": false,
+                        "enabledWhen": {
+                          "$state": "countdowns.resend.ready"
+                        },
+                        "body": {
+                          "phoneNumber": {
+                            "$state": "phoneNumber"
+                          },
+                          "deviceId": {
+                            "$context": "deviceId"
+                          }
+                        },
+                        "responseMode": "none",
+                        "retain": {
+                          "challengeId": "data.challengeId",
+                          "resendAfterSeconds": "data.resendAfterSeconds"
+                        }
+                      }
+                    }
                   }
                 }
               ]
@@ -536,6 +573,14 @@
           ]
         }
       }
-    }
+    },
+    "countdowns": [
+      {
+        "id": "resend",
+        "durationSeconds": {
+          "$state": "resendAfterSeconds"
+        }
+      }
+    ]
   }
 }
