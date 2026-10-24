@@ -323,7 +323,6 @@
                           "size": 18,
                           "color": "#1A63CC",
                           "spacing": {
-                            "top": 2,
                             "end": 4
                           }
                         }
