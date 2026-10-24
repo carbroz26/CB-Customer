@@ -116,8 +116,10 @@ class DynamicValidationMessageContractTest {
 
     @Test
     fun declarativeEqualityMapsAndRejectsInvalidReferenceNamespaces() {
-        val comparison = """"equals":{"value":{"\$binding":"countryId"},
-            "expected":{"\$literal":"IN"}},"""
+        val comparison = """"equals":{"value":{"${'":"countryId"},
+            "expected":{"${'":"IN"}},"""}binding":"countryId"},
+            "expected":{"\$literal":"IN"}},"""}literal":"IN"}},"""}binding":"countryId"},
+            "expected":{"${'":"IN"}},"""}literal":"IN"}},"""
         val withEquality = phoneInput.replace(
             "\"clearOnEdit\":true,",
             comparison + "\"clearOnEdit\":true,",
