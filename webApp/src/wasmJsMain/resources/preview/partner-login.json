@@ -44,10 +44,10 @@
           "properties": {
             "orientation": "vertical",
             "fillMaxWidth": true,
-            "horizontalAlignment": "center",
+            "horizontalAlignment": "start",
             "padding": {
               "start": 24,
-              "top": 48,
+              "top": 32,
               "end": 24,
               "bottom": 32
             }
@@ -61,7 +61,7 @@
                 "fontSize": 28,
                 "fontWeight": 700,
                 "color": "#0A337F",
-                "textAlign": "center",
+                "textAlign": "start",
                 "leading": [
                   {
                     "type": "image",
