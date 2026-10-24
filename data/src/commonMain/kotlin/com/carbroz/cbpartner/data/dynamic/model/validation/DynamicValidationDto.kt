@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.data.dynamic.model.validation
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class DynamicValidationDto(
@@ -11,7 +12,8 @@ data class DynamicValidationDto(
     val requiredMessage: String? = null,
     val lengthMessages: List<DynamicValidationLengthMessageDto> = emptyList(),
     val clearOnEdit: Boolean = false,
-    val validator: DynamicValidatorDto? = null,
+    // Reject legacy named rules rather than silently dropping them under ignoreUnknownKeys.
+    val validator: JsonElement? = null,
     val equals: DynamicValidationEqualsDto? = null,
 )
 
@@ -30,8 +32,3 @@ data class DynamicValidationLengthMessageDto(
     val message: String,
 )
 
-@Serializable
-data class DynamicValidatorDto(
-    val key: String,
-    val arguments: JsonObject = JsonObject(emptyMap()),
-)

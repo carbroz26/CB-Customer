@@ -46,7 +46,7 @@ internal object DynamicContractFixtures {
                 "binding":{"key":"phone"},
                 "validation":{
                   "required":true,
-                  "validator":{"key":"phone_number","arguments":{"region":{"${DOLLAR}binding":"selectedId"}}},
+                  "pattern":"^[6-9][0-9]{9}$","equals":{"value":{"${DOLLAR}binding":"selectedId"},"expected":{"${DOLLAR}literal":"IN"}},
                   "message":"Invalid"
                 }
               },

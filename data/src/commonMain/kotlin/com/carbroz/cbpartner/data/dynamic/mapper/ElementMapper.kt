@@ -18,7 +18,6 @@ import com.carbroz.cbpartner.domain.model.dynamic.element.TextElement
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationLengthMessage
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationEquality
-import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidatorSpec
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicButtonLoading
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicLoadingIndicator
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicTextSpan
@@ -256,18 +255,13 @@ class ElementMapper(
         }
 
     private fun mapValidation(dto: DynamicValidationDto?): DynamicValidation? = dto?.let {
-        val validator = it.validator?.let { spec ->
-            require(spec.key.isNotBlank()) { "Dynamic validator key is required" }
-            DynamicValidatorSpec(
-                key = spec.key,
-                arguments = values.toDynamicValueMap(spec.arguments),
-            )
+        require(it.validator == null) {
+            "Named Dynamic validators are unsupported; use declarative validation rules"
         }
         DynamicValidation(
             required = it.required,
             pattern = it.pattern,
             message = it.message,
-            validator = validator,
             requiredMessage = it.requiredMessage,
             clearOnEdit = it.clearOnEdit,
             equals = it.equals?.let { comparison ->

@@ -10,16 +10,13 @@ import com.carbroz.cbpartner.feature.dynamic.action.RequestActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.StateActionHandler
 import com.carbroz.cbpartner.feature.dynamic.action.SequenceActionHandler
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicFormValidator
-import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicValidator
-import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicValidatorRegistry
 import com.carbroz.cbpartner.feature.dynamic.usecase.LoadDynamicScreenUseCase
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val dynamicModule = module {
     factory { LoadDynamicScreenUseCase(get()) }
-    factory { DynamicValidatorRegistry(getAll<DynamicValidator>()) }
-    factory { DynamicFormValidator(get()) }
+    factory { DynamicFormValidator() }
     factory { NavigateActionHandler() } bind DynamicActionHandler::class
     factory { RequestActionHandler(get()) } bind DynamicActionHandler::class
     factory { ExternalUriActionHandler() } bind DynamicActionHandler::class

@@ -15,13 +15,11 @@ import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidation
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationLengthMessage
 import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidationEquality
-import com.carbroz.cbpartner.domain.model.dynamic.validation.DynamicValidatorSpec
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValidationPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 class DynamicFormValidatorTest {
@@ -88,99 +86,17 @@ class DynamicFormValidatorTest {
     }
 
     @Test
-    fun requiredThenPatternThenNamedValidatorRunInOrder() {
-        var namedCalls = 0
-        val named = object : DynamicValidator {
-            override val key = "sample"
-
-            override fun isValid(
-                value: DynamicValue,
-                arguments: Map<String, DynamicValue>,
-            ): Boolean {
-                namedCalls++
-                return false
-            }
-        }
-        val validator = DynamicFormValidator(DynamicValidatorRegistry(listOf(named)))
-        val validation = DynamicValidation(
-            required = true,
-            pattern = "^[0-9]+$",
-            message = "Invalid",
-            validator = DynamicValidatorSpec("sample"),
-        )
-        val screen = screen(listOf(input("value", "value", validation)))
-
-        validator.validate(screen, mapOf("value" to DynamicValue.StringValue("")))
-        assertEquals(0, namedCalls)
-
-        validator.validate(screen, mapOf("value" to DynamicValue.StringValue("abc")))
-        assertEquals(0, namedCalls)
-
-        validator.validate(screen, mapOf("value" to DynamicValue.StringValue("123")))
-        assertEquals(1, namedCalls)
-    }
-
-    @Test
-    fun namedValidatorReceivesResolvedArguments() {
-        var region: DynamicValue? = null
-        val named = object : DynamicValidator {
-            override val key = "sample"
-
-            override fun isValid(
-                value: DynamicValue,
-                arguments: Map<String, DynamicValue>,
-            ): Boolean {
-                region = arguments["region"]
-                return true
-            }
-        }
-        val validator = DynamicFormValidator(DynamicValidatorRegistry(listOf(named)))
-        val validation = DynamicValidation(
-            required = null,
-            pattern = null,
-            message = "Invalid",
-            validator = DynamicValidatorSpec(
-                key = "sample",
-                arguments = mapOf(
-                    "region" to DynamicValue.ObjectValue(
-                        mapOf(
-                            "\$binding" to DynamicValue.StringValue("countryId"),
-                        ),
-                    ),
-                ),
-            ),
-        )
-
-        val result = validator.validate(
-            screen(listOf(input("phone", "phone", validation))),
-            bindings = mapOf(
-                "phone" to DynamicValue.StringValue("123"),
-                "countryId" to DynamicValue.StringValue("IN"),
-            ),
-        )
-
-        assertEquals(DynamicValue.StringValue("IN"), region)
-        assertEquals(emptyMap(), result.errors)
-    }
-
-    @Test
     fun validationMessagesRemainUntilThePhoneBecomesValid() {
-        val named = object : DynamicValidator {
-            override val key = "phone"
-            override fun isValid(value: DynamicValue, arguments: Map<String, DynamicValue>): Boolean =
-                Regex("^[6-9][0-9]{9}$").matches((value as? DynamicValue.StringValue)?.value.orEmpty())
-        }
         val phone = DynamicValidation(
-            required = true, pattern = null,
+            required = true, pattern = "^[6-9][0-9]{9}$",
             message = "Please enter a valid 10-digit mobile number.",
-            validator = DynamicValidatorSpec("phone"),
             requiredMessage = "Mobile number is required.",
             lengthMessages = listOf(
                 DynamicValidationLengthMessage(6, 9, "Mobile number must be 10 digits."),
                 DynamicValidationLengthMessage(minLength = 11, message = "Mobile number must be 10 digits."),
             ),
         )
-        val validator = DynamicFormValidator(DynamicValidatorRegistry(listOf(named)))
+        val validator = DynamicFormValidator()
         val screen = screen(listOf(input("phone", "phone", phone)))
         fun message(value: String) =
             validator.validate(screen, mapOf("phone" to DynamicValue.StringValue(value))).errors["phone"]
@@ -291,46 +207,6 @@ class DynamicFormValidatorTest {
         val edited = validator.validate(field, invalid, suppressedBinding = "phone")
         assertEquals(mapOf("name" to "Name required"), edited.errors)
         assertEquals("Name required", edited.fallbackMessage)
-    }
-
-    @Test
-    fun registryRejectsDuplicateAndUnknownValidators() {
-        val first = validator("same")
-        val second = validator("same")
-        assertFailsWith<IllegalStateException> {
-            DynamicValidatorRegistry(listOf(first, second))
-        }
-
-        val form = DynamicFormValidator(DynamicValidatorRegistry(emptyList()))
-        val screen = screen(
-            listOf(
-                input(
-                    "value",
-                    "value",
-                    DynamicValidation(
-                        required = null,
-                        pattern = null,
-                        message = "Invalid",
-                        validator = DynamicValidatorSpec("missing"),
-                    ),
-                ),
-            ),
-        )
-        assertFailsWith<IllegalArgumentException> {
-            form.validate(
-                screen,
-                mapOf("value" to DynamicValue.StringValue("present")),
-            )
-        }
-    }
-
-    private fun validator(key: String) = object : DynamicValidator {
-        override val key = key
-
-        override fun isValid(
-            value: DynamicValue,
-            arguments: Map<String, DynamicValue>,
-        ): Boolean = true
     }
 
     private fun input(

@@ -520,10 +520,14 @@ class DynamicResponseMapperTest {
         assertEquals("#94A3B8", input.placeholderColor)
         assertEquals(44.0, input.height)
         assertEquals(DynamicBackground.Solid("#FFF1F2"), input.validationStyle?.background)
-        assertEquals("phone_number", input.validation?.validator?.key)
+        assertEquals("^[6-9][0-9]{9}$", input.validation?.pattern)
         assertEquals(
             DynamicValue.ObjectValue(mapOf("\$binding" to DynamicValue.StringValue("selectedId"))),
-            input.validation?.validator?.arguments?.get("region"),
+            input.validation?.equals?.value,
+        )
+        assertEquals(
+            DynamicValue.ObjectValue(mapOf("\$literal" to DynamicValue.StringValue("IN"))),
+            input.validation?.equals?.expected,
         )
 
         val button = assertIs<ButtonElement>(surface.elements[1])

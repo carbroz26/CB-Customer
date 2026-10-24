@@ -17,9 +17,7 @@ data class DynamicValidationResult(
         get() = errors.isEmpty()
 }
 
-class DynamicFormValidator(
-    private val validators: DynamicValidatorRegistry = DynamicValidatorRegistry(emptyList()),
-) {
+class DynamicFormValidator {
     fun validate(
         screen: DynamicScreen,
         bindings: Map<String, DynamicValue>,
@@ -131,16 +129,6 @@ class DynamicFormValidator(
                 actual != expected
             ) {
                 return key to invalidMessage(validation, text)
-            }
-        }
-
-        validation.validator?.let { spec ->
-            val arguments = spec.arguments.mapValues { (_, argument) ->
-                DynamicReferenceResolver.resolve(argument, bindings, context, state)
-            }
-            val validator = validators.requireValidator(spec.key)
-            if (!validator.isValid(value, arguments)) {
-                return key to (invalidMessage(validation, text))
             }
         }
 

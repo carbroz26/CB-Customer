@@ -148,6 +148,24 @@ class DynamicValidationMessageContractTest {
     }
 
     @Test
+    fun legacyNamedValidatorIsRejectedNotSilentlyIgnored() {
+        val legacy = phoneInput.replace(
+            "\"clearOnEdit\":true,",
+            "\"validator\":{\"key\":\"phone_number\"},\"clearOnEdit\":true,",
+        )
+        assertFailsWith<IllegalArgumentException> {
+            parse(compositeField().replace(phoneInput, legacy))
+        }
+        val malformed = phoneInput.replace(
+            "\"clearOnEdit\":true,",
+            "\"validator\":\"unsupported\",\"clearOnEdit\":true,",
+        )
+        assertFailsWith<IllegalArgumentException> {
+            parse(compositeField().replace(phoneInput, malformed))
+        }
+    }
+
+    @Test
     fun fieldlessGroupRejectsHistoricalPresentationFields() {
         val historical = compositeField().replace(
             "\"orientation\":\"horizontal\"",
