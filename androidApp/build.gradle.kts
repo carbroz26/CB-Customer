@@ -73,7 +73,7 @@ androidComponents {
             "Android developmentDebug assets source is unavailable"
         }.addGeneratedSourceDirectory(
             generateDevelopmentPreviewAssets,
-            GenerateDevelopmentLoginPreviewAsset::outputDirectory,
+            GenerateDevelopmentPreviewAssets::outputDirectory,
         )
     }
 }
