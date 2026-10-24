@@ -6,13 +6,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,11 +23,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
@@ -103,8 +99,8 @@ class InputElement : ElementRenderer<InputElementModel> {
         val focusManager = LocalFocusManager.current
         val keyboardController = LocalSoftwareKeyboardController.current
         val submit: () -> Unit = {
-            keyboardController?.hide()
             focusManager.clearFocus()
+            keyboardController?.hide()
             element.actions["onSubmit"]?.let {
                 reportDynamicOrigin(element.id, "onSubmit", it.type)
                 context.onAction(it)
@@ -176,7 +172,7 @@ class InputElement : ElementRenderer<InputElementModel> {
                     onValueChange = { changed(it, segmented = true) },
                     focusModifier = focusModifier,
                     keyboardActions = keyboardActions,
-                    imeAction = submitIme,
+                    imeAction = ImeAction.Done,
                 )
             } else {
                 var fieldModifier = focusModifier.weight(1f)
@@ -227,7 +223,10 @@ class InputElement : ElementRenderer<InputElementModel> {
         textAlign = element.textAlign.toTextAlign(),
     )
 
-    /** Multiple native editing surfaces, but one authored InputElement and one binding. */
+    /**
+     * One native IME connection with independently selectable painted cells.
+     * Slot changes update selection, never native focus; dismissals do not refocus.
+     */
     @Composable
     private fun SegmentedInput(
         value: String,
@@ -251,100 +250,90 @@ class InputElement : ElementRenderer<InputElementModel> {
         imeAction: ImeAction,
     ) {
         require(count > 0) { "Segmented input needs at least one slot" }
-        val requesters = remember(count) { List(count) { FocusRequester() } }
-        var focusedSlot by remember(count) { mutableIntStateOf(-1) }
-        var targetFocus by remember(count) { mutableIntStateOf(-1) }
-        val slots = List(count) { index ->
-            value.getOrNull(index)?.takeUnless { it == ' ' }?.toString().orEmpty()
-        }
-        val nextEmpty = slots.indexOfFirst(String::isEmpty).let { if (it < 0) count else it }
-        LaunchedEffect(value, targetFocus) {
-            if (targetFocus in 0 until count &&
-                (targetFocus <= nextEmpty || slots[targetFocus].isNotEmpty())
-            ) {
-                requesters[targetFocus].requestFocus()
-                targetFocus = -1
-            }
-        }
+        val focusRequester = remember { FocusRequester() }
+        var selectedSlot by remember(count) { mutableIntStateOf(0) }
+        var hasFocus by remember { mutableStateOf(false) }
+        val padded = value.padEnd(count, ' ').take(count)
+        val firstEmpty = padded.indexOf(' ').let { if (it < 0) count else it }
+        val selected = selectedSlot.coerceIn(0, count - 1)
+        val fieldValue = TextFieldValue(padded, selection = TextRange(selected, selected + 1))
 
-        Row(
-            modifier = Modifier.fillMaxWidth().then(focusModifier),
-            horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            repeat(count) { index ->
-                val cell = slots[index]
-                val enabled = index <= nextEmpty || cell.isNotEmpty()
-                val activeBorder = when {
-                    invalid -> invalidBorder ?: border
-                    focusedSlot == index -> focusBorder ?: border
-                    else -> border
+        BasicTextField(
+            modifier = focusModifier.fillMaxWidth()
+                .focusRequester(focusRequester)
+                .onFocusChanged { hasFocus = it.isFocused },
+            value = fieldValue,
+            onValueChange = { proposed ->
+                if (proposed.text != padded) {
+                    val edited = editSegmentedInput(
+                        current = value,
+                        index = selected,
+                        editedText = proposed.text,
+                        count = count,
+                        inputFilter = inputFilter,
+                    )
+                    selectedSlot = edited.nextFocus
+                    if (edited.value != value) onValueChange(edited.value)
+                } else if (proposed.selection.start != fieldValue.selection.start) {
+                    val target = proposed.selection.start.coerceIn(0, count - 1)
+                    if (target <= firstEmpty || padded[target] != ' ') selectedSlot = target
                 }
-                Box(
-                    modifier = Modifier
-                        .width(segmentWidth)
-                        .height(segmentHeight)
-                        .applyDynamicBackground(background, shape.toComposeShape())
-                        .applyBorder(activeBorder, shape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    BasicTextField(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .focusRequester(requesters[index])
-                            .onFocusChanged { state ->
-                                if (state.isFocused) focusedSlot = index
-                                else if (focusedSlot == index) focusedSlot = -1
+            },
+            textStyle = textStyle.copy(color = Color.Transparent),
+            cursorBrush = SolidColor(Color.Transparent),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
+            keyboardActions = keyboardActions,
+            decorationBox = { innerTextField ->
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        repeat(count) { index ->
+                            val digit = padded[index].takeUnless { it == ' ' }?.toString().orEmpty()
+                            val editable = index <= firstEmpty || digit.isNotEmpty()
+                            val active = hasFocus && selected == index
+                            val activeBorder = when {
+                                invalid -> invalidBorder ?: border
+                                active -> focusBorder ?: border
+                                else -> border
                             }
-                            .onPreviewKeyEvent { event ->
-                                if (event.key == Key.Backspace && event.type == KeyEventType.KeyDown &&
-                                    cell.isEmpty() && index > 0
-                                ) {
-                                    requesters[index - 1].requestFocus()
-                                    true
-                                } else false
-                            },
-                        value = TextFieldValue(cell, selection = TextRange(0, cell.length)),
-                        onValueChange = { input ->
-                            if (cell.isEmpty() && input.text.isEmpty() && index > 0) {
-                                targetFocus = index - 1
-                            } else {
-                                val update = editSegmentedValue(
-                                    value, index, input.text, count, inputFilter,
-                                )
-                                onValueChange(update.value)
-                                targetFocus = update.nextFocus
-                            }
-                        },
-                        enabled = enabled,
-                        textStyle = textStyle.copy(textAlign = TextAlign.Center),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = keyboardType,
-                            imeAction = imeAction,
-                        ),
-                        keyboardActions = keyboardActions,
-                        singleLine = true,
-                        decorationBox = { innerTextField ->
                             Box(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.width(segmentWidth).height(segmentHeight)
+                                    .applyDynamicBackground(background, shape.toComposeShape())
+                                    .applyBorder(activeBorder, shape)
+                                    .clickable(enabled = editable) {
+                                        selectedSlot = index
+                                        focusRequester.requestFocus()
+                                    },
                                 contentAlignment = Alignment.Center,
                             ) {
-                                if (cell.isEmpty() && placeholder != null) {
-                                    androidx.compose.material3.Text(
-                                        text = placeholder,
-                                        style = textStyle.copy(
-                                            color = border?.color?.toColor() ?: Color.Unspecified,
-                                            textAlign = TextAlign.Center,
-                                        ),
-                                    )
-                                }
-                                innerTextField()
+                                // The selected empty slot displays the caret instead of its placeholder.
+                                val shown = if (active && digit.isEmpty()) "│"
+                                    else digit.ifEmpty { placeholder.orEmpty() }
+                                androidx.compose.material3.Text(
+                                    text = shown,
+                                    style = textStyle.copy(
+                                        color = if (digit.isEmpty()) {
+                                            (if (active) focusBorder else border)?.color?.toColor()
+                                                ?: Color.Unspecified
+                                        } else textStyle.color,
+                                        textAlign = TextAlign.Center,
+                                    ),
+                                )
                             }
-                        },
-                    )
+                        }
+                    }
+                    // The inner field is kept alive exactly once for IME/accessibility.
+                    // Its text/cursor are painted instead in the authored cell surfaces.
+                    Box(modifier = Modifier.width(1.dp).height(1.dp).alpha(0f)) {
+                        innerTextField()
+                    }
                 }
-            }
-        }
+            },
+        )
     }
 
 }
@@ -389,4 +378,27 @@ internal fun editSegmentedValue(
     }
     val next = (index + characters.length).coerceAtMost(count - 1)
     return SegmentedEdit(cells.joinToString("") { it?.toString() ?: " " }.trimEnd(), next)
+}
+
+/** Decode the native replacement of one selected slot without moving native focus. */
+internal fun editSegmentedInput(
+    current: String,
+    index: Int,
+    editedText: String,
+    count: Int,
+    inputFilter: String? = null,
+): SegmentedEdit {
+    require(count > 0 && index in 0 until count)
+    val padded = current.padEnd(count, ' ').take(count)
+    val prefix = padded.substring(0, index)
+    val suffix = padded.substring(index + 1)
+    if (!editedText.startsWith(prefix) || !editedText.endsWith(suffix) ||
+        editedText.length < prefix.length + suffix.length
+    ) return SegmentedEdit(current, index)
+    val incoming = editedText.substring(prefix.length, editedText.length - suffix.length)
+    if (incoming.isEmpty() && padded[index] == ' ') {
+        // Backspace over an empty slot moves selection to the previous cell.
+        return SegmentedEdit(current, (index - 1).coerceAtLeast(0))
+    }
+    return editSegmentedValue(current, index, incoming, count, inputFilter)
 }

@@ -41,7 +41,7 @@
           "properties": {
             "orientation": "vertical",
             "fillMaxWidth": true,
-            "horizontalAlignment": "center",
+            "horizontalAlignment": "start",
             "padding": {
               "start": 24,
               "top": 48,
@@ -58,7 +58,7 @@
                 "fontSize": 28,
                 "fontWeight": 700,
                 "color": "#0A337F",
-                "textAlign": "center",
+                "textAlign": "start",
                 "leading": [
                   {
                     "type": "image",
@@ -87,7 +87,7 @@
               "type": "text",
               "properties": {
                 "text": "Verify your number",
-                "fontSize": 44,
+                "fontSize": 32,
                 "fontWeight": 800,
                 "color": "#0A337F",
                 "textAlign": "start",
@@ -95,7 +95,7 @@
                 "spacing": {
                   "bottom": 4
                 },
-                "lineHeight": 52
+                "lineHeight": 40
               }
             },
             {
@@ -108,9 +108,9 @@
                 "color": "#5C79A3",
                 "textAlign": "start",
                 "fillMaxWidth": true,
-                "lineHeight": 28,
+                "lineHeight": 24,
                 "spacing": {
-                  "bottom": 4
+                  "bottom": 0
                 }
               }
             },
@@ -123,9 +123,9 @@
                 "color": "#0A337F",
                 "textAlign": "start",
                 "fillMaxWidth": true,
-                "lineHeight": 28,
+                "lineHeight": 24,
                 "spacing": {
-                  "bottom": 12
+                  "bottom": 8
                 },
                 "spans": [
                   {
@@ -183,7 +183,7 @@
               "start": 16,
               "top": 16,
               "end": 16,
-              "bottom": 24
+              "bottom": 12
             }
           },
           "sections": [
@@ -192,7 +192,7 @@
               "type": "form_field_section",
               "properties": {
                 "fillMaxWidth": true,
-                "horizontalAlignment": "center",
+                "horizontalAlignment": "start",
                 "controlSurface": {
                   "height": 56,
                   "fillMaxWidth": true
@@ -227,7 +227,7 @@
                   }
                 },
                 "padding": {
-                  "bottom": 16
+                  "bottom": 12
                 }
               },
               "elements": [
@@ -298,8 +298,9 @@
                 "fillMaxWidth": true,
                 "padding": {
                   "top": 0,
-                  "bottom": 14
-                }
+                  "bottom": 10
+                },
+                "horizontalAlignment": "center"
               },
               "elements": [
                 {
@@ -311,7 +312,6 @@
                     "fontWeight": 500,
                     "color": "#5C79A3",
                     "textAlign": "center",
-                    "fillMaxWidth": true,
                     "leading": [
                       {
                         "type": "icon",
@@ -339,7 +339,7 @@
                 "orientation": "vertical",
                 "fillMaxWidth": true,
                 "padding": {
-                  "bottom": 12
+                  "bottom": 8
                 }
               },
               "elements": [
@@ -393,7 +393,7 @@
                 "orientation": "vertical",
                 "fillMaxWidth": true,
                 "padding": {
-                  "bottom": 16
+                  "bottom": 12
                 }
               },
               "elements": [
@@ -407,7 +407,7 @@
                     "color": "#1A63CC",
                     "textAlign": "center",
                     "fillMaxWidth": true,
-                    "minHeight": 32,
+                    "minHeight": 28,
                     "lineHeight": 22
                   }
                 }
@@ -420,7 +420,7 @@
                 "orientation": "vertical",
                 "fillMaxWidth": true,
                 "padding": {
-                  "bottom": 12
+                  "bottom": 10
                 }
               },
               "elements": [
