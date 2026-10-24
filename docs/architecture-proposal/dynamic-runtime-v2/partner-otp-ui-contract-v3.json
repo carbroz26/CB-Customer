@@ -44,7 +44,7 @@
             "horizontalAlignment": "start",
             "padding": {
               "start": 24,
-              "top": 48,
+              "top": 32,
               "end": 24,
               "bottom": 32
             }
@@ -77,7 +77,7 @@
                   }
                 ],
                 "spacing": {
-                  "bottom": 12
+                  "bottom": 8
                 },
                 "lineHeight": 36
               }
@@ -323,7 +323,8 @@
                           "size": 18,
                           "color": "#1A63CC",
                           "spacing": {
-                            "end": 8
+                            "top": 2,
+                            "end": 4
                           }
                         }
                       }
