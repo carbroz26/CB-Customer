@@ -13,7 +13,7 @@ import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_search_01
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_close_01
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.icon_chevron_down_01
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.error_alert_icon_01
-import com.carbroz.cbpartner.feature.dynamic.generated.resources.clock_icon_01
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.clock_icon_02
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.cb_partner_logo_02
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.cb_partner_logo
