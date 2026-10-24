@@ -10,8 +10,6 @@ import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
-import com.carbroz.cbpartner.app.validation.PartnerPhoneNumberValidator
-import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicValidator
 import com.carbroz.cbpartner.data.di.bootstrapModule
 import com.carbroz.cbpartner.data.di.dynamicDataModule
 import com.carbroz.cbpartner.data.di.serializationModule
@@ -56,7 +54,6 @@ fun App(
             modules(
                 module {
                     single<RuntimeMetadataProvider> { runtimeMetadataProvider }
-                    factory<DynamicValidator> { PartnerPhoneNumberValidator() }
                 },
                 networkModule(apiBaseUrl),
                 serializationModule,

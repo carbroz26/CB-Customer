@@ -227,7 +227,10 @@ class DynamicFormValidatorTest {
         assertEquals("Please enter a valid 10-digit mobile number.", error("98765"))
         assertEquals("Mobile number must be 10 digits.", error("987654321"))
         assertEquals("Mobile number must be 10 digits.", error("98765432101"))
-        assertEquals("Please enter a valid 10-digit mobile number.", error("98765 43210"))
+        // 11 characters including the space: existing length-based error copy applies.
+        assertEquals("Mobile number must be 10 digits.", error("98765 43210"))
+        // Exactly 10 characters but wrong format: generic pattern error copy applies.
+        assertEquals("Please enter a valid 10-digit mobile number.", error("9876 43210"))
         assertEquals("Please enter a valid 10-digit mobile number.",
             error("9876543210", DynamicValue.StringValue("US")))
         assertEquals("Please enter a valid 10-digit mobile number.", error("9876543210", null))
