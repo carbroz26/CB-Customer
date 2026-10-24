@@ -308,9 +308,9 @@
                   "type": "text",
                   "properties": {
                     "text": "Resend OTP in 00:30",
-                    "fontSize": 14,
-                    "fontWeight": 500,
-                    "color": "#5C79A3",
+                    "fontSize": 15,
+                    "fontWeight": 600,
+                    "color": "#6F8EC0",
                     "textAlign": "center",
                     "leading": [
                       {
@@ -327,7 +327,8 @@
                           }
                         }
                       }
-                    ]
+                    ],
+                    "lineHeight": 22
                   }
                 }
               ]
@@ -349,8 +350,8 @@
                   "properties": {
                     "text": "OR",
                     "fontSize": 13,
-                    "fontWeight": 400,
-                    "color": "#8798AE",
+                    "fontWeight": 500,
+                    "color": "#8B9EBC",
                     "textAlign": "center",
                     "leading": [
                       {
@@ -401,9 +402,9 @@
                   "type": "text",
                   "properties": {
                     "text": "Resend OTP",
-                    "fontSize": 15,
+                    "fontSize": 16,
                     "fontWeight": 600,
-                    "color": "#1A63CC",
+                    "color": "#176AD6",
                     "textAlign": "center",
                     "fillMaxWidth": true,
                     "minHeight": 28,
