@@ -10,7 +10,7 @@ class SegmentedEditTest {
         assertEquals(SegmentedEdit("1", 1), editSegmentedValue("", 0, "1", 6))
         assertEquals(SegmentedEdit("12", 2), editSegmentedValue("1", 1, "2", 6))
         assertEquals(SegmentedEdit("19", 2), editSegmentedValue("12", 1, "9", 6))
-        assertEquals(SegmentedEdit("19", 2), editSegmentedValue("12", 1, "29", 6))
+        assertEquals(SegmentedEdit("129", 3), editSegmentedValue("12", 1, "29", 6))
     }
 
     @Test
@@ -24,6 +24,12 @@ class SegmentedEditTest {
         assertEquals(SegmentedEdit("123456", 5), editSegmentedValue("", 0, "12345678", 6))
         assertEquals(SegmentedEdit("129876", 5), editSegmentedValue("123456", 2, "98765", 6))
         assertEquals(SegmentedEdit("1 3456", 1), editSegmentedValue("123456", 1, "", 6))
+    }
+
+    @Test
+    fun segmentedEditingUsesAuthoredFilterRatherThanHardcodedDigitPolicy() {
+        assertEquals(SegmentedEdit("AB", 2), editSegmentedValue("", 0, "AB", 4))
+        assertEquals(SegmentedEdit("12", 2), editSegmentedValue("", 0, "1x2", 6, "digits"))
     }
 
     @Test

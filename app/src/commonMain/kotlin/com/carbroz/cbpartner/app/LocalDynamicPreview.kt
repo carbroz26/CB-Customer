@@ -20,14 +20,18 @@ data class LocalDynamicPreview(
 /** Both previews pass their platform-loaded bytes through this exact DTO mapper. */
 fun parseLocalDynamicPreview(
     raw: String,
-    initialState: Map<String, DynamicValue> = emptyMap(),
+    initialState: Map<String, String> = emptyMap(),
 ): LocalDynamicPreview {
     val json = Json { ignoreUnknownKeys = true; isLenient = true }
     val response = DynamicResponseMapper(json).map(
         json.decodeFromString<DynamicResponseDto>(raw),
     )
     requireNotNull(response.data) { "Local Dynamic preview must contain a screen" }
-    return LocalDynamicPreview(response, previewCountries(), initialState)
+    return LocalDynamicPreview(
+        response,
+        previewCountries(),
+        initialState.mapValues { (_, value) -> DynamicValue.StringValue(value) },
+    )
 }
 
 /** UI-only development catalog, not a supported-region or backend country policy. */

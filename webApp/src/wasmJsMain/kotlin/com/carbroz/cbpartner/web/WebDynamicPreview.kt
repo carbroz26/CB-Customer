@@ -26,7 +26,7 @@ internal fun DynamicOfflinePreview(
     metadata: RuntimeMetadataProvider,
     apiBaseUrl: ApiBaseUrl,
     fixture: String,
-    initialState: Map<String, com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue> = emptyMap(),
+    initialState: Map<String, String> = emptyMap(),
 ) {
     var loaded by remember(fixture) { mutableStateOf<Result<LocalDynamicPreview>?>(null) }
     LaunchedEffect(fixture) {

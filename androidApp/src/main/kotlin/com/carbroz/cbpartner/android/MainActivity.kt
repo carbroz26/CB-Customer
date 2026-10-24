@@ -30,8 +30,8 @@ class MainActivity : ComponentActivity() {
             val filename = if (otpRequested) "partner-otp.json" else "partner-login.json"
             val raw = assets.open(filename).bufferedReader().use { it.readText() }
             val initialState = if (otpRequested) mapOf(
-                "phoneNumber" to com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue.StringValue("9876543210"),
-                "challengeId" to com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue.StringValue("development-preview"),
+                "phoneNumber" to "9876543210",
+                "challengeId" to "development-preview",
             ) else emptyMap()
             parseLocalDynamicPreview(raw, initialState)
         } else null

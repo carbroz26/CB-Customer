@@ -160,6 +160,8 @@ class InputElement : ElementRenderer<InputElementModel> {
                         "Segmented input height is required for element " + element.id
                     }.dp,
                     placeholder = presentation.placeholder,
+                    keyboardType = keyboardType,
+                    inputFilter = element.inputFilter,
                     background = if (invalid) {
                         element.validationStyle?.background ?: presentation.background
                     } else {
@@ -234,6 +236,8 @@ class InputElement : ElementRenderer<InputElementModel> {
         segmentWidth: androidx.compose.ui.unit.Dp,
         segmentHeight: androidx.compose.ui.unit.Dp,
         placeholder: String?,
+        keyboardType: androidx.compose.ui.text.input.KeyboardType,
+        inputFilter: String?,
         background: DynamicBackground?,
         border: DynamicBorder?,
         invalidBorder: DynamicBorder?,
@@ -302,14 +306,20 @@ class InputElement : ElementRenderer<InputElementModel> {
                             },
                         value = TextFieldValue(cell, selection = TextRange(0, cell.length)),
                         onValueChange = { input ->
-                            val update = editSegmentedValue(value, index, input.text, count)
-                            onValueChange(update.value)
-                            targetFocus = update.nextFocus
+                            if (cell.isEmpty() && input.text.isEmpty() && index > 0) {
+                                targetFocus = index - 1
+                            } else {
+                                val update = editSegmentedValue(
+                                    value, index, input.text, count, inputFilter,
+                                )
+                                onValueChange(update.value)
+                                targetFocus = update.nextFocus
+                            }
                         },
                         enabled = enabled,
                         textStyle = textStyle.copy(textAlign = TextAlign.Center),
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                            keyboardType = keyboardType,
                             imeAction = imeAction,
                         ),
                         keyboardActions = keyboardActions,
@@ -356,6 +366,7 @@ internal fun editSegmentedValue(
     index: Int,
     incoming: String,
     count: Int,
+    inputFilter: String? = null,
 ): SegmentedEdit {
     require(count > 0 && index in 0 until count)
     val cells = MutableList(count) { current.getOrNull(it)?.takeUnless { char -> char == ' ' } }
@@ -363,12 +374,13 @@ internal fun editSegmentedValue(
         cells[index] = null
         return SegmentedEdit(cells.joinToString("") { it?.toString() ?: " " }.trimEnd(), index)
     }
-    // A single key appended to a selected occupied cell replaces that cell;
-    // paste distributes multiple digits starting at the selected position.
-    val replacement = if (incoming.length == 2 && incoming[0] == cells[index]) {
-        incoming.drop(1)
-    } else incoming
-    val characters = replacement.filter { it in '0'..'9' }
+    // The focused native cell selects its character, so new typing replaces it.
+    // Paste of any length overwrites slots sequentially, including two-character paste.
+    val characters = when (inputFilter) {
+        "digits" -> incoming.filter { it in '0'..'9' }
+        null -> incoming.filter { it != ' ' }
+        else -> error("Unsupported segmented input filter: " + inputFilter)
+    }
     if (characters.isEmpty()) {
         return SegmentedEdit(current, index)
     }

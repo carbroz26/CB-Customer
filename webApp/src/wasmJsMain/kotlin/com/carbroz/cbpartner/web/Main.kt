@@ -40,8 +40,8 @@ fun main() {
                 apiBaseUrl,
                 fixture = "partner-otp.json",
                 initialState = mapOf(
-                    "phoneNumber" to com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue.StringValue("9876543210"),
-                    "challengeId" to com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue.StringValue("development-preview"),
+                    "phoneNumber" to "9876543210",
+                    "challengeId" to "development-preview",
                 ),
             )
         } else if (environment == AppEnvironment.Development &&
