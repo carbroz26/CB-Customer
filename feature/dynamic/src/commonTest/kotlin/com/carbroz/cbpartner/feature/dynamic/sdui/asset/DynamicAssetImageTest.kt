@@ -6,6 +6,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.Res
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.clock_icon
 
 class DynamicAssetImageTest {
     private val origin = "https://api.example.com"
@@ -59,6 +61,7 @@ class DynamicAssetImageTest {
             "icons/chevron_down_02", "icons/search_02", "icons/close_02",
             "icons/error_alert_icon_01", "icons/clock",
         )) assertNotNull(packagedAssetResource(key), "Missing explicit packaged asset: " + key)
+        assertEquals(Res.drawable.clock_icon, packagedAssetResource("icons/clock"))
         assertNull(packagedAssetResource("flags/gb"))
         assertNull(packagedAssetResource("icons/unapproved"))
     }
