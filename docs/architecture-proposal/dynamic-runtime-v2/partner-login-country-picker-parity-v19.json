@@ -13,7 +13,7 @@
       "countryFlagAsset": "flags/in"
     },
     "template": {
-      "id": "tpl_7K2M9Q",
+      "id": "tpl_P102L",
       "type": "form_template",
       "properties": {
         "orientation": "vertical",
@@ -54,7 +54,7 @@
           },
           "elements": [
             {
-              "id": "brand_name",
+              "id": "login_brand_name",
               "type": "text",
               "properties": {
                 "text": "CB-Partner",
@@ -86,7 +86,7 @@
               }
             },
             {
-              "id": "welcome_title",
+              "id": "login_screen_title",
               "type": "text",
               "properties": {
                 "text": "Welcome back",
@@ -102,7 +102,7 @@
               }
             },
             {
-              "id": "welcome_subtitle",
+              "id": "login_screen_subtitle",
               "type": "text",
               "properties": {
                 "text": "Access your partner account",
@@ -141,7 +141,7 @@
           },
           "sections": [
             {
-              "id": "mobile_field",
+              "id": "login_mobile_field",
               "type": "form_field_section",
               "properties": {
                 "fillMaxWidth": true,
