@@ -35,3 +35,17 @@ Do not use the physical backend while testing 10-second local fixtures: backend 
 5. Keep explicit gates for error-code-specific presentation, deep sleep/resume deadline synchronization and session/destination security; do not claim them resolved by the offline mock.
 
 **No backend source was modified during this wave.**
+
+---
+
+## 2026-10-25 later owner-observed verification addendum (supersedes initial "pending device verification" status in this document)
+
+The owner **later verified** both flows on Samsung Galaxy A35 Android development preview:
+- Countdown completed, Resend became enabled.
+- **Failure preview:** tapping Resend displayed `Unable to complete action`, with **no timer restart**.
+- **Success preview:** tapping Resend restarted the timer at `00:10`.
+- Previously confirmed: timer disabled Resend during countdown and enabled it at zero.
+
+These are **device observations for the isolated preview fake repository**. They do **not** verify live Backend 429, actual SMS delivery, Backend challenge lifetime, JWT/session storage or authenticated navigation. A previously supplied `BUILD SUCCESSFUL` log was on a stale local head `a12fce76` during Git remote-ref corruption; capture a fresh latest-HEAD test result before claiming all new tests passed on that exact commit. User's subsequent on-device failure behavior proves the updated APK functionality, not necessarily a full Gradle test report.
+
+**Next authority:** Document [157](157-LOGIN-OTP-BACKEND-FRONTEND-EXACT-CONTRACT-RECONCILIATION-FREEZE-2026-10-25.md) is now the **frozen target contract** for Backend integration; [158](158-2026-10-25-COMPLETE-CHAT-HANDOFF-ARCHITECTURE-RUNTIME-AND-INTEGRATION-GATES.md) explains whole-system ownership and remaining work. No Backend production integration is completed by this addendum.

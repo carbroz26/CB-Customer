@@ -1,5 +1,15 @@
 # CB-Partner — Dynamic Runtime V2: Discussion Freeze
 
+> **CURRENT HANDOFF (2026-10-25) — READ THIS FIRST.** The earlier "2026-10-23 / Login v11 / read 140–141 first" notices below are historical. Preserve them as chronology only. The authoritative current checkpoint is **Login v19 + OTP v3 + generic Resend mock success/failure verified on Samsung A35**, with Backend live integration **not yet implemented**. Consult:
+>
+> 1. [157 — Exact Backend ↔ Frontend Contract Freeze](157-LOGIN-OTP-BACKEND-FRONTEND-EXACT-CONTRACT-RECONCILIATION-FREEZE-2026-10-25.md): already-frozen target APIs, four-field destinations, Backend schema/ScreenComposer gaps, authentication/country blockers; not code implementation.
+> 2. [158 — Complete Current Chat / Architecture Handoff](158-2026-10-25-COMPLETE-CHAT-HANDOFF-ARCHITECTURE-RUNTIME-AND-INTEGRATION-GATES.md): authoritative status by evidence, six-category tree, mapper/render/action pipelines, previous Resend verification, pending waves and architectural safeguards.
+> 3. [159 — Copy/Paste Next-Chat Prompt](159-NEW-CHAT-STARTER-PROMPT-2026-10-25-BACKEND-INTEGRATION-AND-V2-ARCHITECTURE.md): mandatory full documentation and line-by-line source inspection and productive next implementation scope.
+> 4. Latest exact visual fixtures: [Login v19](partner-login-country-picker-parity-v19.json) and [OTP v3](partner-otp-ui-contract-v3.json); matching Web preview fixtures; older JSON is historical only.
+>
+> **Full-read rule:** Read **ALL** documents and JSON files in this V2 directory in addition to `157–159`; reconcile each historical "frozen/completed/pending" marker with subsequent docs and current source. Inspect the frontend and backend modules, packages, classes and tests line by line. **Current source + latest approved decisions** govern; the index below includes superseded dated text. Minimize repetitive discussion but never skip the correctness gate.
+
+
 **Current status (2026-10-23):** V2 implementation is in progress. Login v11 dynamic rendering, Country Picker and native offline preview exist; owner accepted removal of fixed error space. Android safe-area ownership, Kotlin common-first migration, product-specific validator policy and remaining screenshot visual parity are OPEN. **Read Documents 140 and 141 first.**
 **Historical planning baseline:** Document 20 froze the original V2 plan before later authorized implementation waves. Its "implementation not authorized" and earlier `feature/dynamic-ui` commit `f59577337ac78855da3f9cb474483f0211ed1f30` are historical, not current status.
 **Active frontend branch:** `architecture/dynamic-runtime-v2-discussion-freeze`
