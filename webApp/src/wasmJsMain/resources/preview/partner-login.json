@@ -411,13 +411,10 @@
                       "type": "request",
                       "payload": {
                         "method": "POST",
-                        "endpoint": "/api/v1/auth/send_otp",
+                        "endpoint": "/api/v1/partner/auth/send_otp",
                         "authentication": "NONE",
                         "validate": true,
                         "body": {
-                          "countryCode": {
-                            "$binding": "countryCode"
-                          },
                           "phoneNumber": {
                             "$binding": "mobileNumber"
                           },

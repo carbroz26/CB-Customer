@@ -495,7 +495,7 @@
                       "type": "request",
                       "payload": {
                         "method": "POST",
-                        "endpoint": "/api/v1/auth/verify",
+                        "endpoint": "/api/v1/partner/auth/verify_otp",
                         "authentication": "NONE",
                         "validate": true,
                         "responseMode": "destination",
@@ -509,7 +509,7 @@
                           "deviceId": {
                             "$context": "deviceId"
                           },
-                          "code": {
+                          "otp": {
                             "$binding": "otp"
                           }
                         }
