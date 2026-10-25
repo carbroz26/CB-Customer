@@ -13,6 +13,7 @@ data class LocalDynamicPreview(
     val response: DynamicResponse,
     val countries: List<Map<String, DynamicValue>>,
     val initialState: Map<String, DynamicValue> = emptyMap(),
+    val resendFailureMode: Boolean = false,
 )
 
 /** Both previews pass their platform-loaded bytes through this exact DTO mapper. */
@@ -20,6 +21,7 @@ fun parseLocalDynamicPreview(
     raw: String,
     initialState: Map<String, String> = emptyMap(),
     numericInitialState: Map<String, Double> = emptyMap(),
+    resendFailureMode: Boolean = false,
 ): LocalDynamicPreview {
     val json = Json { ignoreUnknownKeys = true; isLenient = true }
     val response = DynamicResponseMapper(json).map(
@@ -31,6 +33,7 @@ fun parseLocalDynamicPreview(
         previewCountries(),
         initialState.mapValues { (_, value) -> DynamicValue.StringValue(value) } +
             numericInitialState.mapValues { (_, value) -> DynamicValue.NumberValue(value) },
+        resendFailureMode,
     )
 }
 

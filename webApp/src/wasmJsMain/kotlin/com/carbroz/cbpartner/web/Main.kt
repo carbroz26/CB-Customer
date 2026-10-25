@@ -47,6 +47,7 @@ fun main() {
                 numericInitialState = mapOf(
                     "resendAfterSeconds" to LOCAL_PREVIEW_RESEND_SECONDS,
                 ),
+                resendFailureMode = window.location.search.contains("cbpartnerOtpResendFailure=1"),
             )
         } else if (environment == AppEnvironment.Development &&
             window.location.search.contains("cbpartnerLoginPreview=1")

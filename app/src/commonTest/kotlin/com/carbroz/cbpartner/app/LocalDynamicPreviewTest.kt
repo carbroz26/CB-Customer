@@ -39,6 +39,16 @@ class LocalDynamicPreviewTest {
     }
 
     @Test
+    fun offlineFailureModeIsExplicitAndDefaultsOff() {
+        val raw = """{"status":200,"code":"SUCCESS","message":"OK","data":{
+          "screenId":"partner_otp","schemaVersion":"3.0.0","targetApp":"PARTNER",
+          "template":{"id":"otp","type":"form_template","components":[
+            {"id":"form","type":"stack_component"}]}}}"""
+        assertEquals(false, parseLocalDynamicPreview(raw).resendFailureMode)
+        assertEquals(true, parseLocalDynamicPreview(raw, resendFailureMode = true).resendFailureMode)
+    }
+
+    @Test
     fun refusesMalformedOrMissingScreenFixtures() {
         assertFails { parseLocalDynamicPreview("{}") }
         assertFails { parseLocalDynamicPreview("{not valid json") }

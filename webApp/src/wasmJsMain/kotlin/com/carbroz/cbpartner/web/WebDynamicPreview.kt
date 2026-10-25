@@ -28,13 +28,16 @@ internal fun DynamicOfflinePreview(
     fixture: String,
     initialState: Map<String, String> = emptyMap(),
     numericInitialState: Map<String, Double> = emptyMap(),
+    resendFailureMode: Boolean = false,
 ) {
     var loaded by remember(fixture) { mutableStateOf<Result<LocalDynamicPreview>?>(null) }
     LaunchedEffect(fixture) {
         loaded = runCatching {
             val response = window.fetch("/preview/$fixture").await()
             require(response.ok) { "Web Dynamic preview JSON is not served by the Web app" }
-            parseLocalDynamicPreview(response.text().await().toString(), initialState, numericInitialState)
+            parseLocalDynamicPreview(
+                response.text().await().toString(), initialState, numericInitialState, resendFailureMode,
+            )
         }
     }
     val preview = loaded?.getOrNull()

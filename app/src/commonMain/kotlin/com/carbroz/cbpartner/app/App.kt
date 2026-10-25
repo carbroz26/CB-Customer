@@ -83,6 +83,8 @@ fun App(
                                         ?.value?.get("phoneNumber") as? DynamicValue.StringValue
                                     if (phone == null) {
                                         Result.failure(IllegalArgumentException("Missing preview phoneNumber"))
+                                    } else if (preview.resendFailureMode) {
+                                        Result.failure(IllegalStateException("Simulated development resend failure"))
                                     } else {
                                         resendCount++
                                         Result.success(DynamicResponse(

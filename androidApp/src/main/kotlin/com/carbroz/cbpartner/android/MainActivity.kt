@@ -37,7 +37,13 @@ class MainActivity : ComponentActivity() {
             val numericInitialState = if (otpRequested) mapOf(
                 "resendAfterSeconds" to LOCAL_PREVIEW_RESEND_SECONDS,
             ) else emptyMap()
-            parseLocalDynamicPreview(raw, initialState, numericInitialState)
+            parseLocalDynamicPreview(
+                raw,
+                initialState,
+                numericInitialState,
+                resendFailureMode = otpRequested &&
+                    intent.getBooleanExtra("cbpartner.otp_resend_failure", false),
+            )
         } else null
 
         setContent {
