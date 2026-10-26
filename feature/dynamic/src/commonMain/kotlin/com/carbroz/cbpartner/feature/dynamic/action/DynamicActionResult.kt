@@ -87,6 +87,7 @@ sealed interface DynamicActionEffect {
     data class Toast(
         val presentation: ToastPresentation,
         val bindings: Map<String, DynamicValue>,
+        val contextValues: Map<String, DynamicValue>,
         val stateValues: Map<String, DynamicValue>,
     ) : DynamicActionEffect
 }

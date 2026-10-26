@@ -834,7 +834,12 @@ class DynamicStore(
         val state = resolvedState(current) + changes
         return commitActionResult(
             changes,
-            listOf(DynamicActionEffect.Toast(presentation, bindings.toMap(), state.toMap())),
+            listOf(DynamicActionEffect.Toast(
+                presentation,
+                bindings.toMap(),
+                contextProvider().toMap(),
+                state.toMap(),
+            )),
             trace,
         ).also { accepted ->
             if (accepted && changes.isNotEmpty()) {

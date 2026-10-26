@@ -105,7 +105,7 @@ internal fun ApplicationContent(
                         registry = remember { dynamicRendererRegistry() },
                         trustedAssetOrigin = trustedAssetOrigin,
                         bindings = active.effect.bindings,
-                        contextValues = emptyMap(),
+                        contextValues = active.effect.contextValues,
                         stateValues = active.effect.stateValues,
                         validationErrors = emptyMap(),
                         focusedBinding = null,
