@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
+import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
@@ -43,6 +44,8 @@ sealed interface DynamicIntent {
     data object Load : DynamicIntent
     data object Retry : DynamicIntent
     data object ClearMessage : DynamicIntent
+    data class RetryResponseDialog(val generation: Long) : DynamicIntent
+    data class DismissResponseDialog(val generation: Long) : DynamicIntent
     data class Action(
         val action: DynamicAction,
         val presentationId: String? = null,
@@ -120,6 +123,8 @@ class DynamicStore(
         if (closed) return
         when (intent) {
             DynamicIntent.Load, DynamicIntent.Retry -> load()
+            is DynamicIntent.RetryResponseDialog -> retryResponseDialog(intent.generation)
+            is DynamicIntent.DismissResponseDialog -> dismissResponseDialog(intent.generation)
             DynamicIntent.ClearMessage -> currentScreen()?.let { current ->
                 reduce(
                     current.copy(validationMessage = null),
@@ -281,6 +286,37 @@ class DynamicStore(
     ): Boolean = current.activePresentationId == id &&
         (generation == null || current.presentationGeneration == generation)
 
+    /** Retains operation identity and never automatically retries a mutation. */
+    private fun retryResponseDialog(generation: Long) {
+        val before = _state.value
+        val current = currentScreen() ?: return
+        if (current.dialogGeneration != generation ||
+            (current.dialogFailure == null && current.activeResponseDialog == null)) return
+        val action = current.retryAction
+        val origin = current.retryPresentationId
+        val originGeneration = current.retryPresentationGeneration
+        val cleaned = current.copy(
+            dialogFailure = null, activeResponseDialog = null, retryAction = null,
+            retryPresentationId = null, retryPresentationGeneration = null,
+        )
+        if (before is DynamicState.Failure && cleaned.response == null) {
+            _state.value = DynamicState.Initial
+            load()
+        } else {
+            reduce(cleaned)
+            if (action != null) handleAction(action, origin, null, originGeneration)
+        }
+    }
+
+    private fun dismissResponseDialog(generation: Long) {
+        val current = currentScreen() ?: return
+        if (current.dialogGeneration != generation) return
+        reduce(current.copy(
+            dialogFailure = null, activeResponseDialog = null, retryAction = null,
+            retryPresentationId = null, retryPresentationGeneration = null,
+        ))
+    }
+
     private fun load() {
         if (currentScreen()?.response != null || loadJob?.isActive == true) return
         entry.screenResponse?.let { response ->
@@ -328,7 +364,10 @@ class DynamicStore(
                     val current = currentScreen() ?: DynamicScreenState()
                     _state.value = DynamicState.Failure(
                         "Unable to load dynamic screen",
-                        current,
+                        current.copy(
+                            dialogFailure = error as? AppFailure ?: AppFailure(AppFailure.Category.UNKNOWN),
+                            dialogGeneration = current.dialogGeneration + 1,
+                        ),
                     )
                 }
         }
@@ -558,10 +597,31 @@ class DynamicStore(
                     if (!matchesPresentation(currentScreen(), presentationId, acceptedGeneration)) return@launch
                     reportAction(traceContext, "action.completed", action.type, "failed")
                     val screen = currentScreen() ?: latest
-                    reduceForOrigin(
-                        screen.copy(validationMessage = "Unable to complete action"),
-                        presentationId,
-                    )
+                    val failure = error as? AppFailure ?: AppFailure(AppFailure.Category.UNKNOWN)
+                    if (failure.category in setOf(
+                        AppFailure.Category.CONNECTION,
+                        AppFailure.Category.SERVER,
+                        AppFailure.Category.SECURE_CONNECTION,
+                        AppFailure.Category.UNKNOWN,
+                    ) || failure.presentation != null) {
+                        reduceForOrigin(
+                            screen.copy(
+                                dialogFailure = failure,
+                                activeResponseDialog = failure.presentation,
+                                retryAction = action,
+                                retryPresentationId = presentationId,
+                                retryPresentationGeneration = acceptedGeneration,
+                                dialogGeneration = screen.dialogGeneration + 1,
+                                validationMessage = null,
+                            ),
+                            presentationId,
+                        )
+                    } else {
+                        reduceForOrigin(
+                            screen.copy(validationMessage = "Unable to complete action"),
+                            presentationId,
+                        )
+                    }
                 }
             } finally {
                 if (requestPresentationId == presentationId &&
@@ -705,6 +765,21 @@ class DynamicStore(
     ): Boolean = when (result) {
         is DynamicActionResult.Present -> openPresentation(result.presentationId)
         DynamicActionResult.Dismiss -> closeActivePresentation()
+        is DynamicActionResult.PresentResponse -> {
+            val current = currentScreen()
+            if (current == null) false
+            else {
+                val accepted = commitActionResult(result.stateChanges, emptyList(), traceContext)
+                if (accepted) {
+                    reduce(current.copy(
+                        activeResponseDialog = result.presentation,
+                        dialogFailure = null,
+                        dialogGeneration = current.dialogGeneration + 1,
+                    ))
+                }
+                accepted
+            }
+        }
         else -> {
             val accepted = commitActionResult(result.stateChanges, result.effects, traceContext)
             if (accepted && result.stateChanges.isNotEmpty()) {

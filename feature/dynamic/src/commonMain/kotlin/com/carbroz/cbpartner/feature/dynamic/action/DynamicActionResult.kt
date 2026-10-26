@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.feature.dynamic.action
 
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
 
 sealed interface DynamicActionResult {
     val stateChanges: Map<String, DynamicValue>
@@ -25,6 +26,13 @@ sealed interface DynamicActionResult {
         val presentationId: String,
     ) : DynamicActionResult {
         override val stateChanges: Map<String, DynamicValue> = emptyMap()
+        override val effects: List<DynamicActionEffect> = emptyList()
+    }
+
+    data class PresentResponse(
+        val presentation: DialogPresentation,
+        override val stateChanges: Map<String, DynamicValue> = emptyMap(),
+    ) : DynamicActionResult {
         override val effects: List<DynamicActionEffect> = emptyList()
     }
 

@@ -1,6 +1,9 @@
 package com.carbroz.cbpartner.feature.dynamic.store
 
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
+import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 
 /** Transient identity of exactly one pending Button in its current UI scope. */
@@ -22,5 +25,11 @@ data class DynamicScreenState(
     val presentationFocusedBinding: String? = null,
     val presentationGeneration: Long = 0L,
     val pendingButton: DynamicPendingButton? = null,
+    val activeResponseDialog: DialogPresentation? = null,
+    val dialogFailure: AppFailure? = null,
+    val retryAction: DynamicAction? = null,
+    val retryPresentationId: String? = null,
+    val retryPresentationGeneration: Long? = null,
+    val dialogGeneration: Long = 0L,
     val transientState: Map<String, DynamicValue> = emptyMap(),
 )

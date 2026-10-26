@@ -67,6 +67,12 @@ class RequestActionHandler(
         ).getOrThrow()
 
         val stateChanges = extractRetainedState(retainedPaths, response.dataPayload)
+        response.presentation?.let { presentation ->
+            require(responseMode == "none" && response.destination == null) {
+                "Immediate response Dialog cannot navigate in the same outcome"
+            }
+            return DynamicActionResult.PresentResponse(presentation, stateChanges)
+        }
         if (responseMode.equals("none", true)) {
             return if (stateChanges.isEmpty()) DynamicActionResult.Completed
             else DynamicActionResult.StateChanged(stateChanges)
