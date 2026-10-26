@@ -26,4 +26,5 @@ data class ButtonElement(
     val actions: Map<String, DynamicAction> = emptyMap(),
     val loading: DynamicButtonLoading? = null,
     val lineHeight: Double? = null,
+    override val weight: Double? = null,
 ) : DynamicElement

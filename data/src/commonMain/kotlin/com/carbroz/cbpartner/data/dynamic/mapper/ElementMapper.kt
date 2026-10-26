@@ -171,6 +171,9 @@ class ElementMapper(
         trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = actions,
         loading = loading,
+        weight = values.number(dto.properties, "weight")?.also {
+            require(it.isFinite() && it > 0.0) { "Button layout weight must be positive and finite" }
+        },
         )
     }
 
