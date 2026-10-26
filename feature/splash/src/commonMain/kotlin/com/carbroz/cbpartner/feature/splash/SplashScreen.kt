@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -82,52 +78,11 @@ fun SplashScreen(
         store.accept(SplashIntent.LoadBootstrap)
     }
 
-    // Preserve the existing startup blocker: a required update cannot be dismissed.
-    val uriHandler = LocalUriHandler.current
-    val requiredUpdate = state as? SplashState.RequiredUpdate
-    val trustedUrl = requiredUpdate?.storeUrl?.takeIf(::isTrustedUpdateUrl)
-    var openFailed by remember(requiredUpdate) { mutableStateOf(false) }
-
     CarBrozSplashTheme {
         SplashArtwork(
             state = state,
-            onRetry = { store.accept(SplashIntent.RetryBootstrap) },
             modifier = modifier,
         )
-
-        if (requiredUpdate != null) {
-            AlertDialog(
-                onDismissRequest = {},
-                title = { Text(stringResource(Res.string.splash_required_update_title)) },
-                text = {
-                    Text(
-                        stringResource(
-                            if (trustedUrl == null || openFailed) {
-                                Res.string.splash_update_unavailable
-                            } else {
-                                Res.string.splash_required_update_description
-                            },
-                        ),
-                    )
-                },
-                confirmButton = {
-                    if (trustedUrl != null) {
-                        Button(
-                            onClick = {
-                                try {
-                                    uriHandler.openUri(trustedUrl)
-                                    openFailed = false
-                                } catch (_: Exception) {
-                                    openFailed = true
-                                }
-                            },
-                        ) {
-                            Text(stringResource(Res.string.splash_update_action))
-                        }
-                    }
-                },
-            )
-        }
     }
 }
 
@@ -135,7 +90,6 @@ fun SplashScreen(
 @Composable
 private fun SplashArtwork(
     state: SplashState,
-    onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -197,7 +151,6 @@ private fun SplashArtwork(
 
                 SplashBottomStatus(
                     state = state,
-                    onRetry = onRetry,
                 )
 
                 Spacer(modifier = Modifier.height(if (compact) 20.dp else 32.dp))
@@ -210,7 +163,6 @@ private fun SplashArtwork(
 @Composable
 private fun SplashBottomStatus(
     state: SplashState,
-    onRetry: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -239,51 +191,15 @@ private fun SplashBottomStatus(
                 )
             }
 
-            is SplashState.Failure -> {
-                Text(
-                    text = state.message,
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center,
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Button(
-                    onClick = onRetry,
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                    ),
-                ) {
-                    Text(stringResource(Res.string.splash_failure_retry))
-                }
-            }
-
-            is SplashState.Maintenance -> {
-                Text(
-                    text = state.title?.takeIf(String::isNotBlank)
-                        ?: stringResource(Res.string.splash_maintenance_title),
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Center,
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = state.message?.takeIf(String::isNotBlank)
-                        ?: stringResource(Res.string.splash_maintenance_description),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
-            }
-
-            is SplashState.RequiredUpdate -> Unit
+            is SplashState.Failure,
+            is SplashState.Maintenance,
+            is SplashState.RequiredUpdate,
+            is SplashState.OptionalUpdate -> Unit
         }
     }
 }
 
 // Until backend migration approves more destinations, only the canonical Android listing
 // is permitted. No redirects, alternate schemes, arbitrary query parameters or userinfo.
-internal fun isTrustedUpdateUrl(url: String): Boolean =
+fun isTrustedUpdateUrl(url: String): Boolean =
     url == "https://play.google.com/store/apps/details?id=com.carbroz.cbpartner.android"

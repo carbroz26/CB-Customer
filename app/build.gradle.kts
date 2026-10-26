@@ -34,6 +34,7 @@ kotlin {
             implementation(compose.runtime)
             implementation("androidx.compose.runtime:runtime-retain:1.12.0")
             implementation(compose.material3)
+            implementation(compose.components.resources)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -41,4 +42,9 @@ kotlin {
             implementation(libs.kermit.test)
         }
     }
+}
+
+compose.resources {
+    packageOfResClass = "com.carbroz.cbpartner.app.generated.resources"
+    generateResClass = always
 }

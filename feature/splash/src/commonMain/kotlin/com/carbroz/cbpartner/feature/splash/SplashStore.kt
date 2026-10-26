@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.feature.splash
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
+import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.domain.repository.BootstrapRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +19,7 @@ import kotlin.uuid.Uuid
 sealed interface SplashIntent {
     data object LoadBootstrap : SplashIntent
     data object RetryBootstrap : SplashIntent
+    data object SkipOptionalUpdate : SplashIntent
 }
 
 sealed interface SplashState {
@@ -25,8 +27,9 @@ sealed interface SplashState {
     data object Loading : SplashState
     data class Success(val output: BootstrapOutput) : SplashState
     data class Maintenance(val title: String?, val message: String?) : SplashState
-    data class RequiredUpdate(val storeUrl: String?) : SplashState
-    data class Failure(val message: String) : SplashState
+    data class RequiredUpdate(val storeUrl: String?, val minimumVersion: String = "") : SplashState
+    data class OptionalUpdate(val output: BootstrapOutput) : SplashState
+    data class Failure(val message: String, val failure: AppFailure? = null) : SplashState
 }
 
 /**
@@ -59,6 +62,10 @@ class SplashStore(
             SplashIntent.LoadBootstrap,
             SplashIntent.RetryBootstrap,
             -> loadBootstrap()
+            SplashIntent.SkipOptionalUpdate -> {
+                val optional = _state.value as? SplashState.OptionalUpdate ?: return
+                _state.value = SplashState.Success(optional.output)
+            }
         }
     }
 
@@ -77,7 +84,8 @@ class SplashStore(
                             output.maintenance.title,
                             output.maintenance.message,
                         )
-                        output.update.required -> SplashState.RequiredUpdate(output.update.storeUrl)
+                        output.update.required -> SplashState.RequiredUpdate(output.update.storeUrl, output.update.minimumVersion)
+                        output.update.optional -> SplashState.OptionalUpdate(output)
                         else -> SplashState.Success(output)
                     }
                 }
@@ -86,7 +94,7 @@ class SplashStore(
                     reportBootstrap(actionId, "bootstrap.completed", "failed")
                     // Bootstrap failures may contain server-provided text or request details.
                     // Never expose exception messages through the splash UI.
-                    _state.value = SplashState.Failure("Unable to start the application")
+                    _state.value = SplashState.Failure("Unable to start the application", error as? AppFailure)
                 }
         }
     }
