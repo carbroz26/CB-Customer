@@ -228,8 +228,13 @@ fun DynamicContainer(
             AppFailure.Category.UNKNOWN -> "server_error"
             else -> null
         }
+        // When the screen itself failed to load, Cancel/Close would strand the user.
+        // Reuse the same safe Retry-only JSON composition as blocked Bootstrap.
+        val safeFallbackKey = if (state is DynamicState.Failure &&
+            key in setOf("server_error", "secure_connection")
+        ) key + "_startup" else key
         val shown = activeScreen?.activeResponseDialog ?: failure?.presentation
-            ?: key?.let(fallbackDialogs::get)
+            ?: safeFallbackKey?.let(fallbackDialogs::get)
         if (activeScreen != null && shown != null) {
             val generation = activeScreen.dialogGeneration
             val dialog = if (state is DynamicState.Failure) shown.copy(
