@@ -12,6 +12,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.theme.DynamicTheme
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -50,8 +51,10 @@ class DynamicResponseMapper(private val json: Json) {
             dataPayload = dataPayload,
             destination = destination,
             presentation = dto.presentation?.let {
-                requireNotNull(presentationMapper.map(it) as? DialogPresentation) {
-                    "Immediate response presentation must be a dialog"
+                presentationMapper.map(it).also { presentation ->
+                    require(presentation is DialogPresentation || presentation is ToastPresentation) {
+                        "Immediate response must be a dialog or toast"
+                    }
                 }
             },
         )

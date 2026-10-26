@@ -5,6 +5,11 @@ import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresen
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentationHandle
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastProgress
+import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.JsonObject
 
 class PresentationMapper(
@@ -44,6 +49,65 @@ class PresentationMapper(
                     heightFraction = heightFraction,
                     background = values.background(dto.properties),
                     shape = values.shape(dto.properties),
+                    initialBindings = values.toDynamicValueMap(dto.initialBindings),
+                    components = mappedComponents,
+                )
+            }
+            "toast" -> {
+                require(dto.properties.keys == setOf("placement", "durationMillis", "background",
+                    "shape", "padding", "spacing", "progress") ||
+                    dto.properties.keys == setOf("placement", "durationMillis", "background",
+                        "shape", "padding", "progress")) {
+                    "Toast properties must be explicitly authored with supported keys"
+                }
+                require(values.string(dto.properties, "placement") == "top") {
+                    "Toast V1 only supports top placement"
+                }
+                val durationValue = (dto.properties["durationMillis"] as? JsonPrimitive)
+                    ?.takeUnless { it.isString }?.doubleOrNull
+                    ?: error("Toast durationMillis must be a number")
+                require(durationValue.isFinite() && durationValue in 500.0..15000.0 &&
+                    durationValue % 1.0 == 0.0) { "Invalid Toast durationMillis" }
+                val background = requireNotNull(values.background(dto.properties)) {
+                    "Toast background is required"
+                }
+                val shape = requireNotNull(values.shape(dto.properties)) {
+                    "Toast rounded shape is required"
+                }
+                val padding = requireNotNull(values.padding(dto.properties)) {
+                    "Toast content padding is required"
+                }
+                require(mappedComponents.size == 1 && mappedComponents.single() is StackComponent) {
+                    "Toast V1 requires one existing StackComponent"
+                }
+                val progressObject = dto.properties["progress"] as? JsonObject
+                    ?: error("Toast progress is required")
+                require(progressObject.keys.all { it in setOf("height", "trackColor", "fillColor", "padding") } &&
+                    progressObject.keys.containsAll(setOf("height", "trackColor", "fillColor"))) {
+                    "Toast progress keys are invalid"
+                }
+                val height = values.number(progressObject, "height")
+                    ?: error("Toast progress.height is required")
+                require(height.isFinite() && height > 0 && height <= 12) {
+                    "Invalid Toast progress height"
+                }
+                val track = values.string(progressObject, "trackColor")
+                    ?: error("Toast trackColor is required")
+                val fill = values.string(progressObject, "fillColor")
+                    ?: error("Toast fillColor is required")
+                val hexColor = Regex("^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$")
+                require(hexColor.matches(track) && hexColor.matches(fill)) {
+                    "Toast progress colors must be valid hex"
+                }
+                ToastPresentation(
+                    id = dto.id,
+                    placement = "top",
+                    durationMillis = durationValue.toLong(),
+                    background = background,
+                    shape = shape,
+                    padding = padding,
+                    spacing = values.spacing(dto.properties),
+                    progress = ToastProgress(height, track, fill, values.padding(progressObject)),
                     initialBindings = values.toDynamicValueMap(dto.initialBindings),
                     components = mappedComponents,
                 )
