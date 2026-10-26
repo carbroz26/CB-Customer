@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,12 +24,14 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentationHandle
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.registry.DynamicRegistry
 import com.carbroz.cbpartner.feature.dynamic.runtime.DynamicRenderContext
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicSpacing
+import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicPadding
 import com.carbroz.cbpartner.feature.dynamic.runtime.applyDynamicBackground
 import com.carbroz.cbpartner.feature.dynamic.runtime.toComposeShape
 import com.carbroz.cbpartner.feature.dynamic.runtime.toColor
@@ -51,6 +54,7 @@ fun DynamicPresentationHost(
     onValueChange: (String, DynamicValue) -> Unit,
     onFocusChange: (String, Boolean) -> Unit,
     onDismiss: () -> Unit,
+    toastProgress: Float = 0f,
 ) {
     val context = DynamicRenderContext(
         registry = registry,
@@ -70,6 +74,37 @@ fun DynamicPresentationHost(
     )
 
     when (presentation) {
+        is ToastPresentation -> {
+            val shape = presentation.shape.toComposeShape()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .applyDynamicSpacing(presentation.spacing)
+                    .clip(shape)
+                    .applyDynamicBackground(presentation.background, shape),
+            ) {
+                Box(modifier = Modifier.applyDynamicPadding(presentation.padding)) {
+                    context.renderComponents(presentation.components)
+                }
+                // An authored white track remains visible while green grows 0→100%.
+                val track = requireNotNull(presentation.progress.trackColor.toColor())
+                val fill = requireNotNull(presentation.progress.fillColor.toColor())
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                        .applyDynamicPadding(presentation.progress.padding)
+                        .height(presentation.progress.height.dp)
+                        .background(track),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(toastProgress.coerceIn(0f, 1f))
+                            .fillMaxHeight()
+                            .background(fill),
+                    )
+                }
+            }
+        }
+
         is DialogPresentation -> Dialog(
             onDismissRequest = onDismiss,
             properties = DialogProperties(

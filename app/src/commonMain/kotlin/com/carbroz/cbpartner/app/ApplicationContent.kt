@@ -6,13 +6,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.ui.Modifier
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -25,6 +31,7 @@ import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.feature.dynamic.presentation.DynamicPresentationHost
@@ -55,19 +62,59 @@ internal fun ApplicationContent(
     retainedSession: MutableState<DynamicSession?>,
     trustedAssetOrigin: String,
 ) {
+    // The only app-level nonmodal notification slot; preserve its start on rotation.
+    var activeToast by retain { mutableStateOf<ActiveToast?>(null) }
     // Preserve the active packaged presentation through configuration detach/reattach.
     var dialogTemplates by retain { mutableStateOf<Map<String, DialogPresentation>>(emptyMap()) }
     LaunchedEffect(Unit) {
         if (dialogTemplates.isEmpty()) dialogTemplates = loadPackagedDialogTemplates()
     }
     MaterialTheme {
-        val session = retainedSession.value
-        if (session != null) {
-            DynamicContent(koin, session, runtimeMetadataProvider, trustedAssetOrigin, dialogTemplates)
-        } else {
-            BootstrapContent(koin, runtimeMetadataProvider, trustedAssetOrigin, dialogTemplates) { destination, diagnosticId ->
-                if (retainedSession.value == null) {
-                    retainedSession.value = DynamicSession(diagnosticId, destination)
+        Box(modifier = Modifier.fillMaxSize()) {
+            val session = retainedSession.value
+            if (session != null) {
+                DynamicContent(koin, session, runtimeMetadataProvider, trustedAssetOrigin, dialogTemplates) { effect ->
+                    activeToast = ActiveToast(effect)
+                }
+            } else {
+                BootstrapContent(koin, runtimeMetadataProvider, trustedAssetOrigin, dialogTemplates) { destination, diagnosticId ->
+                    if (retainedSession.value == null) {
+                        retainedSession.value = DynamicSession(diagnosticId, destination)
+                    }
+                }
+            }
+            activeToast?.let { active ->
+                // App scope: above screen content, below no new window. Touches outside pass through.
+                var fraction by remember(active) { mutableStateOf(active.progressFraction()) }
+                LaunchedEffect(active) {
+                    while (isActive) {
+                        fraction = active.progressFraction()
+                        if (fraction >= 1f) {
+                            if (activeToast === active) activeToast = null
+                            break
+                        }
+                        delay(16L)
+                    }
+                }
+                Box(
+                    modifier = Modifier.fillMaxWidth().safeDrawingPadding(),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
+                    DynamicPresentationHost(
+                        presentation = active.effect.presentation,
+                        registry = remember { dynamicRendererRegistry() },
+                        trustedAssetOrigin = trustedAssetOrigin,
+                        bindings = active.effect.bindings,
+                        contextValues = emptyMap(),
+                        stateValues = active.effect.stateValues,
+                        validationErrors = emptyMap(),
+                        focusedBinding = null,
+                        onAction = { /* V1 Toast has no interactive content. */ },
+                        onValueChange = { _, _ -> },
+                        onFocusChange = { _, _ -> },
+                        onDismiss = { /* Only duration expires the Toast. */ },
+                        toastProgress = fraction,
+                    )
                 }
             }
         }
@@ -183,6 +230,7 @@ private fun DynamicContent(
     runtimeMetadataProvider: RuntimeMetadataProvider,
     trustedAssetOrigin: String,
     dialogTemplates: Map<String, DialogPresentation>,
+    onToast: (DynamicActionEffect.Toast) -> Unit,
 ) {
     val navigationState = session.navigationState
     val uriHandler = LocalUriHandler.current
@@ -201,11 +249,13 @@ private fun DynamicContent(
                     val operation = when (effect) {
                         is DynamicActionEffect.Navigate -> effect.operation.name.lowercase()
                         is DynamicActionEffect.ExternalUri -> "external_uri"
+                        is DynamicActionEffect.Toast -> "toast"
                     }
                     var applied = false
                     try {
                         when (effect) {
                             is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
+                            is DynamicActionEffect.Toast -> onToast(effect)
                             is DynamicActionEffect.Navigate -> when (effect.operation) {
                                 DynamicActionResult.NavigationOperation.Push ->
                                     navigationState.push(requireNotNull(effect.destination), traceContext?.actionId)
