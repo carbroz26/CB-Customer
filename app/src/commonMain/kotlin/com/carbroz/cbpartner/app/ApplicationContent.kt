@@ -31,7 +31,6 @@ import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
-import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.feature.dynamic.presentation.DynamicPresentationHost
@@ -96,7 +95,8 @@ internal fun ApplicationContent(
                         delay(16L)
                     }
                 }
-                Box(
+                // Do not flash an already expired Toast when foregrounding the app.
+                if (fraction < 1f && active.progressFraction() < 1f) Box(
                     modifier = Modifier.fillMaxWidth().safeDrawingPadding(),
                     contentAlignment = Alignment.TopCenter,
                 ) {

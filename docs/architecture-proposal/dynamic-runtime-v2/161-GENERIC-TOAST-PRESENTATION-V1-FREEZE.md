@@ -44,3 +44,9 @@ Any additional file/class/property/action must be justified by an observed, mate
 .\gradlew.bat :domain:jvmTest :data:jvmTest :feature:dynamic:jvmTest :feature:splash:jvmTest :app:jvmTest :androidApp:assembleDevelopmentDebug :webApp:wasmJsBrowserDevelopmentWebpack
 .\gradlew.bat :androidApp:installDevelopmentDebug
 ```
+
+## Implementation status — 2026-10-26
+
+The frozen Frontend changes were authored to `architecture/dynamic-runtime-v2-discussion-freeze` after this freeze: typed Domain/Mapper ToastPresentation, request successPresentationId routing with ordered effect, app-root retained monotonic expiry, nonmodal DynamicPresentationHost branch with white track/green 0→100 fill, canonical OTP v3 JSON and Web mirror, tightly cropped success-check PNG asset, regression tests. **Not yet compiled or executed in this environment**; Gradle + Samsung A35 owner verification is the next required gate. Backend remains untouched. Confirm actual run before changing status from implemented-source/pending-test to verified.
+
+**Preview country-code limitation:** The OTP v3 preview explicitly authors '+91 ' just as its existing OTP display does; the common Toast renderer never hardcodes a dial code. Production formatted recipient from the server or shared phone-state contract must be reconciled during Backend migration. The production request handler preserves the existing OTP challenge/cooldown contract.
