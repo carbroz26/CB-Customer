@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.data.dynamic.mapper
 
 import com.carbroz.cbpartner.data.dynamic.model.element.ButtonElementDto
 import com.carbroz.cbpartner.data.dynamic.model.element.DividerElementDto
+import com.carbroz.cbpartner.data.dynamic.model.element.IconBadgeElementDto
 import com.carbroz.cbpartner.data.dynamic.model.element.IconElementDto
 import com.carbroz.cbpartner.data.dynamic.model.element.ImageElementDto
 import com.carbroz.cbpartner.data.dynamic.model.element.InputElementDto
@@ -11,6 +12,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicBinding
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.DividerElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
+import com.carbroz.cbpartner.domain.model.dynamic.element.IconBadgeElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.IconElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.ImageElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
@@ -41,6 +43,7 @@ class ElementMapper(
         "input" -> mapInput(json.decodeFromJsonElement(InputElementDto.serializer(), element))
         "button" -> mapButton(json.decodeFromJsonElement(ButtonElementDto.serializer(), element))
         "icon" -> mapIcon(json.decodeFromJsonElement(IconElementDto.serializer(), element))
+        "icon_badge" -> mapIconBadge(json.decodeFromJsonElement(IconBadgeElementDto.serializer(), element))
         "divider" -> mapDivider(json.decodeFromJsonElement(DividerElementDto.serializer(), element))
         else -> error("Unsupported dynamic element type: " + values.string(element, "type"))
     }
@@ -168,6 +171,26 @@ class ElementMapper(
         trailingContent = contentMapper.mapList(dto.properties, "trailing"),
         actions = actions,
         loading = loading,
+        )
+    }
+
+    private fun mapIconBadge(dto: IconBadgeElementDto): IconBadgeElement {
+        require(dto.type == "icon_badge") { "Unsupported icon badge type" }
+        val size = values.number(dto.properties, "size")
+            ?: error("IconBadge size is required")
+        val imageSize = values.number(dto.properties, "imageSize")
+            ?: error("IconBadge imageSize is required")
+        require(size.isFinite() && size > 0.0 && imageSize.isFinite() &&
+            imageSize > 0.0 && imageSize <= size) { "IconBadge dimensions are invalid" }
+        return IconBadgeElement(
+            id = dto.id,
+            source = requireNotNull(values.checkedAssetSource(dto.properties, requireTyped = true)),
+            size = size,
+            imageSize = imageSize,
+            background = values.background(dto.properties),
+            border = values.border(dto.properties),
+            contentScale = values.assetContentScale(dto.properties),
+            spacing = values.spacing(dto.properties),
         )
     }
 

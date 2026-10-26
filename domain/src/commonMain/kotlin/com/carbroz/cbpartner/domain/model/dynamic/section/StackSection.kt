@@ -4,6 +4,9 @@ import com.carbroz.cbpartner.domain.model.dynamic.group.DynamicGroup
 import com.carbroz.cbpartner.domain.model.dynamic.element.DynamicElement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicArrangement
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBorder
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
 
 data class StackSection(
     val id: String,
@@ -13,6 +16,9 @@ data class StackSection(
     val horizontalAlignment: DynamicArrangement = DynamicArrangement.Center,
     val verticalAlignment: DynamicArrangement = DynamicArrangement.Center,
     val padding: DynamicPadding? = null,
+    val background: DynamicBackground? = null,
+    val shape: DynamicShape? = null,
+    val border: DynamicBorder? = null,
     val fillMaxWidth: Boolean = false,
     override val elements: List<DynamicElement> = emptyList(),
     override val groups: List<DynamicGroup> = emptyList(),

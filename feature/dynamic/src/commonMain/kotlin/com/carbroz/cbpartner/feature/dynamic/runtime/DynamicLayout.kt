@@ -48,7 +48,11 @@ internal fun Modifier.applyLayout(component: StackComponent): Modifier =
         .applyDynamicPadding(component.padding)
 
 internal fun Modifier.applyLayout(section: StackSection): Modifier =
-    applyDynamicPadding(section.padding).thenIf(section.fillMaxWidth) { fillMaxWidth() }
+    thenIf(section.fillMaxWidth) { fillMaxWidth() }
+        .thenIf(section.shape != null) { clip(section.shape.toComposeShape()) }
+        .applyDynamicBackground(section.background, section.shape.toComposeShape())
+        .applyBorder(section.border, section.shape)
+        .applyDynamicPadding(section.padding)
 
 internal fun Modifier.applyLayout(group: StackGroup): Modifier =
     Modifier
