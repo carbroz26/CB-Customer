@@ -1,5 +1,7 @@
 # 163 — Dynamic Runtime V2 — Ordered Mixed Children Contract FREEZE
 
+> **LATEST DECISION (2026-10-27):** The successor `properties.order` proposal in Document 168 was **also superseded** before implementation. Current Partner Type review is [Document 169](169-PARTNER-TYPE-ORIGINAL-ARRAYS-V3-REVIEW.md) and [V3 JSON](partner-type-selection-v3-original-arrays-REVIEW-CANDIDATE.json), using only existing arrays and existing Element-then-Section / Element-then-Group renderer ordering. Both old `children[]` and `order` proposals are historical; neither is approved for implementation.
+
 > **SUPERSEDED (2026-10-27):** The `children[]` wire encoding and its DTO/Mapper/Renderer implementation plan in this historical document are no longer authoritative. Owner-approved [Document 168](168-PARENT-SCOPED-ORDER-PROPERTY-CONTRACT-FREEZE.md) freezes the original `elements[]` / `sections[]` / `groups[]` JSON structure plus optional direct-child `properties.order`. Preserve this file for the original architecture reasoning only. No Kotlin implementation was performed as part of this supersession.
 
 **Decision date:** 2026-10-26. **Scope:** source-reviewed JSON → DTO → Domain → Mapper → renderer traversal contract, independent of any one screen. **Baseline source:** `0b372e53deef8aa8f4e61c338cfad77e90cb0a0e` on `architecture/dynamic-runtime-v2-discussion-freeze`. **Status:** normative architecture/contract FREEZE; no Kotlin implementation or Gradle verification is claimed by this document. No Backend changes.
