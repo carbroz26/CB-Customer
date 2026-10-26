@@ -39,10 +39,19 @@ internal fun DynamicOfflinePreview(
         loaded = runCatching {
             val response = window.fetch("/preview/$fixture").await()
             require(response.ok) { "Web Dynamic preview JSON is not served by the Web app" }
-            parseLocalDynamicPreview(
+            val current = parseLocalDynamicPreview(
                 response.text().await().toString(), initialState, numericInitialState, resendFailureMode,
                 networkFailure = networkFailure,
             )
+            if (fixture == "partner-login.json") {
+                val otpResponse = window.fetch("/preview/partner-otp.json").await()
+                require(otpResponse.ok) { "Web OTP preview JSON is not served by the Web app" }
+                current.copy(
+                    nextScreen = parseLocalDynamicPreview(
+                        otpResponse.text().await().toString(),
+                    ).response,
+                )
+            } else current
         }
     }
     val preview = loaded?.getOrNull()
@@ -74,6 +83,13 @@ internal fun BootstrapOfflinePreview(
             val loginResponse = window.fetch("/preview/partner-login.json").await()
             require(loginResponse.ok) { "Local Login JSON is unavailable" }
             val login = parseLocalDynamicPreview(loginResponse.text().await().toString())
+            val otpResponse = window.fetch("/preview/partner-otp.json").await()
+            require(otpResponse.ok) { "Web OTP preview JSON is unavailable" }
+            val loginWithOtp = login.copy(
+                nextScreen = parseLocalDynamicPreview(
+                    otpResponse.text().await().toString(),
+                ).response,
+            )
             val bootstrap = if (failure != null) {
                 simulatedLocalBootstrapFailure(failure)
             } else {
@@ -82,7 +98,7 @@ internal fun BootstrapOfflinePreview(
                 require(result.ok) { "Bootstrap scenario JSON is unavailable" }
                 parseLocalBootstrapPreview(result.text().await().toString())
             }
-            bootstrap to login
+            bootstrap to loginWithOtp
         }
     }
     when (val result = loaded) {

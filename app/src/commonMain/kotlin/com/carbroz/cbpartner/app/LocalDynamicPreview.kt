@@ -19,6 +19,8 @@ data class LocalDynamicPreview(
     val initialState: Map<String, DynamicValue> = emptyMap(),
     val resendFailureMode: Boolean = false,
     val networkFailure: AppFailure.Category? = null,
+    /** Only an explicit dev preview may provide the next screen without Backend. */
+    val nextScreen: DynamicResponse? = null,
 )
 
 /** Both previews pass their platform-loaded bytes through this exact DTO mapper. */

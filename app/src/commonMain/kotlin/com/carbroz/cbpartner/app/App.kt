@@ -84,18 +84,27 @@ fun App(
                                 request.endpoint == LOCAL_PREVIEW_DYNAMIC_ENDPOINT ->
                                     Result.success(preview.response)
 
+                                request.endpoint == LOCAL_PREVIEW_OTP_ENDPOINT &&
+                                    preview.nextScreen != null ->
+                                    Result.success(preview.nextScreen)
+
                                 preview.networkFailure != null ->
                                     Result.failure(AppFailure(preview.networkFailure))
 
-                                // This is an offline OTP preview fixture, not a backend bypass.
-                                preview.response.data?.screenId == "partner_otp" &&
-                                    request.endpoint == "/api/v1/partner/auth/send_otp" &&
-                                    request.method.equals("POST", ignoreCase = true) -> {
+                                // Development-only Send OTP: initial Login navigates to the
+                                // actual mapped OTP fixture, while OTP Resend stays on OTP.
+                                request.endpoint == "/api/v1/partner/auth/send_otp" &&
+                                    request.method.equals("POST", ignoreCase = true) &&
+                                    (preview.response.data?.screenId in setOf("partner_login", "partner_otp")) -> {
                                     val phone = (request.body as? DynamicValue.ObjectValue)
                                         ?.value?.get("phoneNumber") as? DynamicValue.StringValue
+                                    val loginSend = preview.response.data?.screenId == "partner_login"
+                                    val otpScreen = preview.nextScreen?.data
                                     if (phone == null) {
                                         Result.failure(IllegalArgumentException("Missing preview phoneNumber"))
-                                    } else if (preview.resendFailureMode) {
+                                    } else if (loginSend && otpScreen == null) {
+                                        Result.failure(IllegalStateException("OTP preview screen is unavailable"))
+                                    } else if (!loginSend && preview.resendFailureMode) {
                                         Result.failure(AppFailure(AppFailure.Category.CONNECTION))
                                     } else {
                                         resendCount++
@@ -107,13 +116,19 @@ fun App(
                                             traceId = null,
                                             dataPayload = DynamicValue.ObjectValue(mapOf(
                                                 "challengeId" to DynamicValue.StringValue(
-                                                    "development-resend-" + resendCount,
+                                                    "development-send-" + resendCount,
                                                 ),
                                                 "phoneNumber" to phone,
                                                 "resendAfterSeconds" to DynamicValue.NumberValue(
                                                     LOCAL_PREVIEW_RESEND_SECONDS,
                                                 ),
                                             )),
+                                            destination = if (loginSend) DynamicDestination(
+                                                screenId = requireNotNull(otpScreen).screenId,
+                                                templateId = otpScreen.template.id,
+                                                templateType = otpScreen.template.type,
+                                                endpoint = LOCAL_PREVIEW_OTP_ENDPOINT,
+                                            ) else null,
                                         ))
                                     }
                                 }
@@ -145,3 +160,4 @@ fun App(
 
 /** Preview-only destination; rejected by the offline repository for all mutations. */
 private const val LOCAL_PREVIEW_DYNAMIC_ENDPOINT = "/api/v1/partner/screen/auth_login"
+private const val LOCAL_PREVIEW_OTP_ENDPOINT = "/api/v1/partner/screen/auth_otp"

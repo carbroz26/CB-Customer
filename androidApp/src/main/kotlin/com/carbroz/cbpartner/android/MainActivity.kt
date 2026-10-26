@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
             val numericInitialState = if (otpRequested) mapOf(
                 "resendAfterSeconds" to LOCAL_PREVIEW_RESEND_SECONDS,
             ) else emptyMap()
-            parseLocalDynamicPreview(
+            val mapped = parseLocalDynamicPreview(
                 raw,
                 initialState,
                 numericInitialState,
@@ -66,6 +66,11 @@ class MainActivity : ComponentActivity() {
                     intent.getBooleanExtra("cbpartner.otp_resend_failure", false),
                 networkFailure = intent.getStringExtra("cbpartner.preview_network_failure"),
             )
+            if (filename == "partner-login.json") {
+                val otpRaw = assets.open("partner-otp.json")
+                    .bufferedReader().use { it.readText() }
+                mapped.copy(nextScreen = parseLocalDynamicPreview(otpRaw).response)
+            } else mapped
         } else null
 
         setContent {
