@@ -1,7 +1,8 @@
 <resources>
     <string name="splash_app_name">CB-Partner</string>
     <string name="splash_service_subtitle">Doorstep Car Wash Partner</string>
-    <string name="splash_loading_title">Loading...</string>
+    <string name="splash_loading_title">Connecting...</string>
+    <string name="splash_loading_subtitle">Setting up your experience</string>
     <string name="splash_failure_retry">Try again</string>
     <string name="splash_maintenance_title">Service temporarily unavailable</string>
     <string name="splash_maintenance_description">CarBroz is under maintenance. Please try again later.</string>

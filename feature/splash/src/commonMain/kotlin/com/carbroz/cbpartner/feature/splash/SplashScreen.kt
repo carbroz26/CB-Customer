@@ -12,8 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +37,7 @@ import com.carbroz.cbpartner.feature.splash.generated.resources.splash_app_name
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_brand_logo
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_failure_retry
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_hero_image
+import com.carbroz.cbpartner.feature.splash.generated.resources.splash_loading_subtitle
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_loading_title
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_maintenance_description
 import com.carbroz.cbpartner.feature.splash.generated.resources.splash_maintenance_title
@@ -172,13 +171,10 @@ private fun SplashBottomStatus(
             SplashState.Initial,
             SplashState.Loading,
             is SplashState.Success -> {
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth(0.88f)
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(100.dp)),
+                CircularProgressIndicator(
+                    modifier = Modifier.size(50.dp),
                     color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                    strokeWidth = 4.dp,
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -187,6 +183,16 @@ private fun SplashBottomStatus(
                     text = stringResource(Res.string.splash_loading_title),
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = stringResource(Res.string.splash_loading_subtitle),
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
