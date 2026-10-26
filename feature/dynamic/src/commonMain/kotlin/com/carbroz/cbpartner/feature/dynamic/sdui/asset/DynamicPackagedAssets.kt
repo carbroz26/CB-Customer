@@ -1,5 +1,11 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.asset
 
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_maintenance
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_required_update
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_optional_update
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_connection
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_server_error
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_secure_connection
 import org.jetbrains.compose.resources.DrawableResource
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero_06
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.partner_login_hero_07
@@ -53,6 +59,12 @@ internal fun packagedAssetResource(key: String): DrawableResource? = when (key) 
     "icons/close_02" -> Res.drawable.icon_close_02
     "icons/check_circle_blue" -> Res.drawable.icon_check_circle_blue
     "icons/error_alert_icon_01" -> Res.drawable.error_alert_icon_01
+    "icons/dialog_maintenance" -> Res.drawable.dialog_maintenance
+    "icons/dialog_required_update" -> Res.drawable.dialog_required_update
+    "icons/dialog_optional_update" -> Res.drawable.dialog_optional_update
+    "icons/dialog_connection" -> Res.drawable.dialog_connection
+    "icons/dialog_server_error" -> Res.drawable.dialog_server_error
+    "icons/dialog_secure_connection" -> Res.drawable.dialog_secure_connection
     "icons/clock" -> Res.drawable.clock_icon_02
     else -> null
 }

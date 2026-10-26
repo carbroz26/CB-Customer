@@ -1,0 +1,270 @@
+{
+  "status": 200,
+  "code": "SUCCESS",
+  "message": "Development-local dialog fixture",
+  "data": null,
+  "traceId": null,
+  "presentation": {
+    "id": "app_dialog_optional_update",
+    "type": "dialog",
+    "properties": {
+      "dismissOnBack": true,
+      "dismissOnOutsideClick": true
+    },
+    "initialBindings": {},
+    "components": [
+      {
+        "id": "dialog_surface",
+        "type": "stack_component",
+        "properties": {
+          "orientation": "vertical",
+          "fillMaxWidth": true,
+          "background": {
+            "color": "#FFFFFF"
+          },
+          "shape": {
+            "type": "roundedCorner",
+            "cornerRadius": 18
+          },
+          "padding": {
+            "start": 18,
+            "end": 18,
+            "top": 18,
+            "bottom": 18
+          }
+        },
+        "sections": [
+          {
+            "id": "badge_section",
+            "type": "stack_section",
+            "properties": {
+              "horizontalAlignment": "center",
+              "fillMaxWidth": true,
+              "padding": {
+                "bottom": 12
+              }
+            },
+            "elements": [
+              {
+                "id": "badge",
+                "type": "icon_badge",
+                "properties": {
+                  "size": 76,
+                  "imageSize": 43,
+                  "background": {
+                    "color": "#E2F1FF"
+                  },
+                  "source": {
+                    "type": "resource",
+                    "value": "icons/dialog_optional_update"
+                  },
+                  "contentScale": "fit"
+                }
+              }
+            ]
+          },
+          {
+            "id": "heading_section",
+            "type": "stack_section",
+            "properties": {
+              "fillMaxWidth": true,
+              "horizontalAlignment": "center"
+            },
+            "elements": [
+              {
+                "id": "dialog_title",
+                "type": "text",
+                "properties": {
+                  "text": "Update Available",
+                  "fontSize": 20,
+                  "fontWeight": 700,
+                  "lineHeight": 26,
+                  "color": "#061B4B",
+                  "textAlign": "center",
+                  "fillMaxWidth": true,
+                  "spacing": {
+                    "bottom": 8
+                  }
+                }
+              },
+              {
+                "id": "dialog_description",
+                "type": "text",
+                "properties": {
+                  "text": "A newer version of CB-Partner is available with new features and improvements.",
+                  "fontSize": 14,
+                  "fontWeight": 400,
+                  "lineHeight": 19,
+                  "color": "#426A9B",
+                  "textAlign": "center",
+                  "fillMaxWidth": true
+                }
+              }
+            ]
+          },
+          {
+            "id": "supportive_info_section",
+            "type": "stack_section",
+            "properties": {
+              "orientation": "horizontal",
+              "verticalAlignment": "center",
+              "fillMaxWidth": true,
+              "background": {
+                "color": "#EAF4FF"
+              },
+              "shape": {
+                "type": "roundedCorner",
+                "cornerRadius": 12
+              },
+              "padding": {
+                "start": 13,
+                "end": 13,
+                "top": 12,
+                "bottom": 12
+              }
+            },
+            "elements": [
+              {
+                "id": "supportive_clock",
+                "type": "icon",
+                "properties": {
+                  "source": {
+                    "type": "resource",
+                    "value": "icons/clock"
+                  },
+                  "size": 20,
+                  "padding": {
+                    "end": 11
+                  }
+                }
+              }
+            ],
+            "groups": [
+              {
+                "id": "supportive_text_lines",
+                "type": "stack_group",
+                "properties": {
+                  "orientation": "vertical",
+                  "verticalArrangement": {
+                    "type": "spacedBy",
+                    "spacing": 2
+                  },
+                  "horizontalAlignment": "start"
+                },
+                "elements": [
+                  {
+                    "id": "version_line_1",
+                    "type": "text",
+                    "properties": {
+                      "spans": [
+                        {
+                          "text": {
+                            "$binding": "currentVersion"
+                          }
+                        }
+                      ],
+                      "fontSize": 12,
+                      "fontWeight": 400,
+                      "lineHeight": 16,
+                      "color": "#416A9C",
+                      "textAlign": "start",
+                      "fillMaxWidth": false
+                    }
+                  },
+                  {
+                    "id": "version_line_2",
+                    "type": "text",
+                    "properties": {
+                      "spans": [
+                        {
+                          "text": {
+                            "$binding": "targetVersion"
+                          }
+                        }
+                      ],
+                      "fontSize": 12,
+                      "fontWeight": 700,
+                      "lineHeight": 16,
+                      "color": "#103F84",
+                      "textAlign": "start",
+                      "fillMaxWidth": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "actions_section",
+            "type": "stack_section",
+            "properties": {
+              "fillMaxWidth": true,
+              "padding": {
+                "top": 18
+              },
+              "verticalArrangement": {
+                "type": "spacedBy",
+                "spacing": 8
+              }
+            },
+            "elements": [
+              {
+                "id": "action_update",
+                "type": "button",
+                "properties": {
+                  "text": "Update Now",
+                  "height": 43,
+                  "fillMaxWidth": true,
+                  "fontSize": 14,
+                  "fontWeight": 600,
+                  "textColor": "#FFFFFF",
+                  "background": {
+                    "color": "#0768F7"
+                  },
+                  "shape": {
+                    "type": "roundedCorner",
+                    "cornerRadius": 9
+                  }
+                },
+                "actions": {
+                  "onClick": {
+                    "type": "external_uri",
+                    "payload": {
+                      "uri": {
+                        "$binding": "storeUrl"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "id": "action_not_now",
+                "type": "button",
+                "properties": {
+                  "text": "Not Now",
+                  "height": 43,
+                  "fillMaxWidth": true,
+                  "fontSize": 14,
+                  "fontWeight": 600,
+                  "textColor": "#0066F5",
+                  "background": {
+                    "color": "#EAF4FF"
+                  },
+                  "shape": {
+                    "type": "roundedCorner",
+                    "cornerRadius": 9
+                  }
+                },
+                "actions": {
+                  "onClick": {
+                    "type": "dismiss"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
