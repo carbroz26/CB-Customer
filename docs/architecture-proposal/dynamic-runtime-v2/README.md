@@ -1,5 +1,7 @@
 # CB-Partner — Dynamic Runtime V2: Discussion Freeze
 
+> **LATEST OWNER-APPROVED IMPLEMENTATION PLAN (2026-10-26):** [160 — Application-wide Generic Dialog V1](160-APPLICATION-WIDE-GENERIC-DIALOG-V1-IMPLEMENTATION-PLAN.md). Owner-approved exact P0–P5 Frontend scope and source manifest for six reusable Dialog scenarios, one new `IconBadgeElement`, `StackSection` surface properties, app-wide response/error integration, and development-only Splash/Login/OTP previews. **Status: plan frozen, source implementation/testing not yet claimed.** Backend migration is deferred as P6; do not change `CB-Backend/development` during Frontend batch. This supersedes older "next work" suggestions only for the newly approved Dialog work; Login v19/OTP v3 contractual and security constraints remain binding.
+
 > **CURRENT HANDOFF (2026-10-25) — READ THIS FIRST.** The earlier "2026-10-23 / Login v11 / read 140–141 first" notices below are historical. Preserve them as chronology only. The authoritative current checkpoint is **Login v19 + OTP v3 + generic Resend mock success/failure verified on Samsung A35**, with Backend live integration **not yet implemented**. Consult:
 >
 > 1. [157 — Exact Backend ↔ Frontend Contract Freeze](157-LOGIN-OTP-BACKEND-FRONTEND-EXACT-CONTRACT-RECONCILIATION-FREEZE-2026-10-25.md): already-frozen target APIs, four-field destinations, Backend schema/ScreenComposer gaps, authentication/country blockers; not code implementation.
