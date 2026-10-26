@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.data.bootstrap
 import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
 import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapFailure
+import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.network.NetworkResult
 import com.carbroz.cbpartner.network.http.RequestHandler
 import io.ktor.client.HttpClient
@@ -59,18 +60,16 @@ class BootstrapRepositoryImplTest {
     }
 
     @Test
-    fun remoteHttpFailureIsPreserved() = runTest {
+    fun remoteHttpFailureIsMappedToTypedAppFailure() = runTest {
         val result = createRepository(
             MockEngine {
                 respond("", HttpStatusCode.ServiceUnavailable)
             },
         ).fetch()
 
-        assertTrue(result.isFailure)
-        assertEquals(
-            503,
-            (result.exceptionOrNull() as? com.carbroz.cbpartner.network.NetworkException.Server)?.statusCode,
-        )
+        val failure = assertIs<AppFailure>(result.exceptionOrNull())
+        assertEquals(AppFailure.Category.SERVER, failure.category)
+        assertEquals(503, failure.httpStatus)
     }
 
     @Test
