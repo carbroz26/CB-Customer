@@ -236,11 +236,12 @@ private fun DynamicContent(
     val uriHandler = LocalUriHandler.current
     val flowLogger = remember(session) { Logger.withTag("CBPartnerFlow") }
     var effectError by remember(session) { mutableStateOf<String?>(null) }
+    // A navigation failure must suppress its paired Toast even across a config detach.
+    var failedNavigationBatchId by retain(session) { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(session, uriHandler) {
         val lease = session.attachConsumer()
         try {
-            var failedNavigationBatchId: Long? = null
             session.workRevision.collect {
                 while (true) {
                     val claim = session.claimNext(lease) ?: break
