@@ -29,19 +29,24 @@
           "padding": {
             "start": 18,
             "end": 18,
-            "top": 18,
-            "bottom": 18
+            "top": 16,
+            "bottom": 16
           }
         },
         "sections": [
           {
-            "id": "badge_section",
+            "id": "dialog_summary_section",
             "type": "stack_section",
             "properties": {
-              "horizontalAlignment": "center",
+              "orientation": "horizontal",
               "fillMaxWidth": true,
+              "verticalAlignment": "center",
+              "horizontalArrangement": {
+                "type": "spacedBy",
+                "spacing": 12
+              },
               "padding": {
-                "bottom": 12
+                "bottom": 14
               }
             },
             "elements": [
@@ -49,8 +54,8 @@
                 "id": "badge",
                 "type": "icon_badge",
                 "properties": {
-                  "size": 76,
-                  "imageSize": 43,
+                  "size": 64,
+                  "imageSize": 37,
                   "background": {
                     "color": "#FFE3E6"
                   },
@@ -61,44 +66,74 @@
                   "contentScale": "fit"
                 }
               }
-            ]
-          },
-          {
-            "id": "heading_section",
-            "type": "stack_section",
-            "properties": {
-              "fillMaxWidth": true,
-              "horizontalAlignment": "center"
-            },
-            "elements": [
+            ],
+            "groups": [
               {
-                "id": "dialog_title",
-                "type": "text",
+                "id": "dialog_copy",
+                "type": "stack_group",
                 "properties": {
-                  "text": "Secure Connection Error",
-                  "fontSize": 20,
-                  "fontWeight": 700,
-                  "lineHeight": 26,
-                  "color": "#061B4B",
-                  "textAlign": "center",
+                  "orientation": "vertical",
                   "fillMaxWidth": true,
-                  "spacing": {
-                    "bottom": 8
+                  "verticalArrangement": {
+                    "type": "spacedBy",
+                    "spacing": 4
                   }
-                }
-              },
-              {
-                "id": "dialog_description",
-                "type": "text",
-                "properties": {
-                  "text": "We couldn't establish a secure connection to CB-Partner. Please check your network or try again.",
-                  "fontSize": 14,
-                  "fontWeight": 400,
-                  "lineHeight": 19,
-                  "color": "#426A9B",
-                  "textAlign": "center",
-                  "fillMaxWidth": true
-                }
+                },
+                "elements": [
+                  {
+                    "id": "dialog_title",
+                    "type": "text",
+                    "properties": {
+                      "text": "Secure Connection Error",
+                      "fontSize": 17,
+                      "fontWeight": 700,
+                      "lineHeight": 22,
+                      "color": "#061B4B",
+                      "textAlign": "start",
+                      "fillMaxWidth": true,
+                      "spacing": {
+                        "bottom": 0
+                      },
+                      "trailing": [
+                        {
+                          "id": "dialog_close",
+                          "type": "icon",
+                          "properties": {
+                            "source": {
+                              "type": "resource",
+                              "value": "icons/close_02"
+                            },
+                            "size": 16,
+                            "spacing": {
+                              "start": 8
+                            }
+                          },
+                          "actions": {
+                            "onClick": {
+                              "type": "dismiss",
+                              "payload": {
+                                "dialogIntent": "cancel"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "dialog_description",
+                    "type": "text",
+                    "properties": {
+                      "text": "We couldn't establish a secure connection to CB-Partner. Please check your network or try again.",
+                      "fontSize": 13,
+                      "fontWeight": 400,
+                      "lineHeight": 18,
+                      "color": "#426A9B",
+                      "textAlign": "start",
+                      "fillMaxWidth": false
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -106,14 +141,7 @@
             "id": "actions_section",
             "type": "stack_section",
             "properties": {
-              "fillMaxWidth": true,
-              "padding": {
-                "top": 18
-              },
-              "verticalArrangement": {
-                "type": "spacedBy",
-                "spacing": 8
-              }
+              "fillMaxWidth": true
             },
             "elements": [
               {
@@ -121,7 +149,7 @@
                 "type": "button",
                 "properties": {
                   "text": "Try Again",
-                  "height": 43,
+                  "height": 42,
                   "fillMaxWidth": true,
                   "fontSize": 14,
                   "fontWeight": 600,
@@ -136,7 +164,10 @@
                 },
                 "actions": {
                   "onClick": {
-                    "type": "dismiss"
+                    "type": "dismiss",
+                    "payload": {
+                      "dialogIntent": "retry"
+                    }
                   }
                 }
               }
