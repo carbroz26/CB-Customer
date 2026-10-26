@@ -28,7 +28,7 @@ Rules that cannot regress:
 
 | Boundary | Current Frontend v19/v3 | Actual Backend development | Frozen target / owner |
 | --- | --- | --- | --- |
-| Guest bootstrap destination | Login screen partner_login, template tpl_7K2M9Q, form_template | Default config guest template **tpl_P101L** | Backend startup configuration MUST return tpl_7K2M9Q for new approved Login screen. Validate persisted config too; endpoint remains /api/v1/partner/screen/auth_login |
+| Guest bootstrap destination | Login screen partner_login, template tpl_P101L, form_template | Default config guest template **tpl_P101L** | Backend startup configuration MUST return tpl_P101L for new approved Login screen. Validate persisted config too; endpoint remains /api/v1/partner/screen/auth_login |
 | GET Login document | Exact Login v19 JSON including country_picker | PartnerLoginScreen still old brand/layout and tpl_P101L | Backend GET emits approved v19-equivalent screen ID, template ID/type and visual/behavior structure |
 | Send OTP POST | Login action endpoint **/api/v1/auth/send_otp**, body countryCode/phoneNumber/deviceId | Registered **/api/v1/partner/auth/send_otp**. SendOtpSchema parses phoneNumber/deviceId | Backend-authored Login action calls partner URL with phoneNumber=$binding.mobileNumber and deviceId=$context.deviceId; countryCode remains UI state but is NOT an additional SendOtp request field |
 | Send OTP response | RequestAction mode=push, responseMode=destination, retain challengeId/phoneNumber/resendAfterSeconds | SendOtpResult contains all 3 + expiresInSeconds/isNewUser/destination | Keep current retain mapping, responseMode and push; backend response remains canonical status/code/message/data/traceId |
@@ -67,9 +67,9 @@ Trace ID is optional; the exact message copy varies by operation. Status/HTTP fa
 
 Backend SduiModel.dynamicDestinationSchema and Frontend Domain DynamicDestination currently use **four** fields; method/authentication belong to request payloads, not the current destination model. Old docs asking for six destination fields are superseded for this implementation. DynamicRenderer actively checks returned screenId/template.id/template.type equality with destination; even a visually perfect screen will not render if these IDs differ.
 
-**Guest startup**: GET /api/v1/partner/config/bootstrap → data.startup.destination = partner_login / tpl_7K2M9Q / form_template / /api/v1/partner/screen/auth_login. Backend GetPartnerBootstrapUseCase default currently uses tpl_P101L and persisted config may override it; both need reconciliation.
+**Guest startup**: GET /api/v1/partner/config/bootstrap → data.startup.destination = partner_login / tpl_P101L / form_template / /api/v1/partner/screen/auth_login. Backend GetPartnerBootstrapUseCase default currently uses tpl_P101L and persisted config may override it; both need reconciliation.
 
-**GET Login**: GET /api/v1/partner/screen/auth_login → approved Login v19 data (screenId partner_login, schemaVersion 3.0.0, targetApp PARTNER, template.id tpl_7K2M9Q).
+**GET Login**: GET /api/v1/partner/screen/auth_login → approved Login v19 data (screenId partner_login, schemaVersion 3.0.0, targetApp PARTNER, template.id tpl_P101L).
 
 **GET OTP**: GET /api/v1/partner/screen/auth_otp → approved OTP v3 data (screenId partner_otp, schemaVersion 3.0.0, targetApp PARTNER, template.id tpl_P102O).
 
@@ -210,3 +210,5 @@ Backend must author the *current* approved documents through its existing engine
 **EXPLICITLY OPEN:** Backend schema/authoring implementation, bootstrap persisted-config parity, live country support, authenticated session/next screen, typed 429 UX, full deadline restoration, cross-repo end-to-end integration tests.
 
 **No production/frontend UI source changed during this reconciliation.**
+
+> **2026-10-26 owner-approved identity correction:** Canonical Login v19 template ID is `tpl_P101L`; previously shipped frontend v19 used `tpl_P102L` and older design notes used `tpl_7K2M9Q`. Bootstrap and GET Login must agree on this exact ID at future backend migration; current Backend layout still needs full visual/behavior parity, so ID agreement alone is not integration completion.
