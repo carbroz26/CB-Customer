@@ -39,13 +39,13 @@ class AppDialogFixtureParityTest {
         listOf("required_update", "optional_update").forEach { name ->
             val surface = assertIs<StackComponent>(dialogs.getValue(name).components.single())
             val supportive = assertIs<StackSection>(
-                surface.sections.single { it.id == "supportive_info_section" },
+                surface.sections.filterIsInstance<StackSection>().single { it.id == "supportive_info_section" },
             )
             assertEquals("horizontal", supportive.orientation)
             assertEquals(2, supportive.groups.single().elements.size)
         }
         val maintenance = assertIs<StackComponent>(dialogs.getValue("maintenance").components.single())
-        assertTrue(maintenance.sections.none { it.id == "supportive_info_section" })
+        assertTrue(maintenance.sections.filterIsInstance<StackSection>().none { it.id == "supportive_info_section" })
     }
 
     @Test
@@ -54,7 +54,7 @@ class AppDialogFixtureParityTest {
         listOf("server_error", "secure_connection").forEach { kind ->
             val surface = assertIs<StackComponent>(dialogs.getValue(kind).components.single())
             val header = assertIs<StackSection>(
-                surface.sections.single { it.id == "dialog_summary_section" },
+                surface.sections.filterIsInstance<StackSection>().single { it.id == "dialog_summary_section" },
             )
             assertEquals("horizontal", header.orientation)
             assertIs<IconBadgeElement>(header.elements.single())
@@ -66,7 +66,7 @@ class AppDialogFixtureParityTest {
             )
 
             val actions = assertIs<StackSection>(
-                surface.sections.single { it.id == "actions_section" },
+                surface.sections.filterIsInstance<StackSection>().single { it.id == "actions_section" },
             )
             val retry = assertNotNull(
                 actions.elements.filterIsInstance<ButtonElement>()
@@ -80,19 +80,19 @@ class AppDialogFixtureParityTest {
                 dialogs.getValue(kind + "_startup").components.single(),
             )
             val startupTitle = assertIs<TextElement>(
-                startup.sections.single { it.id == "dialog_summary_section" }
+                startup.sections.filterIsInstance<StackSection>().single { it.id == "dialog_summary_section" }
                     .groups.single().elements.first(),
             )
             assertTrue(startupTitle.trailingContent.isEmpty())
             assertEquals(
                 listOf("action_retry"),
-                startup.sections.single { it.id == "actions_section" }
+                startup.sections.filterIsInstance<StackSection>().single { it.id == "actions_section" }
                     .elements.filterIsInstance<ButtonElement>().map { it.id },
             )
         }
         val serverActions = assertIs<StackComponent>(
             dialogs.getValue("server_error").components.single(),
-        ).sections.single { it.id == "actions_section" }.elements.filterIsInstance<ButtonElement>()
+        ).sections.filterIsInstance<StackSection>().single { it.id == "actions_section" }.elements.filterIsInstance<ButtonElement>()
         assertEquals(listOf("action_cancel", "action_retry"), serverActions.map { it.id })
         assertEquals(listOf(1.0, 1.0), serverActions.map { it.weight })
         assertTrue(serverActions.all { it.fillMaxWidth })
