@@ -53,4 +53,4 @@ class IconBadgeElement : ElementRenderer<IconBadgeElementModel> {
             )
         }
     }
-
+}
