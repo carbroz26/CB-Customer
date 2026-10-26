@@ -365,8 +365,8 @@ class DynamicStore(
                     _state.value = DynamicState.Failure(
                         "Unable to load dynamic screen",
                         current.copy(
-                            dialogFailure = error as? AppFailure ?: AppFailure(AppFailure.Category.UNKNOWN),
-                            dialogGeneration = current.dialogGeneration + 1,
+                            dialogFailure = error as? AppFailure,
+                            dialogGeneration = current.dialogGeneration + if (error is AppFailure) 1 else 0,
                         ),
                     )
                 }
@@ -597,13 +597,13 @@ class DynamicStore(
                     if (!matchesPresentation(currentScreen(), presentationId, acceptedGeneration)) return@launch
                     reportAction(traceContext, "action.completed", action.type, "failed")
                     val screen = currentScreen() ?: latest
-                    val failure = error as? AppFailure ?: AppFailure(AppFailure.Category.UNKNOWN)
-                    if (failure.category in setOf(
+                    val failure = error as? AppFailure
+                    if (failure != null && (failure.category in setOf(
                         AppFailure.Category.CONNECTION,
                         AppFailure.Category.SERVER,
                         AppFailure.Category.SECURE_CONNECTION,
                         AppFailure.Category.UNKNOWN,
-                    ) || failure.presentation != null) {
+                    ) || failure.presentation != null)) {
                         reduceForOrigin(
                             screen.copy(
                                 dialogFailure = failure,
