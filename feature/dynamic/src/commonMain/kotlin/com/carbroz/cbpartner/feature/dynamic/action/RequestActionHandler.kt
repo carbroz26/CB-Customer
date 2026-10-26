@@ -56,6 +56,14 @@ class RequestActionHandler(
         }
         val body = action.payload["body"]?.let { DynamicReferenceResolver.resolve(it, bindings, context, state) }
         val retainedPaths = retainedPaths(action.payload["retain"])
+        val successPresentationId = action.payload["successPresentationId"]?.let { value ->
+            check(responseMode == "none") {
+                "Success Toast is only valid for a non-navigating request"
+            }
+            resolveString(value, bindings, context, state)
+                ?.takeIf { it.isNotBlank() }
+                ?: error("Request successPresentationId must resolve to a nonblank ID")
+        }
 
         val response = repository.fetch(
             DynamicRequest(
@@ -74,6 +82,9 @@ class RequestActionHandler(
             return DynamicActionResult.PresentResponse(presentation, stateChanges)
         }
         if (responseMode.equals("none", true)) {
+            if (successPresentationId != null) {
+                return DynamicActionResult.SuccessPresentation(successPresentationId, stateChanges)
+            }
             return if (stateChanges.isEmpty()) DynamicActionResult.Completed
             else DynamicActionResult.StateChanged(stateChanges)
         }

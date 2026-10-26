@@ -3,6 +3,8 @@ package com.carbroz.cbpartner.feature.dynamic.action
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
 
 sealed interface DynamicActionResult {
     val stateChanges: Map<String, DynamicValue>
@@ -29,9 +31,18 @@ sealed interface DynamicActionResult {
         override val effects: List<DynamicActionEffect> = emptyList()
     }
 
+    /** An accepted HTTP response can author either a modal Dialog or a transient Toast. */
     data class PresentResponse(
-        val presentation: DialogPresentation,
+        val presentation: DynamicPresentation,
         override val stateChanges: Map<String, DynamicValue> = emptyMap(),
+    ) : DynamicActionResult {
+        override val effects: List<DynamicActionEffect> = emptyList()
+    }
+
+    /** A request actually succeeded; the Store resolves its screen-authored Toast ID. */
+    data class SuccessPresentation(
+        val presentationId: String,
+        override val stateChanges: Map<String, DynamicValue>,
     ) : DynamicActionResult {
         override val effects: List<DynamicActionEffect> = emptyList()
     }
@@ -71,4 +82,11 @@ sealed interface DynamicActionEffect {
     ) : DynamicActionEffect
 
     data class ExternalUri(val uri: String) : DynamicActionEffect
+
+    /** Immutable authored presentation + action-origin snapshots for app-scoped UI. */
+    data class Toast(
+        val presentation: ToastPresentation,
+        val bindings: Map<String, DynamicValue>,
+        val stateValues: Map<String, DynamicValue>,
+    ) : DynamicActionEffect
 }

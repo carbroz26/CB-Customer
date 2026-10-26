@@ -9,6 +9,8 @@ import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
 import com.carbroz.cbpartner.domain.model.dynamic.component.DynamicComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.DynamicPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
@@ -763,22 +765,32 @@ class DynamicStore(
         result: DynamicActionResult,
         traceContext: TraceContext?,
     ): Boolean = when (result) {
-        is DynamicActionResult.Present -> openPresentation(result.presentationId)
+        is DynamicActionResult.Present -> openPresentation(result.presentationId, traceContext)
+        is DynamicActionResult.SuccessPresentation -> {
+            val screen = currentScreen()
+            val toast = screen?.let { findPresentation(it, result.presentationId) as? ToastPresentation }
+            if (screen == null || toast == null) false
+            else emitToast(toast, result.stateChanges, traceContext)
+        }
         DynamicActionResult.Dismiss -> closeActivePresentation()
-        is DynamicActionResult.PresentResponse -> {
-            val current = currentScreen()
-            if (current == null) false
-            else {
-                val accepted = commitActionResult(result.stateChanges, emptyList(), traceContext)
-                if (accepted) {
-                    reduce(current.copy(
-                        activeResponseDialog = result.presentation,
-                        dialogFailure = null,
-                        dialogGeneration = current.dialogGeneration + 1,
-                    ))
+        is DynamicActionResult.PresentResponse -> when (val presentation = result.presentation) {
+            is ToastPresentation -> emitToast(presentation, result.stateChanges, traceContext)
+            is DialogPresentation -> {
+                val current = currentScreen()
+                if (current == null) false
+                else {
+                    val accepted = commitActionResult(result.stateChanges, emptyList(), traceContext)
+                    if (accepted) {
+                        reduce(current.copy(
+                            activeResponseDialog = presentation,
+                            dialogFailure = null,
+                            dialogGeneration = current.dialogGeneration + 1,
+                        ))
+                    }
+                    accepted
                 }
-                accepted
             }
+            else -> false
         }
         else -> {
             val accepted = commitActionResult(result.stateChanges, result.effects, traceContext)
@@ -792,10 +804,12 @@ class DynamicStore(
         }
     }
 
-    private fun openPresentation(presentationId: String): Boolean {
+    /** Existing present contract: Toast emits an ordered effect without occupying a modal slot. */
+    private fun openPresentation(presentationId: String, traceContext: TraceContext?): Boolean {
         val current = currentScreen() ?: return false
         if (current.activePresentationId != null) return false
         val presentation = findPresentation(current, presentationId) ?: return false
+        if (presentation is ToastPresentation) return emitToast(presentation, emptyMap(), traceContext)
         reduce(
             current.copy(
                 activePresentationId = presentationId,
@@ -807,6 +821,29 @@ class DynamicStore(
             persistValidationMessage = false,
         )
         return true
+    }
+
+    /** Commit state before app Toast effect becomes visible; never send a second network request. */
+    private fun emitToast(
+        presentation: ToastPresentation,
+        changes: Map<String, DynamicValue>,
+        trace: TraceContext?,
+    ): Boolean {
+        val current = currentScreen() ?: return false
+        val bindings = current.bindings + current.presentationBindings + presentation.initialBindings
+        val state = resolvedState(current) + changes
+        return commitActionResult(
+            changes,
+            listOf(DynamicActionEffect.Toast(presentation, bindings.toMap(), state.toMap())),
+            trace,
+        ).also { accepted ->
+            if (accepted && changes.isNotEmpty()) {
+                val response = currentScreen()?.response
+                if (response?.data?.countdowns?.any { it.durationStatePath in changes } == true) {
+                    startCountdowns(response)
+                }
+            }
+        }
     }
 
     private fun closeActivePresentation(): Boolean {
