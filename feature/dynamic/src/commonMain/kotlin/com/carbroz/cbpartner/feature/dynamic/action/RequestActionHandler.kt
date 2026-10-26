@@ -57,9 +57,6 @@ class RequestActionHandler(
         val body = action.payload["body"]?.let { DynamicReferenceResolver.resolve(it, bindings, context, state) }
         val retainedPaths = retainedPaths(action.payload["retain"])
         val successPresentationId = action.payload["successPresentationId"]?.let { value ->
-            check(responseMode == "none") {
-                "Success Toast is only valid for a non-navigating request"
-            }
             resolveString(value, bindings, context, state)
                 ?.takeIf { it.isNotBlank() }
                 ?: error("Request successPresentationId must resolve to a nonblank ID")
@@ -77,7 +74,7 @@ class RequestActionHandler(
         val stateChanges = extractRetainedState(retainedPaths, response.dataPayload)
         response.presentation?.let { presentation ->
             require(responseMode == "none" && response.destination == null) {
-                "Immediate response Dialog cannot navigate in the same outcome"
+                "Immediate response presentation cannot navigate in the same outcome"
             }
             return DynamicActionResult.PresentResponse(presentation, stateChanges)
         }
@@ -97,7 +94,12 @@ class RequestActionHandler(
                     "parentActionId=${safeDiagnosticId(traceContext?.parentActionId)} outcome=success"
             }
         }
-        return DynamicActionResult.Navigate(destination, operation, stateChanges)
+        return DynamicActionResult.Navigate(
+            destination = destination,
+            operation = operation,
+            stateChanges = stateChanges,
+            successPresentationId = successPresentationId,
+        )
     }
 
     private fun resolve(

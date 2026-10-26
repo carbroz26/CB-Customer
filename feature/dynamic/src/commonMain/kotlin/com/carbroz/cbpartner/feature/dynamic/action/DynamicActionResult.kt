@@ -19,6 +19,7 @@ sealed interface DynamicActionResult {
         val destination: DynamicDestination? = null,
         val operation: NavigationOperation = NavigationOperation.Push,
         override val stateChanges: Map<String, DynamicValue> = emptyMap(),
+        val successPresentationId: String? = null,
     ) : DynamicActionResult {
         override val effects: List<DynamicActionEffect>
             get() = listOf(DynamicActionEffect.Navigate(destination, operation))

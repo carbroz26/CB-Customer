@@ -240,6 +240,7 @@ private fun DynamicContent(
     LaunchedEffect(session, uriHandler) {
         val lease = session.attachConsumer()
         try {
+            var failedNavigationBatchId: Long? = null
             session.workRevision.collect {
                 while (true) {
                     val claim = session.claimNext(lease) ?: break
@@ -255,7 +256,11 @@ private fun DynamicContent(
                     try {
                         when (effect) {
                             is DynamicActionEffect.ExternalUri -> uriHandler.openUri(effect.uri)
-                            is DynamicActionEffect.Toast -> onToast(effect)
+                            is DynamicActionEffect.Toast -> {
+                                // Both effects belong to one accepted batch. A failed navigation
+                                // must never display the associated Login success notification.
+                                if (claim.batchId != failedNavigationBatchId) onToast(effect)
+                            }
                             is DynamicActionEffect.Navigate -> when (effect.operation) {
                                 DynamicActionResult.NavigationOperation.Push ->
                                     navigationState.push(requireNotNull(effect.destination), traceContext?.actionId)
@@ -269,6 +274,9 @@ private fun DynamicContent(
                     } catch (cancellation: CancellationException) {
                         throw cancellation
                     } catch (_: Exception) {
+                        if (effect is DynamicActionEffect.Navigate) {
+                            failedNavigationBatchId = claim.batchId
+                        }
                         effectError = "Unable to complete this action"
                     }
                     if (!session.acknowledge(

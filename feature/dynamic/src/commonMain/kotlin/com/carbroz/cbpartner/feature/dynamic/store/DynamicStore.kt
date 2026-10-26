@@ -772,6 +772,32 @@ class DynamicStore(
             if (screen == null || toast == null) false
             else emitToast(toast, result.stateChanges, traceContext)
         }
+        is DynamicActionResult.Navigate -> {
+            val effects = if (result.successPresentationId == null) {
+                result.effects
+            } else {
+                val source = currentScreen()
+                val toast = source?.let {
+                    findPresentation(it, result.successPresentationId) as? ToastPresentation
+                } ?: return false
+                // Evaluate the authored presentation against the original Login screen,
+                // before the navigation effect changes the active destination.
+                listOf(
+                    DynamicActionEffect.Navigate(result.destination, result.operation),
+                    toastEffect(toast, result.stateChanges),
+                )
+            }
+            val accepted = commitActionResult(result.stateChanges, effects, traceContext)
+            if (accepted && result.stateChanges.isNotEmpty()) {
+                val response = currentScreen()?.response
+                if (response?.data?.countdowns?.any {
+                        it.durationStatePath in result.stateChanges
+                    } == true) {
+                    startCountdowns(response)
+                }
+            }
+            accepted
+        }
         DynamicActionResult.Dismiss -> closeActivePresentation()
         is DynamicActionResult.PresentResponse -> when (val presentation = result.presentation) {
             is ToastPresentation -> emitToast(presentation, result.stateChanges, traceContext)
@@ -829,17 +855,10 @@ class DynamicStore(
         changes: Map<String, DynamicValue>,
         trace: TraceContext?,
     ): Boolean {
-        val current = currentScreen() ?: return false
-        val bindings = current.bindings + current.presentationBindings + presentation.initialBindings
-        val state = resolvedState(current) + changes
+        if (currentScreen() == null) return false
         return commitActionResult(
             changes,
-            listOf(DynamicActionEffect.Toast(
-                presentation,
-                bindings.toMap(),
-                contextProvider().toMap(),
-                state.toMap(),
-            )),
+            listOf(toastEffect(presentation, changes)),
             trace,
         ).also { accepted ->
             if (accepted && changes.isNotEmpty()) {
@@ -849,6 +868,22 @@ class DynamicStore(
                 }
             }
         }
+    }
+
+    /** One immutable source-screen snapshot, shared by Resend and Login navigation. */
+    private fun toastEffect(
+        presentation: ToastPresentation,
+        changes: Map<String, DynamicValue>,
+    ): DynamicActionEffect.Toast {
+        val source = requireNotNull(currentScreen())
+        return DynamicActionEffect.Toast(
+            presentation = presentation,
+            bindings = (
+                source.bindings + source.presentationBindings + presentation.initialBindings
+            ).toMap(),
+            contextValues = contextProvider().toMap(),
+            stateValues = (resolvedState(source) + changes).toMap(),
+        )
     }
 
     private fun closeActivePresentation(): Boolean {
