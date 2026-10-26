@@ -87,7 +87,7 @@ Local 10-second timer is preview-only; Backend currently 60s. Repo compiled/inst
 
 ## F. **CURRENT ACTIVE WORK:** Partner Type Selection — discuss/freeze exact JSON, then plan, then implement
 
-The user supplied TWO images: large Partner Type screen and Samsung A35 six-state design/spec sheet. We have agreed:
+The user supplied TWO images: large Partner Type screen and Samsung A35 six-state design/spec sheet. **The user should reattach both image references in the new chat before final pixel/visual comparison; old-chat image attachments may not be available to that chat.** The exact documented candidate/spec can be reviewed immediately, but never claim screenshot-perfect parity without the original images. We have agreed:
 - Reuse the Login/OTP hero background and branding; title 'Choose your partner category', subtitle as authored; white bottom rounded StackComponent orientation vertical.
 - Bottom panel EXACTLY FOUR StackSections, in order: Individual Partner, Organization, Partner Under Organization, and Help text link.
 - Each of the first three is a clickable HORIZONTAL StackSection owning full card background, border, corners, min height, pressed/selected state and action.
