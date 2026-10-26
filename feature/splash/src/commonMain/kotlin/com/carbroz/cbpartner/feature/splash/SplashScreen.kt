@@ -168,25 +168,25 @@ private fun SplashArtwork(
                     painter = painterResource(Res.drawable.splash_brand_logo),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(if (compact) 76.dp else 88.dp),
+                    modifier = Modifier.size(if (compact) 82.dp else 94.dp),
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = stringResource(Res.string.splash_app_name),
-                    fontSize = if (compact) 32.sp else 36.sp,
-                    lineHeight = 42.sp,
+                    fontSize = if (compact) 34.sp else 38.sp,
+                    lineHeight = 40.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = stringResource(Res.string.splash_service_subtitle),
-                    fontSize = 16.sp,
+                    fontSize = 17.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -229,7 +229,7 @@ private fun SplashBottomStatus(
                     trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
                 )
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
                     text = stringResource(Res.string.splash_loading_title),
