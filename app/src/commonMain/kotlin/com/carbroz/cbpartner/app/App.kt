@@ -95,7 +95,8 @@ fun App(
                                 // actual mapped OTP fixture, while OTP Resend stays on OTP.
                                 request.endpoint == "/api/v1/partner/auth/send_otp" &&
                                     request.method.equals("POST", ignoreCase = true) &&
-                                    (preview.response.data?.screenId in setOf("partner_login", "partner_otp")) -> {
+                                    (preview.response.data?.screenId == "partner_login" ||
+                                        preview.response.data?.screenId == "partner_otp") -> {
                                     val phone = (request.body as? DynamicValue.ObjectValue)
                                         ?.value?.get("phoneNumber") as? DynamicValue.StringValue
                                     // Distinguish first send vs resend by the existing
@@ -125,12 +126,15 @@ fun App(
                                                     LOCAL_PREVIEW_RESEND_SECONDS,
                                                 ),
                                             )),
-                                            destination = if (loginSend) DynamicDestination(
-                                                screenId = requireNotNull(otpScreen).screenId,
-                                                templateId = otpScreen.template.id,
-                                                templateType = otpScreen.template.type,
-                                                endpoint = LOCAL_PREVIEW_OTP_ENDPOINT,
-                                            ) else null,
+                                            destination = if (loginSend) {
+                                                val screen = requireNotNull(otpScreen)
+                                                DynamicDestination(
+                                                    screenId = screen.screenId,
+                                                    templateId = screen.template.id,
+                                                    templateType = screen.template.type,
+                                                    endpoint = LOCAL_PREVIEW_OTP_ENDPOINT,
+                                                )
+                                            } else null,
                                         ))
                                     }
                                 }
