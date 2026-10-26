@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
+import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.feature.dynamic.presentation.DynamicPresentationHost
@@ -40,6 +42,7 @@ fun DynamicContainer(
     listCatalog: DynamicListCatalog? = null,
     storeFactory: () -> DynamicStore,
     registry: DynamicRegistry,
+    fallbackDialogs: Map<String, DialogPresentation> = emptyMap(),
     modifier: Modifier = Modifier,
 ) {
     val store = remember(entry) { storeFactory() }
@@ -209,6 +212,54 @@ fun DynamicContainer(
                 }
             }
             is DynamicState.Failure -> Text(current.message)
+        }
+        // This additional presentation uses the same renderer as screen-defined
+        // Country Picker, without moving screen-owned actions into an app singleton.
+        val activeScreen = when (val current = state) {
+            is DynamicState.Success -> current.screen
+            is DynamicState.Failure -> current.screen
+            else -> null
+        }
+        val failure = activeScreen?.dialogFailure
+        val key = when (failure?.category) {
+            AppFailure.Category.CONNECTION -> "connection"
+            AppFailure.Category.SERVER -> "server_error"
+            AppFailure.Category.SECURE_CONNECTION -> "secure_connection"
+            AppFailure.Category.UNKNOWN -> "server_error"
+            else -> null
+        }
+        val shown = activeScreen?.activeResponseDialog ?: failure?.presentation
+            ?: key?.let(fallbackDialogs::get)
+        if (activeScreen != null && shown != null) {
+            val generation = activeScreen.dialogGeneration
+            val dialog = if (state is DynamicState.Failure) shown.copy(
+                dismissOnBack = false,
+                dismissOnOutsideClick = false,
+            ) else shown
+            DynamicPresentationHost(
+                presentation = dialog,
+                registry = registry,
+                trustedAssetOrigin = trustedAssetOrigin,
+                listCatalog = listCatalog,
+                bindings = activeScreen.bindings + dialog.initialBindings,
+                contextValues = contextValues,
+                stateValues = runtimeValues + activeScreen.transientState,
+                validationErrors = emptyMap(),
+                focusedBinding = null,
+                onAction = { action ->
+                    if (action.type.equals("dismiss", ignoreCase = true)) {
+                        store.accept(
+                            if (failure != null) DynamicIntent.RetryResponseDialog(generation)
+                            else DynamicIntent.DismissResponseDialog(generation),
+                        )
+                    } else {
+                        dispatchAction(action)
+                    }
+                },
+                onValueChange = { _, _ -> },
+                onFocusChange = { _, _ -> },
+                onDismiss = { store.accept(DynamicIntent.DismissResponseDialog(generation)) },
+            )
         }
     }
 }
