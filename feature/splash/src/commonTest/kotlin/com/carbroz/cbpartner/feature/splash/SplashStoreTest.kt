@@ -41,6 +41,39 @@ class SplashStoreTest {
     }
 
     @Test
+    fun rotationReattachLoadPreservesActiveBootstrapDialogUntilExplicitRetry() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        var requests = 0
+        val output = sampleOutput().copy(
+            maintenance = MaintenanceConfig(true, "Maintenance", "Check back later"),
+        )
+        val store = SplashStore(
+            bootstrap = object : BootstrapRepository {
+                override suspend fun fetch(): Result<BootstrapOutput> {
+                    requests++
+                    return Result.success(output)
+                }
+            },
+            scope = CoroutineScope(dispatcher),
+        )
+        store.accept(SplashIntent.LoadBootstrap)
+        advanceUntilIdle()
+        val active = assertIs<SplashState.Maintenance>(store.state.value)
+
+        // Re-attaching SplashScreen after an Android configuration change invokes Load.
+        store.accept(SplashIntent.LoadBootstrap)
+        advanceUntilIdle()
+        assertEquals(active, store.state.value)
+        assertEquals(1, requests)
+
+        // An explicit user action is still allowed to refetch the startup policy.
+        store.accept(SplashIntent.RetryBootstrap)
+        advanceUntilIdle()
+        assertEquals(2, requests)
+        store.close()
+    }
+
+    @Test
     fun failureCanBeRetried() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         var calls = 0

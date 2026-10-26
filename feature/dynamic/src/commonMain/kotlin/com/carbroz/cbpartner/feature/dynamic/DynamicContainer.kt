@@ -9,7 +9,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,17 +46,18 @@ fun DynamicContainer(
     fallbackDialogs: Map<String, DialogPresentation> = emptyMap(),
     modifier: Modifier = Modifier,
 ) {
-    val store = remember(entry) { storeFactory() }
+    // The entry owns an active dialog and retry origin across configuration changes.
+    val store = retain(entry) { storeFactory() }
     val flowLogger = remember(entry) { Logger.withTag("CBPartnerFlow") }
     val state by store.state.collectAsState()
     val runtimeValues by runtimeState.values.collectAsState()
 
     LaunchedEffect(store) {
-        store.accept(DynamicIntent.Load)
+        if (store.state.value is DynamicState.Initial) store.accept(DynamicIntent.Load)
     }
 
-    DisposableEffect(store) {
-        onDispose { store.close() }
+    RetainedEffect(store) {
+        onRetire { store.close() }
     }
 
     fun dispatchAction(

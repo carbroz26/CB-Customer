@@ -1,8 +1,6 @@
 package com.carbroz.cbpartner.app
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.retain.RetainedEffect
@@ -57,7 +55,8 @@ fun App(
     RetainedEffect(retainedSession) {
         onRetire { retainedSession.value?.close() }
     }
-    val koin = remember(runtimeMetadataProvider, apiBaseUrl, environment, preview, bootPreview) {
+    // One DI graph per retained app lifetime, not per Activity configuration instance.
+    val koin = retain {
         koinApplication {
             modules(
                 module {
@@ -137,8 +136,8 @@ fun App(
         }
     }
 
-    DisposableEffect(koin) {
-        onDispose { koin.close() }
+    RetainedEffect(koin) {
+        onRetire { koin.close() }
     }
 
     ApplicationContent(koin.koin, runtimeMetadataProvider, retainedSession, apiBaseUrl.toString())

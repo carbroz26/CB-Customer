@@ -10,7 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.key
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,8 +55,11 @@ internal fun ApplicationContent(
     retainedSession: MutableState<DynamicSession?>,
     trustedAssetOrigin: String,
 ) {
-    var dialogTemplates by remember { mutableStateOf<Map<String, DialogPresentation>>(emptyMap()) }
-    LaunchedEffect(Unit) { dialogTemplates = loadPackagedDialogTemplates() }
+    // Preserve the active packaged presentation through configuration detach/reattach.
+    var dialogTemplates by retain { mutableStateOf<Map<String, DialogPresentation>>(emptyMap()) }
+    LaunchedEffect(Unit) {
+        if (dialogTemplates.isEmpty()) dialogTemplates = loadPackagedDialogTemplates()
+    }
     MaterialTheme {
         val session = retainedSession.value
         if (session != null) {
@@ -78,11 +82,12 @@ private fun BootstrapContent(
     dialogTemplates: Map<String, DialogPresentation>,
     onHandoff: (DynamicDestination, String) -> Unit,
 ) {
-    val splashStore = remember(koin) { koin.get<SplashStore>() }
+    // Bootstrap policy (including an open Dialog) must survive Activity rotation.
+    val splashStore = retain(koin) { koin.get<SplashStore>() }
     val splashState by splashStore.state.collectAsState()
     val uriHandler = LocalUriHandler.current
     val registry = remember { dynamicRendererRegistry() }
-    DisposableEffect(splashStore) { onDispose { splashStore.close() } }
+    RetainedEffect(splashStore) { onRetire { splashStore.close() } }
     LaunchedEffect(splashStore, splashState) {
         (splashState as? SplashState.Success)?.let { success ->
             onHandoff(success.output.destination, splashStore.diagnosticSessionId)

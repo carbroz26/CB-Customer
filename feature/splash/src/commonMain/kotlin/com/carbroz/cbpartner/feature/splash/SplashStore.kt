@@ -59,9 +59,11 @@ class SplashStore(
 
     fun accept(intent: SplashIntent) {
         when (intent) {
-            SplashIntent.LoadBootstrap,
-            SplashIntent.RetryBootstrap,
-            -> loadBootstrap()
+            SplashIntent.LoadBootstrap -> {
+                // Composition reattaches after rotation; do not overwrite an open dialog.
+                if (_state.value == SplashState.Initial) loadBootstrap()
+            }
+            SplashIntent.RetryBootstrap -> loadBootstrap()
             SplashIntent.SkipOptionalUpdate -> {
                 val optional = _state.value as? SplashState.OptionalUpdate ?: return
                 _state.value = SplashState.Success(optional.output)
