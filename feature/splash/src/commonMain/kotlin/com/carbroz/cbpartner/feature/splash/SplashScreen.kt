@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -198,7 +197,6 @@ private fun SplashArtwork(
 
                 SplashBottomStatus(
                     state = state,
-                    compact = compact,
                     onRetry = onRetry,
                 )
 
@@ -212,7 +210,6 @@ private fun SplashArtwork(
 @Composable
 private fun SplashBottomStatus(
     state: SplashState,
-    compact: Boolean,
     onRetry: () -> Unit,
 ) {
     Column(
@@ -225,11 +222,11 @@ private fun SplashBottomStatus(
             is SplashState.Success -> {
                 LinearProgressIndicator(
                     modifier = Modifier
-                        .width(if (compact) 184.dp else 220.dp)
+                        .fillMaxWidth(0.88f)
                         .height(6.dp)
                         .clip(RoundedCornerShape(100.dp)),
                     color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
