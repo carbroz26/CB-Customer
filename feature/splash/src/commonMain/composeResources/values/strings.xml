@@ -1,12 +1,7 @@
 <resources>
-    <string name="splash_app_name">CarBroz</string>
-    <string name="splash_brand_partner">PARTNER</string>
-    <string name="splash_service_title">Premium Car Care</string>
-    <string name="splash_service_subtitle">Professional car washing at your customer’s doorstep</string>
-    <string name="splash_loading_title">Preparing your partner experience</string>
-    <string name="splash_loading_description">Connecting to CarBroz and loading your workspace</string>
-    <string name="splash_ready_title">Welcome, Partner</string>
-    <string name="splash_ready_description">Your partner experience is ready to get started</string>
+    <string name="splash_app_name">CB-Partner</string>
+    <string name="splash_service_subtitle">Doorstep Car Wash Partner</string>
+    <string name="splash_loading_title">Loading...</string>
     <string name="splash_failure_retry">Try again</string>
     <string name="splash_maintenance_title">Service temporarily unavailable</string>
     <string name="splash_maintenance_description">CarBroz is under maintenance. Please try again later.</string>
