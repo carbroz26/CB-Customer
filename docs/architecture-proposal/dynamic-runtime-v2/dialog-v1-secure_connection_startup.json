@@ -1,0 +1,156 @@
+{
+  "status": 200,
+  "code": "SUCCESS",
+  "message": "Development-local dialog fixture",
+  "data": null,
+  "traceId": null,
+  "presentation": {
+    "id": "app_dialog_secure_connection_startup",
+    "type": "dialog",
+    "properties": {
+      "dismissOnBack": false,
+      "dismissOnOutsideClick": false
+    },
+    "initialBindings": {},
+    "components": [
+      {
+        "id": "dialog_surface",
+        "type": "stack_component",
+        "properties": {
+          "orientation": "vertical",
+          "fillMaxWidth": true,
+          "background": {
+            "color": "#FFFFFF"
+          },
+          "shape": {
+            "type": "roundedCorner",
+            "cornerRadius": 18
+          },
+          "padding": {
+            "start": 18,
+            "end": 18,
+            "top": 16,
+            "bottom": 16
+          }
+        },
+        "sections": [
+          {
+            "id": "dialog_summary_section",
+            "type": "stack_section",
+            "properties": {
+              "orientation": "horizontal",
+              "fillMaxWidth": true,
+              "verticalAlignment": "center",
+              "horizontalArrangement": {
+                "type": "spacedBy",
+                "spacing": 12
+              },
+              "padding": {
+                "bottom": 14
+              }
+            },
+            "elements": [
+              {
+                "id": "badge",
+                "type": "icon_badge",
+                "properties": {
+                  "size": 64,
+                  "imageSize": 37,
+                  "background": {
+                    "color": "#FFE3E6"
+                  },
+                  "source": {
+                    "type": "resource",
+                    "value": "icons/dialog_secure_connection"
+                  },
+                  "contentScale": "fit"
+                }
+              }
+            ],
+            "groups": [
+              {
+                "id": "dialog_copy",
+                "type": "stack_group",
+                "properties": {
+                  "orientation": "vertical",
+                  "fillMaxWidth": true,
+                  "verticalArrangement": {
+                    "type": "spacedBy",
+                    "spacing": 4
+                  }
+                },
+                "elements": [
+                  {
+                    "id": "dialog_title",
+                    "type": "text",
+                    "properties": {
+                      "text": "Secure Connection Error",
+                      "fontSize": 17,
+                      "fontWeight": 700,
+                      "lineHeight": 22,
+                      "color": "#061B4B",
+                      "textAlign": "start",
+                      "fillMaxWidth": true,
+                      "spacing": {
+                        "bottom": 0
+                      }
+                    }
+                  },
+                  {
+                    "id": "dialog_description",
+                    "type": "text",
+                    "properties": {
+                      "text": "We couldn't establish a secure connection to CB-Partner. Please check your network or try again.",
+                      "fontSize": 13,
+                      "fontWeight": 400,
+                      "lineHeight": 18,
+                      "color": "#426A9B",
+                      "textAlign": "start",
+                      "fillMaxWidth": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "actions_section",
+            "type": "stack_section",
+            "properties": {
+              "fillMaxWidth": true
+            },
+            "elements": [
+              {
+                "id": "action_retry",
+                "type": "button",
+                "properties": {
+                  "text": "Try Again",
+                  "height": 42,
+                  "fillMaxWidth": true,
+                  "fontSize": 14,
+                  "fontWeight": 600,
+                  "textColor": "#FFFFFF",
+                  "background": {
+                    "color": "#0768F7"
+                  },
+                  "shape": {
+                    "type": "roundedCorner",
+                    "cornerRadius": 9
+                  }
+                },
+                "actions": {
+                  "onClick": {
+                    "type": "dismiss",
+                    "payload": {
+                      "dialogIntent": "retry"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
