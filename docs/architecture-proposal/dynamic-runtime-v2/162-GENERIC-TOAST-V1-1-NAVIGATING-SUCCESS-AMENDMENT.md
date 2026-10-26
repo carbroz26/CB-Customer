@@ -26,3 +26,9 @@ Reuse the existing V1 `ToastPresentation`, app-root renderer, white progress tra
 - Network failures/invalid form/nav rejection produce **no success toast**; login without `successPresentationId` navigates without Toast.
 - Existing six Dialogs, Splash, Country Picker, OTP box/cooldown/back behavior, rotation retention, Backend untouched.
 - Android + Web compile/tests, then device screenshots and navigation/rotation/failure test. Static GitHub diff does not equal runtime acceptance.
+
+## Implementation checkpoint — 2026-10-26
+
+V1.1 source committed on `architecture/dynamic-runtime-v2-discussion-freeze`. Changes limited to `RequestActionHandler`, `DynamicActionResult.Navigate`, `DynamicStore`, the already-existing app effect consumer, the approved Login JSON + mirror, existing opt-in Android/Web preview loading, and focused tests. Navigation and Toast are accepted in one ordered `DynamicSession` effect batch. If navigation dispatch fails, only the associated Toast from the same batch is suppressed; session/host/DI are not duplicated. Login Toast message reads `$binding.countryCode` + `$binding.mobileNumber` from **original Login** bindings, Resend Toast V1 remains authored separately. Canonical Login `tpl_P101L`, OTP `tpl_P102O`, existing six Dialogs and Backend remain unchanged.
+
+**Evidence limit:** Repository/source-level inspection only. Build, unit tests, actual OTP navigation success and visual screenshot are NOT verified in this context. Do not treat source commit or this note as runtime acceptance. To verify, run consolidated JVM+Android+Web tasks, install developmentDebug, then test `--ez cbpartner.login_preview true` valid phone + Continue, `--ez cbpartner.otp_preview true` Resend after countdown, and failure mode; validate correct text, no success Toast on failed request, no duplicate after rotation.
