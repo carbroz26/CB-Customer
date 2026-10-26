@@ -21,6 +21,7 @@ internal suspend fun loadPackagedDialogTemplates(): Map<String, DialogPresentati
     return listOf(
         "maintenance", "required_update", "optional_update",
         "connection", "server_error", "secure_connection",
+        "server_error_startup", "secure_connection_startup",
     ).associateWith { id ->
         val raw = Res.readBytes("files/dialog-v1-$id.json").decodeToString()
         val response = json.decodeFromString<DynamicResponseDto>(raw)

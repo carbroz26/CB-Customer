@@ -96,8 +96,8 @@ private fun BootstrapContent(
         is SplashState.OptionalUpdate -> "optional_update"
         is SplashState.Failure -> when (state.failure?.category) {
             AppFailure.Category.CONNECTION -> "connection"
-            AppFailure.Category.SECURE_CONNECTION -> "secure_connection"
-            else -> "server_error"
+            AppFailure.Category.SECURE_CONNECTION -> "secure_connection_startup"
+            else -> "server_error_startup"
         }
         else -> null
     }
@@ -138,7 +138,9 @@ private fun BootstrapContent(
                     "dismiss" -> when (state) {
                         is SplashState.OptionalUpdate -> splashStore.accept(SplashIntent.SkipOptionalUpdate)
                         is SplashState.RequiredUpdate -> Unit
-                        else -> splashStore.accept(SplashIntent.RetryBootstrap)
+                        else -> if ((action.payload["dialogIntent"] as? DynamicValue.StringValue)?.value == "retry") {
+                            splashStore.accept(SplashIntent.RetryBootstrap)
+                        }
                     }
                     "external_uri" -> if (trustedUrl != null) {
                         try { uriHandler.openUri(trustedUrl) } catch (_: Exception) { /* Stay on dialog. */ }

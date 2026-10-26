@@ -248,8 +248,9 @@ fun DynamicContainer(
                 focusedBinding = null,
                 onAction = { action ->
                     if (action.type.equals("dismiss", ignoreCase = true)) {
+                        val intent = (action.payload["dialogIntent"] as? DynamicValue.StringValue)?.value
                         store.accept(
-                            if (failure != null) DynamicIntent.RetryResponseDialog(generation)
+                            if (intent == "retry" && failure != null) DynamicIntent.RetryResponseDialog(generation)
                             else DynamicIntent.DismissResponseDialog(generation),
                         )
                     } else {
