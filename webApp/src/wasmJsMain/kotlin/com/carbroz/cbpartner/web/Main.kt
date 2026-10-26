@@ -28,8 +28,24 @@ fun main() {
     }
     val apiBaseUrl = ApiBaseUrl(url, environment)
     configureLogging(environment)
+    val previewNetwork = window.location.search.substringAfter("cbpartnerPreviewNetwork=", "")
+        .substringBefore("&").takeIf { it.isNotBlank() }
+    val bootstrapScenario = window.location.search.substringAfter("cbpartnerSplashDialog=", "")
+        .substringBefore("&").takeIf {
+            it in setOf("normal", "maintenance", "required_update", "optional_update")
+        }
+    val bootstrapError = window.location.search.substringAfter("cbpartnerBootstrapError=", "")
+        .substringBefore("&").takeIf {
+            it.uppercase() in setOf("CONNECTION", "SERVER", "SECURE_CONNECTION", "UNKNOWN")
+        }
     ComposeViewport(viewportContainerId = "webApp") {
         if (environment == AppEnvironment.Development &&
+            (bootstrapScenario != null || bootstrapError != null)
+        ) {
+            BootstrapOfflinePreview(
+                WebRuntimeMetadataProvider(), apiBaseUrl, bootstrapScenario, bootstrapError,
+            )
+        } else if (environment == AppEnvironment.Development &&
             window.location.search.contains("cbpartnerVisualPreview=1")
         ) {
             VisualLoginPreview()
@@ -48,11 +64,15 @@ fun main() {
                     "resendAfterSeconds" to LOCAL_PREVIEW_RESEND_SECONDS,
                 ),
                 resendFailureMode = window.location.search.contains("cbpartnerOtpResendFailure=1"),
+                networkFailure = previewNetwork,
             )
         } else if (environment == AppEnvironment.Development &&
             window.location.search.contains("cbpartnerLoginPreview=1")
         ) {
-            DynamicOfflinePreview(WebRuntimeMetadataProvider(), apiBaseUrl, fixture = "partner-login.json")
+            DynamicOfflinePreview(
+                WebRuntimeMetadataProvider(), apiBaseUrl, fixture = "partner-login.json",
+                networkFailure = previewNetwork,
+            )
         } else if (window.location.search.contains("cbpartnerRetentionProbe=1")) {
             RetainCompatibilityProbe()
         } else {

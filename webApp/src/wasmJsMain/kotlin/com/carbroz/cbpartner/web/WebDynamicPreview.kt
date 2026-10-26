@@ -10,6 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.carbroz.cbpartner.app.App
 import com.carbroz.cbpartner.app.LocalDynamicPreview
+import com.carbroz.cbpartner.app.LocalBootstrapPreview
+import com.carbroz.cbpartner.app.parseLocalBootstrapPreview
+import com.carbroz.cbpartner.app.simulatedLocalBootstrapFailure
 import com.carbroz.cbpartner.app.parseLocalDynamicPreview
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.network.ApiBaseUrl
@@ -29,6 +32,7 @@ internal fun DynamicOfflinePreview(
     initialState: Map<String, String> = emptyMap(),
     numericInitialState: Map<String, Double> = emptyMap(),
     resendFailureMode: Boolean = false,
+    networkFailure: String? = null,
 ) {
     var loaded by remember(fixture) { mutableStateOf<Result<LocalDynamicPreview>?>(null) }
     LaunchedEffect(fixture) {
@@ -37,6 +41,7 @@ internal fun DynamicOfflinePreview(
             require(response.ok) { "Web Dynamic preview JSON is not served by the Web app" }
             parseLocalDynamicPreview(
                 response.text().await().toString(), initialState, numericInitialState, resendFailureMode,
+                networkFailure = networkFailure,
             )
         }
     }
@@ -50,5 +55,48 @@ internal fun DynamicOfflinePreview(
             localDynamicPreview = preview,
         )
         else -> Text("Offline Dynamic preview could not load. Check the browser Console.")
+    }
+}
+
+/** Exercises real SplashStore, Bootstrap mapper and common Dialog host without contacting Backend. */
+@Composable
+internal fun BootstrapOfflinePreview(
+    metadata: RuntimeMetadataProvider,
+    apiBaseUrl: ApiBaseUrl,
+    scenario: String?,
+    failure: String?,
+) {
+    var loaded by remember(scenario, failure) {
+        mutableStateOf<Result<Pair<LocalBootstrapPreview, LocalDynamicPreview>>?>(null)
+    }
+    LaunchedEffect(scenario, failure) {
+        loaded = runCatching {
+            val loginResponse = window.fetch("/preview/partner-login.json").await()
+            require(loginResponse.ok) { "Local Login JSON is unavailable" }
+            val login = parseLocalDynamicPreview(loginResponse.text().await().toString())
+            val bootstrap = if (failure != null) {
+                simulatedLocalBootstrapFailure(failure)
+            } else {
+                require(scenario != null) { "Bootstrap scenario required" }
+                val result = window.fetch("/preview/bootstrap-$scenario.json").await()
+                require(result.ok) { "Bootstrap scenario JSON is unavailable" }
+                parseLocalBootstrapPreview(result.text().await().toString())
+            }
+            bootstrap to login
+        }
+    }
+    when (val result = loaded) {
+        null -> CircularProgressIndicator()
+        else -> {
+            val pair = result.getOrNull()
+            if (pair == null) Text("Bootstrap preview could not load. Check browser Console.")
+            else App(
+                runtimeMetadataProvider = metadata,
+                apiBaseUrl = apiBaseUrl,
+                environment = AppEnvironment.Development,
+                localDynamicPreview = pair.second,
+                localBootstrapPreview = pair.first,
+            )
+        }
     }
 }
