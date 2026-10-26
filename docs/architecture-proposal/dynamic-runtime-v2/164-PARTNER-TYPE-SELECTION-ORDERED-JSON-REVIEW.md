@@ -1,5 +1,7 @@
 # 164 — Partner Type Selection — Ordered-Children Complete JSON V1 REVIEW CANDIDATE
 
+> **HISTORICAL CANDIDATE / NOT IMPLEMENTATION-READY (2026-10-27):** The linked V1 `children[]` JSON and this document's `children[]` implementation notes are superseded by [Document 168](168-PARENT-SCOPED-ORDER-PROPERTY-CONTRACT-FREEZE.md). The next step is a *separate* conversion to legacy arrays plus `properties.order`. Owner later selected `navigate` with category-specific provisional destinations instead of the V1 `request` placeholder. Shimmer is deferred. This note does not approve implementation or modify the candidate JSON.
+
 **Status:** NOT FINAL / NOT IMPLEMENTATION-READY. It is a full structurally authored screen candidate using frozen decision [163](163-ORDERED-MIXED-CHILDREN-JSON-DOMAIN-MAPPER-CONTRACT-FREEZE.md) and existing Login v19/OTP v3 visual conventions. **No screen source implementation authorized by this file.**
 
 **Full candidate file:** [partner-type-selection-ordered-v1-CANDIDATE.json](partner-type-selection-ordered-v1-CANDIDATE.json).
