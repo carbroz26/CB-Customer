@@ -1,5 +1,9 @@
 package com.carbroz.cbpartner.app
 
+import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
+import com.carbroz.cbpartner.data.bootstrap.model.BootstrapResponseDto
+import com.carbroz.cbpartner.domain.model.bootstrap.BootstrapOutput
+import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
 import com.carbroz.cbpartner.data.dynamic.model.response.DynamicResponseDto
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
@@ -14,6 +18,7 @@ data class LocalDynamicPreview(
     val countries: List<Map<String, DynamicValue>>,
     val initialState: Map<String, DynamicValue> = emptyMap(),
     val resendFailureMode: Boolean = false,
+    val networkFailure: AppFailure.Category? = null,
 )
 
 /** Both previews pass their platform-loaded bytes through this exact DTO mapper. */
@@ -22,6 +27,7 @@ fun parseLocalDynamicPreview(
     initialState: Map<String, String> = emptyMap(),
     numericInitialState: Map<String, Double> = emptyMap(),
     resendFailureMode: Boolean = false,
+    networkFailure: String? = null,
 ): LocalDynamicPreview {
     val json = Json { ignoreUnknownKeys = true; isLenient = true }
     val response = DynamicResponseMapper(json).map(
@@ -34,6 +40,10 @@ fun parseLocalDynamicPreview(
         initialState.mapValues { (_, value) -> DynamicValue.StringValue(value) } +
             numericInitialState.mapValues { (_, value) -> DynamicValue.NumberValue(value) },
         resendFailureMode,
+        networkFailure = networkFailure?.let { label ->
+            AppFailure.Category.entries.firstOrNull { it.name.equals(label, ignoreCase = true) }
+                ?: error("Unsupported preview network failure category")
+        },
     )
 }
 
@@ -55,4 +65,20 @@ private fun previewCountries(): List<Map<String, DynamicValue>> {
         country("KW", "Kuwait", "+965", "flags/kw"),
         country("OM", "Oman", "+968", "flags/om"),
     )
+}
+
+/** Development-only Bootstrap outcome for real SplashStore/BootstrapContent rendering. */
+data class LocalBootstrapPreview(val outcome: Result<BootstrapOutput>)
+
+fun parseLocalBootstrapPreview(raw: String): LocalBootstrapPreview {
+    val json = Json { ignoreUnknownKeys = true }
+    val dto = json.decodeFromString<BootstrapResponseDto>(raw)
+    return LocalBootstrapPreview(BootstrapMapper().map(dto))
+}
+
+fun simulatedLocalBootstrapFailure(category: String): LocalBootstrapPreview {
+    val kind = AppFailure.Category.entries.firstOrNull {
+        it.name.equals(category, ignoreCase = true)
+    } ?: error("Unsupported Bootstrap preview failure category")
+    return LocalBootstrapPreview(Result.failure(AppFailure(kind)))
 }

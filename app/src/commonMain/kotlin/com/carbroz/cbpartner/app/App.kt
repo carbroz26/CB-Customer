@@ -11,6 +11,8 @@ import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.DynamicResponse
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
 import com.carbroz.cbpartner.domain.repository.DynamicRepository
+import com.carbroz.cbpartner.domain.repository.BootstrapRepository
+import com.carbroz.cbpartner.domain.model.error.AppFailure
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.data.di.bootstrapModule
 import com.carbroz.cbpartner.data.di.dynamicDataModule
@@ -29,9 +31,11 @@ fun App(
     apiBaseUrl: ApiBaseUrl,
     environment: AppEnvironment = AppEnvironment.Development,
     localDynamicPreview: LocalDynamicPreview? = null,
+    localBootstrapPreview: LocalBootstrapPreview? = null,
 ) {
     // Preview is impossible to enable outside the development environment.
     val preview = localDynamicPreview?.takeIf { environment == AppEnvironment.Development }
+    val bootPreview = localBootstrapPreview?.takeIf { environment == AppEnvironment.Development }
     val retainedSession = retain {
         mutableStateOf<DynamicSession?>(
             preview?.let {
@@ -53,7 +57,7 @@ fun App(
     RetainedEffect(retainedSession) {
         onRetire { retainedSession.value?.close() }
     }
-    val koin = remember(runtimeMetadataProvider, apiBaseUrl, environment, preview) {
+    val koin = remember(runtimeMetadataProvider, apiBaseUrl, environment, preview, bootPreview) {
         koinApplication {
             modules(
                 module {
@@ -61,7 +65,13 @@ fun App(
                 },
                 networkModule(apiBaseUrl),
                 serializationModule,
-                bootstrapModule,
+                if (bootPreview == null) bootstrapModule else module {
+                    single<BootstrapRepository> {
+                        object : BootstrapRepository {
+                            override suspend fun fetch() = bootPreview.outcome
+                        }
+                    }
+                },
                 // In offline preview, preserve the same Store, mapper, use case, renderer and
                 // action executor; replace only their network-backed repository and catalog.
                 if (preview == null) dynamicDataModule else module {
@@ -75,6 +85,9 @@ fun App(
                                 request.endpoint == LOCAL_PREVIEW_DYNAMIC_ENDPOINT ->
                                     Result.success(preview.response)
 
+                                preview.networkFailure != null ->
+                                    Result.failure(AppFailure(preview.networkFailure))
+
                                 // This is an offline OTP preview fixture, not a backend bypass.
                                 preview.response.data?.screenId == "partner_otp" &&
                                     request.endpoint == "/api/v1/partner/auth/send_otp" &&
@@ -84,7 +97,7 @@ fun App(
                                     if (phone == null) {
                                         Result.failure(IllegalArgumentException("Missing preview phoneNumber"))
                                     } else if (preview.resendFailureMode) {
-                                        Result.failure(IllegalStateException("Simulated development resend failure"))
+                                        Result.failure(AppFailure(AppFailure.Category.CONNECTION))
                                     } else {
                                         resendCount++
                                         Result.success(DynamicResponse(
