@@ -16,6 +16,7 @@ import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.ListSection
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
 import com.carbroz.cbpartner.domain.model.dynamic.template.FormTemplate
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicSpacing
@@ -33,6 +34,51 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
 class DynamicResponseMapperTest {
+
+    @Test
+    fun mapsStrictNonmodalToastWithoutIntroducingNewElementCategory() {
+        val raw = """{"status":200,"code":"SUCCESS","message":"OK",
+            "presentation":{
+              "id":"otp_resend_success","type":"toast",
+              "properties":{
+                "placement":"top","durationMillis":5000,
+                "background":{"color":"#FFFFFF"},
+                "shape":{"type":"roundedCorner","cornerRadius":20},
+                "padding":{"start":16,"top":14,"end":16,"bottom":14},
+                "progress":{"height":4,"trackColor":"#FFFFFF","fillColor":"#079553",
+                    "padding":{"start":8,"end":8}}
+              },
+              "components":[{"id":"toast_card","type":"stack_component",
+                "sections":[{"id":"content","type":"stack_section","properties":{"orientation":"horizontal"},
+                  "elements":[{"id":"badge","type":"icon_badge","properties":{
+                    "size":42,"imageSize":21,"background":{"color":"#078B4D"},
+                    "source":{"type":"resource","value":"icons/toast_success"}}},
+                    {"id":"message","type":"text","properties":{"text":"Done","weight":1}}]}]}]
+            }}"""
+        fun map(rawJson: String) = DynamicResponseMapper(json).map(
+            json.decodeFromString<DynamicResponseDto>(rawJson),
+        )
+        val presentation = assertIs<ToastPresentation>(map(raw).presentation)
+        assertEquals("top", presentation.placement)
+        assertEquals(5000L, presentation.durationMillis)
+        assertEquals("#FFFFFF", presentation.progress.trackColor)
+        assertEquals("#079553", presentation.progress.fillColor)
+        assertEquals(4.0, presentation.progress.height)
+        val surface = assertIs<StackComponent>(presentation.components.single())
+        assertEquals(2, assertIs<StackSection>(surface.sections.single()).elements.size)
+
+        assertFailsWith<IllegalArgumentException> {
+            map(raw.replace("\"durationMillis\":5000", "\"durationMillis\":0"))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            map(raw.replace("\"placement\":\"top\"", "\"placement\":\"bottom\""))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            map(raw.replace("\"durationMillis\":5000",
+                "\"durationMillis\":5000,\"dismissible\":true"))
+        }
+    }
+
     private val json = Json { ignoreUnknownKeys = true }
 
     @Test

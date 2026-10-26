@@ -13,6 +13,68 @@ import kotlin.test.assertIs
 import kotlin.test.assertFailsWith
 
 class RequestActionHandlerTest {
+
+    @Test
+    fun successOnlyToastReferenceEmittedAfterRequestRetainAndNeverOnFailure() = runTest {
+        val success = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(
+                    status = 200, code = "SUCCESS", message = "Sent", data = null, traceId = null,
+                    dataPayload = DynamicValue.ObjectValue(mapOf(
+                        "challengeId" to DynamicValue.StringValue("next-challenge"),
+                        "resendAfterSeconds" to DynamicValue.NumberValue(25.0),
+                    )),
+                ))
+        }
+        val payload = mapOf(
+            "endpoint" to DynamicValue.StringValue("/send_otp"),
+            "responseMode" to DynamicValue.StringValue("none"),
+            "successPresentationId" to DynamicValue.StringValue("otp_resend_success"),
+            "retain" to DynamicValue.ObjectValue(mapOf(
+                "challengeId" to DynamicValue.StringValue("data.challengeId"),
+                "resendAfterSeconds" to DynamicValue.StringValue("data.resendAfterSeconds"),
+            )),
+        )
+        val result = RequestActionHandler(success).handle(
+            DynamicAction("request", payload), emptyMap(), emptyMap(), emptyMap(),
+        )
+        val completed = assertIs<DynamicActionResult.SuccessPresentation>(result)
+        assertEquals("otp_resend_success", completed.presentationId)
+        assertEquals(DynamicValue.StringValue("next-challenge"), completed.stateChanges["challengeId"])
+        assertEquals(DynamicValue.NumberValue(25.0), completed.stateChanges["resendAfterSeconds"])
+
+        val failure = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.failure(IllegalStateException("Request failed"))
+        }
+        assertFailsWith<IllegalStateException> {
+            RequestActionHandler(failure).handle(
+                DynamicAction("request", payload), emptyMap(), emptyMap(), emptyMap(),
+            )
+        }
+    }
+
+    @Test
+    fun successPresentationCannotBeCombinedWithNavigationMode() = runTest {
+        var requests = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
+                requests++
+                return Result.success(DynamicResponse(200, "SUCCESS", "OK", null, null))
+            }
+        }
+        assertFailsWith<IllegalStateException> {
+            RequestActionHandler(repository).handle(
+                DynamicAction("request", mapOf(
+                    "endpoint" to DynamicValue.StringValue("/submit"),
+                    "responseMode" to DynamicValue.StringValue("destination"),
+                    "successPresentationId" to DynamicValue.StringValue("notification"),
+                )), emptyMap(), emptyMap(), emptyMap(),
+            )
+        }
+        assertEquals(0, requests)
+    }
+
     @Test
     fun diagnosticContextReachesRequestWithoutEnteringBody() = runTest {
         var captured: DynamicRequest? = null
