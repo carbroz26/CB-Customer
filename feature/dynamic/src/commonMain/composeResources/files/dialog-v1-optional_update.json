@@ -68,7 +68,10 @@
             "type": "stack_section",
             "properties": {
               "fillMaxWidth": true,
-              "horizontalAlignment": "center"
+              "horizontalAlignment": "center",
+              "padding": {
+                "bottom": 14
+              }
             },
             "elements": [
               {
@@ -76,9 +79,9 @@
                 "type": "text",
                 "properties": {
                   "text": "Update Available",
-                  "fontSize": 20,
+                  "fontSize": 18,
                   "fontWeight": 700,
-                  "lineHeight": 26,
+                  "lineHeight": 24,
                   "color": "#061B4B",
                   "textAlign": "center",
                   "fillMaxWidth": true,
@@ -94,7 +97,7 @@
                   "text": "A newer version of CB-Partner is available with new features and improvements.",
                   "fontSize": 14,
                   "fontWeight": 400,
-                  "lineHeight": 19,
+                  "lineHeight": 20,
                   "color": "#426A9B",
                   "textAlign": "center",
                   "fillMaxWidth": true
