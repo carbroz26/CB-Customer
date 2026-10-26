@@ -55,24 +55,67 @@ class RequestActionHandlerTest {
     }
 
     @Test
-    fun successPresentationCannotBeCombinedWithNavigationMode() = runTest {
+    fun navigatingLoginSuccessRetainsValuesAndReturnsOptionalToastReference() = runTest {
+        val target = DynamicDestination("partner_otp", "tpl_P102O", "form_template", "/otp")
         var requests = 0
         val repository = object : DynamicRepository {
             override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
                 requests++
-                return Result.success(DynamicResponse(200, "SUCCESS", "OK", null, null))
+                return Result.success(
+                    DynamicResponse(
+                        status = 200, code = "SUCCESS", message = "OTP sent",
+                        data = null, traceId = null,
+                        destination = target,
+                        dataPayload = DynamicValue.ObjectValue(mapOf(
+                            "challengeId" to DynamicValue.StringValue("new-challenge"),
+                            "phoneNumber" to DynamicValue.StringValue("9876543210"),
+                        )),
+                    ),
+                )
             }
+        }
+        val payload = mapOf(
+            "endpoint" to DynamicValue.StringValue("/send_otp"),
+            "responseMode" to DynamicValue.StringValue("destination"),
+            "mode" to DynamicValue.StringValue("push"),
+            "successPresentationId" to DynamicValue.StringValue("otp_sent_success"),
+            "retain" to DynamicValue.ObjectValue(mapOf(
+                "challengeId" to DynamicValue.StringValue("data.challengeId"),
+                "phoneNumber" to DynamicValue.StringValue("data.phoneNumber"),
+            )),
+        )
+        val result = RequestActionHandler(repository).handle(
+            DynamicAction("request", payload), emptyMap(), emptyMap(), emptyMap(),
+        )
+        val navigation = assertIs<DynamicActionResult.Navigate>(result)
+        assertEquals(target, navigation.destination)
+        assertEquals("otp_sent_success", navigation.successPresentationId)
+        assertEquals(DynamicValue.StringValue("new-challenge"), navigation.stateChanges["challengeId"])
+        assertEquals(1, requests)
+
+        val withoutToast = RequestActionHandler(repository).handle(
+            DynamicAction("request", payload - "successPresentationId"),
+            emptyMap(), emptyMap(), emptyMap(),
+        )
+        assertEquals(null, assertIs<DynamicActionResult.Navigate>(withoutToast).successPresentationId)
+        assertEquals(2, requests)
+    }
+
+    @Test
+    fun navigatingSuccessCannotDisplayToastWhenDestinationIsMissing() = runTest {
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                Result.success(DynamicResponse(200, "SUCCESS", "OK", null, null))
         }
         assertFailsWith<IllegalStateException> {
             RequestActionHandler(repository).handle(
                 DynamicAction("request", mapOf(
-                    "endpoint" to DynamicValue.StringValue("/submit"),
+                    "endpoint" to DynamicValue.StringValue("/send_otp"),
                     "responseMode" to DynamicValue.StringValue("destination"),
-                    "successPresentationId" to DynamicValue.StringValue("notification"),
+                    "successPresentationId" to DynamicValue.StringValue("otp_sent_success"),
                 )), emptyMap(), emptyMap(), emptyMap(),
             )
         }
-        assertEquals(0, requests)
     }
 
     @Test

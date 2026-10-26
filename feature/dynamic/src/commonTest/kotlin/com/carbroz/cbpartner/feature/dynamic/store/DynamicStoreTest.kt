@@ -64,6 +64,99 @@ import kotlin.test.assertNull
 class DynamicStoreTest {
 
     @Test
+    fun loginSuccessCommitsNavigationThenToastWithOriginPhoneBindingAndState() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val runtime = DynamicRuntimeState()
+        val destination = DynamicDestination("partner_otp", "tpl_P102O", "form_template", "/otp")
+        val toast = ToastPresentation(
+            id = "otp_sent_success",
+            placement = "top",
+            durationMillis = 5000,
+            background = DynamicBackground.Solid("#FFFFFF"),
+            shape = DynamicShape.RoundedCorner(cornerRadius = 20.0),
+            padding = DynamicPadding(16.0, 14.0, 16.0, 14.0),
+            progress = ToastProgress(4.0, "#FFFFFF", "#079553"),
+            components = listOf(StackComponent("toast_card")),
+        )
+        val login = DynamicResponse(
+            status = 200, code = "SUCCESS", message = "Login",
+            data = DynamicScreen(
+                screenId = "partner_login",
+                schemaVersion = "3.0.0",
+                targetApp = "PARTNER",
+                template = FormTemplate(
+                    id = "tpl_P101L", components = listOf(StackComponent("login")),
+                ),
+                theme = null,
+                initialBindings = mapOf(
+                    "countryCode" to DynamicValue.StringValue("+91"),
+                    "mobileNumber" to DynamicValue.StringValue(""),
+                ),
+                presentations = listOf(toast),
+            ),
+            traceId = null,
+        )
+        var effects = emptyList<DynamicActionEffect>()
+        var commits = 0
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                if (request.endpoint == "/send_otp") Result.success(
+                    DynamicResponse(
+                        status = 200, code = "SUCCESS", message = "Sent",
+                        data = null, traceId = null,
+                        destination = destination,
+                        dataPayload = DynamicValue.ObjectValue(mapOf(
+                            "challengeId" to DynamicValue.StringValue("challenge-one"),
+                            "resendAfterSeconds" to DynamicValue.NumberValue(25.0),
+                        )),
+                    ),
+                ) else Result.success(login)
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(RequestActionHandler(repository))),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(DynamicDestination(
+                "partner_login", "tpl_P101L", "form_template", "/login",
+            )),
+            runtimeState = runtime,
+            scope = CoroutineScope(dispatcher),
+            commitActionResult = { changes, emitted, _ ->
+                commits++
+                runtime.setAll(changes)
+                effects = emitted.toList()
+                true
+            },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+        store.accept(DynamicIntent.ValueChanged(
+            "mobileNumber", DynamicValue.StringValue("9876543210"),
+        ))
+        store.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/send_otp"),
+            "responseMode" to DynamicValue.StringValue("destination"),
+            "successPresentationId" to DynamicValue.StringValue("otp_sent_success"),
+            "retain" to DynamicValue.ObjectValue(mapOf(
+                "challengeId" to DynamicValue.StringValue("data.challengeId"),
+                "resendAfterSeconds" to DynamicValue.StringValue("data.resendAfterSeconds"),
+            )),
+        ))))
+        advanceUntilIdle()
+        assertEquals(1, commits)
+        assertEquals(2, effects.size)
+        assertEquals(destination, assertIs<DynamicActionEffect.Navigate>(effects[0]).destination)
+        val notification = assertIs<DynamicActionEffect.Toast>(effects[1])
+        assertEquals("otp_sent_success", notification.presentation.id)
+        assertEquals(DynamicValue.StringValue("+91"), notification.bindings["countryCode"])
+        assertEquals(DynamicValue.StringValue("9876543210"), notification.bindings["mobileNumber"])
+        assertEquals(DynamicValue.StringValue("challenge-one"), notification.stateValues["challengeId"])
+        assertEquals(DynamicValue.NumberValue(25.0), runtime.values.value["resendAfterSeconds"])
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.activePresentationId)
+        store.close()
+    }
+
+    @Test
     fun genericPresentAndSuccessfulResendUseOneToastEffectWithoutOpeningModal() = runTest {
         val dispatcher = UnconfinedTestDispatcher(testScheduler)
         val runtime = DynamicRuntimeState()

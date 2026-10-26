@@ -10,6 +10,26 @@ import kotlin.test.assertNotNull
 class LocalDynamicPreviewTest {
 
     @Test
+    fun previewMayRetainMappedOtpDestinationWithoutChangingLogin() {
+        val loginRaw = """{"status":200,"code":"SUCCESS","message":"OK","data":{
+            "screenId":"partner_login","schemaVersion":"3.0.0","targetApp":"PARTNER",
+            "template":{"id":"tpl_P101L","type":"form_template",
+                "components":[{"id":"form","type":"stack_component"}]}
+        }}"""
+        val otpRaw = """{"status":200,"code":"SUCCESS","message":"OK","data":{
+            "screenId":"partner_otp","schemaVersion":"3.0.0","targetApp":"PARTNER",
+            "template":{"id":"tpl_P102O","type":"form_template",
+                "components":[{"id":"form","type":"stack_component"}]}
+        }}"""
+        val login = parseLocalDynamicPreview(loginRaw)
+        val withOtp = login.copy(nextScreen = parseLocalDynamicPreview(otpRaw).response)
+        assertEquals("partner_login", login.response.data?.screenId)
+        assertEquals(null, login.nextScreen)
+        assertEquals("tpl_P102O", withOtp.nextScreen?.data?.template?.id)
+        assertEquals("partner_login", withOtp.response.data?.screenId)
+    }
+
+    @Test
     fun previewParsesScreenAuthoredToastAndSuccessTrigger() {
         val raw = """{"status":200,"code":"SUCCESS","message":"OK","data":{
             "screenId":"partner_otp","schemaVersion":"3.0.0","targetApp":"PARTNER",
