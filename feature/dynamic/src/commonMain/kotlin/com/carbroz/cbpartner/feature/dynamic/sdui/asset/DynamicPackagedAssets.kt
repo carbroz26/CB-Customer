@@ -1,6 +1,7 @@
 package com.carbroz.cbpartner.feature.dynamic.sdui.asset
 
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_maintenance
+import com.carbroz.cbpartner.feature.dynamic.generated.resources.toast_success
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_required_update
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_optional_update
 import com.carbroz.cbpartner.feature.dynamic.generated.resources.dialog_connection
@@ -65,6 +66,7 @@ internal fun packagedAssetResource(key: String): DrawableResource? = when (key) 
     "icons/dialog_connection" -> Res.drawable.dialog_connection
     "icons/dialog_server_error" -> Res.drawable.dialog_server_error
     "icons/dialog_secure_connection" -> Res.drawable.dialog_secure_connection
+    "icons/toast_success" -> Res.drawable.toast_success
     "icons/clock" -> Res.drawable.clock_icon_02
     else -> null
 }
