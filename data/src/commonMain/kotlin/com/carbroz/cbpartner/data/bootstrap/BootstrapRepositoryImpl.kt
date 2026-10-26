@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.data.bootstrap.mapper.BootstrapMapper
+import com.carbroz.cbpartner.data.error.NetworkFailureMapper
 import com.carbroz.cbpartner.data.dynamic.diagnostics.sanitizedResponseJson
 import com.carbroz.cbpartner.data.bootstrap.model.BootstrapResponseDto
 import com.carbroz.cbpartner.data.bootstrap.remote.BootstrapRemoteDataSource
@@ -20,6 +21,7 @@ class BootstrapRepositoryImpl(
     private val mapper: BootstrapMapper,
     private val json: Json,
 ) : BootstrapRepository {
+    private val failureMapper = NetworkFailureMapper(json)
 
     override suspend fun fetch(): Result<BootstrapOutput> = fetch(null, null)
 
@@ -42,7 +44,7 @@ class BootstrapRepositoryImpl(
                 }
                 mapper.map(json.decodeFromString<BootstrapResponseDto>(response.result))
             }
-            is NetworkResult.Error -> Result.failure(response.exception)
+            is NetworkResult.Error -> Result.failure(failureMapper.map(response.exception, response.body))
         }
     } catch (error: CancellationException) {
         throw error

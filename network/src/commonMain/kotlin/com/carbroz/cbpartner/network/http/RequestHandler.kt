@@ -20,6 +20,7 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.prepareRequest
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -117,7 +118,12 @@ class RequestHandler(
         } catch (error: ResponseException) {
             statusCode = error.response.status.value
             category = "http"
-            NetworkResult.Error(null, error.toNetworkException())
+            val failure = error.toNetworkException()
+            // Preserve only a bounded in-memory response payload for the Data mapper.
+            // No response body is written to logs or forwarded to UI verbatim.
+            val safeBody = runCatching { error.response.bodyAsText() }
+                .getOrNull()?.takeIf { it.length <= 32768 }
+            NetworkResult.Error(safeBody, failure)
         } catch (error: kotlinx.serialization.SerializationException) {
             category = "serialization"
             NetworkResult.Error(null, NetworkException.Serialization(error.message ?: "Unable to decode network response", error))

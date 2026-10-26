@@ -3,6 +3,7 @@ package com.carbroz.cbpartner.data.dynamic
 import co.touchlab.kermit.Logger
 import com.carbroz.cbpartner.core.diagnostics.TraceContext
 import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
+import com.carbroz.cbpartner.data.error.NetworkFailureMapper
 import com.carbroz.cbpartner.data.dynamic.diagnostics.projectSduiStructure
 import com.carbroz.cbpartner.data.dynamic.diagnostics.sanitizedResponseJson
 import com.carbroz.cbpartner.data.dynamic.mapper.DynamicResponseMapper
@@ -26,6 +27,8 @@ class DynamicRepositoryImpl(
     private val json: Json,
     private val mapper: DynamicResponseMapper,
 ) : DynamicRepository {
+
+    private val failureMapper = NetworkFailureMapper(json)
 
     override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> {
         fun report(method: String, stage: String) {
@@ -82,7 +85,7 @@ class DynamicRepositoryImpl(
                 if (error is CancellationException) throw error
                 report("fetch", "failed")
             }
-            is NetworkResult.Error -> Result.failure(response.exception)
+            is NetworkResult.Error -> Result.failure(failureMapper.map(response.exception, response.body))
         }
     }
 

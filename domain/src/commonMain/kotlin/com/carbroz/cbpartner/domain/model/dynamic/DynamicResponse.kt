@@ -2,6 +2,7 @@ package com.carbroz.cbpartner.domain.model.dynamic
 
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
 
 data class DynamicResponse(
     val status: Int,
@@ -11,4 +12,5 @@ data class DynamicResponse(
     val traceId: String?,
     val dataPayload: DynamicValue? = null,
     val destination: DynamicDestination? = null,
+    val presentation: DialogPresentation? = null,
 )
