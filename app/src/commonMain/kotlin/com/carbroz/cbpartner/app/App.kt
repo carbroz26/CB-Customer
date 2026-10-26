@@ -98,7 +98,9 @@ fun App(
                                     (preview.response.data?.screenId in setOf("partner_login", "partner_otp")) -> {
                                     val phone = (request.body as? DynamicValue.ObjectValue)
                                         ?.value?.get("phoneNumber") as? DynamicValue.StringValue
-                                    val loginSend = preview.response.data?.screenId == "partner_login"
+                                    // Distinguish first send vs resend by the existing
+                                    // request contract, not by the initial fixture's screen.
+                                    val loginSend = request.responseMode == "destination"
                                     val otpScreen = preview.nextScreen?.data
                                     if (phone == null) {
                                         Result.failure(IllegalArgumentException("Missing preview phoneNumber"))
