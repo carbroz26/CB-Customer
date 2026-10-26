@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "code": "SUCCESS",
+  "message": "Partner bootstrap completed",
+  "data": {
+    "config": {
+      "version": "1",
+      "maintenance": {
+        "enabled": false,
+        "title": null,
+        "message": null
+      },
+      "update": {
+        "required": true,
+        "optional": false,
+        "minimumVersion": "2.0.0",
+        "latestVersion": "2.0.0",
+        "storeUrl": "https://play.google.com/store/apps/details?id=com.carbroz.cbpartner.android"
+      },
+      "features": {
+        "registrationEnabled": true,
+        "individualPartnerEnabled": true,
+        "organizationPartnerEnabled": true
+      }
+    },
+    "startup": {
+      "authenticated": false,
+      "destination": {
+        "screenId": "partner_login",
+        "templateId": "tpl_7K2M9Q",
+        "templateType": "form_template",
+        "endpoint": "/api/v1/partner/screen/auth_login",
+        "method": "GET",
+        "authentication": "NONE"
+      }
+    }
+  },
+  "traceId": "preview-bootstrap"
+}
