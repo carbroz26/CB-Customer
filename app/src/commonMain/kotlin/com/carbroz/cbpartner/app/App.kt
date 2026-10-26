@@ -86,7 +86,7 @@ fun App(
 
                                 request.endpoint == LOCAL_PREVIEW_OTP_ENDPOINT &&
                                     preview.nextScreen != null ->
-                                    Result.success(preview.nextScreen)
+                                    Result.success(requireNotNull(preview.nextScreen))
 
                                 preview.networkFailure != null ->
                                     Result.failure(AppFailure(preview.networkFailure))
