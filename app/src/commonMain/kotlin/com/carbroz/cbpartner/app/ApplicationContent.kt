@@ -266,6 +266,7 @@ private fun DynamicContent(
                 )
             },
             registry = registry,
+            fallbackDialogs = dialogTemplates,
             )
             }
         }
