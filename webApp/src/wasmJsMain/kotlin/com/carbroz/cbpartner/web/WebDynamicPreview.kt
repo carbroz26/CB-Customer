@@ -46,10 +46,8 @@ internal fun DynamicOfflinePreview(
             if (fixture == "partner-login.json") {
                 val otpResponse = window.fetch("/preview/partner-otp.json").await()
                 require(otpResponse.ok) { "Web OTP preview JSON is not served by the Web app" }
-                current.copy(
-                    nextScreen = parseLocalDynamicPreview(
-                        otpResponse.text().await().toString(),
-                    ).response,
+                current.withNextScreenFixture(
+                    otpResponse.text().await().toString(),
                 )
             } else current
         }
@@ -85,10 +83,8 @@ internal fun BootstrapOfflinePreview(
             val login = parseLocalDynamicPreview(loginResponse.text().await().toString())
             val otpResponse = window.fetch("/preview/partner-otp.json").await()
             require(otpResponse.ok) { "Web OTP preview JSON is unavailable" }
-            val loginWithOtp = login.copy(
-                nextScreen = parseLocalDynamicPreview(
-                    otpResponse.text().await().toString(),
-                ).response,
+            val loginWithOtp = login.withNextScreenFixture(
+                otpResponse.text().await().toString(),
             )
             val bootstrap = if (failure != null) {
                 simulatedLocalBootstrapFailure(failure)

@@ -22,7 +22,7 @@ class LocalDynamicPreviewTest {
                 "components":[{"id":"form","type":"stack_component"}]}
         }}"""
         val login = parseLocalDynamicPreview(loginRaw)
-        val withOtp = login.copy(nextScreen = parseLocalDynamicPreview(otpRaw).response)
+        val withOtp = login.withNextScreenFixture(otpRaw)
         assertEquals("partner_login", login.response.data?.screenId)
         assertEquals(null, login.nextScreen)
         assertEquals("tpl_P102O", withOtp.nextScreen?.data?.template?.id)

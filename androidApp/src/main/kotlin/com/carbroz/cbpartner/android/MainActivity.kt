@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
             if (filename == "partner-login.json") {
                 val otpRaw = assets.open("partner-otp.json")
                     .bufferedReader().use { it.readText() }
-                mapped.copy(nextScreen = parseLocalDynamicPreview(otpRaw).response)
+                mapped.withNextScreenFixture(otpRaw)
             } else mapped
         } else null
 

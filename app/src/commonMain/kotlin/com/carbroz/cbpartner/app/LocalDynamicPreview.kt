@@ -21,7 +21,11 @@ data class LocalDynamicPreview(
     val networkFailure: AppFailure.Category? = null,
     /** Only an explicit dev preview may provide the next screen without Backend. */
     val nextScreen: DynamicResponse? = null,
-)
+) {
+    /** Keep Domain response mapping inside the app boundary; platform hosts supply only JSON. */
+    fun withNextScreenFixture(raw: String): LocalDynamicPreview =
+        copy(nextScreen = parseLocalDynamicPreview(raw).response)
+}
 
 /** Both previews pass their platform-loaded bytes through this exact DTO mapper. */
 fun parseLocalDynamicPreview(
