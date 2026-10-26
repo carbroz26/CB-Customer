@@ -788,16 +788,7 @@ class DynamicStore(
                     toastEffect(toast, result.stateChanges),
                 )
             }
-            val accepted = commitActionResult(result.stateChanges, effects, traceContext)
-            if (accepted && result.stateChanges.isNotEmpty()) {
-                val response = currentScreen()?.response
-                if (response?.data?.countdowns?.any {
-                        it.durationStatePath in result.stateChanges
-                    } == true) {
-                    startCountdowns(response)
-                }
-            }
-            accepted
+            commitAndRefreshCountdowns(result.stateChanges, effects, traceContext)
         }
         DynamicActionResult.Dismiss -> closeActivePresentation()
         is DynamicActionResult.PresentResponse -> when (val presentation = result.presentation) {
@@ -820,14 +811,7 @@ class DynamicStore(
             else -> false
         }
         else -> {
-            val accepted = commitActionResult(result.stateChanges, result.effects, traceContext)
-            if (accepted && result.stateChanges.isNotEmpty()) {
-                val response = currentScreen()?.response
-                if (response?.data?.countdowns?.any { it.durationStatePath in result.stateChanges } == true) {
-                    startCountdowns(response)
-                }
-            }
-            accepted
+            commitAndRefreshCountdowns(result.stateChanges, result.effects, traceContext)
         }
     }
 
@@ -859,18 +843,27 @@ class DynamicStore(
         trace: TraceContext?,
     ): Boolean {
         if (currentScreen() == null) return false
-        return commitActionResult(
-            changes,
-            listOf(toastEffect(presentation, changes)),
-            trace,
-        ).also { accepted ->
-            if (accepted && changes.isNotEmpty()) {
-                val response = currentScreen()?.response
-                if (response?.data?.countdowns?.any { it.durationStatePath in changes } == true) {
-                    startCountdowns(response)
-                }
+        return commitAndRefreshCountdowns(
+            changes, listOf(toastEffect(presentation, changes)), trace,
+        )
+    }
+
+    /** One state/effect commit followed by any affected existing countdown refresh. */
+    private fun commitAndRefreshCountdowns(
+        changes: Map<String, DynamicValue>,
+        effects: List<DynamicActionEffect>,
+        trace: TraceContext?,
+    ): Boolean {
+        val accepted = commitActionResult(changes, effects, trace)
+        if (accepted && changes.isNotEmpty()) {
+            val response = currentScreen()?.response
+            if (response?.data?.countdowns?.any {
+                    it.durationStatePath in changes
+                } == true) {
+                startCountdowns(response)
             }
         }
+        return accepted
     }
 
     /** One immutable source-screen snapshot, shared by Resend and Login navigation. */
