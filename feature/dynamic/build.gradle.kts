@@ -36,6 +36,8 @@ kotlin {
 }
 
 compose.resources {
+    // App composition reads packaged generic Dialog fixtures from this module.
+    publicResClass = true
     packageOfResClass = "com.carbroz.cbpartner.feature.dynamic.generated.resources"
     generateResClass = always
 }
