@@ -1,7 +1,9 @@
 # 168 — Dynamic Runtime V2 — Parent-Scoped Order Property Contract FREEZE
 
+> **SUPERSEDED — 2026-10-27 (owner decision):** The `properties.order` mixed-sibling rendering extension, including its proposed mapper/renderer changes and tests, has been **withdrawn before implementation**. Do NOT implement `order`, `childOrder`, or `children[]` for the current Partner Type Selection. See [Document 169](169-PARTNER-TYPE-ORIGINAL-ARRAYS-V3-REVIEW.md) and its new [V3 review JSON](partner-type-selection-v3-original-arrays-REVIEW-CANDIDATE.json), which use only the existing `elements[]` / `sections[]` / `groups[]` arrays and their existing source-defined render order. This file is retained as historical documentation, **not an active freeze or implementation plan**. V3 JSON is a review candidate requiring owner approval.
+
 **Decision date:** 2026-10-27
-**Status:** OWNER-APPROVED DESIGN / JSON CONTRACT FREEZE; NOT IMPLEMENTED.
+**Status:** SUPERSEDED / HISTORICAL; NEVER IMPLEMENTED.
 **Frontend branch:** `architecture/dynamic-runtime-v2-discussion-freeze`
 **Source checked:** remote branch HEAD `1e76cc24eaf836d39f3596e350b424e95bb4d7d0`.
 **Scope:** generic mixed sibling rendering order only. No Partner Type JSON conversion, Kotlin implementation, Backend migration, assets, tests or device verification in this decision.
