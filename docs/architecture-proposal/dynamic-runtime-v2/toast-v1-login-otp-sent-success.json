@@ -1,0 +1,110 @@
+{
+  "id": "otp_sent_success",
+  "type": "toast",
+  "properties": {
+    "placement": "top",
+    "durationMillis": 5000,
+    "background": {
+      "color": "#FFFFFF"
+    },
+    "shape": {
+      "type": "roundedCorner",
+      "cornerRadius": 20
+    },
+    "padding": {
+      "start": 16,
+      "top": 14,
+      "end": 16,
+      "bottom": 14
+    },
+    "spacing": {
+      "start": 12,
+      "top": 12,
+      "end": 12
+    },
+    "progress": {
+      "height": 4,
+      "trackColor": "#FFFFFF",
+      "fillColor": "#079553",
+      "padding": {
+        "start": 8,
+        "end": 8
+      }
+    }
+  },
+  "initialBindings": {},
+  "components": [
+    {
+      "id": "login_toast_body",
+      "type": "stack_component",
+      "properties": {
+        "orientation": "vertical",
+        "fillMaxWidth": true
+      },
+      "sections": [
+        {
+          "id": "toast_content",
+          "type": "stack_section",
+          "properties": {
+            "orientation": "horizontal",
+            "fillMaxWidth": true,
+            "verticalAlignment": "center"
+          },
+          "elements": [
+            {
+              "id": "toast_success_badge",
+              "type": "icon_badge",
+              "properties": {
+                "size": 42,
+                "imageSize": 21,
+                "background": {
+                  "color": "#078B4D"
+                },
+                "source": {
+                  "type": "resource",
+                  "value": "icons/toast_success"
+                },
+                "contentScale": "fit",
+                "spacing": {
+                  "end": 12
+                }
+              }
+            },
+            {
+              "id": "toast_message",
+              "type": "text",
+              "properties": {
+                "weight": 1,
+                "fontSize": 16,
+                "fontWeight": 600,
+                "lineHeight": 23,
+                "color": "#075D38",
+                "spans": [
+                  {
+                    "text": "An OTP has been sent to\n"
+                  },
+                  {
+                    "text": {
+                      "$binding": "countryCode"
+                    },
+                    "fontWeight": 700
+                  },
+                  {
+                    "text": " ",
+                    "fontWeight": 700
+                  },
+                  {
+                    "text": {
+                      "$binding": "mobileNumber"
+                    },
+                    "fontWeight": 700
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
