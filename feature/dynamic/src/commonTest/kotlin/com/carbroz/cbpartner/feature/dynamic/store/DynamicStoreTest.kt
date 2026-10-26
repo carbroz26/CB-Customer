@@ -9,6 +9,11 @@ import com.carbroz.cbpartner.domain.model.dynamic.component.StackComponent
 import com.carbroz.cbpartner.domain.model.dynamic.element.InputElement
 import com.carbroz.cbpartner.domain.model.dynamic.element.ButtonElement
 import com.carbroz.cbpartner.domain.model.dynamic.presentation.BottomSheetPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.ToastProgress
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicBackground
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicShape
+import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicPadding
 import com.carbroz.cbpartner.domain.model.dynamic.group.StackGroup
 import com.carbroz.cbpartner.domain.model.dynamic.section.StackSection
 import com.carbroz.cbpartner.domain.model.dynamic.section.FormFieldSection
@@ -57,6 +62,93 @@ import kotlin.test.assertNull
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DynamicStoreTest {
+
+    @Test
+    fun genericPresentAndSuccessfulResendUseOneToastEffectWithoutOpeningModal() = runTest {
+        val dispatcher = UnconfinedTestDispatcher(testScheduler)
+        val runtime = DynamicRuntimeState()
+        val delivered = mutableListOf<DynamicActionEffect.Toast>()
+        val toast = ToastPresentation(
+            id = "generic_success",
+            placement = "top",
+            durationMillis = 5000,
+            background = DynamicBackground.Solid("#FFFFFF"),
+            shape = DynamicShape.RoundedCorner(cornerRadius = 20.0),
+            padding = DynamicPadding(12.0, 12.0, 12.0, 12.0),
+            progress = ToastProgress(4.0, "#FFFFFF", "#079553"),
+            components = listOf(StackComponent("toast_card")),
+        )
+        val screen = DynamicResponse(
+            status = 200, code = "SUCCESS", message = "Loaded",
+            data = DynamicScreen(
+                screenId = "root",
+                schemaVersion = "3.0.0",
+                targetApp = "PARTNER",
+                template = FormTemplate(id = "template", components = listOf(StackComponent("screen"))),
+                theme = null,
+                presentations = listOf(toast),
+            ),
+            traceId = null,
+        )
+        val repository = object : DynamicRepository {
+            override suspend fun fetch(request: DynamicRequest): Result<DynamicResponse> =
+                if (request.endpoint == "/resend") {
+                    Result.success(DynamicResponse(
+                        status = 200, code = "SUCCESS", message = "OTP resent",
+                        data = null, traceId = null,
+                        dataPayload = DynamicValue.ObjectValue(mapOf(
+                            "challengeId" to DynamicValue.StringValue("next-challenge"),
+                            "resendAfterSeconds" to DynamicValue.NumberValue(25.0),
+                        )),
+                    ))
+                } else Result.success(screen)
+        }
+        val store = DynamicStore(
+            loadDynamicScreen = LoadDynamicScreenUseCase(repository),
+            actionExecutor = DynamicActionExecutor(listOf(
+                RequestActionHandler(repository), PresentActionHandler(),
+            )),
+            validator = DynamicFormValidator(),
+            entry = DynamicNavigationEntry(DynamicDestination("root", "template", "form_template", "/root")),
+            runtimeState = runtime,
+            scope = CoroutineScope(dispatcher),
+            commitActionResult = { changes, effects, _ ->
+                runtime.setAll(changes)
+                delivered += effects.filterIsInstance<DynamicActionEffect.Toast>()
+                true
+            },
+        )
+        store.accept(DynamicIntent.Load)
+        advanceUntilIdle()
+
+        store.accept(DynamicIntent.Action(
+            DynamicAction("present", mapOf(
+                "presentationId" to DynamicValue.StringValue("generic_success"),
+            )),
+        ))
+        advanceUntilIdle()
+        assertEquals(1, delivered.size)
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.activePresentationId)
+
+        store.accept(DynamicIntent.Action(DynamicAction("request", mapOf(
+            "endpoint" to DynamicValue.StringValue("/resend"),
+            "responseMode" to DynamicValue.StringValue("none"),
+            "successPresentationId" to DynamicValue.StringValue("generic_success"),
+            "retain" to DynamicValue.ObjectValue(mapOf(
+                "challengeId" to DynamicValue.StringValue("data.challengeId"),
+                "resendAfterSeconds" to DynamicValue.StringValue("data.resendAfterSeconds"),
+            )),
+        ))))
+        advanceUntilIdle()
+
+        assertEquals(2, delivered.size)
+        assertEquals(DynamicValue.StringValue("next-challenge"), runtime.values.value["challengeId"])
+        assertEquals(DynamicValue.StringValue("next-challenge"), delivered.last().stateValues["challengeId"])
+        assertEquals("generic_success", delivered.last().presentation.id)
+        assertNull(assertIs<DynamicState.Success>(store.state.value).screen.activePresentationId)
+        store.close()
+    }
+
 
     @Test
     fun actionAndNavigationEffectShareTraceAndScreenLoadRetainsParent() = runTest {
