@@ -23,6 +23,12 @@ import com.carbroz.cbpartner.core.diagnostics.safeDiagnosticId
 import com.carbroz.cbpartner.core.runtime.RuntimeMetadataProvider
 import com.carbroz.cbpartner.domain.model.DynamicDestination
 import com.carbroz.cbpartner.domain.model.dynamic.value.DynamicValue
+import com.carbroz.cbpartner.domain.model.dynamic.presentation.DialogPresentation
+import com.carbroz.cbpartner.domain.model.dynamic.action.DynamicAction
+import com.carbroz.cbpartner.domain.model.error.AppFailure
+import com.carbroz.cbpartner.feature.dynamic.presentation.DynamicPresentationHost
+import com.carbroz.cbpartner.feature.splash.SplashIntent
+import com.carbroz.cbpartner.feature.splash.isTrustedUpdateUrl
 import com.carbroz.cbpartner.domain.model.dynamic.section.DynamicListCatalog
 import com.carbroz.cbpartner.feature.dynamic.DynamicContainer
 import com.carbroz.cbpartner.feature.dynamic.action.DynamicActionExecutor
@@ -48,12 +54,14 @@ internal fun ApplicationContent(
     retainedSession: MutableState<DynamicSession?>,
     trustedAssetOrigin: String,
 ) {
+    var dialogTemplates by remember { mutableStateOf<Map<String, DialogPresentation>>(emptyMap()) }
+    LaunchedEffect(Unit) { dialogTemplates = loadPackagedDialogTemplates() }
     MaterialTheme {
         val session = retainedSession.value
         if (session != null) {
-            DynamicContent(koin, session, runtimeMetadataProvider, trustedAssetOrigin)
+            DynamicContent(koin, session, runtimeMetadataProvider, trustedAssetOrigin, dialogTemplates)
         } else {
-            BootstrapContent(koin) { destination, diagnosticId ->
+            BootstrapContent(koin, runtimeMetadataProvider, trustedAssetOrigin, dialogTemplates) { destination, diagnosticId ->
                 if (retainedSession.value == null) {
                     retainedSession.value = DynamicSession(diagnosticId, destination)
                 }
@@ -65,21 +73,100 @@ internal fun ApplicationContent(
 @Composable
 private fun BootstrapContent(
     koin: Koin,
+    runtimeMetadataProvider: RuntimeMetadataProvider,
+    trustedAssetOrigin: String,
+    dialogTemplates: Map<String, DialogPresentation>,
     onHandoff: (DynamicDestination, String) -> Unit,
 ) {
     val splashStore = remember(koin) { koin.get<SplashStore>() }
     val splashState by splashStore.state.collectAsState()
-    DisposableEffect(splashStore) {
-        onDispose { splashStore.close() }
-    }
+    val uriHandler = LocalUriHandler.current
+    val registry = remember { dynamicRendererRegistry() }
+    DisposableEffect(splashStore) { onDispose { splashStore.close() } }
     LaunchedEffect(splashStore, splashState) {
-        val success = splashState as? SplashState.Success
-        if (success != null) {
+        (splashState as? SplashState.Success)?.let { success ->
             onHandoff(success.output.destination, splashStore.diagnosticSessionId)
             splashStore.close()
         }
     }
     SplashScreen(splashStore)
+    val kind = when (val state = splashState) {
+        is SplashState.Maintenance -> "maintenance"
+        is SplashState.RequiredUpdate -> "required_update"
+        is SplashState.OptionalUpdate -> "optional_update"
+        is SplashState.Failure -> when (state.failure?.category) {
+            AppFailure.Category.CONNECTION -> "connection"
+            AppFailure.Category.SECURE_CONNECTION -> "secure_connection"
+            else -> "server_error"
+        }
+        else -> null
+    }
+    val template = kind?.let(dialogTemplates::get)
+    if (template != null) {
+        val state = splashState
+        val appVersion = runtimeMetadataProvider.current().appVersion
+        val trustedUrl = when (state) {
+            is SplashState.RequiredUpdate -> state.storeUrl
+            is SplashState.OptionalUpdate -> state.output.update.storeUrl
+            else -> null
+        }?.takeIf(::isTrustedUpdateUrl)
+        val values: Map<String, DynamicValue> = when (state) {
+            is SplashState.Maintenance -> mapOf(
+                "title" to DynamicValue.StringValue(state.title?.takeIf { it.isNotBlank() && it.length <= 120 } ?: "App Under Maintenance"),
+                "message" to DynamicValue.StringValue(state.message?.takeIf { it.isNotBlank() && it.length <= 240 } ?: "Please try again in a few minutes."),
+            )
+            is SplashState.RequiredUpdate -> mapOf(
+                "currentVersion" to DynamicValue.StringValue("Current version $appVersion"),
+                "targetVersion" to DynamicValue.StringValue("Required version ${state.minimumVersion}"),
+            )
+            is SplashState.OptionalUpdate -> mapOf(
+                "currentVersion" to DynamicValue.StringValue("Current version $appVersion"),
+                "targetVersion" to DynamicValue.StringValue("Latest version ${state.output.update.latestVersion}"),
+            )
+            else -> emptyMap()
+        }
+        val presentation = template.copy(
+            initialBindings = template.initialBindings + values +
+                (trustedUrl?.let { mapOf("storeUrl" to DynamicValue.StringValue(it)) } ?: emptyMap()),
+            dismissOnBack = state is SplashState.OptionalUpdate,
+            dismissOnOutsideClick = state is SplashState.OptionalUpdate,
+        )
+        val entry = AppDialogEntry(
+            presentation = presentation,
+            onAction = { action ->
+                when (action.type.lowercase()) {
+                    "dismiss" -> when (state) {
+                        is SplashState.OptionalUpdate -> splashStore.accept(SplashIntent.SkipOptionalUpdate)
+                        is SplashState.RequiredUpdate -> Unit
+                        else -> splashStore.accept(SplashIntent.RetryBootstrap)
+                    }
+                    "external_uri" -> if (trustedUrl != null) {
+                        try { uriHandler.openUri(trustedUrl) } catch (_: Exception) { /* Stay on dialog. */ }
+                    }
+                    else -> Unit
+                }
+            },
+            onDismiss = {
+                if (state is SplashState.OptionalUpdate) {
+                    splashStore.accept(SplashIntent.SkipOptionalUpdate)
+                }
+            },
+        )
+        DynamicPresentationHost(
+            presentation = entry.presentation,
+            registry = registry,
+            trustedAssetOrigin = trustedAssetOrigin,
+            bindings = entry.presentation.initialBindings,
+            contextValues = emptyMap(),
+            stateValues = emptyMap(),
+            validationErrors = emptyMap(),
+            focusedBinding = null,
+            onAction = entry.onAction,
+            onValueChange = { _, _ -> },
+            onFocusChange = { _, _ -> },
+            onDismiss = entry.onDismiss,
+        )
+    }
 }
 
 @Composable
@@ -88,6 +175,7 @@ private fun DynamicContent(
     session: DynamicSession,
     runtimeMetadataProvider: RuntimeMetadataProvider,
     trustedAssetOrigin: String,
+    dialogTemplates: Map<String, DialogPresentation>,
 ) {
     val navigationState = session.navigationState
     val uriHandler = LocalUriHandler.current
