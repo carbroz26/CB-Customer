@@ -107,12 +107,12 @@ class SplashStoreTest {
         store.accept(SplashIntent.LoadBootstrap)
         advanceUntilIdle()
 
-        assertEquals(SplashState.RequiredUpdate("https://example.test/store"), store.state.value)
+        assertEquals(SplashState.RequiredUpdate("https://example.test/store", "1.0.0"), store.state.value)
         store.close()
     }
 
     @Test
-    fun optionalUpdateDoesNotBlockReady() = runTest {
+    fun optionalUpdateOffersNotNowWithoutAnotherBootstrapRequest() = runTest {
         val output = sampleOutput().copy(
             update = sampleOutput().update.copy(optional = true),
         )
@@ -126,6 +126,8 @@ class SplashStoreTest {
         store.accept(SplashIntent.LoadBootstrap)
         advanceUntilIdle()
 
+        assertEquals(SplashState.OptionalUpdate(output), store.state.value)
+        store.accept(SplashIntent.SkipOptionalUpdate)
         assertEquals(SplashState.Success(output), store.state.value)
         store.close()
     }
