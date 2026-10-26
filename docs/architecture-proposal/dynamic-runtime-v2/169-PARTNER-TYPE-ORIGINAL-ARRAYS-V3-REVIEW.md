@@ -3,7 +3,7 @@
 **Decision date:** 2026-10-27
 **Status:** REVIEW CANDIDATE — owner review/approval required; NOT an implementation freeze.
 **Frontend:** `carbroz26/CB-Partner`, branch `architecture/dynamic-runtime-v2-discussion-freeze`.
-**Review JSON:** [partner-type-selection-v3-original-arrays-REVIEW-CANDIDATE.json](partner-type-selection-v3-original-arrays-REVIEW-CANDIDATE.json) when uploaded; local review artifact is `partner-type-selection-v3-existing-arrays-REVIEW.json`.
+**Review JSON:** [partner-type-selection-v3-original-arrays-REVIEW-CANDIDATE.json](partner-type-selection-v3-original-arrays-REVIEW-CANDIDATE.json) (created and verified in this branch); local downloadable review artifact is `partner-type-selection-v3-existing-arrays-REVIEW.json`.
 **Baseline:** historical `partner-type-selection-ordered-v1-CANDIDATE.json` plus owner-selected navigation actions, with original visual properties preserved.
 
 ## 1. Decision boundaries and supersession
