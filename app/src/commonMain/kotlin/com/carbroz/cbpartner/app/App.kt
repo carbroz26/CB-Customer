@@ -38,7 +38,7 @@ fun App(
     val bootPreview = localBootstrapPreview?.takeIf { environment == AppEnvironment.Development }
     val retainedSession = retain {
         mutableStateOf<DynamicSession?>(
-            preview?.let {
+            preview?.takeIf { bootPreview == null }?.let {
                 val screen = requireNotNull(it.response.data) { "Local preview requires a Dynamic screen" }
                 DynamicSession(
                     diagnosticSessionId = "local-dynamic-preview",
