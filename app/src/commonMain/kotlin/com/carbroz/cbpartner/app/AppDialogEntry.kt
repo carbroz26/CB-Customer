@@ -25,8 +25,8 @@ internal suspend fun loadPackagedDialogTemplates(): Map<String, DialogPresentati
     ).associateWith { id ->
         val raw = Res.readBytes("files/dialog-v1-$id.json").decodeToString()
         val response = json.decodeFromString<DynamicResponseDto>(raw)
-        requireNotNull(mapper.map(response).presentation) {
-            "Packaged dialog '$id' is invalid"
+        requireNotNull(mapper.map(response).presentation as? DialogPresentation) {
+            "Packaged dialog '$id' must remain a modal dialog"
         }
     }
 }
