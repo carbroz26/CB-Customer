@@ -764,7 +764,8 @@ class DynamicStore(
     private fun applyActionResult(
         result: DynamicActionResult,
         traceContext: TraceContext?,
-    ): Boolean = when (result) {
+    ): Boolean {
+        return when (result) {
         is DynamicActionResult.Present -> openPresentation(result.presentationId, traceContext)
         is DynamicActionResult.SuccessPresentation -> {
             val screen = currentScreen()
@@ -828,6 +829,8 @@ class DynamicStore(
             }
             accepted
         }
+    }
+
     }
 
     /** Existing present contract: Toast emits an ordered effect without occupying a modal slot. */
