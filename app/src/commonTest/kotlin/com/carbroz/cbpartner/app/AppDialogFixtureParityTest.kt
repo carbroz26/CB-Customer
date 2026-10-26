@@ -94,6 +94,8 @@ class AppDialogFixtureParityTest {
             dialogs.getValue("server_error").components.single(),
         ).sections.single { it.id == "actions_section" }.elements.filterIsInstance<ButtonElement>()
         assertEquals(listOf("action_cancel", "action_retry"), serverActions.map { it.id })
+        assertEquals(listOf(1.0, 1.0), serverActions.map { it.weight })
+        assertTrue(serverActions.all { it.fillMaxWidth })
         assertEquals(
             DynamicValue.StringValue("cancel"),
             serverActions.first().actions["onClick"]?.payload?.get("dialogIntent"),
