@@ -23,3 +23,7 @@ One `BottomSheetPresentation` named `partner_type_help`, using existing handle/r
 3. Confirm three business partner IDs, selection endpoint/auth/body, and successful response `data.destination` shape with actual Backend.
 4. Approve final asset sources and compare exact typography/background/spacing on Samsung A35. Preserve existing Login, OTP, country picker, splash and Dialogs.
 5. Then finalize exact JSON, approve one targeted frontend implementation manifest, implement/tests/device review. Backend remains untouched until separate migration authorization.
+
+## 2026-10-26 current discussion boundary (handoff clarification)
+
+Owner has NOT frozen this full Partner Type V1 JSON as implementation-ready. The ordered-child **wire design** in Doc 163 is frozen; the screen JSON in this file remains a candidate. The user explicitly rejected adding an error banner: **all error states reuse the already accepted generic dialogs**. Only generic loading shimmer/skeleton design remains to discuss. Next chat must audit all source and V2 documents using 165/166/167, verify renderer/DTO/Domain gaps and read-only Backend enum+route constraints; do not implement candidate JSON or assume resource IDs/endpoints are real. Existing Login/OTP and Toast must stay frozen.
